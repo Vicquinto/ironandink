@@ -1,14 +1,16 @@
 (function () {
   'use strict';
 
-  let currentGuide  = null;
-  let selectedRating = 0;
+  let currentGuide    = null;
+  let selectedRating  = 0;
+  let abortController = null;
 
   // ── DOM refs ──────────────────────────────────────────────────────────────
-  const topicInput      = document.getElementById('topicInput');
-  const generateBtn     = document.getElementById('generateBtn');
-  const studyLoading    = document.getElementById('studyLoading');
+  const topicInput       = document.getElementById('topicInput');
+  const generateBtn      = document.getElementById('generateBtn');
+  const studyLoading     = document.getElementById('studyLoading');
   const loadingTopicName = document.getElementById('loadingTopicName');
+  const stopBtn          = document.getElementById('stopGenerationBtn');
   const guideArea       = document.getElementById('guideArea');
   const guideTitle      = document.getElementById('guideTitle');
   const guideBadge      = document.getElementById('guideBadge');
@@ -30,12 +32,11 @@
     });
   });
 
-  // ── Topic item click ───────────────────────────────────────────────────────
+  // ── Topic item click — populate input only, do not generate ──────────────
   document.querySelectorAll('.topic-item').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      var topic = btn.dataset.topic;
-      topicInput.value = topic;
-      generateGuide(topic);
+      topicInput.value = btn.dataset.topic;
+      generateBtn.focus();
     });
   });
 
@@ -69,16 +70,28 @@
     });
   }
 
+  // ── Stop button ────────────────────────────────────────────────────────────
+  if (stopBtn) {
+    stopBtn.addEventListener('click', function () {
+      if (abortController) {
+        abortController.abort();
+      }
+    });
+  }
+
   // ── Guide generation ───────────────────────────────────────────────────────
   async function generateGuide(topic) {
     showState('loading');
     loadingTopicName.textContent = topic;
+
+    abortController = new AbortController();
 
     try {
       var res  = await fetch('/api/study/generate', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ topic }),
+        signal:  abortController.signal,
       });
       var data = await res.json();
 
@@ -92,8 +105,14 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
     } catch (err) {
+      if (err.name === 'AbortError') {
+        showState('browser');
+        return;
+      }
       showState('browser');
       showToast('Error: ' + err.message, true);
+    } finally {
+      abortController = null;
     }
   }
 

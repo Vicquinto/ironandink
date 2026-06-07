@@ -120,6 +120,7 @@ router.get('/study', requireAuth, (req, res) => {
     <div id="studyLoading" class="study-loading" style="display:none;">
       <div class="study-spinner"></div>
       <p class="loading-text">Preparing your study on <strong id="loadingTopicName"></strong>&#8230;</p>
+      <button id="stopGenerationBtn" class="btn-stop">Stop Generation</button>
     </div>
 
     <div id="guideArea" style="display:none;">

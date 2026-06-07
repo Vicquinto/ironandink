@@ -469,6 +469,25 @@ body {
   font-style: italic;
 }
 
+.btn-stop {
+  background: transparent;
+  color: #b85450;
+  border: 1px solid #b85450;
+  padding: 8px 20px;
+  font-size: 0.85rem;
+  font-family: Georgia, serif;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: background 0.15s, color 0.15s;
+  margin-top: 4px;
+}
+.btn-stop:hover {
+  background: rgba(184, 84, 80, 0.12);
+  color: #d06460;
+  border-color: #d06460;
+}
+
 /* ─── GUIDE DISPLAY ─────────────────────────────────────────────────── */
 
 .guide-header-bar {
