@@ -6,6 +6,8 @@ const path = require('path');
 const authRoutes      = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
 const settingsRoutes  = require('./routes/settings');
+const studyRoutes     = require('./routes/study');
+const libraryRoutes   = require('./routes/library');
 const { requireAuth, renderLayout } = require('./routes/layout');
 
 const app  = express();
@@ -107,6 +109,9 @@ WHAT NEVER CHANGES ACROSS ALL THREE TIERS:
 - You do not flatter weak theological answers. If a student's answer to any of the five questions is thin, unclear, or scripturally unsupported, tell them plainly and ask them to strengthen it before you build from it. A ghostwritten article built on a weak answer is still a weak article.`;
 // ──────────────────────────────────────────────────────────────────────────
 
+// Expose prompts to all route handlers via req.app.locals.prompts
+app.locals.prompts = { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT, IRON_INK_DIALOGUE_PROMPT, IRON_INK_WRITING_PROMPT };
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -122,13 +127,13 @@ app.use(session({
 app.use('/', authRoutes);
 app.use('/', dashboardRoutes);
 app.use('/', settingsRoutes);
+app.use('/', studyRoutes);
+app.use('/', libraryRoutes);
 
-// ─── Placeholder Sections ────────────────────────────────────────────────
+// ─── Placeholder Sections (unbuilt) ──────────────────────────────────────
 const placeholders = [
-  { path: '/study',       id: 'study',       label: 'Study',       icon: '&#10016;', blurb: 'Deep, guided Bible and theological study sessions are coming in a future session.' },
   { path: '/dialogue',    id: 'dialogue',    label: 'Dialogue',    icon: '&#9993;',  blurb: 'Conversational theological dialogue with AI assistance is coming in a future session.' },
   { path: '/writing',     id: 'writing',     label: 'Writing',     icon: '&#9998;',  blurb: 'Theological article and essay writing tools are coming in a future session.' },
-  { path: '/library',     id: 'library',     label: 'Library',     icon: '&#8801;',  blurb: 'Your saved studies, notes, and resources will live here — coming in a future session.' },
   { path: '/community',   id: 'community',   label: 'Community',   icon: '&#9678;',  blurb: 'Community discussion and iron-sharpening fellowship is coming in a future session.' },
   { path: '/my-articles', id: 'my-articles', label: 'My Articles', icon: '&#9634;',  blurb: 'Your published and draft articles will be accessible here — coming in a future session.' },
 ];

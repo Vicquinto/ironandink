@@ -1,0 +1,236 @@
+(function () {
+  'use strict';
+
+  let currentGuide  = null;
+  let selectedRating = 0;
+
+  // ── DOM refs ──────────────────────────────────────────────────────────────
+  const topicInput      = document.getElementById('topicInput');
+  const generateBtn     = document.getElementById('generateBtn');
+  const studyLoading    = document.getElementById('studyLoading');
+  const loadingTopicName = document.getElementById('loadingTopicName');
+  const guideArea       = document.getElementById('guideArea');
+  const guideTitle      = document.getElementById('guideTitle');
+  const guideBadge      = document.getElementById('guideBadge');
+  const guideBody       = document.getElementById('guideBody');
+  const saveLibraryBtn  = document.getElementById('saveLibraryBtn');
+  const dismissGuideBtn = document.getElementById('dismissGuideBtn');
+  const savePanel       = document.getElementById('savePanel');
+  const saveTopicInput  = document.getElementById('saveTopicInput');
+  const saveTagsInput   = document.getElementById('saveTagsInput');
+  const confirmSaveBtn  = document.getElementById('confirmSaveBtn');
+  const cancelSaveBtn   = document.getElementById('cancelSaveBtn');
+  const topicBrowser    = document.getElementById('topicBrowser');
+  const stars           = document.querySelectorAll('.star');
+
+  // ── Accordion ─────────────────────────────────────────────────────────────
+  document.querySelectorAll('.topic-cat-header').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      btn.closest('.topic-category').classList.toggle('open');
+    });
+  });
+
+  // ── Topic item click ───────────────────────────────────────────────────────
+  document.querySelectorAll('.topic-item').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var topic = btn.dataset.topic;
+      topicInput.value = topic;
+      generateGuide(topic);
+    });
+  });
+
+  // ── Generate button ────────────────────────────────────────────────────────
+  generateBtn.addEventListener('click', function () {
+    var topic = topicInput.value.trim();
+    if (!topic) { topicInput.focus(); return; }
+    generateGuide(topic);
+  });
+
+  topicInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      var topic = topicInput.value.trim();
+      if (topic) generateGuide(topic);
+    }
+  });
+
+  // ── Star rating ────────────────────────────────────────────────────────────
+  stars.forEach(function (star) {
+    star.addEventListener('mouseover', function () { highlightStars(parseInt(star.dataset.val)); });
+    star.addEventListener('mouseout',  function () { highlightStars(selectedRating); });
+    star.addEventListener('click',     function () {
+      selectedRating = parseInt(star.dataset.val);
+      highlightStars(selectedRating);
+    });
+  });
+
+  function highlightStars(count) {
+    stars.forEach(function (s) {
+      s.classList.toggle('active', parseInt(s.dataset.val) <= count);
+    });
+  }
+
+  // ── Guide generation ───────────────────────────────────────────────────────
+  async function generateGuide(topic) {
+    showState('loading');
+    loadingTopicName.textContent = topic;
+
+    try {
+      var res  = await fetch('/api/study/generate', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ topic }),
+      });
+      var data = await res.json();
+
+      if (!data.success) throw new Error(data.error || 'Generation failed.');
+
+      currentGuide = data;
+      guideTitle.textContent   = data.topic;
+      guideBadge.textContent   = data.translation || 'LSB';
+      guideBody.innerHTML      = renderMarkdown(data.content);
+      showState('guide');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    } catch (err) {
+      showState('browser');
+      showToast('Error: ' + err.message, true);
+    }
+  }
+
+  // ── UI state management ────────────────────────────────────────────────────
+  function showState(state) {
+    studyLoading.style.display = 'none';
+    guideArea.style.display    = 'none';
+    savePanel.style.display    = 'none';
+    topicBrowser.style.display = 'none';
+
+    if (state === 'loading') {
+      studyLoading.style.display = 'flex';
+    } else if (state === 'guide') {
+      guideArea.style.display    = 'block';
+    } else if (state === 'save') {
+      savePanel.style.display    = 'block';
+    } else {
+      topicBrowser.style.display = 'block';
+    }
+  }
+
+  // ── Dismiss guide ──────────────────────────────────────────────────────────
+  dismissGuideBtn.addEventListener('click', function () {
+    currentGuide = null;
+    topicInput.value = '';
+    showState('browser');
+  });
+
+  // ── Open save panel ────────────────────────────────────────────────────────
+  saveLibraryBtn.addEventListener('click', function () {
+    if (!currentGuide) return;
+    saveTopicInput.value = currentGuide.topic;
+    saveTagsInput.value  = '';
+    selectedRating = 0;
+    highlightStars(0);
+    showState('save');
+  });
+
+  cancelSaveBtn.addEventListener('click', function () {
+    showState('guide');
+  });
+
+  // ── Confirm save ───────────────────────────────────────────────────────────
+  confirmSaveBtn.addEventListener('click', async function () {
+    if (!currentGuide) return;
+
+    var body = {
+      topic:       saveTopicInput.value.trim() || currentGuide.topic,
+      content:     currentGuide.content,
+      translation: currentGuide.translation,
+      tags:        saveTagsInput.value,
+      rating:      selectedRating,
+      createdAt:   new Date().toISOString(),
+    };
+
+    try {
+      var res  = await fetch('/api/library/save', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(body),
+      });
+      var data = await res.json();
+
+      if (data.success) {
+        currentGuide = null;
+        topicInput.value = '';
+        showState('browser');
+        showToast('Saved to Library.');
+      } else {
+        showToast('Error: ' + (data.error || 'Save failed.'), true);
+      }
+    } catch (err) {
+      showToast('Error: ' + err.message, true);
+    }
+  });
+
+  // ── Markdown renderer ──────────────────────────────────────────────────────
+  function renderMarkdown(text) {
+    if (!text) return '';
+
+    var html = text
+      .replace(/^#### (.+)$/gm, '<h5 class="guide-h5">$1</h5>')
+      .replace(/^### (.+)$/gm,  '<h4 class="guide-h4">$1</h4>')
+      .replace(/^## (.+)$/gm,   '<h3 class="guide-h3">$1</h3>')
+      .replace(/^# (.+)$/gm,    '<h2 class="guide-h2">$1</h2>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g,     '<em>$1</em>')
+      .replace(/^---$/gm,        '<hr class="guide-hr">');
+
+    var lines  = html.split('\n');
+    var result = [];
+    var inUl = false, inOl = false;
+
+    lines.forEach(function (line) {
+      var ulM = line.match(/^[-*] (.+)/);
+      var olM = line.match(/^\d+\. (.+)/);
+
+      if (ulM) {
+        if (inOl) { result.push('</ol>'); inOl = false; }
+        if (!inUl) { result.push('<ul class="guide-list">'); inUl = true; }
+        result.push('<li>' + ulM[1] + '</li>');
+      } else if (olM) {
+        if (inUl) { result.push('</ul>'); inUl = false; }
+        if (!inOl) { result.push('<ol class="guide-list guide-ol">'); inOl = true; }
+        result.push('<li>' + olM[1] + '</li>');
+      } else {
+        if (inUl) { result.push('</ul>'); inUl = false; }
+        if (inOl) { result.push('</ol>'); inOl = false; }
+        var t = line.trim();
+        if (!t) {
+          result.push('<div class="guide-spacer"></div>');
+        } else if (t.startsWith('<h') || t.startsWith('<hr')) {
+          result.push(t);
+        } else {
+          result.push('<p class="guide-p">' + t + '</p>');
+        }
+      }
+    });
+
+    if (inUl) result.push('</ul>');
+    if (inOl) result.push('</ol>');
+    return result.join('\n');
+  }
+
+  // ── Toast ──────────────────────────────────────────────────────────────────
+  function showToast(msg, isError) {
+    var toast = document.createElement('div');
+    toast.className = 'toast-msg' + (isError ? ' toast-error' : '');
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { toast.classList.add('visible'); });
+    });
+    setTimeout(function () {
+      toast.classList.remove('visible');
+      setTimeout(function () { toast.remove(); }, 350);
+    }, 2800);
+  }
+
+})();
