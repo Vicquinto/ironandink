@@ -1,0 +1,20 @@
+[
+  {
+    "id": "1",
+    "email": "carlo@risingstarweb.com",
+    "fullName": "Carlo Giaquinto",
+    "passwordHash": null,
+    "needsSetup": true,
+    "role": "admin",
+    "settings": {
+      "bibleTranslation": "LSB",
+      "doctrinalTradition": "Reformed/Calvinist",
+      "defaultWritingTier": "tier1"
+    },
+    "stats": {
+      "studiesCompleted": 0,
+      "dialogueSessions": 0,
+      "articlesWritten": 0
+    }
+  }
+]
