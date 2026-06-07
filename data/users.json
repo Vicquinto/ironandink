@@ -3,8 +3,8 @@
     "id": "1",
     "email": "carlo@risingstarweb.com",
     "fullName": "Carlo Giaquinto",
-    "passwordHash": null,
-    "needsSetup": true,
+    "passwordHash": "$2b$10$fGqSvIQYBuieqCQ1VGl9o.qzdgsHddJQq5RgpEghjHUBpTej7Ey1u",
+    "needsSetup": false,
     "role": "admin",
     "settings": {
       "bibleTranslation": "LSB",
