@@ -99,19 +99,13 @@ router.post('/api/dictionary/define', requireAuth, async (req, res) => {
     }
   }
 
-  // Single common word — try free Dictionary API first
+  // Single common word — Dictionary API only, no Anthropic fallback
   try {
     const definition = await fetchDictionaryApi(cleanTerm);
     return res.json({ term: cleanTerm, definition, source: 'dictionary' });
   } catch (dictErr) {
-    console.error('[Dictionary/common] falling back to Anthropic:', dictErr.message);
-    try {
-      const definition = await fetchAnthropicDefinition(cleanTerm, false);
-      return res.json({ term: cleanTerm, definition, source: 'theological' });
-    } catch (err) {
-      console.error('[Dictionary/fallback]', err.message);
-      return res.json({ error: 'Definition unavailable. Try again.' });
-    }
+    console.error('[Dictionary/common]', dictErr.message);
+    return res.json({ error: 'Definition unavailable. Try again.' });
   }
 });
 
