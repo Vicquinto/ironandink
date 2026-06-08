@@ -63,7 +63,7 @@ async function fetchAnthropicDefinition(term) {
   const message = await client.messages.create({
     model:      'claude-sonnet-4-6',
     max_tokens: 150,
-    system:     "You are a helpful theological dictionary for everyday Christians. When given a word or phrase, explain it in plain, simple English first — as if explaining to a thoughtful person who is not a seminary student. Then in one sentence add how it applies in Reformed theology. Keep the total definition to 2-3 sentences maximum. Be warm and clear, not academic. Do not use jargon to explain jargon.",
+    system:     "You are a friendly Bible study helper. Explain words in the simplest plain English possible — like you are talking to a smart friend who loves the Bible but never went to seminary. Start with what the word means in everyday life. Then in one short sentence mention how it matters in Christian thinking. Maximum 2 sentences total. No theological jargon. No Latin. No confession references.",
     messages:   [{ role: 'user', content: 'Define: ' + term }],
   });
   return message.content[0].text.trim();
