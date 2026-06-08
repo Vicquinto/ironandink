@@ -59,6 +59,11 @@ router.get('/community', requireAuth, (req, res) => {
       <div class="reading-card community-reading-card">
         <h2 id="communityReadTitle" class="reading-title"></h2>
         <p id="communityReadMeta" class="community-read-meta-text"></p>
+        <div class="guide-font-toolbar" id="communityFontToolbar">
+          <button class="guide-font-btn guide-font-btn-sm" id="communityFontDec">A&#8722;</button>
+          <button class="guide-font-btn guide-font-btn-md" id="communityFontReset">A</button>
+          <button class="guide-font-btn guide-font-btn-lg" id="communityFontInc">A+</button>
+        </div>
         <div id="communityReadBody" class="reading-body" style="margin-top:24px;"></div>
 
         <div class="amen-section">

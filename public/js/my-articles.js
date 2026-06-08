@@ -201,5 +201,26 @@
     }, 2800);
   }
 
+  // ── Reading font size ─────────────────────────────────────────────────────
+  var RFONT_DEFAULT = 16, RFONT_MIN = 12, RFONT_MAX = 28, RFONT_STEP = 2;
+  var rfontSize = parseInt(localStorage.getItem('ironink_study_font_size'), 10) || RFONT_DEFAULT;
+
+  function applyArticleFontSize(size) {
+    rfontSize = Math.min(RFONT_MAX, Math.max(RFONT_MIN, size));
+    if (readingBody) readingBody.style.fontSize = rfontSize + 'px';
+    localStorage.setItem('ironink_study_font_size', rfontSize);
+  }
+
+  applyArticleFontSize(rfontSize);
+
+  var aFontDec   = document.getElementById('articleFontDec');
+  var aFontReset = document.getElementById('articleFontReset');
+  var aFontInc   = document.getElementById('articleFontInc');
+  if (aFontDec) {
+    aFontDec.addEventListener('click',   function () { applyArticleFontSize(rfontSize - RFONT_STEP); });
+    aFontReset.addEventListener('click', function () { applyArticleFontSize(RFONT_DEFAULT); });
+    aFontInc.addEventListener('click',   function () { applyArticleFontSize(rfontSize + RFONT_STEP); });
+  }
+
   loadArticles();
 })();

@@ -4,6 +4,7 @@
   let currentGuide    = null;
   let selectedRating  = 0;
   let abortController = null;
+  let studyGenerated  = false;
 
   // ── DOM refs ──────────────────────────────────────────────────────────────
   const topicInput       = document.getElementById('topicInput');
@@ -109,6 +110,7 @@
 
   // ── Guide generation ───────────────────────────────────────────────────────
   async function generateGuide(topic) {
+    studyGenerated = false;
     showState('loading');
     loadingTopicName.textContent = topic;
 
@@ -130,6 +132,7 @@
       guideBadge.textContent   = data.translation || 'LSB';
       guideBody.innerHTML      = renderMarkdown(data.content);
       showState('guide');
+      studyGenerated = true;
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
     } catch (err) {
@@ -164,6 +167,7 @@
 
   // ── Dismiss guide ──────────────────────────────────────────────────────────
   dismissGuideBtn.addEventListener('click', function () {
+    studyGenerated = false;
     currentGuide = null;
     topicInput.value = '';
     showState('browser');
@@ -205,6 +209,7 @@
       var data = await res.json();
 
       if (data.success) {
+        studyGenerated = false;
         currentGuide = null;
         topicInput.value = '';
         showState('browser');
@@ -279,5 +284,26 @@
       setTimeout(function () { toast.remove(); }, 350);
     }, 2800);
   }
+
+  // ── Unsaved study guard ────────────────────────────────────────────────────
+  window.addEventListener('beforeunload', function (e) {
+    if (studyGenerated) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+
+  document.querySelectorAll('.sidebar a').forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      if (!studyGenerated) return;
+      e.preventDefault();
+      var href = link.getAttribute('href');
+      showLeaveConfirm(
+        'You have an unsaved study. If you leave now it will be lost.',
+        function () { studyGenerated = false; window.location.href = href; },
+        null
+      );
+    });
+  });
 
 })();

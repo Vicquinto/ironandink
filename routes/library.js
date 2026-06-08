@@ -63,6 +63,11 @@ router.get('/library', requireAuth, (req, res) => {
           </div>
           <button class="modal-close-btn" id="closeModal" title="Close">&#10005;</button>
         </div>
+        <div class="guide-font-toolbar" id="modalFontToolbar">
+          <button class="guide-font-btn guide-font-btn-sm" id="modalFontDec">A&#8722;</button>
+          <button class="guide-font-btn guide-font-btn-md" id="modalFontReset">A</button>
+          <button class="guide-font-btn guide-font-btn-lg" id="modalFontInc">A+</button>
+        </div>
         <div class="guide-modal-body" id="modalBody"></div>
       </div>
     </div>`;

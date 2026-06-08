@@ -96,4 +96,11 @@
     ]);
   };
 
+  global.showLeaveConfirm = function (message, onLeave, onStay) {
+    buildModal(message, [
+      { label: 'Stay',  primary: true,  onClick: onStay  },
+      { label: 'Leave', primary: false, onClick: onLeave },
+    ]);
+  };
+
 }(window));

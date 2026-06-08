@@ -158,6 +158,11 @@ router.get('/my-articles', requireAuth, (req, res) => {
       </div>
       <div class="reading-card">
         <h2 id="readingTitle" class="reading-title"></h2>
+        <div class="guide-font-toolbar" id="articleFontToolbar">
+          <button class="guide-font-btn guide-font-btn-sm" id="articleFontDec">A&#8722;</button>
+          <button class="guide-font-btn guide-font-btn-md" id="articleFontReset">A</button>
+          <button class="guide-font-btn guide-font-btn-lg" id="articleFontInc">A+</button>
+        </div>
         <div id="readingBody" class="reading-body"></div>
       </div>
     </div>`;

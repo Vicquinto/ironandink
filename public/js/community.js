@@ -294,5 +294,26 @@
     }, 2800);
   }
 
+  // ── Reading font size ─────────────────────────────────────────────────────
+  var RFONT_DEFAULT = 16, RFONT_MIN = 12, RFONT_MAX = 28, RFONT_STEP = 2;
+  var rfontSize = parseInt(localStorage.getItem('ironink_study_font_size'), 10) || RFONT_DEFAULT;
+
+  function applyCommunityFontSize(size) {
+    rfontSize = Math.min(RFONT_MAX, Math.max(RFONT_MIN, size));
+    if (communityReadBody) communityReadBody.style.fontSize = rfontSize + 'px';
+    localStorage.setItem('ironink_study_font_size', rfontSize);
+  }
+
+  applyCommunityFontSize(rfontSize);
+
+  var cFontDec   = document.getElementById('communityFontDec');
+  var cFontReset = document.getElementById('communityFontReset');
+  var cFontInc   = document.getElementById('communityFontInc');
+  if (cFontDec) {
+    cFontDec.addEventListener('click',   function () { applyCommunityFontSize(rfontSize - RFONT_STEP); });
+    cFontReset.addEventListener('click', function () { applyCommunityFontSize(RFONT_DEFAULT); });
+    cFontInc.addEventListener('click',   function () { applyCommunityFontSize(rfontSize + RFONT_STEP); });
+  }
+
   loadFeed();
 })();

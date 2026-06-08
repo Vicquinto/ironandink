@@ -658,10 +658,13 @@ body {
 .guide-font-btn-md { font-size: 0.85rem; }
 .guide-font-btn-lg { font-size: 1rem; }
 
-/* Body text inherits guide-body's inline font-size for the size control */
+/* Body text inherits inline font-size set by zoom controls */
 .guide-body .guide-p,
 .guide-body .guide-list,
-.guide-body .guide-list li { font-size: 1em; }
+.guide-body .guide-list li,
+.guide-modal-body .guide-p,
+.guide-modal-body .guide-list,
+.guide-modal-body .guide-list li { font-size: 1em; }
 
 .guide-actions {
   display: flex;
