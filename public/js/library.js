@@ -44,10 +44,19 @@
           '</div>'
         : '';
 
+      var tagsValue = s.tags ? s.tags.join(', ') : '';
+      var editStarsHtml = [1, 2, 3, 4, 5].map(function (n) {
+        var cls = n <= (s.rating || 0) ? ' edit-star-active' : '';
+        return '<span class="edit-star' + cls + '" data-val="' + n + '">&#9733;</span>';
+      }).join('');
+
       return '<div class="study-card" data-id="' + esc(s.id) + '" tabindex="0" role="button">' +
           '<div class="study-card-header">' +
             '<h4 class="study-card-title">' + esc(s.topic) + '</h4>' +
-            '<button class="card-delete-btn" data-id="' + esc(s.id) + '" title="Delete">&#10005;</button>' +
+            '<div class="card-header-btns">' +
+              '<button class="card-edit-btn" data-id="' + esc(s.id) + '" title="Edit">&#9998;</button>' +
+              '<button class="card-delete-btn" data-id="' + esc(s.id) + '" title="Delete">&#10005;</button>' +
+            '</div>' +
           '</div>' +
           '<div class="study-card-meta">' +
             '<span class="study-card-date">' + formatDate(s.savedAt) + '</span>' +
@@ -55,28 +64,105 @@
           '</div>' +
           tagsHtml +
           starsHtml +
+          '<div class="card-edit-panel" style="display:none;">' +
+            '<div class="card-edit-row">' +
+              '<label class="card-edit-label">Title</label>' +
+              '<input type="text" class="form-input card-edit-title" value="' + esc(s.topic) + '">' +
+            '</div>' +
+            '<div class="card-edit-row">' +
+              '<label class="card-edit-label">Tags <span class="card-edit-hint">(comma-separated)</span></label>' +
+              '<input type="text" class="form-input card-edit-tags" value="' + esc(tagsValue) + '" placeholder="e.g. soteriology, TULIP">' +
+            '</div>' +
+            '<div class="card-edit-row">' +
+              '<label class="card-edit-label">Rating</label>' +
+              '<div class="edit-star-row">' + editStarsHtml + '</div>' +
+            '</div>' +
+            '<div class="card-edit-actions">' +
+              '<button class="card-edit-save">Save Changes</button>' +
+              '<button class="card-edit-cancel">Cancel</button>' +
+            '</div>' +
+          '</div>' +
         '</div>';
     }).join('');
 
-    // Card click → open modal
+    // Wire up each card
     grid.querySelectorAll('.study-card').forEach(function (card) {
+      var id        = card.dataset.id;
+      var editPanel = card.querySelector('.card-edit-panel');
+      var study     = allStudies.find(function (s) { return s.id === id; }) || {};
+      var editRating = study.rating || 0;
+
+      // Card click → open modal (skip if clicking inside edit area or action buttons)
       card.addEventListener('click', function (e) {
-        if (e.target.classList.contains('card-delete-btn')) return;
-        var study = allStudies.find(function (s) { return s.id === card.dataset.id; });
+        if (e.target.closest('.card-edit-panel') ||
+            e.target.classList.contains('card-edit-btn') ||
+            e.target.classList.contains('card-delete-btn')) return;
         if (study) openModal(study);
       });
       card.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') card.click();
+        if (e.key === 'Enter' && editPanel.style.display === 'none') card.click();
       });
-    });
 
-    // Delete buttons
-    grid.querySelectorAll('.card-delete-btn').forEach(function (btn) {
-      btn.addEventListener('click', function (e) {
+      // Edit button — toggle panel
+      card.querySelector('.card-edit-btn').addEventListener('click', function (e) {
+        e.stopPropagation();
+        editPanel.style.display = editPanel.style.display === 'none' ? 'block' : 'none';
+      });
+
+      // Delete button
+      card.querySelector('.card-delete-btn').addEventListener('click', function (e) {
         e.stopPropagation();
         showConfirm('Delete this study? This cannot be undone.', 'Delete', async function () {
-          await deleteStudy(btn.dataset.id);
+          await deleteStudy(id);
         });
+      });
+
+      // Edit panel star rating
+      function highlightEditStars(n) {
+        editPanel.querySelectorAll('.edit-star').forEach(function (star) {
+          star.classList.toggle('edit-star-active', parseInt(star.dataset.val) <= n);
+        });
+      }
+      editPanel.querySelectorAll('.edit-star').forEach(function (star) {
+        star.addEventListener('mouseover', function () { highlightEditStars(parseInt(star.dataset.val)); });
+        star.addEventListener('mouseout',  function () { highlightEditStars(editRating); });
+        star.addEventListener('click', function (e) {
+          e.stopPropagation();
+          editRating = parseInt(star.dataset.val);
+          highlightEditStars(editRating);
+        });
+      });
+
+      // Save Changes
+      editPanel.querySelector('.card-edit-save').addEventListener('click', async function (e) {
+        e.stopPropagation();
+        var newTopic = editPanel.querySelector('.card-edit-title').value.trim();
+        var newTags  = editPanel.querySelector('.card-edit-tags').value;
+        if (!newTopic) { editPanel.querySelector('.card-edit-title').focus(); return; }
+        try {
+          var res  = await fetch('/api/library/' + encodeURIComponent(id), {
+            method:  'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ topic: newTopic, tags: newTags, rating: editRating }),
+          });
+          var data = await res.json();
+          if (data.success) {
+            var idx = allStudies.findIndex(function (s) { return s.id === id; });
+            if (idx !== -1) { allStudies[idx] = data.study; study = data.study; }
+            applyFilters();
+            showToast('Study updated.');
+          } else {
+            showToast('Error: ' + (data.error || 'Update failed.'), true);
+          }
+        } catch (err) {
+          showToast('Error: ' + err.message, true);
+        }
+      });
+
+      // Cancel
+      editPanel.querySelector('.card-edit-cancel').addEventListener('click', function (e) {
+        e.stopPropagation();
+        editPanel.style.display = 'none';
       });
     });
   }
@@ -336,6 +422,21 @@
     if (!iso) return '';
     var d = new Date(iso);
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  // ── Toast ──────────────────────────────────────────────────────────────────
+  function showToast(msg, isError) {
+    var toast = document.createElement('div');
+    toast.className = 'toast-msg' + (isError ? ' toast-error' : '');
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { toast.classList.add('visible'); });
+    });
+    setTimeout(function () {
+      toast.classList.remove('visible');
+      setTimeout(function () { toast.remove(); }, 350);
+    }, 2800);
   }
 
   loadStudies();

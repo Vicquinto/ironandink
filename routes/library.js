@@ -113,6 +113,26 @@ router.post('/api/library/save', requireAuth, (req, res) => {
   res.json({ success: true, study });
 });
 
+// ─── PUT /api/library/:id ────────────────────────────────────────────────────
+router.put('/api/library/:id', requireAuth, (req, res) => {
+  const { topic, tags, rating } = req.body;
+  const studies = readStudies();
+  const idx = studies.findIndex(
+    s => s.id === req.params.id && s.userId === req.session.userId
+  );
+  if (idx === -1) return res.status(404).json({ success: false, error: 'Study not found.' });
+
+  if (topic !== undefined) studies[idx].topic = String(topic).trim();
+  if (tags !== undefined) {
+    studies[idx].tags = String(tags).split(',').map(t => t.trim()).filter(Boolean);
+  }
+  if (rating !== undefined) {
+    studies[idx].rating = Math.min(5, Math.max(0, parseInt(rating) || 0));
+  }
+  writeStudies(studies);
+  res.json({ success: true, study: studies[idx] });
+});
+
 // ─── DELETE /api/library/:id ──────────────────────────────────────────────────
 router.delete('/api/library/:id', requireAuth, (req, res) => {
   const studies = readStudies();

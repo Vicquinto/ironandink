@@ -43,9 +43,11 @@
 
   applyFontSize(studyFontSize);
 
-  fontDecBtn.addEventListener('click',   function () { applyFontSize(studyFontSize - FONT_STEP); });
-  fontResetBtn.addEventListener('click', function () { applyFontSize(FONT_DEFAULT); });
-  fontIncBtn.addEventListener('click',   function () { applyFontSize(studyFontSize + FONT_STEP); });
+  if (fontDecBtn) {
+    fontDecBtn.addEventListener('click',   function () { applyFontSize(studyFontSize - FONT_STEP); });
+    fontResetBtn.addEventListener('click', function () { applyFontSize(FONT_DEFAULT); });
+    fontIncBtn.addEventListener('click',   function () { applyFontSize(studyFontSize + FONT_STEP); });
+  }
 
   // ── Prefill from dialogue gap analysis ───────────────────────────────────
   var urlPrefill = new URLSearchParams(window.location.search).get('studyNext');
