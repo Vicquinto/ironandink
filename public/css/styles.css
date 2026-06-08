@@ -1801,4 +1801,383 @@ body {
   color: var(--warm-brown);
   font-style: italic;
 }
+
+/* ─── STATUS BADGES ─────────────────────────────────────────────────── */
+
+.article-status-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.status-draft     { background: rgba(122,92,59,0.25); color: var(--warm-brown); }
+.status-complete  { background: rgba(179,140,51,0.2);  color: var(--accent); }
+.status-pending   { background: rgba(179,140,51,0.35); color: #d4a820; }
+.status-published { background: rgba(80,140,80,0.2);   color: #7ec87e; }
+
+/* ─── MY ARTICLES — SUBMISSION ──────────────────────────────────────── */
+
+.btn-submit-review {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-family: 'Courier New', monospace;
+  font-size: 0.78rem;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-submit-review:hover {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.pending-label {
+  font-size: 0.78rem;
+  color: #d4a820;
+  font-style: italic;
+}
+
+.rejection-note {
+  background: rgba(180,60,60,0.12);
+  border-left: 3px solid #c06060;
+  color: #e8a0a0;
+  font-size: 0.8rem;
+  padding: 8px 12px;
+  border-radius: 0 4px 4px 0;
+  margin-top: 10px;
+  line-height: 1.5;
+}
+
+/* ─── ADMIN ──────────────────────────────────────────────────────────── */
+
+.admin-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid rgba(179,140,51,0.2);
+  margin-bottom: 24px;
+}
+
+.admin-tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--warm-brown);
+  font-family: 'Courier New', monospace;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  margin-bottom: -1px;
+}
+
+.admin-tab.active,
+.admin-tab:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.btn-reject {
+  background: transparent;
+  border: 1px solid #c06060;
+  color: #e08080;
+  font-family: 'Courier New', monospace;
+  font-size: 0.78rem;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-reject:hover {
+  background: rgba(180,60,60,0.2);
+}
+
+.reject-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.reject-modal-box {
+  background: var(--card-bg);
+  border: 1px solid rgba(179,140,51,0.3);
+  border-radius: 8px;
+  padding: 28px 32px;
+  width: 400px;
+  max-width: 90vw;
+}
+
+.reject-modal-box h4 {
+  color: var(--accent);
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+.reject-modal-box textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid rgba(179,140,51,0.25);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: Georgia, serif;
+  font-size: 0.88rem;
+  padding: 10px 12px;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.reject-modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  justify-content: flex-end;
+}
+
+/* Admin link in sidebar */
+.nav-item.admin-link {
+  color: var(--accent);
+}
+
+/* Admin pending alert on dashboard */
+.admin-pending-alert {
+  display: block;
+  background: rgba(179,140,51,0.12);
+  border: 1px solid rgba(179,140,51,0.35);
+  border-radius: 6px;
+  color: var(--accent);
+  font-family: 'Courier New', monospace;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  padding: 12px 16px;
+  text-decoration: none;
+  margin-bottom: 20px;
+  transition: background 0.15s;
+}
+
+.admin-pending-alert:hover {
+  background: rgba(179,140,51,0.22);
+}
+
+/* Admin reading view actions */
+.admin-read-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(26,15,10,0.15);
+}
+
+/* ─── COMMUNITY ──────────────────────────────────────────────────────── */
+
+.community-section-label {
+  font-family: 'Courier New', monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+
+.community-feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.community-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(179,140,51,0.12);
+  border-radius: 8px;
+  padding: 20px 22px;
+  transition: border-color 0.15s;
+}
+
+.community-card:hover {
+  border-color: rgba(179,140,51,0.3);
+}
+
+.community-card-title {
+  font-family: Georgia, serif;
+  font-size: 1.05rem;
+  color: var(--dark-cream);
+  margin-bottom: 10px;
+  line-height: 1.35;
+}
+
+.community-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.community-card-author {
+  font-size: 0.78rem;
+  color: var(--warm-brown);
+  font-style: italic;
+}
+
+.community-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.community-amen-count,
+.community-comment-count {
+  font-size: 0.8rem;
+  color: var(--warm-brown);
+}
+
+.community-reading-card {
+  max-width: 720px;
+}
+
+.community-read-meta-text {
+  font-size: 0.82rem;
+  color: var(--warm-brown);
+  font-style: italic;
+  margin-top: -14px;
+  margin-bottom: 0;
+}
+
+/* Amen button */
+.amen-section {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(26,15,10,0.15);
+}
+
+.btn-amen {
+  background: transparent;
+  border: 1px solid rgba(179,140,51,0.4);
+  color: var(--warm-brown);
+  font-family: Georgia, serif;
+  font-size: 0.88rem;
+  padding: 8px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.btn-amen:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn-amen.amened {
+  background: rgba(179,140,51,0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Comments */
+.comments-section {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(26,15,10,0.15);
+}
+
+.comments-label {
+  font-family: 'Courier New', monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #1A0F0A;
+  margin-bottom: 14px;
+  opacity: 0.6;
+}
+
+.comment-input-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.comment-textarea {
+  background: rgba(26,15,10,0.08);
+  border: 1px solid rgba(26,15,10,0.18);
+  border-radius: 4px;
+  color: #1A0F0A;
+  font-family: Georgia, serif;
+  font-size: 0.88rem;
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+.comment-textarea::placeholder {
+  color: rgba(26,15,10,0.4);
+}
+
+.comment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.comment-item {
+  background: rgba(26,15,10,0.06);
+  border-radius: 4px;
+  padding: 12px 14px;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.comment-author {
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  color: #1A0F0A;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.comment-date {
+  font-size: 0.72rem;
+  color: rgba(26,15,10,0.45);
+  margin-left: auto;
+}
+
+.comment-delete-btn {
+  background: transparent;
+  border: none;
+  color: rgba(26,15,10,0.35);
+  cursor: pointer;
+  font-size: 0.7rem;
+  padding: 2px 4px;
+  transition: color 0.15s;
+}
+
+.comment-delete-btn:hover {
+  color: #c06060;
+}
+
+.comment-body {
+  font-family: Georgia, serif;
+  font-size: 0.88rem;
+  color: #2A1209;
+  line-height: 1.6;
+}
 .link-accent:hover { text-decoration: underline; }

@@ -234,6 +234,21 @@ router.put('/api/articles/:id', requireAuth, (req, res) => {
   res.json({ success: true, article: articles[idx] });
 });
 
+// ─── PATCH /api/articles/:id/submit — Submit for review ──────────────────────
+router.patch('/api/articles/:id/submit', requireAuth, (req, res) => {
+  const articles = readArticles();
+  const idx      = articles.findIndex(a => a.id === req.params.id && a.userId === req.session.userId);
+  if (idx === -1) return res.status(404).json({ success: false, error: 'Article not found.' });
+  if (articles[idx].status !== 'Complete') {
+    return res.status(400).json({ success: false, error: 'Article must be Complete to submit for review.' });
+  }
+  articles[idx].status        = 'Pending';
+  articles[idx].rejectionNote = null;
+  articles[idx].updatedAt     = new Date().toISOString();
+  writeArticles(articles);
+  res.json({ success: true, article: articles[idx] });
+});
+
 // ─── DELETE /api/articles/:id ─────────────────────────────────────────────────
 router.delete('/api/articles/:id', requireAuth, (req, res) => {
   const articles = readArticles();

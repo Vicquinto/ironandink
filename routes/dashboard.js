@@ -1,7 +1,7 @@
 const express = require('express');
 const fs      = require('fs');
 const path    = require('path');
-const { requireAuth, renderLayout } = require('./layout');
+const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
 
 const router          = express.Router();
 const STUDIES_PATH    = path.join(__dirname, '../data/studies.json');
@@ -28,7 +28,15 @@ function getArticlesCount(userId) {
   try {
     if (!fs.existsSync(ARTICLES_PATH)) return 0;
     const data = JSON.parse(fs.readFileSync(ARTICLES_PATH, 'utf8'));
-    return data.filter(a => a.userId === userId && a.status === 'Complete').length;
+    return data.filter(a => a.userId === userId && (a.status === 'Complete' || a.status === 'Published')).length;
+  } catch { return 0; }
+}
+
+function getPendingCount() {
+  try {
+    if (!fs.existsSync(ARTICLES_PATH)) return 0;
+    const data = JSON.parse(fs.readFileSync(ARTICLES_PATH, 'utf8'));
+    return data.filter(a => a.status === 'Pending').length;
   } catch { return 0; }
 }
 
@@ -38,6 +46,8 @@ router.get('/dashboard', requireAuth, (req, res) => {
   const studyCount     = getStudiesCount(req.session.userId);
   const dialogueCount  = getDialoguesCount(req.session.userId);
   const articlesCount  = getArticlesCount(req.session.userId);
+  const isAdmin        = getIsAdmin(req);
+  const pendingCount   = isAdmin ? getPendingCount() : 0;
 
   const content = `
     <div class="page-header">
@@ -65,6 +75,11 @@ router.get('/dashboard', requireAuth, (req, res) => {
         <div class="stat-value">${articlesCount}</div>
       </div>
     </div>
+
+    ${isAdmin && pendingCount > 0 ? `
+    <a href="/admin" class="admin-pending-alert">
+      &#9873; ${pendingCount} article${pendingCount !== 1 ? 's' : ''} awaiting your review &#8594;
+    </a>` : ''}
 
     <a href="/study" class="btn-primary">Begin a Study</a>`;
 

@@ -1,6 +1,22 @@
+const fs   = require('fs');
+const path = require('path');
+const USERS_PATH_L = path.join(__dirname, '../data/users.json');
+
 function requireAuth(req, res, next) {
   if (!req.session.userId) return res.redirect('/');
   next();
+}
+
+function getIsAdmin(req) {
+  if (req.session.user && req.session.user.isAdmin) return true;
+  if (req.session.userId) {
+    try {
+      const users = JSON.parse(fs.readFileSync(USERS_PATH_L, 'utf8'));
+      const user  = users.find(u => u.id === req.session.userId);
+      return !!(user && (user.role === 'admin' || user.isAdmin === true));
+    } catch { return false; }
+  }
+  return false;
 }
 
 function renderLayout({ req, activeSection, title, content, scripts = '' }) {
@@ -14,6 +30,8 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
     { id: 'my-articles', label: 'My Articles', href: '/my-articles', icon: '&#9634;' },
     { id: 'settings',    label: 'Settings',    href: '/settings',    icon: '&#9881;' },
   ];
+
+  const isAdmin = getIsAdmin(req);
 
   const navHTML = navItems.map(item => `
         <a href="${item.href}" class="nav-item${item.id === activeSection ? ' active' : ''}">
@@ -43,6 +61,10 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
         ${navHTML}
       </nav>
       <div class="sidebar-footer">
+        ${isAdmin ? `<a href="/admin" class="nav-item admin-link${activeSection === 'admin' ? ' active' : ''}">
+          <span class="nav-icon">&#9873;</span>
+          <span class="nav-label">Admin</span>
+        </a>` : ''}
         <a href="/logout" class="logout-link">
           <span class="nav-icon">&#8617;</span>
           <span class="nav-label">Logout</span>
@@ -59,4 +81,4 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
 </html>`;
 }
 
-module.exports = { requireAuth, renderLayout };
+module.exports = { requireAuth, renderLayout, getIsAdmin };

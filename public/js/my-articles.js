@@ -24,7 +24,7 @@
 
     if (readingBadges) {
       var formLabel   = formDisplayLabel(article.form);
-      var statusClass = article.status === 'Complete' ? 'status-complete' : 'status-draft';
+      var statusClass = statusBadgeClass(article.status);
       readingBadges.innerHTML =
         '<span class="tier-badge-sm">Tier ' + article.tier + '</span> ' +
         '<span class="form-badge form-badge-' + esc(article.form || 'article') + '">' + formLabel + '</span> ' +
@@ -34,7 +34,7 @@
 
   if (readingBackBtn) readingBackBtn.addEventListener('click', showList);
 
-  // ── Load articles (all — Draft + Complete) ─────────────────────────────────
+  // ── Load articles (all — Draft + Complete + Pending + Published) ──────────
   async function loadArticles() {
     try {
       var res  = await fetch('/api/articles');
@@ -53,9 +53,24 @@
 
     articleList.innerHTML = articles.map(function (a) {
       var formLabel   = formDisplayLabel(a.form);
-      var statusClass = a.status === 'Complete' ? 'status-complete' : 'status-draft';
+      var statusClass = statusBadgeClass(a.status);
       var text        = a.content || '';
       var words       = text.trim() ? text.trim().split(/\s+/).length : 0;
+
+      var rejectionHtml = '';
+      if (a.status === 'Complete' && a.rejectionNote) {
+        rejectionHtml = '<div class="rejection-note">Returned by admin: ' + esc(a.rejectionNote) + '</div>';
+      }
+
+      var submitBtn = '';
+      if (a.status === 'Complete') {
+        submitBtn = '<button class="btn-submit-review article-submit-btn" data-id="' + esc(a.id) + '">Submit for Review</button>';
+      } else if (a.status === 'Pending') {
+        submitBtn = '<span class="pending-label">&#8987; Awaiting admin review</span>';
+      } else if (a.status === 'Published') {
+        submitBtn = '<a href="/community" class="link-accent" style="font-size:0.82rem;">View in Community &#8594;</a>';
+      }
+
       return '<div class="article-card">' +
         '<div class="article-card-header">' +
           '<span class="article-card-title">' + esc(a.title) + '</span>' +
@@ -68,10 +83,12 @@
           '<span class="article-status-badge ' + statusClass + '">' + a.status + '</span>' +
           '<span class="article-word-count">' + words + ' words</span>' +
         '</div>' +
-        '<button class="btn-warm article-open-btn" data-id="' + esc(a.id) + '" ' +
-          'style="display:inline-block; margin-top:12px; font-size:0.82rem; padding:7px 18px;">' +
-          'Open' +
-        '</button>' +
+        rejectionHtml +
+        '<div style="display:flex; gap:10px; align-items:center; margin-top:12px; flex-wrap:wrap;">' +
+          '<button class="btn-warm article-open-btn" data-id="' + esc(a.id) + '" ' +
+            'style="font-size:0.82rem; padding:7px 18px;">Open</button>' +
+          submitBtn +
+        '</div>' +
       '</div>';
     }).join('');
 
@@ -84,6 +101,27 @@
           else showToast('Could not load article.', true);
         } catch (err) {
           showToast('Error: ' + err.message, true);
+        }
+      });
+    });
+
+    articleList.querySelectorAll('.article-submit-btn').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        if (!confirm('Submit this article for admin review?')) return;
+        btn.disabled = true;
+        try {
+          var res  = await fetch('/api/articles/' + encodeURIComponent(btn.dataset.id) + '/submit', { method: 'PATCH' });
+          var data = await res.json();
+          if (data.success) {
+            showToast('Your article has been submitted for admin review.');
+            loadArticles();
+          } else {
+            showToast('Submit failed: ' + (data.error || ''), true);
+            btn.disabled = false;
+          }
+        } catch (err) {
+          showToast('Error: ' + err.message, true);
+          btn.disabled = false;
         }
       });
     });
@@ -125,6 +163,16 @@
   function formDisplayLabel(form) {
     var labels = { article: 'Article', sermon: 'Sermon', letter: 'Letter' };
     return labels[form] || 'Article';
+  }
+
+  function statusBadgeClass(status) {
+    var map = {
+      'Draft':     'status-draft',
+      'Complete':  'status-complete',
+      'Pending':   'status-pending',
+      'Published': 'status-published',
+    };
+    return map[status] || 'status-draft';
   }
 
   function fmtDate(iso) {

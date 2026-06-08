@@ -46,11 +46,12 @@ router.post('/api/login', async (req, res) => {
 
   req.session.userId = user.id;
   req.session.user = {
-    id: user.id,
-    email: user.email,
+    id:       user.id,
+    email:    user.email,
     fullName: user.fullName,
     settings: user.settings,
-    stats: user.stats,
+    stats:    user.stats,
+    isAdmin:  user.role === 'admin' || user.isAdmin === true,
   };
 
   return res.json({ success: true, redirect: '/dashboard' });
@@ -86,11 +87,12 @@ router.post('/api/setup-password', async (req, res) => {
   delete req.session.setupEmail;
   req.session.userId = users[idx].id;
   req.session.user = {
-    id: users[idx].id,
-    email: users[idx].email,
+    id:       users[idx].id,
+    email:    users[idx].email,
     fullName: users[idx].fullName,
     settings: users[idx].settings,
-    stats: users[idx].stats,
+    stats:    users[idx].stats,
+    isAdmin:  users[idx].role === 'admin' || users[idx].isAdmin === true,
   };
 
   return res.json({ success: true, redirect: '/dashboard' });

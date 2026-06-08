@@ -10,6 +10,8 @@ const studyRoutes     = require('./routes/study');
 const libraryRoutes   = require('./routes/library');
 const dialogueRoutes  = require('./routes/dialogue');
 const writingRoutes   = require('./routes/writing');
+const adminRoutes     = require('./routes/admin');
+const communityRoutes = require('./routes/community');
 const { requireAuth, renderLayout } = require('./routes/layout');
 
 const app  = express();
@@ -99,11 +101,11 @@ app.use('/', studyRoutes);
 app.use('/', libraryRoutes);
 app.use('/', dialogueRoutes);
 app.use('/', writingRoutes);
+app.use('/', adminRoutes);
+app.use('/', communityRoutes);
 
 // ─── Placeholder Sections (unbuilt) ──────────────────────────────────────
-const placeholders = [
-  { path: '/community', id: 'community', label: 'Community', icon: '&#9678;', blurb: 'Community discussion and iron-sharpening fellowship is coming in a future session.' },
-];
+const placeholders = [];
 
 placeholders.forEach(({ path: p, id, label, icon, blurb }) => {
   app.get(p, requireAuth, (req, res) => {
