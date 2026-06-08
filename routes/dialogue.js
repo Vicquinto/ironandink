@@ -203,28 +203,38 @@ router.post('/api/dialogue/exchange', requireAuth, async (req, res) => {
 
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   let closed = false;
-  req.on('close', () => { closed = true; });
-
-  const stream = client.messages.stream({
-    model:      'claude-opus-4-8',
-    max_tokens: 1500,
-    system:     systemPrompt,
-    messages:   apiMessages,
-  });
 
   try {
-    for await (const text of stream.text_stream) {
-      if (closed || res.writableEnded) break;
-      res.write(`data: ${JSON.stringify({ text })}\n\n`);
-    }
-    if (!res.writableEnded) {
+    const stream = client.messages.stream({
+      model:      'claude-opus-4-8',
+      max_tokens: 1500,
+      system:     systemPrompt,
+      messages:   apiMessages,
+    });
+
+    req.on('close', () => {
+      closed = true;
+      try { stream.abort(); } catch {}
+    });
+
+    stream.on('text', (text) => {
+      if (!closed && !res.writableEnded) {
+        res.write(`data: ${JSON.stringify({ text })}\n\n`);
+      }
+    });
+
+    await stream.done();
+
+    if (!closed && !res.writableEnded) {
       res.write('data: [DONE]\n\n');
       res.end();
     }
   } catch (err) {
-    console.error('Dialogue stream error:', err.message);
     if (!res.writableEnded) {
-      res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+      if (!closed) {
+        console.error('[Dialogue] API error — status:', err.status, '| type:', err.error?.type, '| message:', err.message);
+        res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+      }
       res.end();
     }
   }
