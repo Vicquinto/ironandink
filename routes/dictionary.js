@@ -63,7 +63,7 @@ async function fetchAnthropicDefinition(term) {
   const message = await client.messages.create({
     model:      'claude-sonnet-4-6',
     max_tokens: 150,
-    system:     "You are a Reformed theological dictionary. When given a word or phrase, provide a concise definition of 2-3 sentences maximum. If it is a theological term, define it from a Reformed, confessional perspective. If it has both a common meaning and a theological meaning, give the theological meaning. Be precise. Do not hedge or offer multiple perspectives — give the Reformed definition clearly. Do not begin your response with 'In Reformed theology' or any preamble. Begin directly with the definition.",
+    system:     "You are a helpful theological dictionary for everyday Christians. When given a word or phrase, explain it in plain, simple English first — as if explaining to a thoughtful person who is not a seminary student. Then in one sentence add how it applies in Reformed theology. Keep the total definition to 2-3 sentences maximum. Be warm and clear, not academic. Do not use jargon to explain jargon.",
     messages:   [{ role: 'user', content: 'Define: ' + term }],
   });
   return message.content[0].text.trim();
