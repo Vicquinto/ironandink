@@ -1,13 +1,16 @@
-const express = require('express');
-const fs      = require('fs');
-const path    = require('path');
+const express  = require('express');
+const fs       = require('fs');
+const path     = require('path');
+const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
 
-const router        = express.Router();
-const ARTICLES_PATH = path.join(__dirname, '../data/articles.json');
-const USERS_PATH    = path.join(__dirname, '../data/users.json');
-const AMENS_PATH    = path.join(__dirname, '../data/community.json');
-const COMMENTS_PATH = path.join(__dirname, '../data/comments.json');
+const router               = express.Router();
+const ARTICLES_PATH        = path.join(__dirname, '../data/articles.json');
+const USERS_PATH           = path.join(__dirname, '../data/users.json');
+const AMENS_PATH           = path.join(__dirname, '../data/community.json');
+const COMMENTS_PATH        = path.join(__dirname, '../data/comments.json');
+const INVITES_PATH         = path.join(__dirname, '../data/invites.json');
+const INVITE_REQUESTS_PATH = path.join(__dirname, '../data/invite_requests.json');
 
 function requireAdmin(req, res, next) {
   if (!req.session.userId) return res.redirect('/');
@@ -46,6 +49,7 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
       <div class="admin-tabs">
         <button class="admin-tab active" data-tab="pending">Pending Submissions</button>
         <button class="admin-tab" data-tab="published">Published Articles</button>
+        <button class="admin-tab" data-tab="invitations">Invitations</button>
       </div>
 
       <div id="adminTabPending" class="admin-tab-content">
@@ -56,6 +60,22 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
       <div id="adminTabPublished" class="admin-tab-content" style="display:none;">
         <div id="publishedList" class="article-list-container"></div>
         <p id="publishedEmpty" class="writing-empty" style="display:none;">No published articles.</p>
+      </div>
+
+      <div id="adminTabInvitations" class="admin-tab-content" style="display:none;">
+        <h3 class="community-section-label" style="margin-bottom:16px;">Pending Requests</h3>
+        <div id="inviteRequestList" class="article-list-container"></div>
+        <p id="inviteRequestEmpty" class="writing-empty" style="display:none;">No pending requests.</p>
+
+        <div id="inviteLinkBox" style="display:none; margin:20px 0; background:rgba(179,140,51,0.1); border:1px solid rgba(179,140,51,0.3); border-radius:6px; padding:16px 18px;">
+          <p style="color:var(--dark-cream); font-size:0.85rem; margin-bottom:10px;">Invite link generated. Copy and send this to the applicant:</p>
+          <p id="inviteLinkText" style="font-family:'Courier New',monospace; font-size:0.8rem; color:var(--accent); word-break:break-all;"></p>
+          <button class="btn-warm" id="copyInviteLinkBtn" style="margin-top:12px; font-size:0.78rem; padding:6px 14px;">Copy Link</button>
+        </div>
+
+        <h3 class="community-section-label" style="margin-top:32px; margin-bottom:16px;">Sent Invites</h3>
+        <div id="sentInviteList" class="article-list-container"></div>
+        <p id="sentInviteEmpty" class="writing-empty" style="display:none;">No invites sent yet.</p>
       </div>
     </div>
 
@@ -187,6 +207,66 @@ router.patch('/api/admin/:id/unpublish', requireAuth, requireAdmin, (req, res) =
   articles[idx].updatedAt   = new Date().toISOString();
   writeJSON(ARTICLES_PATH, articles);
   res.json({ success: true, article: articles[idx] });
+});
+
+// ─── GET /api/admin/invite-requests ──────────────────────────────────────────
+router.get('/api/admin/invite-requests', requireAuth, requireAdmin, (req, res) => {
+  const requests = readJSON(INVITE_REQUESTS_PATH)
+    .filter(r => r.status === 'pending')
+    .sort((a, b) => new Date(a.submittedAt) - new Date(b.submittedAt));
+  res.json({ success: true, requests });
+});
+
+// ─── POST /api/admin/invite-requests/:id/invite ───────────────────────────────
+router.post('/api/admin/invite-requests/:id/invite', requireAuth, requireAdmin, (req, res) => {
+  const requests = readJSON(INVITE_REQUESTS_PATH);
+  const idx      = requests.findIndex(r => r.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ success: false, error: 'Request not found.' });
+
+  const record  = requests[idx];
+  const token   = randomUUID();
+  const now     = new Date();
+  const expires = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+  const invites = readJSON(INVITES_PATH);
+  invites.push({
+    id:        randomUUID(),
+    token,
+    email:     record.email,
+    name:      record.name,
+    createdAt: now.toISOString(),
+    expiresAt: expires.toISOString(),
+    used:      false,
+  });
+  writeJSON(INVITES_PATH, invites);
+
+  requests[idx].status   = 'invited';
+  requests[idx].invitedAt = now.toISOString();
+  writeJSON(INVITE_REQUESTS_PATH, requests);
+
+  const host     = req.get('host') || 'localhost:4000';
+  const protocol = req.secure ? 'https' : 'http';
+  const inviteUrl = `${protocol}://${host}/register?token=${token}`;
+
+  res.json({ success: true, inviteUrl });
+});
+
+// ─── POST /api/admin/invite-requests/:id/decline ─────────────────────────────
+router.post('/api/admin/invite-requests/:id/decline', requireAuth, requireAdmin, (req, res) => {
+  const requests = readJSON(INVITE_REQUESTS_PATH);
+  const idx      = requests.findIndex(r => r.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ success: false, error: 'Request not found.' });
+  requests[idx].status     = 'declined';
+  requests[idx].declinedAt = new Date().toISOString();
+  writeJSON(INVITE_REQUESTS_PATH, requests);
+  res.json({ success: true });
+});
+
+// ─── GET /api/admin/invites ───────────────────────────────────────────────────
+router.get('/api/admin/invites', requireAuth, requireAdmin, (req, res) => {
+  const invites = readJSON(INVITES_PATH)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  res.json({ success: true, invites });
 });
 
 module.exports = router;

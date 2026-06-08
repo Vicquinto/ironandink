@@ -1,17 +1,21 @@
 require('dotenv').config();
-const express = require('express');
-const session = require('express-session');
-const path = require('path');
+const express   = require('express');
+const session   = require('express-session');
+const path      = require('path');
+const rateLimit = require('express-rate-limit');
 
-const authRoutes      = require('./routes/auth');
-const dashboardRoutes = require('./routes/dashboard');
-const settingsRoutes  = require('./routes/settings');
-const studyRoutes     = require('./routes/study');
-const libraryRoutes   = require('./routes/library');
-const dialogueRoutes  = require('./routes/dialogue');
-const writingRoutes   = require('./routes/writing');
-const adminRoutes     = require('./routes/admin');
-const communityRoutes = require('./routes/community');
+const authRoutes          = require('./routes/auth');
+const landingRoutes       = require('./routes/landing');
+const inviteRoutes        = require('./routes/invite');
+const passwordResetRoutes = require('./routes/password-reset');
+const dashboardRoutes     = require('./routes/dashboard');
+const settingsRoutes      = require('./routes/settings');
+const studyRoutes         = require('./routes/study');
+const libraryRoutes       = require('./routes/library');
+const dialogueRoutes      = require('./routes/dialogue');
+const writingRoutes       = require('./routes/writing');
+const adminRoutes         = require('./routes/admin');
+const communityRoutes     = require('./routes/community');
 const { requireAuth, renderLayout } = require('./routes/layout');
 
 const app  = express();
@@ -87,14 +91,55 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(session({
-  secret:            process.env.SESSION_SECRET || 'iron-ink-dev-secret',
+  secret:            process.env.SESSION_SECRET,
   resave:            false,
   saveUninitialized: false,
-  cookie:            { maxAge: 24 * 60 * 60 * 1000 }
+  cookie:            { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 },
 }));
 
+// ─── Rate Limiting ────────────────────────────────────────────────────────
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max:      10,
+  message:  { success: false, error: 'Too many login attempts. Please try again in 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders:   false,
+});
+
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max:      5,
+  message:  { success: false, error: 'Too many registration attempts. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders:   false,
+});
+
+const inviteRequestLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max:      3,
+  message:  { success: false, error: 'Too many invite requests. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders:   false,
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max:      60,
+  message:  { success: false, error: 'Too many requests. Please slow down.' },
+  standardHeaders: true,
+  legacyHeaders:   false,
+});
+
+app.post('/api/login',          loginLimiter);
+app.post('/api/register',       registerLimiter);
+app.post('/api/invite-request', inviteRequestLimiter);
+app.use('/api/',                apiLimiter);
+
 // ─── Routes ───────────────────────────────────────────────────────────────
+app.use('/', landingRoutes);
 app.use('/', authRoutes);
+app.use('/', inviteRoutes);
+app.use('/', passwordResetRoutes);
 app.use('/', dashboardRoutes);
 app.use('/', settingsRoutes);
 app.use('/', studyRoutes);

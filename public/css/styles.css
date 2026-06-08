@@ -1,3 +1,34 @@
+/* ─── EB GARAMOND — SELF-HOSTED ─────────────────────────────────────── */
+
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/eb-garamond/eb-garamond-latin-400-normal.woff2') format('woff2'),
+       url('/fonts/eb-garamond/eb-garamond-latin-400-normal.woff')  format('woff');
+}
+
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/eb-garamond/eb-garamond-latin-400-italic.woff2') format('woff2'),
+       url('/fonts/eb-garamond/eb-garamond-latin-400-italic.woff')  format('woff');
+}
+
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/eb-garamond/eb-garamond-latin-600-normal.woff2') format('woff2'),
+       url('/fonts/eb-garamond/eb-garamond-latin-600-normal.woff')  format('woff');
+}
+
+/* ──────────────────────────────────────────────────────────────────── */
+
 :root {
   --bg:          #1A0F0A;
   --sidebar-bg:  #3D2B1A;
@@ -18,7 +49,7 @@ html, body {
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
 }
 
 /* ─── APP SHELL ─────────────────────────────────────────────────────── */
@@ -63,7 +94,7 @@ body {
 }
 
 .logo-title {
-  font-family: Georgia, serif;
+  font-family: 'EB Garamond', serif;
   font-size: 1.15rem;
   font-weight: bold;
   color: var(--accent);
@@ -72,7 +103,7 @@ body {
 }
 
 .logo-tagline {
-  font-family: Georgia, serif;
+  font-family: 'EB Garamond', serif;
   font-size: 0.68rem;
   color: var(--warm-brown);
   margin-top: 3px;
@@ -121,8 +152,9 @@ body {
   padding: 10px 16px;
   color: var(--dark-cream);
   text-decoration: none;
-  font-family: Georgia, serif;
-  font-size: 0.88rem;
+  font-family: 'EB Garamond', Georgia, serif !important;
+  font-size: 1rem;
+  font-weight: 400;
   white-space: nowrap;
   border-left: 3px solid transparent;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
@@ -158,7 +190,23 @@ body {
   border-left: none;
 }
 
+.nav-label {
+  font-family: 'EB Garamond', Georgia, serif !important;
+  font-weight: 400;
+}
+
 .sidebar.collapsed .nav-label { display: none; }
+
+/* Broad sidebar font override — ensures EB Garamond on all nav text */
+.sidebar a,
+.sidebar-nav a,
+.sidebar-nav .nav-item,
+.sidebar-nav .nav-label,
+.sidebar-footer a,
+.sidebar-footer .nav-label {
+  font-family: 'EB Garamond', Georgia, serif !important;
+  font-weight: 400;
+}
 
 /* ─── SIDEBAR FOOTER ────────────────────────────────────────────────── */
 
@@ -175,7 +223,7 @@ body {
   padding: 10px 16px;
   color: var(--warm-brown);
   text-decoration: none;
-  font-family: Georgia, serif;
+  font-family: 'EB Garamond', serif !important;
   font-size: 0.88rem;
   white-space: nowrap;
   border-left: 3px solid transparent;

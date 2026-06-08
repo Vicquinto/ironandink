@@ -48,8 +48,20 @@ router.get('/dashboard', requireAuth, (req, res) => {
   const articlesCount  = getArticlesCount(req.session.userId);
   const isAdmin        = getIsAdmin(req);
   const pendingCount   = isAdmin ? getPendingCount() : 0;
+  const showWelcome    = req.session.firstLogin === true;
+  if (showWelcome) req.session.firstLogin = false;
 
   const content = `
+    ${showWelcome ? `<div id="welcomeBanner" style="
+      background:rgba(179,140,51,0.12); border:1px solid rgba(179,140,51,0.35);
+      border-radius:6px; padding:14px 18px; margin-bottom:20px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      cursor:pointer;" onclick="this.style.display='none'">
+      <span style="color:var(--accent); font-family:'EB Garamond',Georgia,serif; font-size:1.05rem; font-style:italic;">
+        Welcome to Iron &amp; Ink. The iron begins to sharpen.
+      </span>
+      <span style="color:var(--warm-brown); font-size:0.8rem;">&#10005;</span>
+    </div>` : ''}
     <div class="page-header">
       <h2 class="page-title" id="greeting">Good day, ${firstName}.</h2>
       <p class="page-subtitle">May your study be fruitful to the glory of God.</p>

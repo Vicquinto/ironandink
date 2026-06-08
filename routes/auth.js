@@ -14,10 +14,11 @@ function writeUsers(users) {
   fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
 }
 
-// GET / — login page (redirect to dashboard if already logged in)
-router.get('/', (req, res) => {
+// GET /login — login page (redirect to dashboard if already logged in)
+router.get('/login', (req, res) => {
   if (req.session.userId) return res.redirect('/dashboard');
-  res.send(renderLoginPage({ error: null }));
+  const notice = req.query.reset === '1' ? 'Password updated. Please sign in.' : null;
+  res.send(renderLoginPage({ error: null, notice }));
 });
 
 // POST /api/login
@@ -100,7 +101,7 @@ router.post('/api/setup-password', async (req, res) => {
 
 // GET /logout
 router.get('/logout', (req, res) => {
-  req.session.destroy(() => res.redirect('/'));
+  req.session.destroy(() => res.redirect('/login'));
 });
 
 // ─── HTML Renderers ────────────────────────────────────────────────────────
@@ -172,7 +173,7 @@ function loginStyles() {
     </style>`;
 }
 
-function renderLoginPage({ error }) {
+function renderLoginPage({ error, notice }) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -188,6 +189,7 @@ function renderLoginPage({ error }) {
       <p class="login-tagline">Iron sharpens iron — Proverbs 27:17</p>
     </div>
     <div class="login-card">
+      ${notice ? `<div style="background:rgba(80,140,80,0.12);border:1px solid rgba(80,140,80,0.3);color:#a0d0a0;padding:10px 14px;border-radius:4px;font-size:0.85rem;margin-bottom:16px;">${notice}</div>` : ''}
       <div class="error-msg${error ? ' visible' : ''}" id="errorMsg">${error || ''}</div>
       <form id="loginForm">
         <div class="form-group">
@@ -200,8 +202,11 @@ function renderLoginPage({ error }) {
         </div>
         <button class="btn-submit" type="submit">Enter</button>
       </form>
+      <p style="text-align:center; margin-top:16px;">
+        <a href="/forgot-password" style="font-size:0.78rem; color:var(--warm-brown); text-decoration:none;">Forgot password?</a>
+      </p>
     </div>
-    <p class="footer-text">A Reformed Theological Study Platform</p>
+    <p class="footer-text">A Reformed Theological Study Platform &mdash; <a href="/" style="color:var(--warm-brown); text-decoration:none;">Home</a></p>
   </div>
   <script>
     document.getElementById('loginForm').addEventListener('submit', async (e) => {

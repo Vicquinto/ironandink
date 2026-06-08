@@ -20,8 +20,17 @@
   var rejectConfirmBtn = document.getElementById('rejectConfirmBtn');
   var rejectCancelBtn  = document.getElementById('rejectCancelBtn');
 
-  var adminTabPending   = document.getElementById('adminTabPending');
-  var adminTabPublished = document.getElementById('adminTabPublished');
+  var adminTabPending     = document.getElementById('adminTabPending');
+  var adminTabPublished   = document.getElementById('adminTabPublished');
+  var adminTabInvitations = document.getElementById('adminTabInvitations');
+
+  var inviteRequestList  = document.getElementById('inviteRequestList');
+  var inviteRequestEmpty = document.getElementById('inviteRequestEmpty');
+  var sentInviteList     = document.getElementById('sentInviteList');
+  var sentInviteEmpty    = document.getElementById('sentInviteEmpty');
+  var inviteLinkBox      = document.getElementById('inviteLinkBox');
+  var inviteLinkText     = document.getElementById('inviteLinkText');
+  var copyInviteLinkBtn  = document.getElementById('copyInviteLinkBtn');
 
   var currentRejectId = null;
 
@@ -31,8 +40,10 @@
       document.querySelectorAll('.admin-tab').forEach(function (t) { t.classList.remove('active'); });
       tab.classList.add('active');
       var which = tab.dataset.tab;
-      adminTabPending.style.display   = which === 'pending'   ? 'block' : 'none';
-      adminTabPublished.style.display = which === 'published' ? 'block' : 'none';
+      adminTabPending.style.display     = which === 'pending'     ? 'block' : 'none';
+      adminTabPublished.style.display   = which === 'published'   ? 'block' : 'none';
+      adminTabInvitations.style.display = which === 'invitations' ? 'block' : 'none';
+      if (which === 'invitations') { loadInviteRequests(); loadSentInvites(); }
     });
   });
 
@@ -324,6 +335,134 @@
       toast.classList.remove('visible');
       setTimeout(function () { toast.remove(); }, 350);
     }, 2800);
+  }
+
+  // ── Copy invite link ──────────────────────────────────────────────────────
+  if (copyInviteLinkBtn) {
+    copyInviteLinkBtn.addEventListener('click', function () {
+      var link = inviteLinkText ? inviteLinkText.textContent : '';
+      if (!link) return;
+      navigator.clipboard.writeText(link).then(function () {
+        showToast('Invite link copied.');
+      }).catch(function () {
+        showToast('Could not copy — select the link manually.', true);
+      });
+    });
+  }
+
+  // ── Load invite requests ──────────────────────────────────────────────────
+  async function loadInviteRequests() {
+    try {
+      var res  = await fetch('/api/admin/invite-requests');
+      var data = await res.json();
+      renderInviteRequests(data.requests || []);
+    } catch (err) {
+      if (inviteRequestList) inviteRequestList.innerHTML = '<p class="writing-empty">Could not load requests.</p>';
+    }
+  }
+
+  function renderInviteRequests(requests) {
+    if (!requests.length) {
+      if (inviteRequestEmpty) inviteRequestEmpty.style.display = 'block';
+      if (inviteRequestList)  inviteRequestList.innerHTML = '';
+      return;
+    }
+    if (inviteRequestEmpty) inviteRequestEmpty.style.display = 'none';
+
+    inviteRequestList.innerHTML = requests.map(function (r) {
+      return '<div class="article-card">' +
+        '<div class="article-card-header">' +
+          '<span class="article-card-title">' + esc(r.name) + '</span>' +
+          '<span class="article-status-badge status-pending">Pending</span>' +
+        '</div>' +
+        '<div class="article-card-meta">' +
+          '<span class="community-card-author">' + esc(r.email) + '</span>' +
+          '<span class="article-card-date">' + fmtDate(r.submittedAt) + '</span>' +
+        '</div>' +
+        '<p style="font-size:0.85rem; color:var(--dark-cream); margin-top:10px; line-height:1.55; font-style:italic;">"' + esc(r.reason) + '"</p>' +
+        '<div style="display:flex; gap:10px; margin-top:12px;">' +
+          '<button class="btn-primary invite-send-btn" data-id="' + esc(r.id) + '" style="font-size:0.82rem; padding:6px 14px;">Send Invite</button>' +
+          '<button class="btn-reject invite-decline-btn" data-id="' + esc(r.id) + '" style="font-size:0.82rem; padding:6px 14px;">Decline</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    inviteRequestList.querySelectorAll('.invite-send-btn').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        btn.disabled = true;
+        btn.textContent = 'Sending…';
+        try {
+          var res  = await fetch('/api/admin/invite-requests/' + encodeURIComponent(btn.dataset.id) + '/invite', { method: 'POST' });
+          var data = await res.json();
+          if (data.success) {
+            if (inviteLinkBox)  inviteLinkBox.style.display  = 'block';
+            if (inviteLinkText) inviteLinkText.textContent   = data.inviteUrl;
+            loadInviteRequests();
+            loadSentInvites();
+          } else {
+            showToast('Failed: ' + (data.error || ''), true);
+            btn.disabled = false;
+            btn.textContent = 'Send Invite';
+          }
+        } catch (err) {
+          showToast('Error: ' + err.message, true);
+          btn.disabled = false;
+          btn.textContent = 'Send Invite';
+        }
+      });
+    });
+
+    inviteRequestList.querySelectorAll('.invite-decline-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        showConfirm('Decline this invitation request?', 'Decline', async function () {
+          try {
+            var res  = await fetch('/api/admin/invite-requests/' + encodeURIComponent(btn.dataset.id) + '/decline', { method: 'POST' });
+            var data = await res.json();
+            if (data.success) { showToast('Request declined.'); loadInviteRequests(); }
+            else showToast('Failed: ' + (data.error || ''), true);
+          } catch (err) { showToast('Error: ' + err.message, true); }
+        });
+      });
+    });
+  }
+
+  // ── Load sent invites ─────────────────────────────────────────────────────
+  async function loadSentInvites() {
+    try {
+      var res  = await fetch('/api/admin/invites');
+      var data = await res.json();
+      renderSentInvites(data.invites || []);
+    } catch (err) {
+      if (sentInviteList) sentInviteList.innerHTML = '<p class="writing-empty">Could not load invites.</p>';
+    }
+  }
+
+  function renderSentInvites(invites) {
+    if (!invites.length) {
+      if (sentInviteEmpty) sentInviteEmpty.style.display = 'block';
+      if (sentInviteList)  sentInviteList.innerHTML = '';
+      return;
+    }
+    if (sentInviteEmpty) sentInviteEmpty.style.display = 'none';
+
+    sentInviteList.innerHTML = invites.map(function (i) {
+      var usedLabel  = i.used ? 'Used' : 'Pending';
+      var usedClass  = i.used ? 'status-published' : 'status-pending';
+      var tokenShort = i.token ? i.token.substring(0, 8) + '…' : '';
+      var expired    = !i.used && new Date(i.expiresAt) < new Date();
+      return '<div class="article-card">' +
+        '<div class="article-card-header">' +
+          '<span class="article-card-title">' + esc(i.name) + '</span>' +
+          '<span class="article-status-badge ' + usedClass + '">' + (expired && !i.used ? 'Expired' : usedLabel) + '</span>' +
+        '</div>' +
+        '<div class="article-card-meta">' +
+          '<span class="community-card-author">' + esc(i.email) + '</span>' +
+          '<span class="article-card-date">Sent ' + fmtDate(i.createdAt) + '</span>' +
+          '<span class="article-card-date">Expires ' + fmtDate(i.expiresAt) + '</span>' +
+          '<span style="font-family:\'Courier New\',monospace; font-size:0.72rem; color:var(--warm-brown);">' + esc(tokenShort) + '</span>' +
+        '</div>' +
+      '</div>';
+    }).join('');
   }
 
   loadPending();
