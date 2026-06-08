@@ -14,8 +14,7 @@
   function init() {
     if (!pageHasReadingContent()) return;
 
-    const definitionCache = new Map();
-    let selectionTimer    = null;
+    let selectionTimer = null;
     let tooltip           = null;
     let lastRect          = null;
 
@@ -167,13 +166,7 @@
         var range = sel.getRangeAt(0);
         var rect  = range.getBoundingClientRect();
 
-        var cacheKey = text.toLowerCase();
         showLoading(text, rect);
-
-        if (definitionCache.has(cacheKey)) {
-          renderDefinition(definitionCache.get(cacheKey));
-          return;
-        }
 
         fetch('/api/dictionary/define', {
           method:  'POST',
@@ -186,8 +179,6 @@
               renderError(data.error);
               return;
             }
-            if (definitionCache.size >= 50) definitionCache.clear();
-            definitionCache.set(cacheKey, data);
             renderDefinition(data);
           })
           .catch(function () {
