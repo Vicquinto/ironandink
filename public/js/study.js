@@ -24,6 +24,28 @@
   const cancelSaveBtn   = document.getElementById('cancelSaveBtn');
   const topicBrowser    = document.getElementById('topicBrowser');
   const stars           = document.querySelectorAll('.star');
+  const fontDecBtn      = document.getElementById('fontDecBtn');
+  const fontResetBtn    = document.getElementById('fontResetBtn');
+  const fontIncBtn      = document.getElementById('fontIncBtn');
+
+  // ── Font size control ─────────────────────────────────────────────────────
+  var FONT_DEFAULT = 16;
+  var FONT_MIN     = 12;
+  var FONT_MAX     = 28;
+  var FONT_STEP    = 2;
+  var studyFontSize = parseInt(localStorage.getItem('ironink_study_font_size'), 10) || FONT_DEFAULT;
+
+  function applyFontSize(size) {
+    studyFontSize = Math.min(FONT_MAX, Math.max(FONT_MIN, size));
+    guideBody.style.fontSize = studyFontSize + 'px';
+    localStorage.setItem('ironink_study_font_size', studyFontSize);
+  }
+
+  applyFontSize(studyFontSize);
+
+  fontDecBtn.addEventListener('click',   function () { applyFontSize(studyFontSize - FONT_STEP); });
+  fontResetBtn.addEventListener('click', function () { applyFontSize(FONT_DEFAULT); });
+  fontIncBtn.addEventListener('click',   function () { applyFontSize(studyFontSize + FONT_STEP); });
 
   // ── Prefill from dialogue gap analysis ───────────────────────────────────
   var urlPrefill = new URLSearchParams(window.location.search).get('studyNext');

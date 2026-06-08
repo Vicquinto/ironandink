@@ -631,6 +631,38 @@ body {
 .guide-body strong { color: var(--dark-cream); }
 .guide-body em    { color: var(--dark-cream); font-style: italic; }
 
+.guide-font-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.guide-font-btn {
+  background: transparent;
+  border: 1px solid rgba(179,140,51,0.35);
+  color: var(--accent);
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: Georgia, serif;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  padding: 3px 7px;
+  transition: background 0.12s, border-color 0.12s;
+}
+.guide-font-btn:hover {
+  background: rgba(179,140,51,0.12);
+  border-color: var(--accent);
+}
+.guide-font-btn-sm { font-size: 0.72rem; }
+.guide-font-btn-md { font-size: 0.85rem; }
+.guide-font-btn-lg { font-size: 1rem; }
+
+/* Body text inherits guide-body's inline font-size for the size control */
+.guide-body .guide-p,
+.guide-body .guide-list,
+.guide-body .guide-list li { font-size: 1em; }
+
 .guide-actions {
   display: flex;
   gap: 14px;

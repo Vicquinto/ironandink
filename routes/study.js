@@ -128,6 +128,11 @@ router.get('/study', requireAuth, (req, res) => {
         <h3 class="guide-display-title" id="guideTitle"></h3>
         <span class="guide-translation-badge" id="guideBadge"></span>
       </div>
+      <div class="guide-font-toolbar">
+        <button class="guide-font-btn guide-font-btn-sm" id="fontDecBtn">A&#8722;</button>
+        <button class="guide-font-btn guide-font-btn-md" id="fontResetBtn">A</button>
+        <button class="guide-font-btn guide-font-btn-lg" id="fontIncBtn">A+</button>
+      </div>
       <div class="guide-body" id="guideBody"></div>
       <div class="guide-actions">
         <button class="btn-primary" id="saveLibraryBtn">Save to Library</button>
