@@ -58,7 +58,41 @@ router.get('/writing', requireAuth, (req, res) => {
           <button class="modal-close-btn" id="closeWritingModalBtn">&#10005;</button>
         </div>
 
-        <div id="wModalStep1">
+        <div id="wModalStep0" style="display:none;">
+          <h3 class="writing-modal-title">What are you writing?</h3>
+          <div class="form-options">
+            <label class="form-option">
+              <input type="radio" name="writingForm" value="article">
+              <div class="form-option-body">
+                <div class="form-option-icon">&#128196;</div>
+                <div class="form-option-label">Article / Essay</div>
+                <div class="form-option-desc">A theological argument for reading and sharing. Structured for a reader who will sit with it.</div>
+              </div>
+            </label>
+            <label class="form-option">
+              <input type="radio" name="writingForm" value="sermon">
+              <div class="form-option-body">
+                <div class="form-option-icon">&#127908;</div>
+                <div class="form-option-label">Sermon / Exhortation</div>
+                <div class="form-option-desc">A proclamation written to be heard. Structured for a listener — with rhythm, repetition, and application.</div>
+              </div>
+            </label>
+            <label class="form-option">
+              <input type="radio" name="writingForm" value="letter">
+              <div class="form-option-body">
+                <div class="form-option-icon">&#9993;</div>
+                <div class="form-option-label">Letter</div>
+                <div class="form-option-desc">A personal doctrinal letter to a specific person. Pastoral in tone, direct in address.</div>
+              </div>
+            </label>
+          </div>
+          <div class="writing-modal-footer">
+            <button class="btn-primary" id="formContinueBtn" disabled>Continue</button>
+            <button class="btn-discard" id="cancelFormModalBtn">Cancel</button>
+          </div>
+        </div>
+
+        <div id="wModalStep1" style="display:none;">
           <h3 class="writing-modal-title">Choose your writing mode</h3>
           <div class="tier-options">
             <label class="tier-option">
@@ -116,7 +150,17 @@ router.get('/my-articles', requireAuth, (req, res) => {
       <h2 class="page-title">My Articles</h2>
       <p class="page-subtitle">Your saved drafts and completed articles.</p>
     </div>
-    <div id="myArticleList" class="article-list-container"></div>`;
+    <div id="myArticleList" class="article-list-container"></div>
+    <div id="myArticleReading" class="reading-view-container" style="display:none;">
+      <div class="reading-topbar">
+        <button class="btn-warm" id="readingBackBtn">&#8592; Back</button>
+        <div id="readingBadges" class="reading-badges"></div>
+      </div>
+      <div class="reading-card">
+        <h2 id="readingTitle" class="reading-title"></h2>
+        <div id="readingBody" class="reading-body"></div>
+      </div>
+    </div>`;
 
   res.send(renderLayout({
     req,
@@ -145,7 +189,7 @@ router.get('/api/articles/:id', requireAuth, (req, res) => {
 
 // ─── POST /api/articles ───────────────────────────────────────────────────────
 router.post('/api/articles', requireAuth, (req, res) => {
-  const { title, content, tier, answers, status } = req.body;
+  const { title, content, tier, form, answers, status } = req.body;
   if (!title) return res.status(400).json({ success: false, error: 'Title is required.' });
 
   const now     = new Date().toISOString();
@@ -155,6 +199,7 @@ router.post('/api/articles', requireAuth, (req, res) => {
     title:     title.trim(),
     content:   content || '',
     tier:      tier || 1,
+    form:      form || 'article',
     answers:   answers || {},
     status:    status || 'Draft',
     createdAt: now,
@@ -173,12 +218,13 @@ router.put('/api/articles/:id', requireAuth, (req, res) => {
   const idx      = articles.findIndex(a => a.id === req.params.id && a.userId === req.session.userId);
   if (idx === -1) return res.status(404).json({ success: false, error: 'Article not found.' });
 
-  const { title, content, tier, answers, status } = req.body;
+  const { title, content, tier, form, answers, status } = req.body;
   articles[idx] = {
     ...articles[idx],
     title:     title !== undefined ? title.trim() : articles[idx].title,
     content:   content !== undefined ? content : articles[idx].content,
     tier:      tier   || articles[idx].tier,
+    form:      form   || articles[idx].form || 'article',
     answers:   answers || articles[idx].answers,
     status:    status  || articles[idx].status,
     updatedAt: new Date().toISOString(),
@@ -201,13 +247,21 @@ router.delete('/api/articles/:id', requireAuth, (req, res) => {
 
 // ─── POST /api/writing/generate ───────────────────────────────────────────────
 router.post('/api/writing/generate', requireAuth, async (req, res) => {
-  const { tier, answers, topic } = req.body;
+  const { tier, answers, topic, form } = req.body;
   if (!tier || !answers) {
     return res.status(400).json({ success: false, error: 'Tier and answers are required.' });
   }
 
   const { IRON_INK_CORE_PROMPT, IRON_INK_WRITING_PROMPT } = req.app.locals.prompts;
-  const systemPrompt = IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_WRITING_PROMPT;
+
+  const formInstructions = {
+    article: 'This is an article or essay. Structure it with a clear introduction, logical argument movements, objection and answer, and a doxological conclusion. It is written to be read, not heard.',
+    sermon:  'This is a sermon or exhortation. Structure it with a compelling opening, expository body with clear movements, at least one illustration prompt [ILLUSTRATION: describe what kind of illustration would work here], and a direct application landing that tells the listener what to do or believe. Use repetition deliberately. Write for the ear, not the eye. End with a call to the congregation.',
+    letter:  'This is a personal doctrinal letter to a specific person. Open by addressing them directly by their relationship to the writer (friend, sister, neighbor — whatever was stated in Q3/Q5). Write in a warm but doctrinally serious pastoral voice. Do not structure it like an essay — let it read like a genuine letter. Close with an expression of care and a prayer or blessing.',
+  };
+  const formInstruction = formInstructions[form] || formInstructions.article;
+
+  const systemPrompt = IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_WRITING_PROMPT + '\n\n' + formInstruction;
 
   const tierInstructions = {
     1: "The student has chosen FULL SCAFFOLD mode. Produce a structured outline only — introduction, main arguments, objection and answer, doxological conclusion. Do not write any prose body.",

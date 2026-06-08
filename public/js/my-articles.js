@@ -1,8 +1,40 @@
 (function () {
   'use strict';
 
-  var articleList = document.getElementById('myArticleList');
+  var articleList      = document.getElementById('myArticleList');
+  var myArticleReading = document.getElementById('myArticleReading');
+  var readingTitle     = document.getElementById('readingTitle');
+  var readingBody      = document.getElementById('readingBody');
+  var readingBackBtn   = document.getElementById('readingBackBtn');
+  var readingBadges    = document.getElementById('readingBadges');
 
+  // ── View switching ────────────────────────────────────────────────────────
+  function showList() {
+    if (myArticleReading) myArticleReading.style.display = 'none';
+    if (articleList)      articleList.style.display      = 'block';
+  }
+
+  function showReading(article) {
+    if (!myArticleReading || !readingTitle || !readingBody) return;
+    articleList.style.display      = 'none';
+    myArticleReading.style.display = 'block';
+
+    readingTitle.textContent = article.title;
+    readingBody.innerHTML    = renderReadingText(article.content || '');
+
+    if (readingBadges) {
+      var formLabel   = formDisplayLabel(article.form);
+      var statusClass = article.status === 'Complete' ? 'status-complete' : 'status-draft';
+      readingBadges.innerHTML =
+        '<span class="tier-badge-sm">Tier ' + article.tier + '</span> ' +
+        '<span class="form-badge form-badge-' + esc(article.form || 'article') + '">' + formLabel + '</span> ' +
+        '<span class="article-status-badge ' + statusClass + '">' + article.status + '</span>';
+    }
+  }
+
+  if (readingBackBtn) readingBackBtn.addEventListener('click', showList);
+
+  // ── Load articles (all — Draft + Complete) ─────────────────────────────────
   async function loadArticles() {
     try {
       var res  = await fetch('/api/articles');
@@ -20,9 +52,10 @@
     }
 
     articleList.innerHTML = articles.map(function (a) {
+      var formLabel   = formDisplayLabel(a.form);
+      var statusClass = a.status === 'Complete' ? 'status-complete' : 'status-draft';
       var text        = a.content || '';
       var words       = text.trim() ? text.trim().split(/\s+/).length : 0;
-      var statusClass = a.status === 'Complete' ? 'status-complete' : 'status-draft';
       return '<div class="article-card">' +
         '<div class="article-card-header">' +
           '<span class="article-card-title">' + esc(a.title) + '</span>' +
@@ -30,16 +63,30 @@
         '</div>' +
         '<div class="article-card-meta">' +
           '<span class="tier-badge-sm">Tier ' + a.tier + '</span>' +
+          '<span class="form-badge form-badge-' + esc(a.form || 'article') + '">' + formLabel + '</span>' +
           '<span class="article-card-date">' + fmtDate(a.updatedAt || a.createdAt) + '</span>' +
           '<span class="article-status-badge ' + statusClass + '">' + a.status + '</span>' +
           '<span class="article-word-count">' + words + ' words</span>' +
         '</div>' +
-        '<a href="/writing?article=' + encodeURIComponent(a.id) + '" class="btn-warm" ' +
-          'style="display:inline-block; margin-top:12px; font-size:0.82rem; padding:7px 18px; text-decoration:none;">' +
-          'Open in Editor' +
-        '</a>' +
+        '<button class="btn-warm article-open-btn" data-id="' + esc(a.id) + '" ' +
+          'style="display:inline-block; margin-top:12px; font-size:0.82rem; padding:7px 18px;">' +
+          'Open' +
+        '</button>' +
       '</div>';
     }).join('');
+
+    articleList.querySelectorAll('.article-open-btn').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        try {
+          var res  = await fetch('/api/articles/' + encodeURIComponent(btn.dataset.id));
+          var data = await res.json();
+          if (data.success) showReading(data.article);
+          else showToast('Could not load article.', true);
+        } catch (err) {
+          showToast('Error: ' + err.message, true);
+        }
+      });
+    });
 
     articleList.querySelectorAll('.article-delete-btn').forEach(function (btn) {
       btn.addEventListener('click', async function (e) {
@@ -55,6 +102,29 @@
         }
       });
     });
+  }
+
+  // ── Reading text renderer ─────────────────────────────────────────────────
+  function renderReadingText(text) {
+    var escaped = String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    var paragraphs = escaped.split(/\n\n+/).map(function (para) {
+      return para
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>');
+    });
+
+    return '<p>' + paragraphs.join('</p><p>') + '</p>';
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function formDisplayLabel(form) {
+    var labels = { article: 'Article', sermon: 'Sermon', letter: 'Letter' };
+    return labels[form] || 'Article';
   }
 
   function fmtDate(iso) {

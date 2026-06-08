@@ -1654,4 +1654,151 @@ body {
   color: var(--accent);
   text-decoration: none;
 }
+
+/* ─── FORM SELECTION (Writing Step 0) ───────────────────────────────────── */
+
+.form-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.form-option {
+  display: block;
+  cursor: pointer;
+}
+
+.form-option input[type="radio"] {
+  display: none;
+}
+
+.form-option-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: var(--card-bg);
+  border: 1px solid rgba(179,140,51,0.15);
+  border-radius: 6px;
+  padding: 14px 16px;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.form-option input[type="radio"]:checked + .form-option-body {
+  border-color: var(--accent);
+  background: rgba(179,140,51,0.08);
+}
+
+.form-option-body:hover {
+  border-color: rgba(179,140,51,0.35);
+}
+
+.form-option-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.form-option-label {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.form-option-desc {
+  font-size: 0.8rem;
+  color: var(--warm-brown);
+  line-height: 1.5;
+}
+
+/* ─── FORM BADGES ────────────────────────────────────────────────────────── */
+
+.form-badge {
+  font-size: 0.68rem;
+  padding: 2px 9px;
+  border-radius: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.form-badge-article {
+  background: rgba(122,92,59,0.25);
+  color: var(--dark-cream);
+  border: 1px solid rgba(122,92,59,0.4);
+}
+
+.form-badge-sermon {
+  background: rgba(179,140,51,0.18);
+  color: var(--accent);
+  border: 1px solid rgba(179,140,51,0.35);
+}
+
+.form-badge-letter {
+  background: rgba(235,217,198,0.15);
+  color: var(--dark-cream);
+  border: 1px solid rgba(235,217,198,0.3);
+}
+
+/* ─── READING VIEW (My Articles) ─────────────────────────────────────────── */
+
+.reading-view-container {
+  padding-top: 4px;
+}
+
+.reading-topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.reading-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.reading-card {
+  background: var(--dark-cream);
+  border-radius: 8px;
+  padding: 40px 48px;
+  max-width: 720px;
+}
+
+.reading-title {
+  font-family: Georgia, serif;
+  font-size: 1.45rem;
+  color: #1A0F0A;
+  margin-bottom: 28px;
+  line-height: 1.35;
+  border-bottom: 1px solid rgba(26,15,10,0.15);
+  padding-bottom: 18px;
+}
+
+.reading-body {
+  font-family: Georgia, serif;
+  font-size: 0.97rem;
+  color: #2A1209;
+  line-height: 1.85;
+}
+
+.reading-body p {
+  margin-bottom: 1.1em;
+}
+
+.reading-body p:last-child {
+  margin-bottom: 0;
+}
+
+.article-word-count {
+  font-size: 0.75rem;
+  color: var(--warm-brown);
+  font-style: italic;
+}
 .link-accent:hover { text-decoration: underline; }

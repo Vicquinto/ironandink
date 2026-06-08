@@ -2,19 +2,33 @@
   'use strict';
 
   // ── State ─────────────────────────────────────────────────────────────────
-  var selectedTier        = 0;
-  var answers             = ['', '', '', '', ''];
-  var currentQ            = 0;
-  var currentArticleId    = null;
+  var selectedTier         = 0;
+  var selectedForm         = '';
+  var answers              = ['', '', '', '', ''];
+  var currentQ             = 0;
+  var currentArticleId     = null;
   var currentArticleStatus = 'Draft';
 
-  var QUESTIONS = [
-    'What is the central doctrinal claim of this article? State it in one sentence.',
+  var QUESTIONS_BASE = [
+    'What is the central doctrinal claim of this piece? State it in one sentence.',
     'What are your two or three primary scripture arguments for this claim? Give the passages and a brief statement of what each one establishes.',
     'Who is your intended reader — a skeptic, a curious believer, a fellow Reformed student? How does that shape your tone?',
     'What is the strongest objection your reader will raise? How will you answer it?',
-    'How does this doctrine connect to the life of the believer? Where does this end in worship and doxology?'
   ];
+
+  function getQ5() {
+    if (selectedForm === 'sermon') {
+      return 'What is the one thing you want your listener to walk away changed by? What do you want them to do, feel, or believe differently when they leave?';
+    }
+    if (selectedForm === 'letter') {
+      return 'Who specifically are you writing to, and what is the one thing you most want them to understand or feel by the end of this letter?';
+    }
+    return 'How does this doctrine connect to the life of the believer? Where does this end in worship and doxology?';
+  }
+
+  function getQuestions() {
+    return QUESTIONS_BASE.concat([getQ5()]);
+  }
 
   // ── DOM refs ──────────────────────────────────────────────────────────────
   var writingMain     = document.getElementById('writingMain');
@@ -24,24 +38,27 @@
   var beginArticleBtn = document.getElementById('beginArticleBtn');
   var articleList     = document.getElementById('articleList');
 
+  var wModalStep0           = document.getElementById('wModalStep0');
   var wModalStep1           = document.getElementById('wModalStep1');
   var wModalStep2           = document.getElementById('wModalStep2');
+  var formContinueBtn       = document.getElementById('formContinueBtn');
+  var cancelFormModalBtn    = document.getElementById('cancelFormModalBtn');
   var tierContinueBtn       = document.getElementById('tierContinueBtn');
   var cancelWritingModalBtn = document.getElementById('cancelWritingModalBtn');
   var closeWritingModalBtn  = document.getElementById('closeWritingModalBtn');
 
-  var questionNum    = document.getElementById('questionNum');
-  var questionText   = document.getElementById('questionText');
-  var questionAnswer = document.getElementById('questionAnswer');
+  var questionNum     = document.getElementById('questionNum');
+  var questionText    = document.getElementById('questionText');
+  var questionAnswer  = document.getElementById('questionAnswer');
   var questionNextBtn = document.getElementById('questionNextBtn');
 
-  var editorTitle      = document.getElementById('editorTitle');
-  var editorContent    = document.getElementById('editorContent');
-  var editorTierBadge  = document.getElementById('editorTierBadge');
-  var editorWordCount  = document.getElementById('editorWordCount');
-  var saveDraftBtn     = document.getElementById('saveDraftBtn');
-  var markCompleteBtn  = document.getElementById('markCompleteBtn');
-  var startOverBtn     = document.getElementById('startOverBtn');
+  var editorTitle       = document.getElementById('editorTitle');
+  var editorContent     = document.getElementById('editorContent');
+  var editorTierBadge   = document.getElementById('editorTierBadge');
+  var editorWordCount   = document.getElementById('editorWordCount');
+  var saveDraftBtn      = document.getElementById('saveDraftBtn');
+  var markCompleteBtn   = document.getElementById('markCompleteBtn');
+  var startOverBtn      = document.getElementById('startOverBtn');
   var writingLoadingText = document.getElementById('writingLoadingText');
 
   // ── State control ─────────────────────────────────────────────────────────
@@ -74,19 +91,40 @@
   // ── Begin New Article ─────────────────────────────────────────────────────
   beginArticleBtn.addEventListener('click', function () {
     selectedTier = 0;
+    selectedForm = '';
+    document.querySelectorAll('input[name="writingForm"]').forEach(function (r) { r.checked = false; });
     document.querySelectorAll('input[name="writingTier"]').forEach(function (r) { r.checked = false; });
+    if (formContinueBtn) formContinueBtn.disabled = true;
     tierContinueBtn.disabled = true;
-    wModalStep1.style.display = 'block';
+    wModalStep0.style.display = 'block';
+    wModalStep1.style.display = 'none';
     wModalStep2.style.display = 'none';
     showState('modal');
   });
 
   // ── Close / cancel modal ──────────────────────────────────────────────────
   function closeModal() { showState('main'); }
-  cancelWritingModalBtn.addEventListener('click', closeModal);
+  if (cancelFormModalBtn)    cancelFormModalBtn.addEventListener('click', closeModal);
+  if (cancelWritingModalBtn) cancelWritingModalBtn.addEventListener('click', closeModal);
   closeWritingModalBtn.addEventListener('click', closeModal);
 
-  // ── Tier selection ────────────────────────────────────────────────────────
+  // ── Form selection (Step 0) ───────────────────────────────────────────────
+  document.querySelectorAll('input[name="writingForm"]').forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      selectedForm = radio.value;
+      if (formContinueBtn) formContinueBtn.disabled = false;
+    });
+  });
+
+  if (formContinueBtn) {
+    formContinueBtn.addEventListener('click', function () {
+      if (!selectedForm) return;
+      wModalStep0.style.display = 'none';
+      wModalStep1.style.display = 'block';
+    });
+  }
+
+  // ── Tier selection (Step 1) ───────────────────────────────────────────────
   document.querySelectorAll('input[name="writingTier"]').forEach(function (radio) {
     radio.addEventListener('change', function () {
       selectedTier = parseInt(radio.value, 10);
@@ -103,11 +141,12 @@
     showQuestion(0);
   });
 
-  // ── Question flow ─────────────────────────────────────────────────────────
+  // ── Question flow (Step 2) ────────────────────────────────────────────────
   function showQuestion(index) {
+    var questions = getQuestions();
     currentQ = index;
     questionNum.textContent  = index + 1;
-    questionText.textContent = QUESTIONS[index];
+    questionText.textContent = questions[index];
     questionAnswer.value     = answers[index] || '';
     questionNextBtn.disabled = questionAnswer.value.trim() === '';
     questionNextBtn.textContent = index === 4 ? 'Generate' : 'Next';
@@ -139,6 +178,7 @@
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({
           tier:    selectedTier,
+          form:    selectedForm,
           answers: { q1: answers[0], q2: answers[1], q3: answers[2], q4: answers[3], q5: answers[4] },
           topic:   answers[0],
         }),
@@ -150,7 +190,7 @@
       currentArticleStatus = 'Draft';
       editorTitle.value    = answers[0];
       editorContent.value  = data.content;
-      setTierBadge(selectedTier);
+      setTierBadge(selectedTier, selectedForm);
       updateWordCount();
       showState('editor');
     } catch (err) {
@@ -175,6 +215,7 @@
     currentArticleId     = article.id;
     currentArticleStatus = article.status;
     selectedTier         = article.tier;
+    selectedForm         = article.form || 'article';
     if (article.answers) {
       answers = [
         article.answers.q1 || '',
@@ -186,7 +227,7 @@
     }
     editorTitle.value   = article.title;
     editorContent.value = article.content;
-    setTierBadge(article.tier);
+    setTierBadge(article.tier, article.form || 'article');
     updateWordCount();
     showState('editor');
   }
@@ -204,6 +245,7 @@
       title,
       content,
       tier:    selectedTier,
+      form:    selectedForm,
       answers: { q1: answers[0], q2: answers[1], q3: answers[2], q4: answers[3], q5: answers[4] },
       status,
     };
@@ -228,6 +270,7 @@
         currentArticleId     = data.article.id;
         currentArticleStatus = data.article.status;
         showToast(status === 'Complete' ? 'Marked complete.' : 'Draft saved.');
+        if (status === 'Complete') loadArticleList();
       } else {
         showToast('Error: ' + (data.error || 'Save failed.'), true);
       }
@@ -241,6 +284,7 @@
     currentArticleId     = null;
     currentArticleStatus = 'Draft';
     selectedTier         = 0;
+    selectedForm         = '';
     answers              = ['', '', '', '', ''];
     editorTitle.value    = '';
     editorContent.value  = '';
@@ -250,12 +294,13 @@
     if (window.history.replaceState) window.history.replaceState({}, '', '/writing');
   });
 
-  // ── Article list ──────────────────────────────────────────────────────────
+  // ── Article list (Draft only) ─────────────────────────────────────────────
   async function loadArticleList() {
     try {
       var res  = await fetch('/api/articles');
       var data = await res.json();
-      renderArticleList(data.articles || []);
+      var drafts = (data.articles || []).filter(function (a) { return a.status === 'Draft'; });
+      renderArticleList(drafts);
     } catch (err) {
       articleList.innerHTML = '<p class="writing-empty">Could not load articles.</p>';
     }
@@ -263,11 +308,11 @@
 
   function renderArticleList(articles) {
     if (!articles.length) {
-      articleList.innerHTML = '<p class="writing-empty">No articles yet. Begin your first.</p>';
+      articleList.innerHTML = '<p class="writing-empty">No drafts in progress. Begin your first.</p>';
       return;
     }
     articleList.innerHTML = articles.map(function (a) {
-      var statusClass = a.status === 'Complete' ? 'status-complete' : 'status-draft';
+      var formLabel = formDisplayLabel(a.form);
       return '<div class="article-card">' +
         '<div class="article-card-header">' +
           '<span class="article-card-title">' + esc(a.title) + '</span>' +
@@ -275,8 +320,8 @@
         '</div>' +
         '<div class="article-card-meta">' +
           '<span class="tier-badge-sm">Tier ' + a.tier + '</span>' +
+          '<span class="form-badge form-badge-' + esc(a.form || 'article') + '">' + formLabel + '</span>' +
           '<span class="article-card-date">' + fmtDate(a.updatedAt || a.createdAt) + '</span>' +
-          '<span class="article-status-badge ' + statusClass + '">' + a.status + '</span>' +
         '</div>' +
         '<button class="btn-warm article-open-btn" data-id="' + esc(a.id) + '" style="margin-top:12px; font-size:0.82rem; padding:7px 18px;">Open</button>' +
       '</div>';
@@ -303,9 +348,15 @@
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
-  function setTierBadge(tier) {
-    var labels = { 1: 'Tier 1 — Scaffold', 2: 'Tier 2 — Draft', 3: 'Tier 3 — Ghostwrite' };
-    editorTierBadge.textContent = labels[tier] || 'Tier ' + tier;
+  function setTierBadge(tier, form) {
+    var tierLabels = { 1: 'Tier 1 — Scaffold', 2: 'Tier 2 — Draft', 3: 'Tier 3 — Ghostwrite' };
+    var formLabel  = formDisplayLabel(form);
+    editorTierBadge.textContent = (tierLabels[tier] || 'Tier ' + tier) + (formLabel ? ' · ' + formLabel : '');
+  }
+
+  function formDisplayLabel(form) {
+    var labels = { article: 'Article', sermon: 'Sermon', letter: 'Letter' };
+    return labels[form] || 'Article';
   }
 
   function updateWordCount() {
