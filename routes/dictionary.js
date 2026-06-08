@@ -58,12 +58,23 @@ function fetchDictionaryApi(word) {
   });
 }
 
-async function fetchAnthropicDefinition(term) {
+const PROMPT_COMMON =
+  "Define this word in plain simple English in 2 sentences maximum. " +
+  "First sentence: what the word means in everyday use. " +
+  "Second sentence: an example of how it is used. " +
+  "No theology. No jargon. Write like you are texting a friend.";
+
+const PROMPT_THEOLOGICAL =
+  "You are a friendly Bible study helper. Explain this theological term in plain English first — " +
+  "what it means in simple words. Then one sentence on why it matters in Reformed theology. " +
+  "Maximum 2-3 sentences. Avoid jargon where possible.";
+
+async function fetchAnthropicDefinition(term, theological) {
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const message = await client.messages.create({
     model:      'claude-sonnet-4-6',
     max_tokens: 150,
-    system:     "You are a friendly Bible study helper. Explain words in the simplest plain English possible — like you are talking to a smart friend who loves the Bible but never went to seminary. Start with what the word means in everyday life. Then in one short sentence mention how it matters in Christian thinking. Maximum 2 sentences total. No theological jargon. No Latin. No confession references.",
+    system:     theological ? PROMPT_THEOLOGICAL : PROMPT_COMMON,
     messages:   [{ role: 'user', content: 'Define: ' + term }],
   });
   return message.content[0].text.trim();
@@ -80,7 +91,7 @@ router.post('/api/dictionary/define', requireAuth, async (req, res) => {
 
   if (isTheological(cleanTerm)) {
     try {
-      const definition = await fetchAnthropicDefinition(cleanTerm);
+      const definition = await fetchAnthropicDefinition(cleanTerm, true);
       return res.json({ term: cleanTerm, definition, source: 'theological' });
     } catch (err) {
       console.error('[Dictionary/theological]', err.message);
@@ -95,7 +106,7 @@ router.post('/api/dictionary/define', requireAuth, async (req, res) => {
   } catch (dictErr) {
     console.error('[Dictionary/common] falling back to Anthropic:', dictErr.message);
     try {
-      const definition = await fetchAnthropicDefinition(cleanTerm);
+      const definition = await fetchAnthropicDefinition(cleanTerm, false);
       return res.json({ term: cleanTerm, definition, source: 'theological' });
     } catch (err) {
       console.error('[Dictionary/fallback]', err.message);
