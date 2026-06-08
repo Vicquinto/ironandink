@@ -62,12 +62,16 @@ const PROMPT_THEOLOGICAL =
   "what it means in simple words. Then one sentence on why it matters in Reformed theology. " +
   "Maximum 2-3 sentences. Avoid jargon where possible.";
 
-async function fetchAnthropicDefinition(term) {
+const PROMPT_COMMON =
+  "Define this single English word in one plain sentence. Just the basic meaning. " +
+  "No theology. No philosophy. No examples. One sentence only.";
+
+async function fetchAnthropicDefinition(term, system) {
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const message = await client.messages.create({
     model:      'claude-sonnet-4-6',
     max_tokens: 150,
-    system:     PROMPT_THEOLOGICAL,
+    system,
     messages:   [{ role: 'user', content: 'Define: ' + term }],
   });
   return message.content[0].text.trim();
@@ -86,7 +90,7 @@ router.post('/api/dictionary/define', requireAuth, async (req, res) => {
   // Multi-word phrase → Anthropic (Reformed theological context)
   if (isMultiWord(cleanTerm)) {
     try {
-      const definition = await fetchAnthropicDefinition(cleanTerm);
+      const definition = await fetchAnthropicDefinition(cleanTerm, PROMPT_THEOLOGICAL);
       return res.json({ term: cleanTerm, definition, source: 'theological' });
     } catch (err) {
       console.error('[Dict] Anthropic error:', err.message);
@@ -99,13 +103,18 @@ router.post('/api/dictionary/define', requireAuth, async (req, res) => {
     return res.json({ term: cleanTerm, definition: websterIndex[key], source: 'dictionary' });
   }
 
-  // Not in Webster's → free Dictionary API fallback
+  // Not in Webster's → free Dictionary API, then Anthropic plain-English fallback
   try {
     const definition = await fetchDictionaryApi(cleanTerm);
     return res.json({ term: cleanTerm, definition, source: 'dictionary' });
-  } catch (dictErr) {
-    console.error('[Dict] DictAPI error:', dictErr.message);
-    return res.json({ error: 'Definition unavailable. Try again.' });
+  } catch {
+    try {
+      const definition = await fetchAnthropicDefinition(cleanTerm, PROMPT_COMMON);
+      return res.json({ term: cleanTerm, definition, source: 'dictionary' });
+    } catch (err) {
+      console.error('[Dict] Anthropic error:', err.message);
+      return res.json({ error: 'Definition unavailable. Try again.' });
+    }
   }
 });
 
