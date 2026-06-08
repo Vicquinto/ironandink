@@ -8,6 +8,7 @@
   var history         = [];
   var abortController = null;
   var isGenerating    = false;
+  var gapStudyNextValue = '';
 
   // ── DOM refs ─────────────────────────────────────────────────────────────
   var setupScreen         = document.getElementById('dialogueSetup');
@@ -18,6 +19,7 @@
   var sendResponseBtn     = document.getElementById('sendResponseBtn');
   var stopDialogueBtn     = document.getElementById('stopDialogueBtn');
   var endSessionBtn       = document.getElementById('endSessionBtn');
+  var studyNextBtn        = document.getElementById('studyNextBtn');
   var saveSessionBtn      = document.getElementById('saveSessionBtn');
   var discardSessionBtn   = document.getElementById('discardSessionBtn');
   var sessionTopicLabel   = document.getElementById('sessionTopicLabel');
@@ -28,6 +30,10 @@
   var beginDialogueBtn    = document.getElementById('beginDialogueBtn');
   var endSessionActions   = document.getElementById('endSessionActions');
   var endSessionConfirm   = document.getElementById('endSessionConfirm');
+  var gapLoading          = document.getElementById('gapLoading');
+  var gapResults          = document.getElementById('gapResults');
+  var gapSummaryText      = document.getElementById('gapSummaryText');
+  var gapStudyNextText    = document.getElementById('gapStudyNextText');
 
   // ── Entry point radio toggle ──────────────────────────────────────────────
   document.querySelectorAll('input[name="entryType"]').forEach(function (radio) {
@@ -119,7 +125,7 @@
     } catch (err) {
       hideTypingIndicator();
       if (err.name === 'AbortError') {
-        history.pop(); // Roll back user message — exchange was cancelled
+        history.pop();
       } else {
         addSystemMsg('Error receiving response. Please try again.');
       }
@@ -258,27 +264,79 @@
     if (abortController) abortController.abort();
   });
 
-  // ── End session ───────────────────────────────────────────────────────────
-  endSessionBtn.addEventListener('click', function () {
+  // ── End session — gap analysis first ─────────────────────────────────────
+  endSessionBtn.addEventListener('click', async function () {
+    gapLoading.style.display    = 'none';
+    gapResults.style.display    = 'none';
+    endSessionConfirm.style.display = 'none';
+    endSessionActions.style.display = 'none';
+    gapStudyNextValue = '';
     endSessionModal.style.display = 'flex';
+
+    if (!history.length) {
+      endSessionActions.style.display = 'flex';
+      return;
+    }
+
+    gapLoading.style.display = 'block';
+
+    try {
+      var res = await fetch('/api/dialogue/gaps', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          transcript:          history,
+          topic:               sessionTopic,
+          adversarialPosition: sessionPosition,
+        }),
+      });
+      var data = await res.json();
+
+      if (data.success && data.summary && data.studyNext) {
+        gapStudyNextValue = data.studyNext;
+        gapSummaryText.textContent    = data.summary;
+        gapStudyNextText.textContent  = data.studyNext;
+        gapResults.style.display = 'block';
+      }
+    } catch (err) {
+      // Gap analysis failed — still show buttons
+    } finally {
+      gapLoading.style.display = 'none';
+      endSessionActions.style.display = 'flex';
+    }
+  });
+
+  // ── Save helper ───────────────────────────────────────────────────────────
+  async function performSave() {
+    var res = await fetch('/api/dialogue/save', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({
+        topic:               sessionTopic,
+        adversarialPosition: sessionPosition,
+        linkedStudyId:       sessionStudyId,
+        transcript:          history,
+      }),
+    });
+    return await res.json();
+  }
+
+  // ── Study this next — auto-save then navigate ─────────────────────────────
+  studyNextBtn.addEventListener('click', async function () {
+    studyNextBtn.disabled = true;
+    try {
+      await performSave();
+    } catch (err) { /* navigate regardless */ }
+    var dest = '/study';
+    if (gapStudyNextValue) dest += '?studyNext=' + encodeURIComponent(gapStudyNextValue);
+    window.location.href = dest;
   });
 
   // ── Save session ──────────────────────────────────────────────────────────
   saveSessionBtn.addEventListener('click', async function () {
     saveSessionBtn.disabled = true;
     try {
-      var res = await fetch('/api/dialogue/save', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({
-          topic:               sessionTopic,
-          adversarialPosition: sessionPosition,
-          linkedStudyId:       sessionStudyId,
-          transcript:          history,
-        }),
-      });
-      var data = await res.json();
-
+      var data = await performSave();
       if (data.success) {
         endSessionActions.style.display = 'none';
         endSessionConfirm.style.display = 'block';
@@ -297,17 +355,21 @@
   discardSessionBtn.addEventListener('click', resetSession);
 
   function resetSession() {
-    history        = [];
-    sessionTopic   = '';
-    sessionPosition = '';
-    sessionStudyId = null;
+    history           = [];
+    sessionTopic      = '';
+    sessionPosition   = '';
+    sessionStudyId    = null;
+    gapStudyNextValue = '';
 
-    chatMessages.innerHTML        = '';
-    userResponseInput.value       = '';
-    saveSessionBtn.disabled       = false;
-    endSessionModal.style.display = 'none';
-    endSessionActions.style.display = 'flex';
+    chatMessages.innerHTML          = '';
+    userResponseInput.value         = '';
+    saveSessionBtn.disabled         = false;
+    studyNextBtn.disabled           = false;
+    endSessionModal.style.display   = 'none';
+    endSessionActions.style.display = 'none';
     endSessionConfirm.style.display = 'none';
+    gapLoading.style.display        = 'none';
+    gapResults.style.display        = 'none';
 
     sessionScreen.style.display = 'none';
     setupScreen.style.display   = 'block';

@@ -133,12 +133,23 @@ router.get('/dialogue', requireAuth, (req, res) => {
     <div id="endSessionModal" class="end-modal-overlay" style="display:none;">
       <div class="end-session-card">
         <p class="end-session-quote">&#8220;The session is complete. What you wrestled with today is yours.&#8221;</p>
+        <div id="gapLoading" class="gap-loading" style="display:none;">
+          <div class="study-spinner gap-spinner"></div>
+          <p class="loading-text">Analyzing your session&#8230;</p>
+        </div>
+        <div id="gapResults" style="display:none;">
+          <div class="gap-summary-box">
+            <p id="gapSummaryText"></p>
+          </div>
+          <p class="gap-study-next-label">The adversary pressed hardest on: <em id="gapStudyNextText"></em></p>
+        </div>
         <div id="endSessionConfirm" style="display:none;">
           <p class="end-confirm-text">Session saved to your Library.</p>
         </div>
-        <div id="endSessionActions" class="end-session-actions">
-          <button class="btn-primary" id="saveSessionBtn">Save this session</button>
-          <button class="btn-warm" id="discardSessionBtn">Discard</button>
+        <div id="endSessionActions" class="end-session-actions" style="display:none;">
+          <button class="btn-primary" id="studyNextBtn">Study this next &#8594;</button>
+          <button class="btn-warm" id="saveSessionBtn">Save session</button>
+          <button class="btn-discard" id="discardSessionBtn">Discard</button>
         </div>
       </div>
     </div>`;
@@ -263,6 +274,40 @@ router.post('/api/dialogue/save', requireAuth, (req, res) => {
   writeDialogues(dialogues);
 
   res.json({ success: true, dialogue });
+});
+
+// ─── POST /api/dialogue/gaps ──────────────────────────────────────────────────
+router.post('/api/dialogue/gaps', requireAuth, async (req, res) => {
+  const { transcript, topic, adversarialPosition } = req.body;
+
+  const { IRON_INK_CORE_PROMPT } = req.app.locals.prompts;
+
+  const transcriptText = Array.isArray(transcript)
+    ? transcript.map(m => (m.role === 'assistant' ? 'Adversary' : 'Student') + ': ' + m.content).join('\n\n')
+    : String(transcript || '');
+
+  const userPrompt = `You have just completed an adversarial dialogue session on "${topic}" from the ${adversarialPosition} position. Here is the full transcript:\n\n${transcriptText}\n\nIn 2-3 sentences, identify where the student's answers were weakest or where a challenge went unanswered. Then state in 5 words or fewer the single most important topic the student should study next to strengthen their position. Return your response in this exact JSON format: { "summary": "2-3 sentence gap analysis", "studyNext": "topic in 5 words or fewer" }`;
+
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+  try {
+    const message = await client.messages.create({
+      model:      'claude-opus-4-8',
+      max_tokens: 400,
+      system:     IRON_INK_CORE_PROMPT,
+      messages:   [{ role: 'user', content: userPrompt }],
+    });
+
+    const text      = message.content[0].text.trim();
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('No JSON in response');
+    const parsed = JSON.parse(jsonMatch[0]);
+
+    res.json({ success: true, summary: parsed.summary, studyNext: parsed.studyNext });
+  } catch (err) {
+    console.error('[Dialogue/gaps]', err.message);
+    res.json({ success: false, error: err.message });
+  }
 });
 
 // ─── GET /api/dialogues ───────────────────────────────────────────────────────

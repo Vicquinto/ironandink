@@ -6,6 +6,7 @@ const { requireAuth, renderLayout } = require('./layout');
 const router          = express.Router();
 const STUDIES_PATH    = path.join(__dirname, '../data/studies.json');
 const DIALOGUES_PATH  = path.join(__dirname, '../data/dialogues.json');
+const ARTICLES_PATH   = path.join(__dirname, '../data/articles.json');
 
 function getStudiesCount(userId) {
   try {
@@ -23,12 +24,20 @@ function getDialoguesCount(userId) {
   } catch { return 0; }
 }
 
+function getArticlesCount(userId) {
+  try {
+    if (!fs.existsSync(ARTICLES_PATH)) return 0;
+    const data = JSON.parse(fs.readFileSync(ARTICLES_PATH, 'utf8'));
+    return data.filter(a => a.userId === userId && a.status === 'Complete').length;
+  } catch { return 0; }
+}
+
 router.get('/dashboard', requireAuth, (req, res) => {
   const user           = req.session.user;
   const firstName      = (user.fullName || 'Scholar').split(' ')[0];
-  const stats          = user.stats || { articlesWritten: 0 };
   const studyCount     = getStudiesCount(req.session.userId);
   const dialogueCount  = getDialoguesCount(req.session.userId);
+  const articlesCount  = getArticlesCount(req.session.userId);
 
   const content = `
     <div class="page-header">
@@ -53,7 +62,7 @@ router.get('/dashboard', requireAuth, (req, res) => {
       </div>
       <div class="stat-card">
         <div class="stat-label">Articles Written</div>
-        <div class="stat-value">${stats.articlesWritten}</div>
+        <div class="stat-value">${articlesCount}</div>
       </div>
     </div>
 

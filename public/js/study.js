@@ -25,6 +25,10 @@
   const topicBrowser    = document.getElementById('topicBrowser');
   const stars           = document.querySelectorAll('.star');
 
+  // ── Prefill from dialogue gap analysis ───────────────────────────────────
+  var urlPrefill = new URLSearchParams(window.location.search).get('studyNext');
+  if (urlPrefill && topicInput) { topicInput.value = urlPrefill; topicInput.focus(); }
+
   // ── Accordion ─────────────────────────────────────────────────────────────
   document.querySelectorAll('.topic-cat-header').forEach(function (btn) {
     btn.addEventListener('click', function () {
