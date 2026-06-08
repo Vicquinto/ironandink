@@ -81,14 +81,12 @@ router.post('/api/dictionary/define', requireAuth, async (req, res) => {
   }
 
   const cleanTerm = term.trim();
-  console.log('[Dict] term received  :', JSON.stringify(cleanTerm));
+  const key       = cleanTerm.toLowerCase();
 
   // Multi-word phrase → Anthropic (Reformed theological context)
   if (isMultiWord(cleanTerm)) {
-    console.log('[Dict] route          : Anthropic (multi-word phrase)');
     try {
       const definition = await fetchAnthropicDefinition(cleanTerm);
-      console.log('[Dict] Anthropic raw  :', JSON.stringify(definition));
       return res.json({ term: cleanTerm, definition, source: 'theological' });
     } catch (err) {
       console.error('[Dict] Anthropic error:', err.message);
@@ -97,21 +95,16 @@ router.post('/api/dictionary/define', requireAuth, async (req, res) => {
   }
 
   // Single word → Webster's local index first
-  const key = cleanTerm.toLowerCase();
   if (websterIndex[key]) {
-    console.log('[Dict] route          : Webster\'s (local)');
-    console.log('[Dict] Webster raw    :', JSON.stringify(websterIndex[key].substring(0, 120)));
     return res.json({ term: cleanTerm, definition: websterIndex[key], source: 'dictionary' });
   }
 
   // Not in Webster's → free Dictionary API fallback
-  console.log('[Dict] route          : Dictionary API (not in Webster\'s)');
   try {
     const definition = await fetchDictionaryApi(cleanTerm);
-    console.log('[Dict] DictAPI raw    :', JSON.stringify(definition));
     return res.json({ term: cleanTerm, definition, source: 'dictionary' });
   } catch (dictErr) {
-    console.error('[Dict] DictAPI error  :', dictErr.message);
+    console.error('[Dict] DictAPI error:', dictErr.message);
     return res.json({ error: 'Definition unavailable. Try again.' });
   }
 });

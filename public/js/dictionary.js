@@ -1,5 +1,4 @@
 (function () {
-  console.log('dictionary.js loaded');
   const READING_IDS = ['guideArea', 'modalBody', 'readingBody', 'communityReadBody'];
 
   function pageHasReadingContent() {
@@ -158,14 +157,12 @@
 
         var text = sel.toString().trim();
         if (!text) return;
-        console.log('mouseup fired', text);
-
-        if (countWords(text) > 5) { console.log('dict: too many words, skipping'); return; }
+        if (countWords(text) > 5) return;
 
         var anchorNode = sel.anchorNode;
-        if (!anchorNode) { console.log('dict: no anchorNode'); return; }
-        if (isEditableNode(anchorNode)) { console.log('dict: editable node, skipping'); return; }
-        if (!isInsideReadingContainer(anchorNode)) { console.log('dict: not inside reading container, skipping'); return; }
+        if (!anchorNode) return;
+        if (isEditableNode(anchorNode)) return;
+        if (!isInsideReadingContainer(anchorNode)) return;
 
         var range = sel.getRangeAt(0);
         var rect  = range.getBoundingClientRect();
@@ -174,12 +171,10 @@
         showLoading(text, rect);
 
         if (definitionCache.has(cacheKey)) {
-          console.log('dict: serving from cache for', JSON.stringify(cacheKey));
           renderDefinition(definitionCache.get(cacheKey));
           return;
         }
 
-        console.log('dict: fetching from server for', JSON.stringify(cacheKey));
         fetch('/api/dictionary/define', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
