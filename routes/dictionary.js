@@ -1,34 +1,33 @@
 const express   = require('express');
 const https     = require('https');
+const fs        = require('fs');
+const path      = require('path');
 const Anthropic = require('@anthropic-ai/sdk');
 const { requireAuth } = require('./layout');
 
 const router = express.Router();
 
-const THEOLOGICAL_TERMS = new Set([
-  'justification', 'sanctification', 'glorification', 'regeneration',
-  'election', 'predestination', 'atonement', 'propitiation', 'expiation',
-  'imputation', 'ordo salutis', 'union with christ', 'hypostatic union',
-  'kenosis', 'penal substitution', 'covenant theology', 'federal headship',
-  'total depravity', 'unconditional election', 'limited atonement',
-  'irresistible grace', 'perseverance', 'antinomianism', 'supralapsarianism',
-  'infralapsarianism', 'soteriology', 'ecclesiology', 'eschatology',
-  'christology', 'pneumatology', 'theologia', 'volitional', 'hermeneutics',
-  'exegesis', 'eisegesis', 'sola scriptura', 'sola fide', 'sola gratia',
-  'solus christus', 'soli deo gloria', 'monergism', 'synergism',
-  'pelagianism', 'arminianism', 'calvinism', 'reformed', 'confessional',
-  'westminster', 'heidelberg', 'dort', 'belgic', 'remonstrant',
-  'lapsarianism', 'perichoresis', 'communicatio idiomatum', 'anhypostasia',
-  'enhypostasia', 'theosis', 'antinomy', 'compatibilism', 'libertarian',
-  'archetypal', 'ectypal', 'aseity', 'impassibility', 'immutability',
-  'omniscience', 'omnipotence', 'omnipresence', 'simplicity', 'transcendence',
-  'immanence', 'apophatic', 'cataphatic',
-]);
+// ─── Load Webster's dictionary at module init (once on server startup) ────────
+const DICT_PATH   = path.join(__dirname, '../data/dictionary.json');
+const websterIndex = {};
 
-function isTheological(term) {
-  const lower = term.toLowerCase().trim();
-  if (lower.split(/\s+/).filter(Boolean).length > 1) return true;
-  return THEOLOGICAL_TERMS.has(lower);
+try {
+  const entries = JSON.parse(fs.readFileSync(DICT_PATH, 'utf8'));
+  for (const entry of entries) {
+    if (!entry.word || !entry.definitions || !entry.definitions[0]) continue;
+    const key = entry.word.toLowerCase();
+    if (!websterIndex[key]) {
+      websterIndex[key] = entry.definitions[0];
+    }
+  }
+  console.log(`[Dict] Webster's loaded: ${Object.keys(websterIndex).length} entries`);
+} catch (err) {
+  console.error('[Dict] Failed to load Webster\'s dictionary:', err.message);
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function isMultiWord(term) {
+  return term.trim().split(/\s+/).filter(Boolean).length > 1;
 }
 
 function fetchDictionaryApi(word) {
@@ -58,23 +57,17 @@ function fetchDictionaryApi(word) {
   });
 }
 
-const PROMPT_COMMON =
-  "Define this word in plain simple English in 2 sentences maximum. " +
-  "First sentence: what the word means in everyday use. " +
-  "Second sentence: an example of how it is used. " +
-  "No theology. No jargon. Write like you are texting a friend.";
-
 const PROMPT_THEOLOGICAL =
   "You are a friendly Bible study helper. Explain this theological term in plain English first — " +
   "what it means in simple words. Then one sentence on why it matters in Reformed theology. " +
   "Maximum 2-3 sentences. Avoid jargon where possible.";
 
-async function fetchAnthropicDefinition(term, theological) {
+async function fetchAnthropicDefinition(term) {
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const message = await client.messages.create({
     model:      'claude-sonnet-4-6',
     max_tokens: 150,
-    system:     theological ? PROMPT_THEOLOGICAL : PROMPT_COMMON,
+    system:     PROMPT_THEOLOGICAL,
     messages:   [{ role: 'user', content: 'Define: ' + term }],
   });
   return message.content[0].text.trim();
@@ -88,23 +81,37 @@ router.post('/api/dictionary/define', requireAuth, async (req, res) => {
   }
 
   const cleanTerm = term.trim();
+  console.log('[Dict] term received  :', JSON.stringify(cleanTerm));
 
-  if (isTheological(cleanTerm)) {
+  // Multi-word phrase → Anthropic (Reformed theological context)
+  if (isMultiWord(cleanTerm)) {
+    console.log('[Dict] route          : Anthropic (multi-word phrase)');
     try {
-      const definition = await fetchAnthropicDefinition(cleanTerm, true);
+      const definition = await fetchAnthropicDefinition(cleanTerm);
+      console.log('[Dict] Anthropic raw  :', JSON.stringify(definition));
       return res.json({ term: cleanTerm, definition, source: 'theological' });
     } catch (err) {
-      console.error('[Dictionary/theological]', err.message);
+      console.error('[Dict] Anthropic error:', err.message);
       return res.json({ error: 'Definition unavailable. Try again.' });
     }
   }
 
-  // Single common word — Dictionary API only, no Anthropic fallback
+  // Single word → Webster's local index first
+  const key = cleanTerm.toLowerCase();
+  if (websterIndex[key]) {
+    console.log('[Dict] route          : Webster\'s (local)');
+    console.log('[Dict] Webster raw    :', JSON.stringify(websterIndex[key].substring(0, 120)));
+    return res.json({ term: cleanTerm, definition: websterIndex[key], source: 'dictionary' });
+  }
+
+  // Not in Webster's → free Dictionary API fallback
+  console.log('[Dict] route          : Dictionary API (not in Webster\'s)');
   try {
     const definition = await fetchDictionaryApi(cleanTerm);
+    console.log('[Dict] DictAPI raw    :', JSON.stringify(definition));
     return res.json({ term: cleanTerm, definition, source: 'dictionary' });
   } catch (dictErr) {
-    console.error('[Dictionary/common]', dictErr.message);
+    console.error('[Dict] DictAPI error  :', dictErr.message);
     return res.json({ error: 'Definition unavailable. Try again.' });
   }
 });
