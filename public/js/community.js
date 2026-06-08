@@ -205,16 +205,17 @@
     }).join('');
 
     commentList.querySelectorAll('.comment-delete-btn').forEach(function (btn) {
-      btn.addEventListener('click', async function () {
-        if (!confirm('Delete this comment?')) return;
-        try {
-          var res  = await fetch('/api/community/comments/' + encodeURIComponent(btn.dataset.id), { method: 'DELETE' });
-          var data = await res.json();
-          if (data.success) loadComments(currentArticleId);
-          else showToast('Delete failed: ' + (data.error || ''), true);
-        } catch (err) {
-          showToast('Error: ' + err.message, true);
-        }
+      btn.addEventListener('click', function () {
+        showConfirm('Delete this comment?', 'Delete', async function () {
+          try {
+            var res  = await fetch('/api/community/comments/' + encodeURIComponent(btn.dataset.id), { method: 'DELETE' });
+            var data = await res.json();
+            if (data.success) loadComments(currentArticleId);
+            else showToast('Delete failed: ' + (data.error || ''), true);
+          } catch (err) {
+            showToast('Error: ' + err.message, true);
+          }
+        });
       });
     });
   }
@@ -249,18 +250,16 @@
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   function renderReadingText(text) {
+    if (window.marked) {
+      return window.marked.parse ? window.marked.parse(String(text)) : window.marked(String(text));
+    }
     var escaped = String(text)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-    var paragraphs = escaped.split(/\n\n+/).map(function (para) {
-      return para
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.+?)\*/g, '<em>$1</em>')
-        .replace(/^#+\s+(.+)$/gm, '<strong>$1</strong>')
-        .replace(/\n/g, '<br>');
-    });
-    return '<p>' + paragraphs.join('</p><p>') + '</p>';
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return '<p>' + escaped.split(/\n\n+/).map(function (p) {
+      return p.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+              .replace(/\*(.+?)\*/g, '<em>$1</em>')
+              .replace(/\n/g, '<br>');
+    }).join('</p><p>') + '</p>';
   }
 
   function formDisplayLabel(form) {

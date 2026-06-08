@@ -72,10 +72,11 @@
 
     // Delete buttons
     grid.querySelectorAll('.card-delete-btn').forEach(function (btn) {
-      btn.addEventListener('click', async function (e) {
+      btn.addEventListener('click', function (e) {
         e.stopPropagation();
-        if (!confirm('Delete this study? This cannot be undone.')) return;
-        await deleteStudy(btn.dataset.id);
+        showConfirm('Delete this study? This cannot be undone.', 'Delete', async function () {
+          await deleteStudy(btn.dataset.id);
+        });
       });
     });
   }
@@ -114,10 +115,10 @@
         allStudies = allStudies.filter(function (s) { return s.id !== id; });
         applyFilters();
       } else {
-        alert('Could not delete study.');
+        showAlert('Could not delete study.');
       }
     } catch (err) {
-      alert('Error: ' + err.message);
+      showAlert('Error: ' + err.message);
     }
   }
 
@@ -262,10 +263,11 @@
     });
 
     grid.querySelectorAll('.card-delete-btn').forEach(function (btn) {
-      btn.addEventListener('click', async function (e) {
+      btn.addEventListener('click', function (e) {
         e.stopPropagation();
-        if (!confirm('Delete this dialogue session? This cannot be undone.')) return;
-        await deleteDialogue(btn.dataset.id);
+        showConfirm('Delete this dialogue session? This cannot be undone.', 'Delete', async function () {
+          await deleteDialogue(btn.dataset.id);
+        });
       });
     });
   }
@@ -314,10 +316,10 @@
         allDialogues = allDialogues.filter(function (d) { return d.id !== id; });
         renderDialogueCards(allDialogues);
       } else {
-        alert('Could not delete dialogue.');
+        showAlert('Could not delete dialogue.');
       }
     } catch (err) {
-      alert('Error: ' + err.message);
+      showAlert('Error: ' + err.message);
     }
   }
 

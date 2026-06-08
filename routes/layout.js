@@ -75,6 +75,8 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
       ${content}
     </main>
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="/js/modal.js"></script>
   <script src="/js/app.js"></script>
   ${scripts}
 </body>

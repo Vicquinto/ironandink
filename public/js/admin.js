@@ -90,9 +90,10 @@
       btn.addEventListener('click', function () { openReadView(btn.dataset.id, 'pending'); });
     });
     pendingList.querySelectorAll('.admin-approve-btn').forEach(function (btn) {
-      btn.addEventListener('click', async function () {
-        if (!confirm('Approve and publish this article?')) return;
-        await approveArticle(btn.dataset.id);
+      btn.addEventListener('click', function () {
+        showConfirm('Approve and publish this article?', 'Approve', async function () {
+          await approveArticle(btn.dataset.id);
+        });
       });
     });
     pendingList.querySelectorAll('.admin-reject-btn').forEach(function (btn) {
@@ -163,14 +164,15 @@
       });
     });
     publishedList.querySelectorAll('.admin-unpublish-btn').forEach(function (btn) {
-      btn.addEventListener('click', async function () {
-        if (!confirm('Unpublish this article? It will return to Complete status.')) return;
-        try {
-          var res  = await fetch('/api/admin/' + encodeURIComponent(btn.dataset.id) + '/unpublish', { method: 'PATCH' });
-          var data = await res.json();
-          if (data.success) { showToast('Article unpublished.'); loadPublished(); }
-          else showToast('Unpublish failed.', true);
-        } catch (err) { showToast('Error: ' + err.message, true); }
+      btn.addEventListener('click', function () {
+        showConfirm('Unpublish this article? It will return to Complete status.', 'Unpublish', async function () {
+          try {
+            var res  = await fetch('/api/admin/' + encodeURIComponent(btn.dataset.id) + '/unpublish', { method: 'PATCH' });
+            var data = await res.json();
+            if (data.success) { showToast('Article unpublished.'); loadPublished(); }
+            else showToast('Unpublish failed.', true);
+          } catch (err) { showToast('Error: ' + err.message, true); }
+        });
       });
     });
   }
@@ -198,11 +200,12 @@
           '<button class="btn-primary admin-approve-read-btn" data-id="' + esc(id) + '">Approve &amp; Publish</button>' +
           '<button class="btn-reject" data-id="' + esc(id) + '" id="adminRejectReadBtn">Reject</button>';
 
-        adminReadActions.querySelector('.admin-approve-read-btn').addEventListener('click', async function () {
-          if (!confirm('Approve and publish this article?')) return;
-          await approveArticle(id);
-          adminReading.style.display = 'none';
-          adminFeed.style.display    = 'block';
+        adminReadActions.querySelector('.admin-approve-read-btn').addEventListener('click', function () {
+          showConfirm('Approve and publish this article?', 'Approve', async function () {
+            await approveArticle(id);
+            adminReading.style.display = 'none';
+            adminFeed.style.display    = 'block';
+          });
         });
         document.getElementById('adminRejectReadBtn').addEventListener('click', function () {
           currentRejectId = id;
@@ -279,18 +282,16 @@
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   function renderReadingText(text) {
+    if (window.marked) {
+      return window.marked.parse ? window.marked.parse(String(text)) : window.marked(String(text));
+    }
     var escaped = String(text)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-    var paragraphs = escaped.split(/\n\n+/).map(function (para) {
-      return para
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.+?)\*/g, '<em>$1</em>')
-        .replace(/^#+\s+(.+)$/gm, '<strong>$1</strong>')
-        .replace(/\n/g, '<br>');
-    });
-    return '<p>' + paragraphs.join('</p><p>') + '</p>';
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return '<p>' + escaped.split(/\n\n+/).map(function (p) {
+      return p.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+              .replace(/\*(.+?)\*/g, '<em>$1</em>')
+              .replace(/\n/g, '<br>');
+    }).join('</p><p>') + '</p>';
   }
 
   function formDisplayLabel(form) {

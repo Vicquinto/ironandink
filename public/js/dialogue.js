@@ -347,11 +347,11 @@
         endSessionConfirm.style.display = 'block';
         setTimeout(resetSession, 1800);
       } else {
-        alert('Save failed: ' + (data.error || 'Unknown error.'));
+        showAlert('Save failed: ' + (data.error || 'Unknown error.'));
         saveSessionBtn.disabled = false;
       }
     } catch (err) {
-      alert('Error: ' + err.message);
+      showAlert('Error: ' + err.message);
       saveSessionBtn.disabled = false;
     }
   });

@@ -106,57 +106,56 @@
     });
 
     articleList.querySelectorAll('.article-submit-btn').forEach(function (btn) {
-      btn.addEventListener('click', async function () {
-        if (!confirm('Submit this article for admin review?')) return;
-        btn.disabled = true;
-        try {
-          var res  = await fetch('/api/articles/' + encodeURIComponent(btn.dataset.id) + '/submit', { method: 'PATCH' });
-          var data = await res.json();
-          if (data.success) {
-            showToast('Your article has been submitted for admin review.');
-            loadArticles();
-          } else {
-            showToast('Submit failed: ' + (data.error || ''), true);
+      btn.addEventListener('click', function () {
+        showConfirm('Submit this article for admin review?', 'Submit', async function () {
+          btn.disabled = true;
+          try {
+            var res  = await fetch('/api/articles/' + encodeURIComponent(btn.dataset.id) + '/submit', { method: 'PATCH' });
+            var data = await res.json();
+            if (data.success) {
+              showToast('Your article has been submitted for admin review.');
+              loadArticles();
+            } else {
+              showToast('Submit failed: ' + (data.error || ''), true);
+              btn.disabled = false;
+            }
+          } catch (err) {
+            showToast('Error: ' + err.message, true);
             btn.disabled = false;
           }
-        } catch (err) {
-          showToast('Error: ' + err.message, true);
-          btn.disabled = false;
-        }
+        });
       });
     });
 
     articleList.querySelectorAll('.article-delete-btn').forEach(function (btn) {
-      btn.addEventListener('click', async function (e) {
+      btn.addEventListener('click', function (e) {
         e.stopPropagation();
-        if (!confirm('Delete this article? This cannot be undone.')) return;
-        try {
-          var res  = await fetch('/api/articles/' + encodeURIComponent(btn.dataset.id), { method: 'DELETE' });
-          var data = await res.json();
-          if (data.success) loadArticles();
-          else showToast('Delete failed.', true);
-        } catch (err) {
-          showToast('Error: ' + err.message, true);
-        }
+        showConfirm('Delete this article? This cannot be undone.', 'Delete', async function () {
+          try {
+            var res  = await fetch('/api/articles/' + encodeURIComponent(btn.dataset.id), { method: 'DELETE' });
+            var data = await res.json();
+            if (data.success) loadArticles();
+            else showToast('Delete failed.', true);
+          } catch (err) {
+            showToast('Error: ' + err.message, true);
+          }
+        });
       });
     });
   }
 
   // ── Reading text renderer ─────────────────────────────────────────────────
   function renderReadingText(text) {
+    if (window.marked) {
+      return window.marked.parse ? window.marked.parse(String(text)) : window.marked(String(text));
+    }
     var escaped = String(text)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-
-    var paragraphs = escaped.split(/\n\n+/).map(function (para) {
-      return para
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.+?)\*/g, '<em>$1</em>')
-        .replace(/\n/g, '<br>');
-    });
-
-    return '<p>' + paragraphs.join('</p><p>') + '</p>';
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return '<p>' + escaped.split(/\n\n+/).map(function (p) {
+      return p.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+              .replace(/\*(.+?)\*/g, '<em>$1</em>')
+              .replace(/\n/g, '<br>');
+    }).join('</p><p>') + '</p>';
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────

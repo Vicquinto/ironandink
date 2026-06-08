@@ -188,7 +188,7 @@
 
       currentArticleId     = null;
       currentArticleStatus = 'Draft';
-      editorTitle.value    = answers[0];
+      editorTitle.value    = extractTitleFromContent(data.content, answers[0]);
       editorContent.value  = data.content;
       setTierBadge(selectedTier, selectedForm);
       updateWordCount();
@@ -332,17 +332,18 @@
     });
 
     articleList.querySelectorAll('.article-delete-btn').forEach(function (btn) {
-      btn.addEventListener('click', async function (e) {
+      btn.addEventListener('click', function (e) {
         e.stopPropagation();
-        if (!confirm('Delete this article? This cannot be undone.')) return;
-        try {
-          var res  = await fetch('/api/articles/' + encodeURIComponent(btn.dataset.id), { method: 'DELETE' });
-          var data = await res.json();
-          if (data.success) loadArticleList();
-          else showToast('Delete failed.', true);
-        } catch (err) {
-          showToast('Error: ' + err.message, true);
-        }
+        showConfirm('Delete this article? This cannot be undone.', 'Delete', async function () {
+          try {
+            var res  = await fetch('/api/articles/' + encodeURIComponent(btn.dataset.id), { method: 'DELETE' });
+            var data = await res.json();
+            if (data.success) loadArticleList();
+            else showToast('Delete failed.', true);
+          } catch (err) {
+            showToast('Error: ' + err.message, true);
+          }
+        });
       });
     });
   }
@@ -366,6 +367,11 @@
   }
 
   editorContent.addEventListener('input', updateWordCount);
+
+  function extractTitleFromContent(content, fallback) {
+    var match = String(content).match(/^#\s+(.+)$/m);
+    return match ? match[1].trim() : (fallback || '').trim();
+  }
 
   function fmtDate(iso) {
     var d = new Date(iso);
