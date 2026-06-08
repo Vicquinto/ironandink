@@ -23,23 +23,35 @@ router.get('/library', requireAuth, (req, res) => {
   const content = `
     <div class="page-header">
       <h2 class="page-title">Library</h2>
-      <p class="page-subtitle">Your saved study guides.</p>
+      <p class="page-subtitle">Your saved study guides and dialogue sessions.</p>
     </div>
 
-    <div class="library-filter-bar">
-      <input type="text" id="filterTag" class="form-input library-filter-input"
-             placeholder="Filter by tag&#8230;">
-      <select id="filterRating" class="form-select library-filter-select">
-        <option value="">All ratings</option>
-        <option value="5">&#9733;&#9733;&#9733;&#9733;&#9733; &nbsp;5 stars</option>
-        <option value="4">&#9733;&#9733;&#9733;&#9733; &nbsp;4+ stars</option>
-        <option value="3">&#9733;&#9733;&#9733; &nbsp;3+ stars</option>
-        <option value="1">Any rated</option>
-      </select>
+    <div class="lib-tabs">
+      <button class="lib-tab active" data-tab="studies">Studies</button>
+      <button class="lib-tab" data-tab="dialogues">Dialogues</button>
     </div>
 
-    <div id="studyCardsGrid" class="study-cards-grid">
-      <p class="library-loading-msg">Loading&#8230;</p>
+    <div id="tab-studies" class="lib-tab-content">
+      <div class="library-filter-bar">
+        <input type="text" id="filterTag" class="form-input library-filter-input"
+               placeholder="Filter by tag&#8230;">
+        <select id="filterRating" class="form-select library-filter-select">
+          <option value="">All ratings</option>
+          <option value="5">&#9733;&#9733;&#9733;&#9733;&#9733; &nbsp;5 stars</option>
+          <option value="4">&#9733;&#9733;&#9733;&#9733; &nbsp;4+ stars</option>
+          <option value="3">&#9733;&#9733;&#9733; &nbsp;3+ stars</option>
+          <option value="1">Any rated</option>
+        </select>
+      </div>
+      <div id="studyCardsGrid" class="study-cards-grid">
+        <p class="library-loading-msg">Loading&#8230;</p>
+      </div>
+    </div>
+
+    <div id="tab-dialogues" class="lib-tab-content" style="display:none;">
+      <div id="dialogueCardsGrid" class="study-cards-grid">
+        <p class="library-loading-msg">Loading&#8230;</p>
+      </div>
     </div>
 
     <div id="guideModal" class="guide-modal" style="display:none;" role="dialog" aria-modal="true">

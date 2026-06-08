@@ -8,6 +8,7 @@ const dashboardRoutes = require('./routes/dashboard');
 const settingsRoutes  = require('./routes/settings');
 const studyRoutes     = require('./routes/study');
 const libraryRoutes   = require('./routes/library');
+const dialogueRoutes  = require('./routes/dialogue');
 const { requireAuth, renderLayout } = require('./routes/layout');
 
 const app  = express();
@@ -129,10 +130,10 @@ app.use('/', dashboardRoutes);
 app.use('/', settingsRoutes);
 app.use('/', studyRoutes);
 app.use('/', libraryRoutes);
+app.use('/', dialogueRoutes);
 
 // ─── Placeholder Sections (unbuilt) ──────────────────────────────────────
 const placeholders = [
-  { path: '/dialogue',    id: 'dialogue',    label: 'Dialogue',    icon: '&#9993;',  blurb: 'Conversational theological dialogue with AI assistance is coming in a future session.' },
   { path: '/writing',     id: 'writing',     label: 'Writing',     icon: '&#9998;',  blurb: 'Theological article and essay writing tools are coming in a future session.' },
   { path: '/community',   id: 'community',   label: 'Community',   icon: '&#9678;',  blurb: 'Community discussion and iron-sharpening fellowship is coming in a future session.' },
   { path: '/my-articles', id: 'my-articles', label: 'My Articles', icon: '&#9634;',  blurb: 'Your published and draft articles will be accessible here — coming in a future session.' },

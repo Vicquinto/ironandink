@@ -1,7 +1,9 @@
 (function () {
   'use strict';
 
-  var allStudies = [];
+  var allStudies   = [];
+  var allDialogues = [];
+  var dialoguesLoaded = false;
 
   // ── Load studies on page load ──────────────────────────────────────────────
   async function loadStudies() {
@@ -82,7 +84,9 @@
   function openModal(study) {
     document.getElementById('modalTitle').textContent = study.topic;
     document.getElementById('modalBadge').textContent = study.translation || 'LSB';
-    document.getElementById('modalBody').innerHTML    = renderMarkdown(study.content);
+    var body = document.getElementById('modalBody');
+    body.className = 'guide-modal-body';
+    body.innerHTML = renderMarkdown(study.content);
     var modal = document.getElementById('guideModal');
     modal.style.display          = 'flex';
     document.body.style.overflow = 'hidden';
@@ -180,6 +184,141 @@
     if (inUl) result.push('</ul>');
     if (inOl) result.push('</ol>');
     return result.join('\n');
+  }
+
+  // ── Tab switching ──────────────────────────────────────────────────────────
+  document.querySelectorAll('.lib-tab').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      var target = tab.dataset.tab;
+
+      document.querySelectorAll('.lib-tab').forEach(function (t) {
+        t.classList.remove('active');
+      });
+      tab.classList.add('active');
+
+      document.querySelectorAll('.lib-tab-content').forEach(function (c) {
+        c.style.display = 'none';
+      });
+      var panel = document.getElementById('tab-' + target);
+      if (panel) panel.style.display = 'block';
+
+      if (target === 'dialogues' && !dialoguesLoaded) {
+        loadDialogues();
+      }
+    });
+  });
+
+  // ── Load dialogues ─────────────────────────────────────────────────────────
+  async function loadDialogues() {
+    dialoguesLoaded = true;
+    try {
+      var res  = await fetch('/api/dialogues');
+      var data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      allDialogues = data.dialogues;
+      renderDialogueCards(allDialogues);
+    } catch (err) {
+      document.getElementById('dialogueCardsGrid').innerHTML =
+        '<p class="library-empty">Failed to load dialogues. Please refresh.</p>';
+    }
+  }
+
+  // ── Render dialogue cards ──────────────────────────────────────────────────
+  function renderDialogueCards(dialogues) {
+    var grid = document.getElementById('dialogueCardsGrid');
+
+    if (!dialogues.length) {
+      grid.innerHTML = '<p class="library-empty">No dialogue sessions saved yet. Head to Dialogue to begin your first session.</p>';
+      return;
+    }
+
+    grid.innerHTML = dialogues.map(function (d) {
+      var exchanges = Math.ceil((d.transcript || []).length / 2);
+      var exLabel   = exchanges + ' exchange' + (exchanges !== 1 ? 's' : '');
+      return '<div class="study-card dialogue-card" data-id="' + esc(d.id) + '" tabindex="0" role="button">' +
+        '<div class="study-card-header">' +
+          '<h4 class="study-card-title">' + esc(d.topic) + '</h4>' +
+          '<button class="card-delete-btn" data-id="' + esc(d.id) + '" title="Delete">&#10005;</button>' +
+        '</div>' +
+        '<div class="study-card-meta">' +
+          '<span class="study-card-date">' + formatDate(d.savedAt) + '</span>' +
+        '</div>' +
+        '<div class="dialogue-card-meta">' +
+          '<span class="position-badge-sm">' + esc(d.adversarialPosition) + '</span>' +
+          '<span class="exchange-count">' + exLabel + '</span>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    grid.querySelectorAll('.dialogue-card').forEach(function (card) {
+      card.addEventListener('click', function (e) {
+        if (e.target.classList.contains('card-delete-btn')) return;
+        var d = allDialogues.find(function (x) { return x.id === card.dataset.id; });
+        if (d) openTranscriptModal(d);
+      });
+      card.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') card.click();
+      });
+    });
+
+    grid.querySelectorAll('.card-delete-btn').forEach(function (btn) {
+      btn.addEventListener('click', async function (e) {
+        e.stopPropagation();
+        if (!confirm('Delete this dialogue session? This cannot be undone.')) return;
+        await deleteDialogue(btn.dataset.id);
+      });
+    });
+  }
+
+  // ── Open transcript modal ──────────────────────────────────────────────────
+  function openTranscriptModal(dialogue) {
+    document.getElementById('modalTitle').textContent = dialogue.topic;
+    document.getElementById('modalBadge').textContent = dialogue.adversarialPosition;
+
+    var transcriptHtml = (dialogue.transcript || []).map(function (msg) {
+      var isEngine   = msg.role === 'assistant';
+      var roleLabel  = isEngine ? 'Adversary' : 'You';
+      var cssClass   = isEngine ? 'transcript-engine' : 'transcript-student';
+      return '<div class="transcript-msg ' + cssClass + '">' +
+        '<div class="transcript-role">' + roleLabel + '</div>' +
+        '<div class="transcript-content">' + renderTranscriptText(msg.content) + '</div>' +
+      '</div>';
+    }).join('');
+
+    var body = document.getElementById('modalBody');
+    body.className = 'guide-modal-body transcript-view';
+    body.innerHTML = transcriptHtml || '<p class="library-empty">No messages in this session.</p>';
+
+    var modal = document.getElementById('guideModal');
+    modal.style.display          = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function renderTranscriptText(text) {
+    return String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g,     '<em>$1</em>')
+      .replace(/\n\n/g, '<br><br>')
+      .replace(/\n/g,   '<br>');
+  }
+
+  // ── Delete dialogue ────────────────────────────────────────────────────────
+  async function deleteDialogue(id) {
+    try {
+      var res  = await fetch('/api/dialogues/' + encodeURIComponent(id), { method: 'DELETE' });
+      var data = await res.json();
+      if (data.success) {
+        allDialogues = allDialogues.filter(function (d) { return d.id !== id; });
+        renderDialogueCards(allDialogues);
+      } else {
+        alert('Could not delete dialogue.');
+      }
+    } catch (err) {
+      alert('Error: ' + err.message);
+    }
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
