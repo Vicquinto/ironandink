@@ -181,10 +181,11 @@ router.post('/api/dialogue/exchange', requireAuth, async (req, res) => {
     } catch {}
   }
 
-  // Build system prompt
-  const { IRON_INK_CORE_PROMPT, IRON_INK_DIALOGUE_PROMPT } = req.app.locals.prompts;
-  let systemPrompt = IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_DIALOGUE_PROMPT;
-  systemPrompt += `\n\nFor this session you are arguing strictly from the ${adversarialPosition} perspective. Stay fully in role throughout. Do not break character, soften your position, or acknowledge it as merely adversarial.`;
+  // Build system prompt — Core Identity prompt is deliberately excluded here.
+  // The Reformed guardrails in IRON_INK_CORE_PROMPT prevent the model from
+  // arguing opposing positions. Dialogue uses its own standalone prompt.
+  const { IRON_INK_DIALOGUE_PROMPT } = req.app.locals.prompts;
+  let systemPrompt = IRON_INK_DIALOGUE_PROMPT.replace('[adversarialPosition]', adversarialPosition);
   if (linkedStudyContent) {
     systemPrompt += `\n\nThe student has completed a prior study on this topic. Study guide content for your reference:\n\n${linkedStudyContent}`;
   }
@@ -194,7 +195,7 @@ router.post('/api/dialogue/exchange', requireAuth, async (req, res) => {
   if (isOpening) {
     apiMessages = [{
       role: 'user',
-      content: `Open the adversarial dialogue now. Topic: "${topic.trim()}". Begin your challenge immediately. No preamble, no self-introduction, no meta-commentary. The very first word you write should be part of the challenge itself.`
+      content: `Begin the drill. Topic: "${topic.trim()}".`
     }];
   } else {
     apiMessages = [

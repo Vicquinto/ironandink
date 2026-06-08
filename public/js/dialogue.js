@@ -266,19 +266,22 @@
 
   // ── End session — gap analysis first ─────────────────────────────────────
   endSessionBtn.addEventListener('click', async function () {
-    gapLoading.style.display    = 'none';
-    gapResults.style.display    = 'none';
-    endSessionConfirm.style.display = 'none';
-    endSessionActions.style.display = 'none';
-    gapStudyNextValue = '';
+    // Open modal first — nothing else must run before this
     endSessionModal.style.display = 'flex';
 
+    // Reset inner state (null-guarded: elements may not exist if server hasn't restarted)
+    if (gapLoading)        gapLoading.style.display        = 'none';
+    if (gapResults)        gapResults.style.display        = 'none';
+    if (endSessionConfirm) endSessionConfirm.style.display = 'none';
+    if (endSessionActions) endSessionActions.style.display = 'none';
+    gapStudyNextValue = '';
+
     if (!history.length) {
-      endSessionActions.style.display = 'flex';
+      if (endSessionActions) endSessionActions.style.display = 'flex';
       return;
     }
 
-    gapLoading.style.display = 'block';
+    if (gapLoading) gapLoading.style.display = 'block';
 
     try {
       var res = await fetch('/api/dialogue/gaps', {
@@ -294,15 +297,15 @@
 
       if (data.success && data.summary && data.studyNext) {
         gapStudyNextValue = data.studyNext;
-        gapSummaryText.textContent    = data.summary;
-        gapStudyNextText.textContent  = data.studyNext;
-        gapResults.style.display = 'block';
+        if (gapSummaryText)   gapSummaryText.textContent   = data.summary;
+        if (gapStudyNextText) gapStudyNextText.textContent  = data.studyNext;
+        if (gapResults)       gapResults.style.display      = 'block';
       }
     } catch (err) {
       // Gap analysis failed — still show buttons
     } finally {
-      gapLoading.style.display = 'none';
-      endSessionActions.style.display = 'flex';
+      if (gapLoading)        gapLoading.style.display        = 'none';
+      if (endSessionActions) endSessionActions.style.display = 'flex';
     }
   });
 
@@ -322,15 +325,17 @@
   }
 
   // ── Study this next — auto-save then navigate ─────────────────────────────
-  studyNextBtn.addEventListener('click', async function () {
-    studyNextBtn.disabled = true;
-    try {
-      await performSave();
-    } catch (err) { /* navigate regardless */ }
-    var dest = '/study';
-    if (gapStudyNextValue) dest += '?studyNext=' + encodeURIComponent(gapStudyNextValue);
-    window.location.href = dest;
-  });
+  if (studyNextBtn) {
+    studyNextBtn.addEventListener('click', async function () {
+      studyNextBtn.disabled = true;
+      try {
+        await performSave();
+      } catch (err) { /* navigate regardless */ }
+      var dest = '/study';
+      if (gapStudyNextValue) dest += '?studyNext=' + encodeURIComponent(gapStudyNextValue);
+      window.location.href = dest;
+    });
+  }
 
   // ── Save session ──────────────────────────────────────────────────────────
   saveSessionBtn.addEventListener('click', async function () {
@@ -364,7 +369,7 @@
     chatMessages.innerHTML          = '';
     userResponseInput.value         = '';
     saveSessionBtn.disabled         = false;
-    studyNextBtn.disabled           = false;
+    if (studyNextBtn) studyNextBtn.disabled = false;
     endSessionModal.style.display   = 'none';
     endSessionActions.style.display = 'none';
     endSessionConfirm.style.display = 'none';
