@@ -103,7 +103,10 @@
 
       positionTooltip(rect);
 
-      document.getElementById('dictClose').addEventListener('click', hideTooltip);
+      document.getElementById('dictClose').addEventListener('click', function () {
+        hideTooltip();
+        if (window.getSelection) window.getSelection().removeAllRanges();
+      });
     }
 
     function renderDefinition(data) {
