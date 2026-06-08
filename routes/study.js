@@ -197,14 +197,27 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
       system:     systemPrompt,
       messages: [{
         role:    'user',
-        content: `Generate a complete study guide on: ${topic.trim()}\n\nBible translation preference: ${translation}`,
+        content: `Generate a Reformed theological study guide on the following topic from a biblical and confessional perspective: ${topic.trim()}\n\nBible translation preference: ${translation}`,
       }],
     });
 
     const content = message.content[0].text;
     res.json({ success: true, content, topic: topic.trim(), translation });
   } catch (err) {
-    console.error('Study generation error:', err.message || err);
+    console.error('Study generation error — status:', err.status);
+    console.error('Study generation error — message:', err.message);
+    console.error('Study generation error — full:', err);
+
+    const isContentFilter = err.status === 400 &&
+      err.message && err.message.includes('content filtering policy');
+
+    if (isContentFilter) {
+      return res.status(400).json({
+        success: false,
+        error: 'This topic could not be generated due to content filtering. Try rephrasing — for example, "The origin of evil and angelic rebellion" instead of "when did satan fall".',
+      });
+    }
+
     res.status(500).json({ success: false, error: 'Generation failed. Please try again.' });
   }
 });
