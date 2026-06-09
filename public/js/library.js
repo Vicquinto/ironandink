@@ -183,6 +183,8 @@
   function closeModal() {
     document.getElementById('guideModal').style.display = 'none';
     document.body.style.overflow = '';
+    if (upEl)  upEl.style.display  = 'none';
+    if (icmEl) icmEl.style.display = 'none';
   }
 
   document.getElementById('closeModal').addEventListener('click', closeModal);
@@ -190,7 +192,11 @@
     if (e.target === document.getElementById('guideModal')) closeModal();
   });
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Escape') {
+      if (icmEl && icmEl.style.display !== 'none') { icmEl.style.display = 'none'; return; }
+      if (upEl  && upEl.style.display  !== 'none') { upEl.style.display  = 'none'; return; }
+      closeModal();
+    }
   });
 
   // ── Delete ─────────────────────────────────────────────────────────────────
@@ -467,6 +473,348 @@
     mFontDec.addEventListener('click',   function () { applyModalFontSize(rfontSize - RFONT_STEP); });
     mFontReset.addEventListener('click', function () { applyModalFontSize(RFONT_DEFAULT); });
     mFontInc.addEventListener('click',   function () { applyModalFontSize(rfontSize + RFONT_STEP); });
+  }
+
+  // ── Unified highlight popup & inline chat ─────────────────────────────────
+  // upEl / icmEl declared here so closeModal (defined earlier) can reference them
+  // safely — JS var hoisting means they exist as undefined until assigned below.
+
+  var upEl  = null;
+  var icmEl = null;
+
+  var upSelectedText = '';
+  var icmHistory     = [];
+  var icmContextText = '';
+  var icmTopic       = '';
+
+  // ── Build unified popup ────────────────────────────────────────────────────
+  upEl = document.createElement('div');
+  upEl.id = 'unifiedPopup';
+  upEl.className = 'unified-popup';
+  upEl.style.display = 'none';
+  upEl.innerHTML =
+    '<div class="up-header">' +
+      '<div class="up-preview"></div>' +
+      '<button class="up-close" title="Dismiss">×</button>' +
+    '</div>' +
+    '<div class="up-actions">' +
+      '<button class="up-define-btn">Define</button>' +
+      '<button class="up-ai-btn">Ask AI</button>' +
+    '</div>' +
+    '<div class="up-content" style="display:none;">' +
+      '<div class="up-define-pane" style="display:none;">' +
+        '<div class="up-definition"></div>' +
+      '</div>' +
+      '<div class="up-ai-pane" style="display:none;">' +
+        '<div class="up-ai-input-row">' +
+          '<input type="text" class="up-ai-input" placeholder="Ask a question about this…">' +
+          '<button class="up-ai-ask-btn">Ask</button>' +
+        '</div>' +
+        '<div class="up-ai-response" style="display:none;"></div>' +
+        '<div class="up-ai-footer">' +
+          '<button class="up-chat-btn">Open Full Chat →</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(upEl);
+
+  // ── Build chat modal element ───────────────────────────────────────────────
+  icmEl = document.createElement('div');
+  icmEl.id = 'inlineChatModal';
+  icmEl.className = 'inline-chat-modal';
+  icmEl.style.display = 'none';
+  icmEl.innerHTML =
+    '<div class="icm-inner">' +
+      '<div class="icm-header">' +
+        '<span class="icm-title">Study Chat</span>' +
+        '<button class="icm-close" title="Close">×</button>' +
+      '</div>' +
+      '<div class="icm-context-box">' +
+        '<div class="icm-context-label">Selected Passage</div>' +
+        '<div class="icm-context-text"></div>' +
+      '</div>' +
+      '<div class="icm-thread"></div>' +
+      '<div class="icm-input-row">' +
+        '<textarea class="icm-input" placeholder="Ask a question…" rows="2"></textarea>' +
+        '<button class="icm-send-btn">Send</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(icmEl);
+
+  // ── Show unified popup ─────────────────────────────────────────────────────
+  function showUp(text, rect) {
+    upEl.querySelector('.up-preview').textContent =
+      text.length > 110 ? text.slice(0, 110) + '…' : text;
+
+    // Reset to button-only state
+    upEl.querySelector('.up-content').style.display     = 'none';
+    upEl.querySelector('.up-define-pane').style.display = 'none';
+    upEl.querySelector('.up-ai-pane').style.display     = 'none';
+    upEl.querySelector('.up-ai-input').value            = '';
+    upEl.querySelector('.up-ai-response').style.display = 'none';
+    upEl.querySelector('.up-ai-response').textContent   = '';
+    upEl.querySelector('.up-definition').textContent    = '';
+    upEl.querySelector('.up-define-btn').classList.remove('up-btn-active');
+    upEl.querySelector('.up-ai-btn').classList.remove('up-btn-active');
+
+    // Measure collapsed height before committing to a position
+    upEl.style.visibility = 'hidden';
+    upEl.style.display    = 'block';
+    var ph = upEl.offsetHeight;
+
+    var vw   = window.innerWidth;
+    var vh   = window.innerHeight;
+    var pw   = 388;
+    var cx   = rect.left + rect.width / 2;
+    var left = Math.min(Math.max(8, cx - pw / 2), vw - pw - 8);
+
+    // Prefer below selection; flip above if it would clip the bottom
+    var top = rect.bottom + 8;
+    if (top + ph > vh - 8) top = rect.top - ph - 8;
+    // Hard clamp: keep fully within viewport vertically
+    top = Math.min(Math.max(8, top), vh - ph - 8);
+
+    upEl.style.left       = left + 'px';
+    upEl.style.top        = top  + 'px';
+    upEl.style.visibility = '';
+  }
+
+  // Nudge popup upward if expansion pushed it below the viewport
+  function clampUp() {
+    if (!upEl || upEl.style.display === 'none') return;
+    var ph  = upEl.offsetHeight;
+    var top = parseInt(upEl.style.top, 10) || 0;
+    var max = window.innerHeight - ph - 8;
+    if (top > max) upEl.style.top = Math.max(8, max) + 'px';
+  }
+
+  // ── Selection detection ────────────────────────────────────────────────────
+  document.addEventListener('mouseup', function (e) {
+    if (e.target.closest && (
+          e.target.closest('#unifiedPopup') ||
+          e.target.closest('#inlineChatModal'))) return;
+
+    var modal = document.getElementById('guideModal');
+    if (!modal || modal.style.display === 'none') return;
+
+    var sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
+
+    var selText = sel.toString().trim();
+    if (!selText || selText.length < 4) return;
+
+    var modalBody = document.getElementById('modalBody');
+    if (!modalBody) return;
+    var range = sel.getRangeAt(0);
+    if (!modalBody.contains(range.commonAncestorContainer)) return;
+
+    upSelectedText = selText;
+    var titleEl = document.getElementById('modalTitle');
+    icmTopic = titleEl ? titleEl.textContent : '';
+    showUp(selText, range.getBoundingClientRect());
+    // Suppress any legacy dictionary tooltip that may fire after its 400 ms debounce
+    setTimeout(function () {
+      var dictTt = document.getElementById('dictTooltip');
+      if (dictTt && upEl && upEl.style.display !== 'none') dictTt.style.display = 'none';
+    }, 450);
+  });
+
+  // Dismiss popup on click outside
+  document.addEventListener('mousedown', function (e) {
+    if (upEl && upEl.style.display !== 'none' &&
+        !e.target.closest('#unifiedPopup')) {
+      upEl.style.display = 'none';
+    }
+  });
+  // Prevent scrollbar/scroll clicks inside popup from bubbling to the dismiss handler
+  upEl.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+
+  // ── Popup interactions ─────────────────────────────────────────────────────
+  upEl.querySelector('.up-close').addEventListener('click', function () {
+    upEl.style.display = 'none';
+  });
+
+  upEl.querySelector('.up-define-btn').addEventListener('click', function () {
+    upEl.querySelector('.up-content').style.display     = 'block';
+    upEl.querySelector('.up-define-pane').style.display = 'block';
+    upEl.querySelector('.up-ai-pane').style.display     = 'none';
+    upEl.querySelector('.up-define-btn').classList.add('up-btn-active');
+    upEl.querySelector('.up-ai-btn').classList.remove('up-btn-active');
+
+    var defEl = upEl.querySelector('.up-definition');
+    defEl.innerHTML = '<span class="up-loading">Looking up definition…</span>';
+    clampUp();
+
+    fetch('/api/dictionary/define', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ term: upSelectedText }),
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.error) {
+        defEl.innerHTML = '<span style="color:#e08080;font-style:italic;">' + esc(data.error) + '</span>';
+      } else {
+        defEl.innerHTML = esc(data.definition)
+          .replace(/^#{2,} (.+)$/gm, '<strong>$1</strong>')
+          .replace(/^# (.+)$/gm,     '<strong style="display:block;margin-bottom:3px;color:var(--accent)">$1</strong>')
+          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.+?)\*/g,     '<em>$1</em>')
+          .replace(/\n/g,            '<br>');
+      }
+      clampUp();
+    })
+    .catch(function () {
+      defEl.innerHTML = '<span style="color:#e08080;font-style:italic;">Definition unavailable.</span>';
+      clampUp();
+    });
+  });
+
+  upEl.querySelector('.up-ai-btn').addEventListener('click', function () {
+    upEl.querySelector('.up-content').style.display     = 'block';
+    upEl.querySelector('.up-define-pane').style.display = 'none';
+    upEl.querySelector('.up-ai-pane').style.display     = 'block';
+    upEl.querySelector('.up-ai-btn').classList.add('up-btn-active');
+    upEl.querySelector('.up-define-btn').classList.remove('up-btn-active');
+    clampUp();
+    setTimeout(function () { upEl.querySelector('.up-ai-input').focus(); }, 40);
+  });
+
+  upEl.querySelector('.up-ai-ask-btn').addEventListener('click', function () {
+    var q = upEl.querySelector('.up-ai-input').value.trim();
+    if (!q) { upEl.querySelector('.up-ai-input').focus(); return; }
+    doInlineAsk(q);
+  });
+
+  upEl.querySelector('.up-ai-input').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      var q = upEl.querySelector('.up-ai-input').value.trim();
+      if (q) doInlineAsk(q);
+    }
+  });
+
+  async function doInlineAsk(question) {
+    var askBtn = upEl.querySelector('.up-ai-ask-btn');
+    var resp   = upEl.querySelector('.up-ai-response');
+    askBtn.disabled    = true;
+    resp.style.display = 'block';
+    resp.textContent   = 'Thinking…';
+
+    try {
+      var res  = await fetch('/api/library/ask', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          question:        question,
+          highlightedText: upSelectedText,
+          studyTopic:      icmTopic,
+        }),
+      });
+      var data = await res.json();
+      resp.textContent = data.success ? data.answer : ('Error: ' + (data.error || 'Failed.'));
+      clampUp();
+    } catch (err) {
+      resp.textContent = 'Error: ' + err.message;
+      clampUp();
+    } finally {
+      askBtn.disabled = false;
+    }
+  }
+
+  upEl.querySelector('.up-chat-btn').addEventListener('click', function () {
+    upEl.style.display = 'none';
+    openIcm(upSelectedText, icmTopic);
+  });
+
+  // ── Chat modal ─────────────────────────────────────────────────────────────
+  function openIcm(selectedText, topic) {
+    icmContextText = selectedText;
+    icmTopic       = topic;
+    icmHistory     = [];
+
+    icmEl.querySelector('.icm-context-text').textContent = selectedText;
+    icmEl.querySelector('.icm-thread').innerHTML         = '';
+    icmEl.querySelector('.icm-input').value              = '';
+
+    icmEl.style.display = 'flex';
+    setTimeout(function () { icmEl.querySelector('.icm-input').focus(); }, 40);
+  }
+
+  icmEl.querySelector('.icm-close').addEventListener('click', function () {
+    icmEl.style.display = 'none';
+  });
+  icmEl.addEventListener('click', function (e) {
+    if (e.target === icmEl) icmEl.style.display = 'none';
+  });
+
+  icmEl.querySelector('.icm-send-btn').addEventListener('click', doSendChat);
+  icmEl.querySelector('.icm-input').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doSendChat(); }
+  });
+
+  function icmAppendMsg(role, text) {
+    var thread = icmEl.querySelector('.icm-thread');
+    var msg    = document.createElement('div');
+    msg.className = 'icm-msg icm-msg-' + role;
+    var label    = role === 'user' ? 'You' : 'Iron & Ink';
+    var bodyHtml = esc(text)
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>');
+    msg.innerHTML =
+      '<div class="icm-msg-label">' + label + '</div>' +
+      '<div class="icm-msg-body">' + bodyHtml + '</div>';
+    thread.appendChild(msg);
+    thread.scrollTop = thread.scrollHeight;
+  }
+
+  async function doSendChat() {
+    var input = icmEl.querySelector('.icm-input');
+    var q     = input.value.trim();
+    if (!q) return;
+
+    var sendBtn = icmEl.querySelector('.icm-send-btn');
+    sendBtn.disabled = true;
+    input.value = '';
+
+    var msgContent;
+    if (icmHistory.length === 0 && icmContextText) {
+      msgContent = 'I am reading a study on "' + icmTopic + '" and have selected this passage:\n\n"' +
+        icmContextText + '"\n\n' + q;
+    } else {
+      msgContent = q;
+    }
+
+    icmAppendMsg('user', q);
+    icmHistory.push({ role: 'user', content: msgContent });
+
+    var loadEl = document.createElement('div');
+    loadEl.className  = 'icm-loading';
+    loadEl.textContent = 'Thinking…';
+    var thread = icmEl.querySelector('.icm-thread');
+    thread.appendChild(loadEl);
+    thread.scrollTop = thread.scrollHeight;
+
+    try {
+      var res  = await fetch('/api/library/ask', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ history: icmHistory }),
+      });
+      var data = await res.json();
+      loadEl.remove();
+      if (data.success) {
+        icmHistory.push({ role: 'assistant', content: data.answer });
+        icmAppendMsg('assistant', data.answer);
+      } else {
+        icmAppendMsg('assistant', 'Error: ' + (data.error || 'Failed to get answer.'));
+      }
+    } catch (err) {
+      loadEl.remove();
+      icmAppendMsg('assistant', 'Error: ' + err.message);
+    } finally {
+      sendBtn.disabled = false;
+      input.focus();
+    }
   }
 
   loadStudies();

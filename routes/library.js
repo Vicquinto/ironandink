@@ -1,6 +1,7 @@
-const express = require('express');
-const fs      = require('fs');
-const path    = require('path');
+const express   = require('express');
+const fs        = require('fs');
+const path      = require('path');
+const Anthropic = require('@anthropic-ai/sdk');
 const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
 
@@ -151,6 +152,46 @@ router.delete('/api/library/:id', requireAuth, (req, res) => {
   studies.splice(idx, 1);
   writeStudies(studies);
   res.json({ success: true });
+});
+
+// ─── POST /api/library/ask ────────────────────────────────────────────────────
+router.post('/api/library/ask', requireAuth, async (req, res) => {
+  const { question, highlightedText, studyTopic, history } = req.body;
+  const hasHistory = history && Array.isArray(history) && history.length > 0;
+  if (!hasHistory && (!question || !String(question).trim())) {
+    return res.status(400).json({ success: false, error: 'Question is required.' });
+  }
+
+  const { IRON_INK_CORE_PROMPT } = req.app.locals.prompts;
+  const systemPrompt = IRON_INK_CORE_PROMPT +
+    '\n\nYou are answering inline questions from a student reading a saved study guide. ' +
+    'Be concise and precise — 2–4 sentences for quick questions, more thorough for follow-ups in a chat. ' +
+    'Stay within the confessionally Reformed framework at all times.';
+
+  let messages;
+  if (hasHistory) {
+    messages = history;
+  } else {
+    let content = String(question).trim();
+    if (highlightedText) {
+      content = `I am reading a study on "${studyTopic || 'theology'}" and have selected this passage:\n\n"${String(highlightedText).trim()}"\n\n${content}`;
+    }
+    messages = [{ role: 'user', content }];
+  }
+
+  try {
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const message = await client.messages.create({
+      model:      'claude-sonnet-4-6',
+      max_tokens: 800,
+      system:     systemPrompt,
+      messages,
+    });
+    res.json({ success: true, answer: message.content[0].text });
+  } catch (err) {
+    console.error('Inline ask error:', err.message);
+    res.status(500).json({ success: false, error: 'Failed to get answer. Please try again.' });
+  }
 });
 
 module.exports = router;
