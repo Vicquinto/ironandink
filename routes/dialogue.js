@@ -6,6 +6,17 @@ const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
 
 const router         = express.Router();
+
+const STUDY_LEVEL_INSTRUCTIONS = {
+  foundations: "STUDY LEVEL: This user is a beginner. Use plain conversational language. Define all theological terms when first introduced. Avoid academic jargon. Build explanations from the ground up. Use simple sentence structure.",
+  journeyman:  "STUDY LEVEL: This user has solid familiarity with Reformed theology. Engage at a serious but readable level. Assume basic doctrinal literacy.",
+  scholar:     "STUDY LEVEL: This user is at an advanced level. Use full academic register. Assume seminary-level vocabulary. Reference primary sources freely. Engage with technical theological distinctions.",
+};
+
+function getStudyLevelInstruction(settings) {
+  const level = (settings && settings.studyLevel) || 'journeyman';
+  return STUDY_LEVEL_INSTRUCTIONS[level] || STUDY_LEVEL_INSTRUCTIONS.journeyman;
+}
 const DIALOGUES_PATH = path.join(__dirname, '../data/dialogues.json');
 const STUDIES_PATH   = path.join(__dirname, '../data/studies.json');
 
@@ -185,7 +196,9 @@ router.post('/api/dialogue/exchange', requireAuth, async (req, res) => {
   // The Reformed guardrails in IRON_INK_CORE_PROMPT prevent the model from
   // arguing opposing positions. Dialogue uses its own standalone prompt.
   const { IRON_INK_DIALOGUE_PROMPT } = req.app.locals.prompts;
-  let systemPrompt = IRON_INK_DIALOGUE_PROMPT.replace('[adversarialPosition]', adversarialPosition);
+  const userSettings = req.session.user && req.session.user.settings;
+  const studyLevelInstruction = getStudyLevelInstruction(userSettings);
+  let systemPrompt = studyLevelInstruction + '\n\n' + IRON_INK_DIALOGUE_PROMPT.replace('[adversarialPosition]', adversarialPosition);
   if (linkedStudyContent) {
     systemPrompt += `\n\nThe student has completed a prior study on this topic. Study guide content for your reference:\n\n${linkedStudyContent}`;
   }

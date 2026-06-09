@@ -6,6 +6,17 @@ const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
 
 const router       = express.Router();
+
+const STUDY_LEVEL_INSTRUCTIONS = {
+  foundations: "STUDY LEVEL: This user is a beginner. Use plain conversational language. Define all theological terms when first introduced. Avoid academic jargon. Build explanations from the ground up. Use simple sentence structure.",
+  journeyman:  "STUDY LEVEL: This user has solid familiarity with Reformed theology. Engage at a serious but readable level. Assume basic doctrinal literacy.",
+  scholar:     "STUDY LEVEL: This user is at an advanced level. Use full academic register. Assume seminary-level vocabulary. Reference primary sources freely. Engage with technical theological distinctions.",
+};
+
+function getStudyLevelInstruction(settings) {
+  const level = (settings && settings.studyLevel) || 'journeyman';
+  return STUDY_LEVEL_INSTRUCTIONS[level] || STUDY_LEVEL_INSTRUCTIONS.journeyman;
+}
 const ARTICLES_PATH = path.join(__dirname, '../data/articles.json');
 
 function readArticles() {
@@ -273,6 +284,8 @@ router.post('/api/writing/generate', requireAuth, async (req, res) => {
   }
 
   const { IRON_INK_CORE_PROMPT, IRON_INK_WRITING_PROMPT } = req.app.locals.prompts;
+  const userSettings = req.session.user && req.session.user.settings;
+  const studyLevelInstruction = getStudyLevelInstruction(userSettings);
 
   const formInstructions = {
     article: 'This is an article or essay. Structure it with a clear introduction, logical argument movements, objection and answer, and a doxological conclusion. It is written to be read, not heard.',
@@ -281,7 +294,7 @@ router.post('/api/writing/generate', requireAuth, async (req, res) => {
   };
   const formInstruction = formInstructions[form] || formInstructions.article;
 
-  const systemPrompt = IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_WRITING_PROMPT + '\n\n' + formInstruction;
+  const systemPrompt = studyLevelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_WRITING_PROMPT + '\n\n' + formInstruction;
 
   const tierInstructions = {
     1: "The student has chosen FULL SCAFFOLD mode. Produce a structured outline only — introduction, main arguments, objection and answer, doxological conclusion. Do not write any prose body.",

@@ -4,6 +4,17 @@ const { requireAuth, renderLayout } = require('./layout');
 
 const router = express.Router();
 
+const STUDY_LEVEL_INSTRUCTIONS = {
+  foundations: "STUDY LEVEL: This user is a beginner. Use plain conversational language. Define all theological terms when first introduced. Avoid academic jargon. Build explanations from the ground up. Use simple sentence structure.",
+  journeyman:  "STUDY LEVEL: This user has solid familiarity with Reformed theology. Engage at a serious but readable level. Assume basic doctrinal literacy.",
+  scholar:     "STUDY LEVEL: This user is at an advanced level. Use full academic register. Assume seminary-level vocabulary. Reference primary sources freely. Engage with technical theological distinctions.",
+};
+
+function getStudyLevelInstruction(settings) {
+  const level = (settings && settings.studyLevel) || 'journeyman';
+  return STUDY_LEVEL_INSTRUCTIONS[level] || STUDY_LEVEL_INSTRUCTIONS.journeyman;
+}
+
 const CATEGORIES = [
   {
     name: 'The Doctrines of Grace',
@@ -192,7 +203,8 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
   const translation  = (userSettings && userSettings.bibleTranslation) || 'LSB';
 
   const { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT } = req.app.locals.prompts;
-  const systemPrompt = IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_STUDY_PROMPT;
+  const studyLevelInstruction = getStudyLevelInstruction(userSettings);
+  const systemPrompt = studyLevelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_STUDY_PROMPT;
 
   try {
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
