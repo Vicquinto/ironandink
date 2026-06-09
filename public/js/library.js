@@ -629,6 +629,27 @@
   // Prevent scrollbar/scroll clicks inside popup from bubbling to the dismiss handler
   upEl.addEventListener('mousedown', function (e) { e.stopPropagation(); });
 
+  // ── Draggable header ────────────────────────────────────────────────────────
+  var _dragOff = null;
+  upEl.querySelector('.up-header').addEventListener('mousedown', function (e) {
+    if (e.target.closest('.up-close')) return;
+    var r = upEl.getBoundingClientRect();
+    _dragOff = { x: e.clientX - r.left, y: e.clientY - r.top };
+    document.body.style.userSelect = 'none';
+  });
+  document.addEventListener('mousemove', function (e) {
+    if (!_dragOff) return;
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var pw = upEl.offsetWidth,  ph = upEl.offsetHeight;
+    upEl.style.left = Math.min(Math.max(0, e.clientX - _dragOff.x), vw - pw) + 'px';
+    upEl.style.top  = Math.min(Math.max(0, e.clientY - _dragOff.y), vh - ph) + 'px';
+  });
+  document.addEventListener('mouseup', function () {
+    if (!_dragOff) return;
+    _dragOff = null;
+    document.body.style.userSelect = '';
+  });
+
   // ── Popup interactions ─────────────────────────────────────────────────────
   upEl.querySelector('.up-close').addEventListener('click', function () {
     upEl.style.display = 'none';
