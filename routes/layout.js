@@ -78,7 +78,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="/js/modal.js"></script>
   <script src="/js/app.js"></script>
-  <script src="/js/dictionary.js?v=3"></script>
+  <script src="/js/dictionary.js?v=6"></script>
   ${scripts}
 </body>
 </html>`;

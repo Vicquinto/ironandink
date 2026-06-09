@@ -30,12 +30,12 @@
       el.style.cssText = [
         'position:fixed',
         'z-index:99999',
-        'max-width:320px',
+        'max-width:500px',
         'width:max-content',
         'background:#2A1A0F',
         'border:1px solid #B38C33',
         'border-radius:6px',
-        'padding:0.75rem 1rem',
+        'padding:1rem 1.25rem',
         'box-shadow:0 4px 20px rgba(0,0,0,0.6)',
         'display:none',
         'pointer-events:auto',
@@ -54,7 +54,7 @@
 
     function positionTooltip(rect) {
       if (!tooltip) return;
-      var ttWidth  = Math.min(320, window.innerWidth - 16);
+      var ttWidth  = Math.min(500, window.innerWidth - 16);
       tooltip.style.maxWidth = ttWidth + 'px';
 
       // Force layout to measure height
@@ -93,10 +93,10 @@
           '<button id="dictClose" style="background:none;border:none;color:#B38C33;cursor:pointer;font-size:14px;padding:0 0 0 8px;line-height:1;" aria-label="Close">&#10005;</button>' +
         '</div>' +
         '<div style="height:1px;background:#B38C33;opacity:0.35;margin-bottom:8px;"></div>' +
-        '<div id="dictContent" style="color:#F7F0E0;font-size:13px;font-family:Georgia,serif;line-height:1.6;">' +
+        '<div id="dictContent" style="color:#F7F0E0;font-size:20px;font-family:Georgia,serif;line-height:1.65;">' +
           '<div style="display:flex;align-items:center;gap:8px;">' +
             '<div style="width:14px;height:14px;border:2px solid rgba(179,140,51,0.25);border-top-color:#B38C33;border-radius:50%;animation:dictSpin 0.7s linear infinite;flex-shrink:0;"></div>' +
-            '<span style="color:#EBD9C6;font-size:12px;">Looking up definition…</span>' +
+            '<span style="color:#EBD9C6;font-size:1rem;">Looking up definition…</span>' +
           '</div>' +
         '</div>';
 
