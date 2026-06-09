@@ -208,18 +208,20 @@ router.post('/api/articles', requireAuth, (req, res) => {
   const { title, content, tier, form, answers, status } = req.body;
   if (!title) return res.status(400).json({ success: false, error: 'Title is required.' });
 
-  const now     = new Date().toISOString();
+  const now          = new Date().toISOString();
+  const userSettings = req.session.user && req.session.user.settings;
   const article = {
-    id:        randomUUID(),
-    userId:    req.session.userId,
-    title:     title.trim(),
-    content:   content || '',
-    tier:      tier || 1,
-    form:      form || 'article',
-    answers:   answers || {},
-    status:    status || 'Draft',
-    createdAt: now,
-    updatedAt: now,
+    id:         randomUUID(),
+    userId:     req.session.userId,
+    title:      title.trim(),
+    content:    content || '',
+    tier:       tier || 1,
+    form:       form || 'article',
+    answers:    answers || {},
+    status:     status || 'Draft',
+    studyLevel: (userSettings && userSettings.studyLevel) || 'journeyman',
+    createdAt:  now,
+    updatedAt:  now,
   };
 
   const articles = readArticles();

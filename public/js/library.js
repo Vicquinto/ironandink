@@ -61,6 +61,7 @@
           '<div class="study-card-meta">' +
             '<span class="study-card-date">' + formatDate(s.savedAt) + '</span>' +
             '<span class="study-card-translation">' + esc(s.translation || 'LSB') + '</span>' +
+            studyLevelBadge(s.studyLevel) +
           '</div>' +
           tagsHtml +
           starsHtml +
@@ -416,6 +417,13 @@
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
+  }
+
+  function studyLevelBadge(level) {
+    var l = level || 'journeyman';
+    var labels = { foundations: 'FOUNDATIONS', journeyman: 'JOURNEYMAN', scholar: 'SCHOLAR' };
+    var label  = labels[l] || 'JOURNEYMAN';
+    return '<span class="study-level-badge study-level-badge-' + l + '">' + label + '</span>';
   }
 
   function formatDate(iso) {

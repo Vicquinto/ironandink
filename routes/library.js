@@ -99,6 +99,7 @@ router.post('/api/library/save', requireAuth, (req, res) => {
     ? tags.map(t => t.trim()).filter(Boolean)
     : (tags || '').split(',').map(t => t.trim()).filter(Boolean);
 
+  const userSettings = req.session.user && req.session.user.settings;
   const study = {
     id:          randomUUID(),
     userId:      req.session.userId,
@@ -107,6 +108,7 @@ router.post('/api/library/save', requireAuth, (req, res) => {
     translation: translation || 'LSB',
     tags:        parsedTags,
     rating:      Math.min(5, Math.max(0, parseInt(rating) || 0)),
+    studyLevel:  (userSettings && userSettings.studyLevel) || 'journeyman',
     createdAt:   createdAt || new Date().toISOString(),
     savedAt:     new Date().toISOString(),
   };

@@ -82,6 +82,7 @@
       '<div class="community-card-meta">' +
         '<span class="tier-badge-sm">Tier ' + a.tier + '</span>' +
         '<span class="form-badge form-badge-' + esc(a.form || 'article') + '">' + formLabel + '</span>' +
+        studyLevelBadge(a.studyLevel) +
         '<span class="community-card-author">' + esc(a.authorName || '') + '</span>' +
         '<span class="article-card-date">' + fmtDate(a.publishedAt || a.updatedAt) + '</span>' +
         '<span class="article-word-count">' + words + ' words</span>' +
@@ -123,7 +124,8 @@
       if (communityReadBadges) {
         communityReadBadges.innerHTML =
           '<span class="tier-badge-sm">Tier ' + a.tier + '</span> ' +
-          '<span class="form-badge form-badge-' + esc(a.form || 'article') + '">' + formLabel + '</span>';
+          '<span class="form-badge form-badge-' + esc(a.form || 'article') + '">' + formLabel + '</span>' +
+          (a.studyLevel ? ' ' + studyLevelBadge(a.studyLevel) : '');
       }
 
       updateAmenBtn(a.amenCount || 0, currentUserAmened);
@@ -265,6 +267,14 @@
   function formDisplayLabel(form) {
     var labels = { article: 'Article', sermon: 'Sermon', letter: 'Letter' };
     return labels[form] || 'Article';
+  }
+
+  function studyLevelBadge(level) {
+    if (!level) return '';
+    var labels = { foundations: 'FOUNDATIONS', journeyman: 'JOURNEYMAN', scholar: 'SCHOLAR' };
+    var label  = labels[level];
+    if (!label) return '';
+    return '<span class="study-level-badge study-level-badge-' + esc(level) + '">' + label + '</span>';
   }
 
   function fmtDate(iso) {

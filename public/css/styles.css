@@ -1700,6 +1700,30 @@ body {
   letter-spacing: 0.05em;
 }
 
+.study-level-badge {
+  font-size: 0.68rem;
+  padding: 1px 7px;
+  border-radius: 3px;
+  letter-spacing: 0.07em;
+  font-weight: 600;
+  font-family: 'EB Garamond', Georgia, serif;
+}
+.study-level-badge-foundations {
+  background: rgba(179,140,51,0.06);
+  color: rgba(179,140,51,0.5);
+  border: 1px solid rgba(179,140,51,0.12);
+}
+.study-level-badge-journeyman {
+  background: rgba(179,140,51,0.12);
+  color: var(--accent);
+  border: 1px solid rgba(179,140,51,0.3);
+}
+.study-level-badge-scholar {
+  background: rgba(179,140,51,0.22);
+  color: var(--text);
+  border: 1px solid rgba(179,140,51,0.5);
+}
+
 .tier-badge-main {
   font-size: 0.78rem;
   background: rgba(179,140,51,0.12);
