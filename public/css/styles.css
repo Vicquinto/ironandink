@@ -2812,7 +2812,7 @@ body {
 .nav-item:hover .nav-icon  { color: #E8D9B8; }
 
 /* Active — steel blue bg, all white, light steel left border */
-.nav-item.active           { background: #5C1A28; color: #E8D9B8; border-left-color: #A0845C; }
+.nav-item.active           { background: #4A1520; color: #E8D9B8; border-left-color: #A0845C; }
 .nav-item.active .nav-icon { color: #E8D9B8; }
 .sidebar.collapsed .nav-item.active { border-right-color: #A0845C; }
 

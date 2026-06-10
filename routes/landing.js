@@ -70,7 +70,7 @@ router.get('/', (req, res) => {
 
     .btn-hero-primary {
       background: var(--accent);
-      color: #1A0F0A;
+      color: #E8D9B8;
       font-family: 'EB Garamond', Georgia, serif;
       font-size: 1.05rem;
       font-weight: 600;
@@ -83,7 +83,7 @@ router.get('/', (req, res) => {
       transition: background 0.15s;
     }
 
-    .btn-hero-primary:hover { background: #c9a040; }
+    .btn-hero-primary:hover { background: #6B4226; }
 
     .btn-hero-secondary {
       background: transparent;
@@ -106,7 +106,7 @@ router.get('/', (req, res) => {
 
     /* ── Feature cards ── */
     .features {
-      background: #120A06;
+      background: #6B4226;
       border-top: 1px solid rgba(179,140,51,0.15);
       padding: 64px 24px;
     }

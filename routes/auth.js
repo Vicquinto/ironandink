@@ -110,9 +110,7 @@ function loginStyles() {
   return `
     <style>
       :root {
-        --bg: #1A0F0A; --accent: #B38C33; --text: #F7F0E0;
-        --dark-cream: #EBD9C6; --warm-brown: #7A5C3B;
-        --card-bg: #2A1A0F; --ink: #141009;
+        --card-bg: #DDD0B0;
       }
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
       body {
@@ -153,7 +151,7 @@ function loginStyles() {
         cursor: pointer; letter-spacing: 0.05em; margin-top: 6px;
         transition: background 0.15s;
       }
-      .btn-submit:hover { background: #c9a040; }
+      .btn-submit:hover { background: #6B4226; }
       .error-msg {
         background: rgba(180,60,60,0.15);
         border: 1px solid rgba(180,60,60,0.4);
