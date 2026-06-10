@@ -172,7 +172,13 @@ router.post('/api/invite-request', (req, res) => {
     submittedAt: new Date().toISOString(),
   };
   requests.push(record);
-  writeJSON(INVITE_REQUESTS_PATH, requests);
+  console.log('[invite-request] writing to', INVITE_REQUESTS_PATH);
+  try {
+    writeJSON(INVITE_REQUESTS_PATH, requests);
+  } catch (err) {
+    console.error('[invite-request] writeJSON failed:', err);
+    return res.status(500).json({ success: false, error: 'Failed to save request: ' + err.message });
+  }
   res.json({ success: true });
 });
 
