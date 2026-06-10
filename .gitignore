@@ -1,2 +1,9 @@
 node_modules/
 .env
+
+# User data — never overwrite on deployment
+data/users.json
+data/invites.json
+data/invite_requests.json
+data/studies.json
+data/dialogues.json
