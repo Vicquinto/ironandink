@@ -109,12 +109,9 @@ router.get('/logout', (req, res) => {
 function loginStyles() {
   return `
     <style>
-      :root {
-        --card-bg: #DDD0B0;
-      }
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
       body {
-        background: var(--bg); color: var(--text);
+        background: #E8D9B8; color: #1E1208;
         font-family: Georgia, 'Times New Roman', serif;
         min-height: 100vh; display: flex;
         align-items: center; justify-content: center;
@@ -122,30 +119,30 @@ function loginStyles() {
       .login-container { width: 100%; max-width: 420px; padding: 20px; }
       .login-header { text-align: center; margin-bottom: 36px; }
       .login-title {
-        font-size: 2.6rem; color: var(--accent);
+        font-size: 2.6rem; color: #5C1A28;
         letter-spacing: 0.08em; font-weight: normal; margin-bottom: 10px;
       }
-      .login-tagline { font-size: 0.9rem; color: var(--warm-brown); font-style: italic; }
+      .login-tagline { font-size: 0.9rem; color: #A0845C; font-style: italic; }
       .login-card {
-        background: var(--card-bg);
-        border: 1px solid rgba(179,140,51,0.25);
+        background: #DDD0B0;
+        border: 1px solid #A0845C;
         border-radius: 8px; padding: 36px;
       }
       .form-group { margin-bottom: 20px; }
       .form-label {
-        display: block; font-size: 0.78rem; color: var(--dark-cream);
+        display: block; font-size: 0.78rem; color: #1E1208;
         margin-bottom: 7px; letter-spacing: 0.07em; text-transform: uppercase;
       }
       .form-input {
-        width: 100%; background: var(--bg);
-        border: 1px solid rgba(179,140,51,0.3);
-        color: var(--text); padding: 12px 14px;
+        width: 100%; background: #E8D9B8;
+        border: 1px solid #A0845C;
+        color: #1E1208; padding: 12px 14px;
         font-size: 0.95rem; font-family: Georgia, serif;
         border-radius: 4px; outline: none; transition: border-color 0.15s;
       }
-      .form-input:focus { border-color: var(--accent); }
+      .form-input:focus { border-color: #5C1A28; }
       .btn-submit {
-        width: 100%; background: var(--accent); color: var(--ink);
+        width: 100%; background: #5C1A28; color: #E8D9B8;
         border: none; padding: 13px; font-size: 1rem;
         font-family: Georgia, serif; border-radius: 4px;
         cursor: pointer; letter-spacing: 0.05em; margin-top: 6px;
@@ -162,10 +159,10 @@ function loginStyles() {
       .error-msg.visible { display: block; }
       .footer-text {
         text-align: center; font-size: 0.75rem;
-        color: var(--warm-brown); margin-top: 22px;
+        color: #A0845C; margin-top: 22px;
       }
       .welcome-text {
-        font-size: 0.9rem; color: var(--dark-cream);
+        font-size: 0.9rem; color: #1E1208;
         margin-bottom: 22px; line-height: 1.6;
       }
     </style>`;
@@ -201,10 +198,10 @@ function renderLoginPage({ error, notice }) {
         <button class="btn-submit" type="submit">Enter</button>
       </form>
       <p style="text-align:center; margin-top:16px;">
-        <a href="/forgot-password" style="font-size:0.78rem; color:var(--warm-brown); text-decoration:none;">Forgot password?</a>
+        <a href="/forgot-password" style="font-size:0.78rem; color:#5C1A28; text-decoration:none;">Forgot password?</a>
       </p>
     </div>
-    <p class="footer-text">A Reformed Theological Study Platform &mdash; <a href="/" style="color:var(--warm-brown); text-decoration:none;">Home</a></p>
+    <p class="footer-text">A Reformed Theological Study Platform &mdash; <a href="/" style="color:#A0845C; text-decoration:none;">Home</a></p>
   </div>
   <script>
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
