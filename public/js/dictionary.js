@@ -32,8 +32,8 @@
         'z-index:99999',
         'max-width:500px',
         'width:max-content',
-        'background:#2A1A0F',
-        'border:1px solid #B38C33',
+        'background:#DDD0B0',
+        'border:1px solid #A0845C',
         'border-radius:6px',
         'padding:1rem 1.25rem',
         'box-shadow:0 4px 20px rgba(0,0,0,0.6)',
@@ -89,14 +89,14 @@
 
       tooltip.innerHTML =
         '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">' +
-          '<span style="font-family:\'EB Garamond\',Georgia,serif;color:#B38C33;font-size:14px;font-weight:bold;">' + escapeHtml(term) + '</span>' +
-          '<button id="dictClose" style="background:none;border:none;color:#B38C33;cursor:pointer;font-size:14px;padding:0 0 0 8px;line-height:1;" aria-label="Close">&#10005;</button>' +
+          '<span style="font-family:\'EB Garamond\',Georgia,serif;color:#5C1A28;font-size:14px;font-weight:bold;">' + escapeHtml(term) + '</span>' +
+          '<button id="dictClose" style="background:none;border:none;color:#A0845C;cursor:pointer;font-size:14px;padding:0 0 0 8px;line-height:1;" aria-label="Close">&#10005;</button>' +
         '</div>' +
-        '<div style="height:1px;background:#B38C33;opacity:0.35;margin-bottom:8px;"></div>' +
-        '<div id="dictContent" style="color:#F7F0E0;font-size:20px;font-family:Georgia,serif;line-height:1.65;">' +
+        '<div style="height:1px;background:#A0845C;opacity:0.35;margin-bottom:8px;"></div>' +
+        '<div id="dictContent" style="color:#1E1208;font-size:20px;font-family:Georgia,serif;line-height:1.65;">' +
           '<div style="display:flex;align-items:center;gap:8px;">' +
-            '<div style="width:14px;height:14px;border:2px solid rgba(179,140,51,0.25);border-top-color:#B38C33;border-radius:50%;animation:dictSpin 0.7s linear infinite;flex-shrink:0;"></div>' +
-            '<span style="color:#EBD9C6;font-size:1rem;">Looking up definition…</span>' +
+            '<div style="width:14px;height:14px;border:2px solid rgba(160,132,92,0.25);border-top-color:#A0845C;border-radius:50%;animation:dictSpin 0.7s linear infinite;flex-shrink:0;"></div>' +
+            '<span style="color:#A0845C;font-size:1rem;">Looking up definition…</span>' +
           '</div>' +
         '</div>';
 
@@ -111,7 +111,13 @@
     function renderDefinition(data) {
       var el = document.getElementById('dictContent');
       if (!el) return;
-      el.innerHTML = '<span>' + escapeHtml(data.definition) + '</span>';
+      var md = escapeHtml(data.definition)
+        .replace(/^#{2,} (.+)$/gm, '<strong style="display:block;margin-bottom:2px;">$1</strong>')
+        .replace(/^# (.+)$/gm,     '<strong style="display:block;margin-bottom:3px;color:#5C1A28;">$1</strong>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g,     '<em>$1</em>')
+        .replace(/\n/g,            '<br>');
+      el.innerHTML = md;
       if (lastRect) positionTooltip(lastRect);
     }
 
