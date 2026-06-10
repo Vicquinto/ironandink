@@ -187,9 +187,11 @@
     if (icmEl) icmEl.style.display = 'none';
   }
 
-  document.getElementById('closeModal').addEventListener('click', closeModal);
-  document.getElementById('guideModal').addEventListener('click', function (e) {
-    if (e.target === document.getElementById('guideModal')) closeModal();
+  var closeModalBtn = document.getElementById('closeModal');
+  var guideModalEl  = document.getElementById('guideModal');
+  if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+  if (guideModalEl)  guideModalEl.addEventListener('click', function (e) {
+    if (e.target === guideModalEl) closeModal();
   });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
@@ -216,8 +218,10 @@
   }
 
   // ── Filters ────────────────────────────────────────────────────────────────
-  document.getElementById('filterTag').addEventListener('input', applyFilters);
-  document.getElementById('filterRating').addEventListener('change', applyFilters);
+  var filterTagEl    = document.getElementById('filterTag');
+  var filterRatingEl = document.getElementById('filterRating');
+  if (filterTagEl)    filterTagEl.addEventListener('input', applyFilters);
+  if (filterRatingEl) filterRatingEl.addEventListener('change', applyFilters);
 
   function applyFilters() {
     var tagVal    = document.getElementById('filterTag').value.toLowerCase().trim();
