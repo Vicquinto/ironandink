@@ -188,7 +188,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: '<script src="/js/study.js"></script>',
+    scripts: '<script src="/js/study.js"></script><script src="/js/library.js?v=8"></script>',
   }));
 });
 

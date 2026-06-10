@@ -1,5 +1,5 @@
 (function () {
-  const READING_IDS = ['guideArea', 'readingBody', 'communityReadBody'];
+  const READING_IDS = ['readingBody', 'communityReadBody'];
 
   function pageHasReadingContent() {
     return READING_IDS.some(function (id) { return document.getElementById(id); });

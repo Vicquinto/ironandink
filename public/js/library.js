@@ -618,23 +618,35 @@
           e.target.closest('#unifiedPopup') ||
           e.target.closest('#inlineChatModal'))) return;
 
-    var modal = document.getElementById('guideModal');
-    if (!modal || modal.style.display === 'none') return;
-
     var sel = window.getSelection();
     if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
 
     var selText = sel.toString().trim();
     if (!selText || selText.length < 4) return;
 
-    var modalBody = document.getElementById('modalBody');
-    if (!modalBody) return;
     var range = sel.getRangeAt(0);
-    if (!modalBody.contains(range.commonAncestorContainer)) return;
+
+    // Library modal context
+    var modalBody = document.getElementById('modalBody');
+    var modal     = document.getElementById('guideModal');
+    var inModal   = modal && modal.style.display !== 'none' &&
+                    modalBody && modalBody.contains(range.commonAncestorContainer);
+
+    // Study page context
+    var guideArea = document.getElementById('guideArea');
+    var inGuide   = guideArea && guideArea.style.display !== 'none' &&
+                    guideArea.contains(range.commonAncestorContainer);
+
+    if (!inModal && !inGuide) return;
 
     upSelectedText = selText;
-    var titleEl = document.getElementById('modalTitle');
-    icmTopic = titleEl ? titleEl.textContent : '';
+    if (inModal) {
+      var titleEl = document.getElementById('modalTitle');
+      icmTopic = titleEl ? titleEl.textContent : '';
+    } else {
+      var titleEl = document.getElementById('guideTitle');
+      icmTopic = titleEl ? titleEl.textContent : '';
+    }
     showUp(selText, range.getBoundingClientRect());
     // Suppress any legacy dictionary tooltip that may fire after its 400 ms debounce
     setTimeout(function () {
