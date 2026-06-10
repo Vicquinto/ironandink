@@ -1,8 +1,12 @@
 require('dotenv').config();
-const express   = require('express');
-const session   = require('express-session');
-const path      = require('path');
-const rateLimit = require('express-rate-limit');
+const express    = require('express');
+const session    = require('express-session');
+const FileStore  = require('session-file-store')(session);
+const path       = require('path');
+const fs         = require('fs');
+const rateLimit  = require('express-rate-limit');
+
+fs.mkdirSync(path.join(__dirname, 'sessions'), { recursive: true });
 
 const authRoutes          = require('./routes/auth');
 const landingRoutes       = require('./routes/landing');
@@ -92,6 +96,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(session({
+  store:             new FileStore({ path: path.join(__dirname, 'sessions'), ttl: 86400, reapInterval: 3600 }),
   secret:            process.env.SESSION_SECRET,
   resave:            false,
   saveUninitialized: false,

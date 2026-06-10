@@ -1,0 +1,5 @@
+◇ injected env (3) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+[Dict] Webster's loaded: 98830 entries
+
+  Iron & Ink  |  http://localhost:4000
+
