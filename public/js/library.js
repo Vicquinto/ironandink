@@ -580,9 +580,11 @@
     upEl.querySelector('.up-ai-btn').classList.remove('up-btn-active');
 
     // Measure collapsed height before committing to a position
+    upEl.style.top        = '0';
+    upEl.style.left       = '0';
     upEl.style.visibility = 'hidden';
     upEl.style.display    = 'block';
-    var ph = upEl.offsetHeight;
+    var ph = upEl.offsetHeight || 80;
 
     var vw   = window.innerWidth;
     var vh   = window.innerHeight;
@@ -754,10 +756,10 @@
         }),
       });
       var data = await res.json();
-      resp.textContent = data.success ? data.answer : ('Error: ' + (data.error || 'Failed.'));
+      resp.innerHTML = data.success ? renderMarkdown(data.answer) : ('<span style="color:#e08080;font-style:italic;">Error: ' + esc(data.error || 'Failed.') + '</span>');
       clampUp();
     } catch (err) {
-      resp.textContent = 'Error: ' + err.message;
+      resp.innerHTML = '<span style="color:#e08080;font-style:italic;">Error: ' + esc(err.message) + '</span>';
       clampUp();
     } finally {
       askBtn.disabled = false;

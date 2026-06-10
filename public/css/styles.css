@@ -2425,8 +2425,8 @@ body {
   z-index: 1100;
   width: 380px;
   max-width: calc(100vw - 16px);
-  background: var(--card-bg);
-  border: 1px solid rgba(160,132,92,0.4);
+  background: #DDD0B0;
+  border: 1px solid #A0845C;
   border-radius: 8px;
   box-shadow: 0 6px 28px rgba(0,0,0,0.65);
   overflow: hidden;
@@ -2445,7 +2445,7 @@ body {
 .up-preview {
   flex: 1;
   font-size: 0.78rem;
-  color: var(--warm-brown);
+  color: #5C1A28;
   font-style: italic;
   line-height: 1.4;
   overflow: hidden;
@@ -2457,7 +2457,7 @@ body {
 .up-close {
   background: none;
   border: none;
-  color: var(--warm-brown);
+  color: #A0845C;
   cursor: pointer;
   font-size: 0.85rem;
   line-height: 1;
@@ -2465,7 +2465,7 @@ body {
   flex-shrink: 0;
   transition: color 0.12s;
 }
-.up-close:hover { color: var(--text); }
+.up-close:hover { color: #1E1208; }
 
 .up-actions {
   display: flex;
@@ -2476,9 +2476,9 @@ body {
 .up-define-btn,
 .up-ai-btn {
   flex: 1;
-  background: none;
-  border: 1px solid rgba(160,132,92,0.28);
-  color: var(--warm-brown);
+  background: #5C1A28;
+  border: 1px solid #5C1A28;
+  color: #E8D9B8;
   cursor: pointer;
   font-family: 'EB Garamond', Georgia, serif;
   font-size: 0.82rem;
@@ -2495,15 +2495,15 @@ body {
 }
 .up-define-btn:hover,
 .up-ai-btn:hover {
-  background: rgba(160,132,92,0.08);
-  color: var(--accent);
-  border-color: rgba(160,132,92,0.5);
+  background: #4A1520;
+  color: #E8D9B8;
+  border-color: #4A1520;
 }
 .up-define-btn.up-btn-active,
 .up-ai-btn.up-btn-active {
-  background: rgba(160,132,92,0.12);
-  color: var(--accent);
-  border-color: var(--accent);
+  background: #4A1520;
+  color: #E8D9B8;
+  border-color: #4A1520;
 }
 
 .up-content {
@@ -2517,14 +2517,14 @@ body {
 .up-definition {
   font-size: 1.1rem;
   font-family: 'EB Garamond', Georgia, serif;
-  color: var(--text);
+  color: #1E1208;
   line-height: 1.65;
   max-height: 180px;
   overflow-y: auto;
 }
 
 .up-loading {
-  color: var(--warm-brown);
+  color: #A0845C;
   font-style: italic;
   font-size: 0.9rem;
 }
@@ -2541,24 +2541,24 @@ body {
 
 .up-ai-input {
   flex: 1;
-  background: rgba(160,132,92,0.06);
-  border: 1px solid rgba(160,132,92,0.25);
+  background: #E8D9B8;
+  border: 1px solid #A0845C;
   border-radius: 5px;
-  color: var(--text);
+  color: #1E1208;
   font-family: 'EB Garamond', Georgia, serif;
   font-size: 0.9rem;
   padding: 6px 10px;
   outline: none;
   transition: border-color 0.15s;
 }
-.up-ai-input:focus { border-color: var(--accent); }
+.up-ai-input:focus { border-color: #5C1A28; }
 .up-ai-input::placeholder { color: rgba(30,18,8,0.3); }
 
 .up-ai-ask-btn {
-  background: var(--accent);
+  background: #5C1A28;
   border: none;
   border-radius: 5px;
-  color: var(--bg);
+  color: #E8D9B8;
   cursor: pointer;
   font-family: 'EB Garamond', Georgia, serif;
   font-size: 0.82rem;
@@ -2574,12 +2574,12 @@ body {
 .up-ai-response {
   margin-bottom: 8px;
   padding: 8px 12px;
-  background: rgba(160,132,92,0.04);
-  border-left: 2px solid var(--accent);
+  background: rgba(160,132,92,0.08);
+  border-left: 2px solid #5C1A28;
   border-radius: 0 4px 4px 0;
   font-size: 0.88rem;
   line-height: 1.65;
-  color: var(--dark-cream);
+  color: #1E1208;
   max-height: 180px;
   overflow-y: auto;
   white-space: pre-wrap;
@@ -2594,9 +2594,9 @@ body {
 
 .up-chat-btn {
   background: none;
-  border: 1px solid rgba(160,132,92,0.28);
+  border: 1px solid #A0845C;
   border-radius: 4px;
-  color: var(--accent);
+  color: #5C1A28;
   cursor: pointer;
   font-family: 'EB Garamond', Georgia, serif;
   font-size: 0.8rem;
@@ -2605,8 +2605,8 @@ body {
   transition: background 0.12s, border-color 0.12s;
 }
 .up-chat-btn:hover {
-  background: rgba(160,132,92,0.08);
-  border-color: var(--accent);
+  background: rgba(160,132,92,0.12);
+  border-color: #5C1A28;
 }
 
 /* ─── INLINE CHAT MODAL ────────────────────────────────────────────── */
