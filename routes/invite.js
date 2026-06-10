@@ -320,70 +320,92 @@ router.get('/register', (req, res) => {
 
 // ─── POST /api/register ───────────────────────────────────────────────────────
 router.post('/api/register', async (req, res) => {
-  const { token, fullName, password, confirm, translation, tradition } = req.body;
+  try {
+    const { token, fullName, password, confirm, translation, tradition } = req.body;
 
-  if (!token || !fullName || !password || !confirm) {
-    return res.status(400).json({ success: false, error: 'All fields are required.' });
+    console.log('[register] handler reached, token:', token);
+
+    if (!token || !fullName || !password || !confirm) {
+      return res.status(400).json({ success: false, error: 'All fields are required.' });
+    }
+    if (password.length < 8) {
+      return res.json({ success: false, error: 'Password must be at least 8 characters.' });
+    }
+    if (password !== confirm) {
+      return res.json({ success: false, error: 'Passwords do not match.' });
+    }
+
+    const invites = readJSON(INVITES_PATH);
+    const idx     = invites.findIndex(i => i.token === token);
+    const invite  = invites[idx];
+
+    if (!invite || invite.used || new Date(invite.expiresAt) < new Date()) {
+      return res.json({ success: false, error: 'This invitation link is invalid or has expired.' });
+    }
+
+    console.log('[register] valid invite for:', invite.email);
+
+    const users    = readJSON(USERS_PATH);
+    const existing = users.find(u => u.email.toLowerCase() === invite.email.toLowerCase());
+    if (existing) {
+      return res.json({ success: false, error: 'An account with this email already exists.' });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    const now          = new Date().toISOString();
+    const user = {
+      id:           randomUUID(),
+      email:        invite.email.toLowerCase(),
+      fullName:     fullName.trim(),
+      passwordHash,
+      isAdmin:      false,
+      role:         'user',
+      needsSetup:   false,
+      settings: {
+        translation: translation || 'LSB',
+        tradition:   tradition   || 'Reformed/Calvinist',
+      },
+      stats:     {},
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    console.log('[register] writing user to', USERS_PATH);
+    try {
+      users.push(user);
+      writeJSON(USERS_PATH, users);
+    } catch (err) {
+      console.error('[register] writeJSON(users) failed:', err);
+      return res.status(500).json({ success: false, error: 'Failed to save user: ' + err.message });
+    }
+
+    console.log('[register] marking invite used in', INVITES_PATH);
+    try {
+      invites[idx].used   = true;
+      invites[idx].usedAt = now;
+      writeJSON(INVITES_PATH, invites);
+    } catch (err) {
+      console.error('[register] writeJSON(invites) failed:', err);
+      return res.status(500).json({ success: false, error: 'Account created but failed to mark invite used: ' + err.message });
+    }
+
+    req.session.userId     = user.id;
+    req.session.firstLogin = true;
+    req.session.user = {
+      id:       user.id,
+      email:    user.email,
+      fullName: user.fullName,
+      settings: user.settings,
+      stats:    user.stats,
+      isAdmin:  false,
+    };
+
+    console.log('[register] account created successfully for:', user.email);
+    res.json({ success: true, redirect: '/dashboard' });
+  } catch (err) {
+    console.error('[register] unexpected error:', err);
+    res.status(500).json({ success: false, error: 'An unexpected error occurred: ' + err.message });
   }
-  if (password.length < 8) {
-    return res.json({ success: false, error: 'Password must be at least 8 characters.' });
-  }
-  if (password !== confirm) {
-    return res.json({ success: false, error: 'Passwords do not match.' });
-  }
-
-  const invites = readJSON(INVITES_PATH);
-  const idx     = invites.findIndex(i => i.token === token);
-  const invite  = invites[idx];
-
-  if (!invite || invite.used || new Date(invite.expiresAt) < new Date()) {
-    return res.json({ success: false, error: 'This invitation link is invalid or has expired.' });
-  }
-
-  const users    = readJSON(USERS_PATH);
-  const existing = users.find(u => u.email.toLowerCase() === invite.email.toLowerCase());
-  if (existing) {
-    return res.json({ success: false, error: 'An account with this email already exists.' });
-  }
-
-  const passwordHash = await bcrypt.hash(password, 10);
-  const now          = new Date().toISOString();
-  const user = {
-    id:           randomUUID(),
-    email:        invite.email.toLowerCase(),
-    fullName:     fullName.trim(),
-    passwordHash,
-    isAdmin:      false,
-    role:         'user',
-    needsSetup:   false,
-    settings: {
-      translation: translation || 'LSB',
-      tradition:   tradition   || 'Reformed/Calvinist',
-    },
-    stats:     {},
-    createdAt: now,
-    updatedAt: now,
-  };
-
-  users.push(user);
-  writeJSON(USERS_PATH, users);
-
-  invites[idx].used   = true;
-  invites[idx].usedAt = now;
-  writeJSON(INVITES_PATH, invites);
-
-  req.session.userId     = user.id;
-  req.session.firstLogin = true;
-  req.session.user = {
-    id:       user.id,
-    email:    user.email,
-    fullName: user.fullName,
-    settings: user.settings,
-    stats:    user.stats,
-    isAdmin:  false,
-  };
-
-  res.json({ success: true, redirect: '/dashboard' });
 });
 
 function escHtml(str) {
