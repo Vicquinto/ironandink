@@ -30,14 +30,14 @@
 /* ──────────────────────────────────────────────────────────────────── */
 
 :root {
-  --bg:         #F5EDD6;  /* Cream Ivory — main canvas */
+  --bg:         #E8D9B8;  /* Cream Ivory — main canvas */
   --sidebar-bg: #6B4226;  /* Worn Leather — sidebar */
-  --accent:     #7A2233;  /* Oxblood Burgundy — headings, active, accents */
+  --accent:     #5C1A28;  /* Oxblood Burgundy — headings, active, accents */
   --text:       #1E1208;  /* Dark Ink — body text on light */
   --dark-cream: #1E1208;  /* Repurposed: body text on canvas */
   --warm-brown: #A0845C;  /* Aged Gold/Tan — secondary labels, scripture refs */
-  --card-bg:    #F5EDD6;  /* Cream Ivory cards */
-  --ink:        #F5EDD6;  /* Button text — cream on dark buttons */
+  --card-bg:    #E8D9B8;  /* Cream Ivory cards */
+  --ink:        #E8D9B8;  /* Button text — cream on dark buttons */
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -314,7 +314,7 @@ body {
 }
 
 .stat-card {
-  background: #F5EDD6;
+  background: #E8D9B8;
   border: 1px solid #A0845C;
   border-radius: 6px;
   padding: 22px 26px;
@@ -330,7 +330,7 @@ body {
 
 .stat-value {
   font-size: 2.2rem;
-  color: #7A2233;
+  color: #5C1A28;
   font-weight: bold;
   line-height: 1;
 }
@@ -841,8 +841,9 @@ body {
 }
 
 .study-card {
-  background: var(--card-bg);
+  background: #DDD0B0;
   border: 1px solid rgba(160,132,92,0.18);
+  box-shadow: 0 1px 4px rgba(30,18,8,0.12);
   border-radius: 6px;
   padding: 20px 22px;
   cursor: pointer;
@@ -1666,8 +1667,9 @@ body {
 }
 
 .article-card {
-  background: var(--card-bg);
+  background: #DDD0B0;
   border: 1px solid rgba(160,132,92,0.18);
+  box-shadow: 0 1px 4px rgba(30,18,8,0.12);
   border-radius: 6px;
   padding: 20px 22px;
   margin-bottom: 14px;
@@ -1962,7 +1964,7 @@ body {
 }
 
 .reading-card {
-  background: #F5EDD6;
+  background: #E8D9B8;
   border: 1px solid rgba(160,132,92,0.15);
   border-radius: 8px;
   padding: 40px 48px;
@@ -2051,7 +2053,7 @@ body {
 
 .status-draft     { background: rgba(160,132,92,0.25); color: var(--warm-brown); }
 .status-complete  { background: rgba(160,132,92,0.2);  color: var(--accent); }
-.status-pending   { background: rgba(160,132,92,0.35); color: #7A2233; }
+.status-pending   { background: rgba(160,132,92,0.35); color: #5C1A28; }
 .status-published { background: rgba(80,140,80,0.2);   color: #7ec87e; }
 
 /* ─── MY ARTICLES — SUBMISSION ──────────────────────────────────────── */
@@ -2076,7 +2078,7 @@ body {
 
 .pending-label {
   font-size: 0.78rem;
-  color: #7A2233;
+  color: #5C1A28;
   font-style: italic;
 }
 
@@ -2795,30 +2797,30 @@ body {
 
 .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(160,132,92,0.22); }
 
-.logo-title    { color: #F5EDD6; }
+.logo-title    { color: #E8D9B8; }
 .logo-tagline  { color: #A0845C; font-style: italic; }
 
 .sidebar-toggle       { color: #A0845C; }
-.sidebar-toggle:hover { color: #F5EDD6; }
+.sidebar-toggle:hover { color: #E8D9B8; }
 
 /* Nav items — inactive text white, icon light steel */
-.nav-item          { color: #F5EDD6; }
+.nav-item          { color: #E8D9B8; }
 .nav-item .nav-icon { color: #A0845C; }
 
 /* Hover — dark steel bg, all white */
-.nav-item:hover            { background: rgba(122,34,51,0.8); color: #F5EDD6; }
-.nav-item:hover .nav-icon  { color: #F5EDD6; }
+.nav-item:hover            { background: rgba(92,26,40,0.8); color: #E8D9B8; }
+.nav-item:hover .nav-icon  { color: #E8D9B8; }
 
 /* Active — steel blue bg, all white, light steel left border */
-.nav-item.active           { background: #7A2233; color: #F5EDD6; border-left-color: #A0845C; }
-.nav-item.active .nav-icon { color: #F5EDD6; }
+.nav-item.active           { background: #5C1A28; color: #E8D9B8; border-left-color: #A0845C; }
+.nav-item.active .nav-icon { color: #E8D9B8; }
 .sidebar.collapsed .nav-item.active { border-right-color: #A0845C; }
 
 /* Logout & admin nav on sidebar */
 .logout-link       { color: #A0845C; }
-.logout-link:hover { color: #F5EDD6; background: rgba(160,132,92,0.1); }
+.logout-link:hover { color: #E8D9B8; background: rgba(160,132,92,0.1); }
 .nav-item.admin-link { color: #A0845C; }
-.nav-item.admin-link.active { color: #F5EDD6; }
+.nav-item.admin-link.active { color: #E8D9B8; }
 
 /* ─── PRINT AREA (hidden in normal view) ───────────────────────────── */
 #printArea { display: none; }
