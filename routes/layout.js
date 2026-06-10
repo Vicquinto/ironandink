@@ -46,7 +46,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title} — Iron &amp; Ink</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/styles.css?v=8">
 </head>
 <body>
   <div class="app-container">
@@ -77,9 +77,9 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
     </main>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="/js/modal.js"></script>
-  <script src="/js/app.js"></script>
-  <script src="/js/dictionary.js?v=7"></script>
+  <script src="/js/modal.js?v=8"></script>
+  <script src="/js/app.js?v=8"></script>
+  <script src="/js/dictionary.js?v=8"></script>
   ${scripts}
 </body>
 </html>`;
