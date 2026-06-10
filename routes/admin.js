@@ -63,6 +63,28 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
       </div>
 
       <div id="adminTabInvitations" class="admin-tab-content" style="display:none;">
+
+        <div style="background:var(--card-bg); border:1px solid rgba(160,132,92,0.25); border-radius:6px; padding:20px 24px; margin-bottom:28px;">
+          <h3 class="community-section-label" style="margin-bottom:14px;">Direct Invite</h3>
+          <div id="directInviteErr" style="display:none; color:#c06060; font-size:0.9rem; margin-bottom:10px;"></div>
+          <div id="directInviteLink" style="display:none; background:rgba(160,132,92,0.1); border:1px solid rgba(160,132,92,0.3); border-radius:5px; padding:12px 16px; margin-bottom:12px;">
+            <p style="font-size:0.9rem; color:var(--dark-cream); margin-bottom:6px;">Invite link:</p>
+            <p id="directInviteLinkText" style="font-family:'Courier New',monospace; font-size:0.8rem; color:var(--accent); word-break:break-all;"></p>
+            <button class="btn-warm" id="copyDirectLinkBtn" style="margin-top:10px; font-size:0.82rem; padding:5px 14px;">Copy</button>
+          </div>
+          <form id="directInviteForm" style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
+            <div style="flex:1; min-width:140px;">
+              <label style="display:block; font-size:0.78rem; color:var(--dark-cream); margin-bottom:5px; text-transform:uppercase; letter-spacing:0.05em;">Name</label>
+              <input class="form-input" type="text" id="directInviteName" placeholder="Full name">
+            </div>
+            <div style="flex:2; min-width:200px;">
+              <label style="display:block; font-size:0.78rem; color:var(--dark-cream); margin-bottom:5px; text-transform:uppercase; letter-spacing:0.05em;">Email</label>
+              <input class="form-input" type="email" id="directInviteEmail" placeholder="email@example.com">
+            </div>
+            <button class="btn-primary" type="submit" id="directInviteBtn" style="white-space:nowrap; margin-bottom:0;">Send Invite</button>
+          </form>
+        </div>
+
         <h3 class="community-section-label" style="margin-bottom:16px;">Pending Requests</h3>
         <div id="inviteRequestList" class="article-list-container"></div>
         <p id="inviteRequestEmpty" class="writing-empty" style="display:none;">No pending requests.</p>
@@ -86,7 +108,7 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
       </div>
       <div class="reading-card">
         <h2 id="adminReadTitle" class="reading-title"></h2>
-        <p id="adminReadMeta" class="community-read-meta-text" style="margin-bottom:20px;color:rgba(26,15,10,0.5);font-size:0.78rem;"></p>
+        <p id="adminReadMeta" class="community-read-meta-text" style="margin-bottom:20px;"></p>
         <div id="adminReadBody" class="reading-body"></div>
       </div>
       <div id="adminReadActions" class="admin-read-actions"></div>
@@ -110,7 +132,55 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
     activeSection: 'admin',
     title:         'Admin Panel',
     content,
-    scripts:       '<script src="/js/admin.js"></script>',
+    scripts: `<script src="/js/admin.js"></script>
+<script>
+(function () {
+  var form     = document.getElementById('directInviteForm');
+  var errEl    = document.getElementById('directInviteErr');
+  var linkBox  = document.getElementById('directInviteLink');
+  var linkText = document.getElementById('directInviteLinkText');
+  var copyBtn  = document.getElementById('copyDirectLinkBtn');
+  var btn      = document.getElementById('directInviteBtn');
+  if (!form) return;
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    errEl.style.display = 'none';
+    linkBox.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+    try {
+      var r    = await fetch('/api/admin/invite/send', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          name:  document.getElementById('directInviteName').value.trim(),
+          email: document.getElementById('directInviteEmail').value.trim(),
+        }),
+      });
+      var data = await r.json();
+      if (data.success) {
+        linkText.textContent  = data.inviteUrl;
+        linkBox.style.display = 'block';
+        form.reset();
+      } else {
+        errEl.textContent   = data.error || 'Failed to generate invite.';
+        errEl.style.display = 'block';
+      }
+    } catch (err) {
+      errEl.textContent   = 'Error: ' + err.message;
+      errEl.style.display = 'block';
+    }
+    btn.disabled    = false;
+    btn.textContent = 'Send Invite';
+  });
+  copyBtn.addEventListener('click', function () {
+    navigator.clipboard.writeText(linkText.textContent).then(function () {
+      copyBtn.textContent = 'Copied!';
+      setTimeout(function () { copyBtn.textContent = 'Copy'; }, 2000);
+    });
+  });
+}());
+</script>`,
   }));
 });
 
@@ -207,6 +277,41 @@ router.patch('/api/admin/:id/unpublish', requireAuth, requireAdmin, (req, res) =
   articles[idx].updatedAt   = new Date().toISOString();
   writeJSON(ARTICLES_PATH, articles);
   res.json({ success: true, article: articles[idx] });
+});
+
+// ─── POST /api/admin/invite/send ─────────────────────────────────────────────
+router.post('/api/admin/invite/send', requireAuth, requireAdmin, (req, res) => {
+  const { name, email } = req.body;
+  if (!name || !email) {
+    return res.status(400).json({ success: false, error: 'Name and email are required.' });
+  }
+
+  const token   = randomUUID();
+  const now     = new Date();
+  const expires = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+  const invites  = readJSON(INVITES_PATH);
+  const existing = invites.find(i => i.email.toLowerCase() === email.trim().toLowerCase() && !i.used);
+  if (existing) {
+    return res.json({ success: false, error: 'An active invite for this email already exists.' });
+  }
+
+  invites.push({
+    id:        randomUUID(),
+    token,
+    email:     email.trim().toLowerCase(),
+    name:      name.trim(),
+    createdAt: now.toISOString(),
+    expiresAt: expires.toISOString(),
+    used:      false,
+  });
+  writeJSON(INVITES_PATH, invites);
+
+  const host      = req.get('host') || 'localhost:4000';
+  const protocol  = req.secure ? 'https' : 'http';
+  const inviteUrl = `${protocol}://${host}/register?token=${token}`;
+
+  res.json({ success: true, inviteUrl });
 });
 
 // ─── GET /api/admin/invite-requests ──────────────────────────────────────────

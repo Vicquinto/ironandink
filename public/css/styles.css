@@ -35,7 +35,7 @@
   --accent:     #5C1A28;  /* Oxblood Burgundy — headings, active, accents */
   --text:       #1E1208;  /* Dark Ink — body text on light */
   --dark-cream: #1E1208;  /* Repurposed: body text on canvas */
-  --warm-brown: #A0845C;  /* Aged Gold/Tan — secondary labels, scripture refs */
+  --warm-brown: #6B4226;  /* Worn Leather — secondary labels (meets contrast on cream) */
   --card-bg:    #E8D9B8;  /* Cream Ivory cards */
   --ink:        #E8D9B8;  /* Button text — cream on dark buttons */
 }
@@ -266,7 +266,7 @@ body {
 }
 
 .page-subtitle {
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   color: var(--warm-brown);
   margin-top: 5px;
   font-style: italic;
@@ -284,7 +284,7 @@ body {
 }
 
 .verse-label {
-  font-size: 0.72rem;
+  font-size: 0.9rem;
   color: var(--warm-brown);
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -321,8 +321,8 @@ body {
 }
 
 .stat-label {
-  font-size: 0.72rem;
-  color: #A0845C;
+  font-size: 0.9rem;
+  color: #6B4226;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin-bottom: 10px;
@@ -711,7 +711,7 @@ body {
 }
 
 .form-hint {
-  font-size: 0.75rem;
+  font-size: 0.9rem;
   color: var(--warm-brown);
   font-style: italic;
   text-transform: none;
@@ -748,7 +748,7 @@ body {
 }
 
 .topic-browser-label {
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   color: var(--warm-brown);
   text-transform: uppercase;
   letter-spacing: 0.09em;
@@ -900,7 +900,7 @@ body {
 .card-edit-row { margin-bottom: 10px; }
 .card-edit-label {
   display: block;
-  font-size: 0.7rem;
+  font-size: 0.9rem;
   color: var(--warm-brown);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -959,7 +959,7 @@ body {
 }
 
 .study-card-date {
-  font-size: 0.75rem;
+  font-size: 0.9rem;
   color: var(--warm-brown);
 }
 
@@ -1127,7 +1127,7 @@ body {
 }
 
 .setup-section-label {
-  font-size: 0.78rem;
+  font-size: 0.9rem;
   color: var(--warm-brown);
   text-transform: uppercase;
   letter-spacing: 0.09em;
@@ -1177,7 +1177,7 @@ body {
 }
 
 .entry-option-desc {
-  font-size: 0.77rem;
+  font-size: 0.9rem;
   color: var(--warm-brown);
   font-style: italic;
 }
@@ -1263,7 +1263,7 @@ body {
 }
 
 .msg-role {
-  font-size: 0.68rem;
+  font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.09em;
   color: var(--warm-brown);
@@ -1445,7 +1445,7 @@ body {
 }
 
 .exchange-count {
-  font-size: 0.72rem;
+  font-size: 0.9rem;
   color: var(--warm-brown);
 }
 
@@ -1466,7 +1466,7 @@ body {
 }
 
 .transcript-role {
-  font-size: 0.67rem;
+  font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.09em;
   color: var(--warm-brown);
@@ -1637,7 +1637,7 @@ body {
   color: var(--text);
 }
 .tier-option-desc {
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   color: var(--warm-brown);
   font-style: italic;
   line-height: 1.5;
@@ -1646,7 +1646,7 @@ body {
 /* ─── QUESTION STEP ──────────────────────────────────────────────────────── */
 
 .question-progress {
-  font-size: 0.75rem;
+  font-size: 0.9rem;
   color: var(--warm-brown);
   text-transform: uppercase;
   letter-spacing: 0.09em;
@@ -1702,12 +1702,12 @@ body {
 }
 
 .article-card-date {
-  font-size: 0.75rem;
+  font-size: 0.9rem;
   color: var(--warm-brown);
 }
 
 .article-word-count {
-  font-size: 0.72rem;
+  font-size: 0.9rem;
   color: var(--warm-brown);
 }
 
@@ -1791,7 +1791,7 @@ body {
 }
 
 .word-count-display {
-  font-size: 0.78rem;
+  font-size: 0.9rem;
   color: var(--warm-brown);
   font-style: italic;
 }
@@ -2033,7 +2033,7 @@ body {
 }
 
 .article-word-count {
-  font-size: 0.75rem;
+  font-size: 0.9rem;
   color: var(--warm-brown);
   font-style: italic;
 }
@@ -2266,7 +2266,7 @@ body {
 }
 
 .community-card-author {
-  font-size: 0.78rem;
+  font-size: 0.9rem;
   color: var(--warm-brown);
   font-style: italic;
 }
@@ -2279,7 +2279,7 @@ body {
 
 .community-amen-count,
 .community-comment-count {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   color: var(--warm-brown);
 }
 
@@ -2288,7 +2288,7 @@ body {
 }
 
 .community-read-meta-text {
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   color: var(--warm-brown);
   font-style: italic;
   margin-top: -14px;
@@ -2391,8 +2391,8 @@ body {
 }
 
 .comment-date {
-  font-size: 0.72rem;
-  color: rgba(30,18,8,0.45);
+  font-size: 0.9rem;
+  color: #6B4226;
   margin-left: auto;
 }
 
