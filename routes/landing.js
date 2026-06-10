@@ -11,6 +11,7 @@ router.get('/', (req, res) => {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iron &amp; Ink — Reformed Theological Study</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
   <style>
     /* Landing page layout — no sidebar */
@@ -35,9 +36,9 @@ router.get('/', (req, res) => {
     }
 
     .hero-title {
-      font-family: 'EB Garamond', Georgia, serif;
+      font-family: 'Cinzel', serif;
       font-size: clamp(3rem, 7vw, 5.5rem);
-      font-weight: 400;
+      font-weight: 700;
       color: var(--accent);
       letter-spacing: 0.06em;
       line-height: 1.1;

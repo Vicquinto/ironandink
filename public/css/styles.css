@@ -96,7 +96,7 @@ body {
 .logo-title {
   font-family: 'Cinzel', serif;
   font-size: 1.15rem;
-  font-weight: bold;
+  font-weight: 700;
   color: var(--accent);
   letter-spacing: 0.06em;
   line-height: 1.2;

@@ -119,8 +119,9 @@ function loginStyles() {
       .login-container { width: 100%; max-width: 420px; padding: 20px; }
       .login-header { text-align: center; margin-bottom: 36px; }
       .login-title {
+        font-family: 'Cinzel', serif;
         font-size: 2.6rem; color: #5C1A28;
-        letter-spacing: 0.08em; font-weight: normal; margin-bottom: 10px;
+        letter-spacing: 0.08em; font-weight: 700; margin-bottom: 10px;
       }
       .login-tagline { font-size: 0.9rem; color: #A0845C; font-style: italic; }
       .login-card {
@@ -175,6 +176,7 @@ function renderLoginPage({ error, notice }) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iron &amp; Ink — Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
   ${loginStyles()}
 </head>
 <body>
