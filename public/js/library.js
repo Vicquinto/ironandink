@@ -700,12 +700,7 @@
       if (data.error) {
         defEl.innerHTML = '<span style="color:#e08080;font-style:italic;">' + esc(data.error) + '</span>';
       } else {
-        defEl.innerHTML = esc(data.definition)
-          .replace(/^#{2,} (.+)$/gm, '<strong>$1</strong>')
-          .replace(/^# (.+)$/gm,     '<strong style="display:block;margin-bottom:3px;color:var(--accent)">$1</strong>')
-          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-          .replace(/\*(.+?)\*/g,     '<em>$1</em>')
-          .replace(/\n/g,            '<br>');
+        defEl.innerHTML = renderMarkdown(data.definition);
       }
       clampUp();
     })
