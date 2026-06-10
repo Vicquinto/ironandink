@@ -2,7 +2,33 @@ const express  = require('express');
 const fs       = require('fs');
 const path     = require('path');
 const { randomUUID } = require('crypto');
+const sgMail   = require('@sendgrid/mail');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
+
+async function sendInviteEmail(toEmail, toName, inviteUrl) {
+  if (!process.env.SENDGRID_API_KEY) {
+    console.warn('[sendInviteEmail] SENDGRID_API_KEY not set — skipping email');
+    return;
+  }
+  try {
+    await sgMail.send({
+      to:   { email: toEmail, name: toName },
+      from: { email: process.env.SENDGRID_FROM_EMAIL, name: 'Iron & Ink' },
+      subject: "You're invited to Iron & Ink",
+      text: `${toName},\n\nYour invitation to Iron & Ink has been approved. Click the link below to set up your account and begin your study.\n\n${inviteUrl}\n\nThis link expires in 7 days.\n\nSoli Deo Gloria,\nIron & Ink`,
+      html: `<p>${toName},</p>
+<p>Your invitation to Iron &amp; Ink has been approved. Click the link below to set up your account and begin your study.</p>
+<p><a href="${inviteUrl}">${inviteUrl}</a></p>
+<p>This link expires in 7 days.</p>
+<p><em>Soli Deo Gloria,</em><br>Iron &amp; Ink</p>`,
+    });
+    console.log('[sendInviteEmail] sent to', toEmail);
+  } catch (err) {
+    console.error('[sendInviteEmail] failed for', toEmail, ':', err.message);
+  }
+}
 
 const router               = express.Router();
 const ARTICLES_PATH        = path.join(__dirname, '../data/articles.json');
@@ -311,6 +337,8 @@ router.post('/api/admin/invite/send', requireAuth, requireAdmin, (req, res) => {
   const protocol  = req.secure ? 'https' : 'http';
   const inviteUrl = `${protocol}://${host}/register?token=${token}`;
 
+  sendInviteEmail(email.trim().toLowerCase(), name.trim(), inviteUrl);
+
   res.json({ success: true, inviteUrl });
 });
 
@@ -349,9 +377,11 @@ router.post('/api/admin/invite-requests/:id/invite', requireAuth, requireAdmin, 
   requests[idx].invitedAt = now.toISOString();
   writeJSON(INVITE_REQUESTS_PATH, requests);
 
-  const host     = req.get('host') || 'localhost:4000';
-  const protocol = req.secure ? 'https' : 'http';
+  const host      = req.get('host') || 'localhost:4000';
+  const protocol  = req.secure ? 'https' : 'http';
   const inviteUrl = `${protocol}://${host}/register?token=${token}`;
+
+  sendInviteEmail(record.email, record.name, inviteUrl);
 
   res.json({ success: true, inviteUrl });
 });
