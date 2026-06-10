@@ -68,6 +68,7 @@ router.get('/library', requireAuth, (req, res) => {
           <button class="guide-font-btn guide-font-btn-sm" id="modalFontDec">A&#8722;</button>
           <button class="guide-font-btn guide-font-btn-md" id="modalFontReset">A</button>
           <button class="guide-font-btn guide-font-btn-lg" id="modalFontInc">A+</button>
+          <button class="guide-print-btn" id="modalPrint" title="Print or save as PDF">&#9113; Print / Download</button>
         </div>
         <div class="guide-modal-body" id="modalBody"></div>
       </div>

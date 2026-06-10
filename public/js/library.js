@@ -475,6 +475,28 @@
     mFontInc.addEventListener('click',   function () { applyModalFontSize(rfontSize + RFONT_STEP); });
   }
 
+  // ── Print / Download ──────────────────────────────────────────────────────
+  var printArea = document.createElement('div');
+  printArea.id = 'printArea';
+  printArea.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(printArea);
+
+  var mPrintBtn = document.getElementById('modalPrint');
+  if (mPrintBtn) {
+    mPrintBtn.addEventListener('click', function () {
+      var body = document.getElementById('modalBody');
+      if (!body) return;
+      printArea.innerHTML = body.innerHTML;
+      document.body.classList.add('is-printing');
+      window.print();
+    });
+  }
+
+  window.addEventListener('afterprint', function () {
+    document.body.classList.remove('is-printing');
+    printArea.innerHTML = '';
+  });
+
   // ── Unified highlight popup & inline chat ─────────────────────────────────
   // upEl / icmEl declared here so closeModal (defined earlier) can reference them
   // safely — JS var hoisting means they exist as undefined until assigned below.

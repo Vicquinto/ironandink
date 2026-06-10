@@ -658,6 +658,24 @@ body {
 .guide-font-btn-md { font-size: 0.85rem; }
 .guide-font-btn-lg { font-size: 1rem; }
 
+.guide-print-btn {
+  background: transparent;
+  border: 1px solid rgba(179,140,51,0.35);
+  border-radius: 4px;
+  color: var(--accent);
+  cursor: pointer;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  margin-left: 8px;
+  padding: 3px 10px;
+  transition: background 0.12s, border-color 0.12s;
+}
+.guide-print-btn:hover {
+  background: rgba(179,140,51,0.12);
+  border-color: var(--accent);
+}
+
 /* Body text inherits inline font-size set by zoom controls */
 .guide-body .guide-p,
 .guide-body .guide-list,
@@ -2765,3 +2783,66 @@ body {
 }
 .icm-send-btn:hover { opacity: 0.82; }
 .icm-send-btn:disabled { opacity: 0.45; cursor: wait; }
+
+/* ─── PRINT AREA (hidden in normal view) ───────────────────────────── */
+#printArea { display: none; }
+
+/* ─── PRINT / SAVE AS PDF ──────────────────────────────────────────── */
+@media print {
+  /* Hide everything at body level except the print container */
+  body.is-printing > *:not(#printArea) { display: none !important; }
+
+  /* Reset page */
+  html, body {
+    background: #fff !important;
+    color: #000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #printArea {
+    display: block !important;
+    color: #000;
+    background: #fff;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 12pt;
+    line-height: 1.7;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+  }
+
+  /* Headings */
+  #printArea h1, #printArea h2, #printArea h3,
+  #printArea h4, #printArea h5, #printArea h6 {
+    color: #000 !important;
+    background: none !important;
+    page-break-after: avoid;
+    margin-top: 1.5em;
+    margin-bottom: 0.4em;
+  }
+
+  /* Body copy */
+  #printArea p  { margin-bottom: 0.8em; orphans: 3; widows: 3; }
+  #printArea ul,
+  #printArea ol { margin-bottom: 0.8em; padding-left: 1.5em; }
+  #printArea li { margin-bottom: 0.3em; }
+  #printArea blockquote {
+    border-left: 3px solid #888;
+    margin-left: 0;
+    padding-left: 1em;
+    color: #333;
+    font-style: italic;
+  }
+
+  /* Links: show URL in parentheses */
+  #printArea a { color: #000; text-decoration: underline; }
+  #printArea a[href]::after { content: ' (' attr(href) ')'; font-size: 0.8em; color: #555; }
+
+  /* Remove decorative backgrounds/borders from any styled elements inside */
+  #printArea * {
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+}
