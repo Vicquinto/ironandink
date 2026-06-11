@@ -33,6 +33,7 @@
       var btn = e.target.closest('[data-delete-invite]');
       if (!btn) return;
       var id = btn.getAttribute('data-delete-invite');
+      if (!confirm('Are you sure you want to delete this invite?')) return;
       btn.disabled = true;
       btn.textContent = 'Deleting…';
       try {
