@@ -508,8 +508,8 @@
           '<span class="article-card-date">Expires ' + fmtDate(i.expiresAt) + '</span>' +
           '<span style="font-family:\'Courier New\',monospace; font-size:0.95rem; color:var(--warm-brown);">' + esc(tokenShort) + '</span>' +
         '</div>' +
-        '<div style="padding:6px 12px 10px;">' +
-          '<button class="btn-discard" data-delete-invite="' + esc(i.id) + '" style="font-size:0.95rem;">Delete</button>' +
+        '<div style="padding:6px 12px 10px; display:flex; justify-content:flex-end;">' +
+          '<button class="btn-discard" data-delete-invite="' + esc(i.id) + '">Delete</button>' +
         '</div>' +
       '</div>';
     }).join('');
