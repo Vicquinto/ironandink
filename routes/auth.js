@@ -143,7 +143,7 @@ function loginStyles() {
       }
       .form-input:focus { border-color: #5C1A28; }
       .btn-submit {
-        width: 100%; background: #5C1A28; color: #E8D9B8;
+        width: 100%; background: #5C1A28; color: #E8D9B8 !important;
         border: none; padding: 13px; font-size: 1rem;
         font-family: Georgia, serif; border-radius: 4px;
         cursor: pointer; letter-spacing: 0.05em; margin-top: 6px;
