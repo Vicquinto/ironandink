@@ -28,12 +28,43 @@
   var inviteRequestEmpty = document.getElementById('inviteRequestEmpty');
   var sentInviteList     = document.getElementById('sentInviteList');
   var sentInviteEmpty    = document.getElementById('sentInviteEmpty');
+
+  document.body.insertAdjacentHTML('beforeend',
+    '<div id="inviteConfirmModal" class="invite-confirm-overlay" style="display:none;">' +
+      '<div class="invite-confirm-card">' +
+        '<h4 class="invite-confirm-heading">Delete Invite</h4>' +
+        '<p class="invite-confirm-msg">Are you sure you want to delete this invite? This cannot be undone.</p>' +
+        '<div class="invite-confirm-actions">' +
+          '<button class="btn-warm invite-confirm-cancel-btn" id="inviteConfirmCancel">Cancel</button>' +
+          '<button class="invite-confirm-delete-btn" id="inviteConfirmDelete">Delete</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>'
+  );
+
+  function showInviteConfirm() {
+    return new Promise(function (resolve) {
+      var overlay = document.getElementById('inviteConfirmModal');
+      overlay.style.display = 'flex';
+      function onDelete() { cleanup(); resolve(true); }
+      function onCancel() { cleanup(); resolve(false); }
+      function cleanup() {
+        overlay.style.display = 'none';
+        document.getElementById('inviteConfirmDelete').removeEventListener('click', onDelete);
+        document.getElementById('inviteConfirmCancel').removeEventListener('click', onCancel);
+      }
+      document.getElementById('inviteConfirmDelete').addEventListener('click', onDelete);
+      document.getElementById('inviteConfirmCancel').addEventListener('click', onCancel);
+    });
+  }
+
   if (sentInviteList) {
     sentInviteList.addEventListener('click', async function (e) {
       var btn = e.target.closest('[data-delete-invite]');
       if (!btn) return;
       var id = btn.getAttribute('data-delete-invite');
-      if (!confirm('Are you sure you want to delete this invite?')) return;
+      var confirmed = await showInviteConfirm();
+      if (!confirmed) return;
       btn.disabled = true;
       btn.textContent = 'Deleting…';
       try {
@@ -475,10 +506,10 @@
           '<span class="community-card-author">' + esc(i.email) + '</span>' +
           '<span class="article-card-date">Sent ' + fmtDate(i.createdAt) + '</span>' +
           '<span class="article-card-date">Expires ' + fmtDate(i.expiresAt) + '</span>' +
-          '<span style="font-family:\'Courier New\',monospace; font-size:0.72rem; color:var(--warm-brown);">' + esc(tokenShort) + '</span>' +
+          '<span style="font-family:\'Courier New\',monospace; font-size:0.95rem; color:var(--warm-brown);">' + esc(tokenShort) + '</span>' +
         '</div>' +
         '<div style="padding:6px 12px 10px;">' +
-          '<button class="btn-discard" data-delete-invite="' + esc(i.id) + '" style="font-size:0.78rem;">Delete</button>' +
+          '<button class="btn-discard" data-delete-invite="' + esc(i.id) + '" style="font-size:0.95rem;">Delete</button>' +
         '</div>' +
       '</div>';
     }).join('');
