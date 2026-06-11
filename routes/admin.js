@@ -17,11 +17,11 @@ async function sendInviteEmail(toEmail, toName, inviteUrl) {
       to:   { email: toEmail, name: toName },
       from: { email: process.env.SENDGRID_FROM_EMAIL, name: 'Iron & Ink' },
       subject: "You're invited to Iron & Ink",
-      text: `${toName},\n\nYour invitation to Iron & Ink has been approved. Click the link below to set up your account and begin your study.\n\n${inviteUrl}\n\nThis link expires in 7 days.\n\nSoli Deo Gloria,\nIron & Ink`,
+      text: `${toName},\n\nYour invitation to Iron & Ink has been approved. Click the link below to set up your account and begin your study.\n\n${inviteUrl}\n\nThis link expires in 48 hours.\n\nSoli Deo Gloria,\nIron & Ink`,
       html: `<p>${toName},</p>
 <p>Your invitation to Iron &amp; Ink has been approved. Click the link below to set up your account and begin your study.</p>
 <p><a href="${inviteUrl}">${inviteUrl}</a></p>
-<p>This link expires in 7 days.</p>
+<p>This link expires in 48 hours.</p>
 <p><em>Soli Deo Gloria,</em><br>Iron &amp; Ink</p>`,
     });
     console.log('[sendInviteEmail] sent to', toEmail);
@@ -314,7 +314,7 @@ router.post('/api/admin/invite/send', requireAuth, requireAdmin, (req, res) => {
 
   const token   = randomUUID();
   const now     = new Date();
-  const expires = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const expires = new Date(now.getTime() + 48 * 60 * 60 * 1000);
 
   const invites  = readJSON(INVITES_PATH);
   const existing = invites.find(i => i.email.toLowerCase() === email.trim().toLowerCase() && !i.used);
@@ -359,7 +359,7 @@ router.post('/api/admin/invite-requests/:id/invite', requireAuth, requireAdmin, 
   const record  = requests[idx];
   const token   = randomUUID();
   const now     = new Date();
-  const expires = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const expires = new Date(now.getTime() + 48 * 60 * 60 * 1000);
 
   const invites = readJSON(INVITES_PATH);
   invites.push({
@@ -402,6 +402,16 @@ router.get('/api/admin/invites', requireAuth, requireAdmin, (req, res) => {
   const invites = readJSON(INVITES_PATH)
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   res.json({ success: true, invites });
+});
+
+// ─── DELETE /api/admin/invites/:id ───────────────────────────────────────────
+router.delete('/api/admin/invites/:id', requireAuth, requireAdmin, (req, res) => {
+  const invites = readJSON(INVITES_PATH);
+  const idx     = invites.findIndex(i => i.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ success: false, error: 'Invite not found.' });
+  invites.splice(idx, 1);
+  writeJSON(INVITES_PATH, invites);
+  res.json({ success: true });
 });
 
 module.exports = router;

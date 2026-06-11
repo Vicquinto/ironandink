@@ -28,6 +28,21 @@
   var inviteRequestEmpty = document.getElementById('inviteRequestEmpty');
   var sentInviteList     = document.getElementById('sentInviteList');
   var sentInviteEmpty    = document.getElementById('sentInviteEmpty');
+  if (sentInviteList) {
+    sentInviteList.addEventListener('click', async function (e) {
+      var btn = e.target.closest('[data-delete-invite]');
+      if (!btn) return;
+      var id = btn.getAttribute('data-delete-invite');
+      btn.disabled = true;
+      btn.textContent = 'Deleting…';
+      try {
+        var r    = await fetch('/api/admin/invites/' + id, { method: 'DELETE' });
+        var data = await r.json();
+        if (data.success) { loadSentInvites(); }
+        else { btn.disabled = false; btn.textContent = 'Delete'; }
+      } catch (err) { btn.disabled = false; btn.textContent = 'Delete'; }
+    });
+  }
   var inviteLinkBox      = document.getElementById('inviteLinkBox');
   var inviteLinkText     = document.getElementById('inviteLinkText');
   var copyInviteLinkBtn  = document.getElementById('copyInviteLinkBtn');
@@ -460,6 +475,9 @@
           '<span class="article-card-date">Sent ' + fmtDate(i.createdAt) + '</span>' +
           '<span class="article-card-date">Expires ' + fmtDate(i.expiresAt) + '</span>' +
           '<span style="font-family:\'Courier New\',monospace; font-size:0.72rem; color:var(--warm-brown);">' + esc(tokenShort) + '</span>' +
+        '</div>' +
+        '<div style="padding:6px 12px 10px;">' +
+          '<button class="btn-discard" data-delete-invite="' + esc(i.id) + '" style="font-size:0.78rem;">Delete</button>' +
         '</div>' +
       '</div>';
     }).join('');
