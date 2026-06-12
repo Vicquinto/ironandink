@@ -186,7 +186,7 @@
     if (guideBody)       guideBody.innerHTML     = renderMarkdown(data.content || '');
     if (roomLoading)     roomLoading.style.display   = 'none';
     if (guideArea)       guideArea.style.display     = 'block';
-    if (followUpSection) followUpSection.style.display = 'block';
+    if (followUpSection) followUpSection.style.display = isHost ? 'block' : 'none';
   }
 
   // ── Save to Library ────────────────────────────────────────────────────────
