@@ -28,36 +28,45 @@ router.get('/devotional', requireAuth, async (req, res) => {
       <div class="devot-input-row">
         <input type="text" id="devotQuestion" class="devot-input"
                placeholder="What does this passage teach about…" />
-        <button id="devotAskBtn" class="btn-primary" onclick="askDevotional()">Ask</button>
+        <button id="devotAskBtn" class="btn-primary">Ask</button>
       </div>
     </div>`;
 
   const scripts = `
   <script>
-    var devotionalText = ${JSON.stringify(devotionalContent || '')};
+    var devotionalText   = ${JSON.stringify(devotionalContent || '')};
     var devotChatHistory = [];
 
+    // ── Render devotional content ──────────────────────────────────────────
     (function() {
       var el = document.getElementById('devotionalContent');
-      if (el && devotionalText) el.innerHTML = marked.parse(devotionalText);
+      if (!el || !devotionalText) return;
+      try {
+        el.innerHTML = (typeof marked !== 'undefined')
+          ? marked.parse(devotionalText)
+          : '<pre>' + devotionalText + '</pre>';
+      } catch (e) {
+        console.error('Devotional render error:', e);
+        el.textContent = devotionalText;
+      }
     })();
 
+    // ── Ask interaction ────────────────────────────────────────────────────
     function askDevotional() {
       var input    = document.getElementById('devotQuestion');
-      var question = input.value.trim();
+      var question = input ? input.value.trim() : '';
       if (!question) return;
       input.value = '';
 
       appendDevotMsg('user', question);
 
       var apiContent = devotChatHistory.length === 0
-        ? 'Today\'s devotional reading:\\n\\n' + devotionalText + '\\n\\nMy question: ' + question
+        ? 'Today\'s devotional reading:\n\n' + devotionalText + '\n\nMy question: ' + question
         : question;
       devotChatHistory.push({ role: 'user', content: apiContent });
 
       var btn = document.getElementById('devotAskBtn');
-      btn.disabled    = true;
-      btn.textContent = 'Asking…';
+      if (btn) { btn.disabled = true; btn.textContent = 'Asking…'; }
 
       fetch('/api/devotional/ask', {
         method:  'POST',
@@ -66,8 +75,7 @@ router.get('/devotional', requireAuth, async (req, res) => {
       })
       .then(function(r) { return r.json(); })
       .then(function(data) {
-        btn.disabled    = false;
-        btn.textContent = 'Ask';
+        if (btn) { btn.disabled = false; btn.textContent = 'Ask'; }
         if (data.success) {
           appendDevotMsg('assistant', data.answer);
           devotChatHistory.push({ role: 'assistant', content: data.answer });
@@ -76,26 +84,35 @@ router.get('/devotional', requireAuth, async (req, res) => {
         }
       })
       .catch(function() {
-        btn.disabled    = false;
-        btn.textContent = 'Ask';
+        if (btn) { btn.disabled = false; btn.textContent = 'Ask'; }
         appendDevotMsg('error', 'An error occurred. Please try again.');
       });
     }
 
     function appendDevotMsg(role, text) {
-      var history = document.getElementById('devotChatHistory');
-      var el      = document.createElement('div');
+      var container = document.getElementById('devotChatHistory');
+      if (!container) return;
+      var el = document.createElement('div');
       el.className = 'devot-msg devot-msg--' + role;
       if (role === 'assistant') {
-        el.innerHTML = marked.parse(text);
+        try {
+          el.innerHTML = (typeof marked !== 'undefined') ? marked.parse(text) : text;
+        } catch(e) {
+          el.textContent = text;
+        }
       } else {
         el.textContent = text;
       }
-      history.appendChild(el);
+      container.appendChild(el);
       el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    document.getElementById('devotQuestion').addEventListener('keydown', function(e) {
+    // ── Wire up button and Enter key ───────────────────────────────────────
+    var devotAskBtn = document.getElementById('devotAskBtn');
+    if (devotAskBtn) devotAskBtn.addEventListener('click', askDevotional);
+
+    var devotInput = document.getElementById('devotQuestion');
+    if (devotInput) devotInput.addEventListener('keydown', function(e) {
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); askDevotional(); }
     });
   </script>`;
