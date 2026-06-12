@@ -285,6 +285,13 @@
     }, 2800);
   }
 
+  // ── Host-only UI ──────────────────────────────────────────────────────────
+  if (!isHost) {
+    var searchBar = document.querySelector('.study-search-bar');
+    if (searchBar) searchBar.style.display = 'none';
+    if (followUpSection) followUpSection.style.display = 'none';
+  }
+
   // ── Init ───────────────────────────────────────────────────────────────────
   loadMemberCount();
 
