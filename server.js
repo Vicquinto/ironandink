@@ -23,6 +23,8 @@ const adminRoutes         = require('./routes/admin');
 const communityRoutes     = require('./routes/community');
 const dictionaryRoutes    = require('./routes/dictionary');
 const roomsRoutes         = require('./routes/rooms');
+const scriptureRoutes     = require('./routes/scripture');
+const selahRoutes         = require('./routes/selah');
 const { requireAuth, renderLayout } = require('./routes/layout');
 
 const app  = express();
@@ -159,6 +161,8 @@ app.use('/', adminRoutes);
 app.use('/', communityRoutes);
 app.use('/', dictionaryRoutes);
 app.use('/', roomsRoutes);
+app.use('/', scriptureRoutes);
+app.use('/', selahRoutes);
 
 // ─── Placeholder Sections (unbuilt) ──────────────────────────────────────
 const placeholders = [];

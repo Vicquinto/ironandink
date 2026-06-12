@@ -3279,3 +3279,246 @@ body {
 }
 .devot-input::placeholder { color: var(--warm-brown); opacity: 0.7; }
 .devot-input:focus { border-color: var(--accent); }
+
+/* ─── SCRIPTURE READER ───────────────────────────────────────────────────── */
+
+.scripture-nav {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.scripture-select {
+  background: var(--card-bg);
+  border: 1px solid rgba(160,132,92,0.3);
+  border-radius: 4px;
+  padding: 9px 14px;
+  font-size: 0.95rem;
+  font-family: Georgia, serif;
+  color: var(--text);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+  min-width: 160px;
+}
+.scripture-select:focus { border-color: var(--accent); }
+
+.scripture-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(160,132,92,0.15);
+  border-radius: 6px;
+  padding: 36px 44px;
+  max-width: 760px;
+}
+
+.scripture-heading {
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 1.2rem;
+  color: var(--accent);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(160,132,92,0.2);
+}
+
+.scripture-verse {
+  font-size: 1.15rem;
+  line-height: 1.95;
+  color: var(--text);
+  margin: 0 0 4px;
+  font-family: 'EB Garamond', Georgia, serif;
+}
+
+.verse-num {
+  font-size: 0.68rem;
+  color: var(--accent);
+  font-family: Georgia, serif;
+  vertical-align: super;
+  margin-right: 3px;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.scripture-loading {
+  color: var(--warm-brown);
+  font-style: italic;
+  font-size: 0.95rem;
+  padding: 20px 0;
+}
+
+@media (max-width: 600px) {
+  .scripture-card { padding: 22px 18px; }
+  .scripture-verse { font-size: 1.05rem; }
+}
+
+/* ─── SELAH JOURNALING ─────────────────────────────────────────────── */
+
+.selah-compose {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 760px;
+  margin-bottom: 28px;
+}
+
+.selah-title-input {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 1.05rem;
+  background: var(--card-bg);
+  border: 1px solid rgba(160,132,92,0.3);
+  border-radius: 4px;
+  padding: 10px 16px;
+  color: var(--text);
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.selah-title-input:focus { border-color: var(--accent); }
+.selah-title-input::placeholder { color: var(--warm-brown); opacity: 0.7; }
+
+.selah-textarea {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 1.1rem;
+  line-height: 1.85;
+  background: var(--card-bg);
+  border: 1px solid rgba(160,132,92,0.3);
+  border-radius: 4px;
+  padding: 16px 20px;
+  color: var(--text);
+  width: 100%;
+  min-height: 220px;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.selah-textarea:focus { border-color: var(--accent); }
+.selah-textarea::placeholder { color: var(--warm-brown); opacity: 0.6; font-style: italic; }
+
+.selah-compose-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.selah-reflect {
+  max-width: 760px;
+  background: #f5ede0;
+  border: 1px solid rgba(160,132,92,0.25);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin-bottom: 36px;
+}
+
+.selah-reflect-label {
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.selah-reflect-text {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+.selah-entries-section { max-width: 760px; }
+
+.selah-entries-heading {
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 1.0rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(160,132,92,0.2);
+}
+
+.selah-no-entries {
+  color: var(--warm-brown);
+  font-style: italic;
+  font-size: 0.95rem;
+  padding: 8px 0;
+}
+
+.selah-entry {
+  background: var(--card-bg);
+  border: 1px solid rgba(160,132,92,0.18);
+  border-radius: 5px;
+  padding: 18px 22px;
+  margin-bottom: 14px;
+}
+
+.selah-entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.selah-entry-title {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.selah-entry-untitled {
+  color: var(--warm-brown);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.selah-entry-date {
+  font-size: 0.8rem;
+  color: var(--warm-brown);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.selah-entry-preview,
+.selah-entry-full {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 1.0rem;
+  line-height: 1.75;
+  color: var(--text);
+  white-space: pre-wrap;
+  margin-bottom: 12px;
+}
+
+.selah-entry-footer {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.selah-expand-btn,
+.selah-delete-btn {
+  font-family: inherit;
+  font-size: 0.82rem;
+  background: none;
+  border: 1px solid rgba(160,132,92,0.35);
+  border-radius: 3px;
+  padding: 4px 12px;
+  color: var(--warm-brown);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.selah-expand-btn:hover { border-color: var(--accent); color: var(--accent); }
+.selah-delete-btn:hover { border-color: #a03040; color: #a03040; }
+
+@media (max-width: 600px) {
+  .selah-compose-actions { flex-direction: column; align-items: stretch; }
+  .selah-entry-header { flex-direction: column; gap: 4px; }
+}

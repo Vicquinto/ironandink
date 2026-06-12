@@ -26,6 +26,8 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
     { id: 'dialogue',    label: 'Dialogue',    href: '/dialogue',    icon: '&#9993;' },
     { id: 'writing',     label: 'Writing',     href: '/writing',     icon: '&#9998;' },
     { id: 'library',     label: 'Library',     href: '/library',     icon: '&#8801;' },
+    { id: 'scripture',   label: 'Scripture',   href: '/scripture',   icon: '&#10070;' },
+    { id: 'selah',       label: 'Selah',       href: '/selah',       icon: '&#10022;' },
     { id: 'community',   label: 'Community',   href: '/community',   icon: '&#9678;' },
     { id: 'rooms',       label: 'Live Rooms',  href: '/rooms',       icon: '&#9689;' },
     { id: 'my-articles', label: 'My Articles', href: '/my-articles', icon: '&#9634;' },
@@ -47,7 +49,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title} — Iron &amp; Ink</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/styles.css?v=9">
+  <link rel="stylesheet" href="/css/styles.css?v=11">
 </head>
 <body>
   <div class="app-container">
