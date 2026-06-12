@@ -270,7 +270,12 @@ router.get('/dashboard', requireAuth, async (req, res) => {
     (function() {
       var el   = document.getElementById('dashDevotionalBody');
       var text = ${JSON.stringify(devotionalContent || '')};
-      if (el && text) el.innerHTML = marked.parse(text);
+      if (el && text) {
+        el.innerHTML = marked.parse(text);
+        el.querySelectorAll('blockquote').forEach(function(bq) {
+          bq.style.fontSize = '1.1rem';
+        });
+      }
     })();
   </script>`;
 
