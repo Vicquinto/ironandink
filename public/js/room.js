@@ -73,7 +73,7 @@
       '<div style="font-weight:700;color:#5C1A28;margin-bottom:0.25rem;">' +
         escHtml(data.type) + ': ' + escHtml(data.term) +
       '</div>' +
-      '<div>' + escHtml(data.response) + '</div>';
+      '<div>' + renderMarkdown(data.response) + '</div>';
     chatMessages.appendChild(div);
     chatMessages.scrollTop = chatMessages.scrollHeight;
   });
