@@ -3112,3 +3112,168 @@ body {
   padding: 2px 8px;
   font-size: 0.75rem;
 }
+
+/* ─── DAILY DEVOTIONAL (dashboard card) ─────────────────────────────────── */
+
+.devot-dashboard-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(160,132,92,0.2);
+  border-radius: 6px;
+  padding: 24px 28px 20px;
+  margin-bottom: 28px;
+  border-left: 3px solid var(--accent);
+}
+
+.devot-dashboard-label {
+  font-size: 0.78rem;
+  color: var(--warm-brown);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 18px;
+}
+
+.devot-dashboard-body h2 { font-size: 1.05rem; color: var(--accent); margin: 18px 0 8px; font-family: Georgia, serif; }
+.devot-dashboard-body h3 { font-size: 0.98rem; color: var(--accent); margin: 14px 0 6px; font-family: Georgia, serif; }
+.devot-dashboard-body p  { font-size: 0.97rem; line-height: 1.75; color: var(--text); margin: 0 0 10px; }
+.devot-dashboard-body ul,
+.devot-dashboard-body ol { padding-left: 20px; margin: 0 0 10px; }
+.devot-dashboard-body li { font-size: 0.97rem; line-height: 1.7; color: var(--text); margin-bottom: 4px; }
+.devot-dashboard-body blockquote {
+  border-left: 3px solid rgba(160,132,92,0.4);
+  margin: 10px 0;
+  padding: 4px 14px;
+  color: var(--dark-cream);
+  font-style: italic;
+}
+
+.devot-dashboard-footer {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(160,132,92,0.12);
+}
+
+.btn-reflect {
+  display: inline-block;
+  font-size: 0.88rem;
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.15s;
+}
+.btn-reflect:hover { color: var(--dark-cream); }
+
+/* ─── DAILY DEVOTIONAL (full page) ──────────────────────────────────────── */
+
+.devot-full-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(160,132,92,0.2);
+  border-radius: 6px;
+  padding: 32px 36px;
+  margin-bottom: 28px;
+  border-left: 3px solid var(--accent);
+}
+
+.devot-content h2 { font-size: 1.1rem; color: var(--accent); margin: 22px 0 10px; font-family: Georgia, serif; }
+.devot-content h3 { font-size: 1.02rem; color: var(--accent); margin: 16px 0 8px; font-family: Georgia, serif; }
+.devot-content p  { font-size: 1rem; line-height: 1.8; color: var(--text); margin: 0 0 12px; }
+.devot-content ul,
+.devot-content ol { padding-left: 22px; margin: 0 0 12px; }
+.devot-content li { font-size: 1rem; line-height: 1.75; color: var(--text); margin-bottom: 5px; }
+.devot-content blockquote {
+  border-left: 3px solid rgba(160,132,92,0.4);
+  margin: 12px 0;
+  padding: 6px 16px;
+  color: var(--dark-cream);
+  font-style: italic;
+}
+
+.devot-unavailable {
+  font-style: italic;
+  color: var(--warm-brown);
+  font-size: 0.95rem;
+}
+
+/* ─── DEVOTIONAL INTERACTION ─────────────────────────────────────────────── */
+
+.devot-interact-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(160,132,92,0.18);
+  border-radius: 6px;
+  padding: 24px 28px;
+  margin-bottom: 28px;
+}
+
+.devot-interact-heading {
+  font-size: 0.78rem;
+  color: var(--warm-brown);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+
+.devot-interact-sub {
+  font-size: 0.92rem;
+  color: var(--dark-cream);
+  margin-bottom: 18px;
+  font-style: italic;
+}
+
+.devot-chat-history {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.devot-msg {
+  border-radius: 5px;
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  max-width: 90%;
+}
+
+.devot-msg--user {
+  background: rgba(160,132,92,0.1);
+  border: 1px solid rgba(160,132,92,0.2);
+  color: var(--text);
+  align-self: flex-end;
+}
+
+.devot-msg--assistant {
+  background: rgba(92,26,40,0.06);
+  border: 1px solid rgba(92,26,40,0.12);
+  color: var(--text);
+  align-self: flex-start;
+}
+.devot-msg--assistant p  { margin: 0 0 8px; font-size: 0.95rem; line-height: 1.7; }
+.devot-msg--assistant p:last-child { margin-bottom: 0; }
+
+.devot-msg--error {
+  background: rgba(180,40,40,0.07);
+  border: 1px solid rgba(180,40,40,0.18);
+  color: #a03030;
+  align-self: flex-start;
+  font-style: italic;
+}
+
+.devot-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.devot-input {
+  flex: 1;
+  background: rgba(160,132,92,0.06);
+  border: 1px solid rgba(160,132,92,0.25);
+  border-radius: 4px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  font-family: Georgia, serif;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.devot-input::placeholder { color: var(--warm-brown); opacity: 0.7; }
+.devot-input:focus { border-color: var(--accent); }

@@ -1,12 +1,14 @@
-const express = require('express');
-const fs      = require('fs');
-const path    = require('path');
+const express   = require('express');
+const fs        = require('fs');
+const path      = require('path');
+const Anthropic = require('@anthropic-ai/sdk');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
 
 const router          = express.Router();
 const STUDIES_PATH    = path.join(__dirname, '../data/studies.json');
 const DIALOGUES_PATH  = path.join(__dirname, '../data/dialogues.json');
 const ARTICLES_PATH   = path.join(__dirname, '../data/articles.json');
+const DEVOTIONAL_PATH = path.join(__dirname, '../data/devotional.json');
 
 const VERSES = [
   // Psalms
@@ -143,7 +145,56 @@ function getPendingCount() {
   } catch { return 0; }
 }
 
-router.get('/dashboard', requireAuth, (req, res) => {
+async function getDailyDevotional(req) {
+  const today = new Date().toISOString().slice(0, 10);
+
+  try {
+    if (fs.existsSync(DEVOTIONAL_PATH)) {
+      const cached = JSON.parse(fs.readFileSync(DEVOTIONAL_PATH, 'utf8'));
+      if (cached.date === today && cached.content) return cached.content;
+    }
+  } catch {}
+
+  const { IRON_INK_CORE_PROMPT } = req.app.locals.prompts;
+  const systemPrompt = IRON_INK_CORE_PROMPT +
+    '\n\nFor this task you are generating the daily devotional feature for the Iron & Ink platform. ' +
+    'Write with full doctrinal precision, pastoral warmth, and confessionally Reformed conviction.';
+
+  const dateStr    = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const userPrompt = `Write the Iron & Ink Daily Devotional for ${dateStr}. Use exactly these four section headings:
+
+## Scripture
+Choose a passage of 3–5 verses — a psalm, a prophet, a Gospel, or an epistle. Choose for doctrinal richness. Print the complete LSB text of every verse, word for word.
+
+## Exposition
+Write 2–3 paragraphs of careful, doctrinally serious exposition. Engage the theology directly — what does this passage teach about God, man, sin, grace, or redemption? Think like a Reformed pastor who takes the student seriously. No shallow encouragement. No moralism.
+
+## Application
+One focused paragraph. Specific and searching — aimed at the conscience and the mind. What does this passage demand of the reader today?
+
+## Prayer
+A brief closing prayer (3–5 sentences) addressed directly to God. Let it be confessional and specific — flowing from the passage and exposition, not generic.
+
+Tone: warm but serious. Reformed and confessional.`;
+
+  try {
+    const client  = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const message = await client.messages.create({
+      model:      'claude-sonnet-4-6',
+      max_tokens: 1400,
+      system:     systemPrompt,
+      messages:   [{ role: 'user', content: userPrompt }],
+    });
+    const content = message.content[0].text;
+    fs.writeFileSync(DEVOTIONAL_PATH, JSON.stringify({ date: today, content }, null, 2), 'utf8');
+    return content;
+  } catch (err) {
+    console.error('Devotional generation error:', err.message);
+    return null;
+  }
+}
+
+router.get('/dashboard', requireAuth, async (req, res) => {
   const user           = req.session.user;
   const firstName      = (user.fullName || 'Scholar').split(' ')[0];
   const studyCount     = getStudiesCount(req.session.userId);
@@ -151,8 +202,9 @@ router.get('/dashboard', requireAuth, (req, res) => {
   const articlesCount  = getArticlesCount(req.session.userId);
   const isAdmin        = getIsAdmin(req);
   const pendingCount   = isAdmin ? getPendingCount() : 0;
-  const verse          = getVerseOfTheDay();
-  const showWelcome    = req.session.firstLogin === true;
+  const verse             = getVerseOfTheDay();
+  const devotionalContent = await getDailyDevotional(req);
+  const showWelcome       = req.session.firstLogin === true;
   if (showWelcome) req.session.firstLogin = false;
 
   const content = `
@@ -176,6 +228,15 @@ router.get('/dashboard', requireAuth, (req, res) => {
       <div class="verse-text">"${verse.text}"</div>
       <div class="verse-ref">${verse.ref} — Legacy Standard Bible</div>
     </div>
+
+    ${devotionalContent ? `
+    <div class="devot-dashboard-card">
+      <div class="devot-dashboard-label">Daily Devotional</div>
+      <div id="dashDevotionalBody" class="devot-dashboard-body"></div>
+      <div class="devot-dashboard-footer">
+        <a href="/devotional" class="btn-reflect">Reflect on Today's Reading &#8594;</a>
+      </div>
+    </div>` : ''}
 
     <div class="stat-cards">
       <div class="stat-card">
@@ -206,9 +267,14 @@ router.get('/dashboard', requireAuth, (req, res) => {
       const greeting = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
       document.getElementById('greeting').textContent = greeting + ', ${firstName}.';
     })();
+    (function() {
+      var el   = document.getElementById('dashDevotionalBody');
+      var text = ${JSON.stringify(devotionalContent || '')};
+      if (el && text) el.innerHTML = marked.parse(text);
+    })();
   </script>`;
 
   res.send(renderLayout({ req, activeSection: 'dashboard', title: 'Dashboard', content, scripts }));
 });
 
-module.exports = router;
+module.exports = { router, getDailyDevotional };
