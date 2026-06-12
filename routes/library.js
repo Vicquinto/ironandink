@@ -202,6 +202,29 @@ router.post('/api/library/verse', requireAuth, async (req, res) => {
     return res.status(400).json({ success: false, error: 'Reference is required.' });
   }
 
+  const ref = String(reference).trim();
+
+  if (process.env.ESVO_API_KEY) {
+    try {
+      const url = 'https://api.esv.org/v3/passage/text/?' + new URLSearchParams({
+        q:                        ref,
+        'include-headings':       false,
+        'include-footnotes':      false,
+        'include-verse-numbers':  true,
+        'include-short-copyright': false,
+      });
+      const esvRes = await fetch(url, {
+        headers: { Authorization: `Token ${process.env.ESVO_API_KEY}` },
+      });
+      const data = await esvRes.json();
+      const text = data.passages && data.passages[0] ? data.passages[0].trim() : null;
+      if (text) return res.json({ success: true, verse: text });
+    } catch (err) {
+      console.error('ESV API error:', err.message);
+    }
+  }
+
+  // Fallback: ask Claude for ESV text
   try {
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const message = await client.messages.create({
@@ -209,7 +232,7 @@ router.post('/api/library/verse', requireAuth, async (req, res) => {
       max_tokens: 400,
       messages: [{
         role:    'user',
-        content: `Quote the full text of "${String(reference).trim()}" from the Legacy Standard Bible (LSB). Return only the verse text with the reference label, no commentary or explanation.`,
+        content: `Quote the full text of "${ref}" from the English Standard Version (ESV). Return only the verse text with the reference label, no commentary or explanation.`,
       }],
     });
     res.json({ success: true, verse: message.content[0].text });
