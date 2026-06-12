@@ -61,7 +61,7 @@ router.get('/devotional', requireAuth, async (req, res) => {
       appendDevotMsg('user', question);
 
       var apiContent = devotChatHistory.length === 0
-        ? 'Today\'s devotional reading:\n\n' + devotionalText + '\n\nMy question: ' + question
+        ? "Today's devotional reading:\\n\\n" + devotionalText + "\\n\\nMy question: " + question
         : question;
       devotChatHistory.push({ role: 'user', content: apiContent });
 
