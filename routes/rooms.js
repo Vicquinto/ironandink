@@ -128,9 +128,9 @@ router.get('/room/:code', requireAuth, (req, res) => {
         </div>
       </div>
 
-      <div class="study-search-bar">
-        <input type="text" id="roomTopicInput" class="study-input" placeholder="Enter a study topic…" autocomplete="off">
-        <button id="roomGenerateBtn" class="btn-warm">Generate Study</button>
+      <div class="study-search-bar" style="display:flex;gap:0.75rem;align-items:center;margin-bottom:1.5rem;">
+        <input type="text" id="roomTopicInput" class="study-input" placeholder="Enter a study topic…" autocomplete="off" style="flex:1;padding:0.6rem 0.75rem;border:1px solid #c4a882;border-radius:6px;font-size:1rem;">
+        <button id="roomGenerateBtn" class="btn-warm" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.6rem 1.5rem;font-size:1rem;cursor:pointer;white-space:nowrap;">Generate Study</button>
       </div>
 
       <div id="roomLoading" class="study-loading" style="display:none;">
