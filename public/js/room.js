@@ -25,6 +25,8 @@
 
   // ── Socket.io ──────────────────────────────────────────────────────────────
   var socket = io();
+  window.roomSocket = socket;
+  window.isHost     = isHost;
   socket.emit('join-room', roomCode);
 
   socket.on('room-study-result', function (data) {
@@ -37,6 +39,19 @@
 
   socket.on('room-chat-message', function (data) {
     appendChatMessage(data.senderName, data.message);
+  });
+
+  socket.on('room-tooltip-broadcast', function (data) {
+    if (!chatMessages) return;
+    var div = document.createElement('div');
+    div.style.cssText = 'background:#f0e6c8;border-left:4px solid #5C1A28;border-radius:4px;padding:0.5rem 0.75rem;margin:0.25rem 0;font-size:0.875rem;';
+    div.innerHTML =
+      '<div style="font-weight:700;color:#5C1A28;margin-bottom:0.25rem;">' +
+        escHtml(data.type) + ': ' + escHtml(data.term) +
+      '</div>' +
+      '<div>' + escHtml(data.response) + '</div>';
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
   });
 
   // ── Member count ───────────────────────────────────────────────────────────

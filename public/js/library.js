@@ -726,6 +726,9 @@
         defEl.innerHTML = '<span style="color:#e08080;font-style:italic;">' + esc(data.error) + '</span>';
       } else {
         defEl.innerHTML = renderMarkdown(data.definition);
+        if (window.ROOM_CODE && window.isHost && window.roomSocket) {
+          window.roomSocket.emit('room-tooltip-broadcast', { roomCode: window.ROOM_CODE, type: 'Define', term: upSelectedText, response: data.definition });
+        }
       }
       clampUp();
     })
@@ -771,6 +774,9 @@
         verseEl.innerHTML = '<span style="color:#e08080;font-style:italic;">' + esc(data.error) + '</span>';
       } else {
         verseEl.innerHTML = renderMarkdown(data.verse);
+        if (window.ROOM_CODE && window.isHost && window.roomSocket) {
+          window.roomSocket.emit('room-tooltip-broadcast', { roomCode: window.ROOM_CODE, type: 'Verse Lookup', term: upSelectedText, response: data.verse });
+        }
       }
       clampUp();
     })
@@ -811,7 +817,14 @@
         }),
       });
       var data = await res.json();
-      resp.innerHTML = data.success ? renderMarkdown(data.answer) : ('<span style="color:#e08080;font-style:italic;">Error: ' + esc(data.error || 'Failed.') + '</span>');
+      if (data.success) {
+        resp.innerHTML = renderMarkdown(data.answer);
+        if (window.ROOM_CODE && window.isHost && window.roomSocket) {
+          window.roomSocket.emit('room-tooltip-broadcast', { roomCode: window.ROOM_CODE, type: 'Ask AI', term: upSelectedText, response: data.answer });
+        }
+      } else {
+        resp.innerHTML = '<span style="color:#e08080;font-style:italic;">Error: ' + esc(data.error || 'Failed.') + '</span>';
+      }
       clampUp();
     } catch (err) {
       resp.innerHTML = '<span style="color:#e08080;font-style:italic;">Error: ' + esc(err.message) + '</span>';
