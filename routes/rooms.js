@@ -123,6 +123,10 @@ router.get('/room/:code', requireAuth, (req, res) => {
           <span id="roomHostLabel">Host: ${room.hostName.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>
           <span id="roomMembersLabel"></span>
         </div>
+        <div style="margin-top:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+          <span style="font-weight:600;color:#5C1A28;font-size:0.9rem;">Room Code: ${room.code}</span>
+          <button onclick="(function(btn){navigator.clipboard.writeText('${room.code}').then(function(){var orig=btn.textContent;btn.textContent='Copied!';setTimeout(function(){btn.textContent=orig;},1500);});})(this)" style="background:transparent;border:1px solid #5C1A28;color:#5C1A28;border-radius:4px;padding:2px 8px;font-size:0.8rem;cursor:pointer;">Copy</button>
+        </div>
       </div>
 
       <div class="study-search-bar">
