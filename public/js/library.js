@@ -526,10 +526,14 @@
     '<div class="up-actions">' +
       '<button class="up-define-btn">Define</button>' +
       '<button class="up-ai-btn">Ask AI</button>' +
+      '<button class="up-verse-btn">Verse Lookup</button>' +
     '</div>' +
     '<div class="up-content" style="display:none;">' +
       '<div class="up-define-pane" style="display:none;">' +
         '<div class="up-definition"></div>' +
+      '</div>' +
+      '<div class="up-verse-pane" style="display:none;">' +
+        '<div class="up-verse-result"></div>' +
       '</div>' +
       '<div class="up-ai-pane" style="display:none;">' +
         '<div class="up-ai-input-row">' +
@@ -580,8 +584,11 @@
     upEl.querySelector('.up-ai-response').style.display = 'none';
     upEl.querySelector('.up-ai-response').textContent   = '';
     upEl.querySelector('.up-definition').textContent    = '';
+    upEl.querySelector('.up-verse-pane').style.display  = 'none';
+    upEl.querySelector('.up-verse-result').textContent  = '';
     upEl.querySelector('.up-define-btn').classList.remove('up-btn-active');
     upEl.querySelector('.up-ai-btn').classList.remove('up-btn-active');
+    upEl.querySelector('.up-verse-btn').classList.remove('up-btn-active');
 
     // Measure collapsed height before committing to a position
     upEl.style.top        = '0';
@@ -699,8 +706,10 @@
     upEl.querySelector('.up-content').style.display     = 'block';
     upEl.querySelector('.up-define-pane').style.display = 'block';
     upEl.querySelector('.up-ai-pane').style.display     = 'none';
+    upEl.querySelector('.up-verse-pane').style.display  = 'none';
     upEl.querySelector('.up-define-btn').classList.add('up-btn-active');
     upEl.querySelector('.up-ai-btn').classList.remove('up-btn-active');
+    upEl.querySelector('.up-verse-btn').classList.remove('up-btn-active');
 
     var defEl = upEl.querySelector('.up-definition');
     defEl.innerHTML = '<span class="up-loading">Looking up definition…</span>';
@@ -729,11 +738,46 @@
   upEl.querySelector('.up-ai-btn').addEventListener('click', function () {
     upEl.querySelector('.up-content').style.display     = 'block';
     upEl.querySelector('.up-define-pane').style.display = 'none';
+    upEl.querySelector('.up-verse-pane').style.display  = 'none';
     upEl.querySelector('.up-ai-pane').style.display     = 'block';
     upEl.querySelector('.up-ai-btn').classList.add('up-btn-active');
     upEl.querySelector('.up-define-btn').classList.remove('up-btn-active');
+    upEl.querySelector('.up-verse-btn').classList.remove('up-btn-active');
     clampUp();
     setTimeout(function () { upEl.querySelector('.up-ai-input').focus(); }, 40);
+  });
+
+  upEl.querySelector('.up-verse-btn').addEventListener('click', function () {
+    upEl.querySelector('.up-content').style.display     = 'block';
+    upEl.querySelector('.up-define-pane').style.display = 'none';
+    upEl.querySelector('.up-ai-pane').style.display     = 'none';
+    upEl.querySelector('.up-verse-pane').style.display  = 'block';
+    upEl.querySelector('.up-verse-btn').classList.add('up-btn-active');
+    upEl.querySelector('.up-define-btn').classList.remove('up-btn-active');
+    upEl.querySelector('.up-ai-btn').classList.remove('up-btn-active');
+
+    var verseEl = upEl.querySelector('.up-verse-result');
+    verseEl.innerHTML = '<span class="up-loading">Looking up verse…</span>';
+    clampUp();
+
+    fetch('/api/library/verse', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ reference: upSelectedText }),
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.error) {
+        verseEl.innerHTML = '<span style="color:#e08080;font-style:italic;">' + esc(data.error) + '</span>';
+      } else {
+        verseEl.innerHTML = renderMarkdown(data.verse);
+      }
+      clampUp();
+    })
+    .catch(function () {
+      verseEl.innerHTML = '<span style="color:#e08080;font-style:italic;">Verse lookup unavailable.</span>';
+      clampUp();
+    });
   });
 
   upEl.querySelector('.up-ai-ask-btn').addEventListener('click', function () {

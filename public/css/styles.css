@@ -2477,7 +2477,8 @@ body {
 }
 
 .up-define-btn,
-.up-ai-btn {
+.up-ai-btn,
+.up-verse-btn {
   flex: 1;
   background: #5C1A28;
   border: 1px solid #5C1A28;
@@ -2494,16 +2495,22 @@ body {
   border-right: none;
 }
 .up-ai-btn {
+  border-radius: 0;
+  border-right: none;
+}
+.up-verse-btn {
   border-radius: 0 4px 4px 0;
 }
 .up-define-btn:hover,
-.up-ai-btn:hover {
+.up-ai-btn:hover,
+.up-verse-btn:hover {
   background: #4A1520;
   color: #E8D9B8;
   border-color: #4A1520;
 }
 .up-define-btn.up-btn-active,
-.up-ai-btn.up-btn-active {
+.up-ai-btn.up-btn-active,
+.up-verse-btn.up-btn-active {
   background: #4A1520;
   color: #E8D9B8;
   border-color: #4A1520;
@@ -2513,7 +2520,8 @@ body {
   border-top: 1px solid rgba(160,132,92,0.12);
 }
 
-.up-define-pane {
+.up-define-pane,
+.up-verse-pane {
   padding: 12px 14px;
 }
 

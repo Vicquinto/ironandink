@@ -195,4 +195,28 @@ router.post('/api/library/ask', requireAuth, async (req, res) => {
   }
 });
 
+// ─── POST /api/library/verse ─────────────────────────────────────────────────
+router.post('/api/library/verse', requireAuth, async (req, res) => {
+  const { reference } = req.body;
+  if (!reference || !String(reference).trim()) {
+    return res.status(400).json({ success: false, error: 'Reference is required.' });
+  }
+
+  try {
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const message = await client.messages.create({
+      model:      'claude-sonnet-4-6',
+      max_tokens: 400,
+      messages: [{
+        role:    'user',
+        content: `Quote the full text of "${String(reference).trim()}" from the Legacy Standard Bible (LSB). Return only the verse text with the reference label, no commentary or explanation.`,
+      }],
+    });
+    res.json({ success: true, verse: message.content[0].text });
+  } catch (err) {
+    console.error('Verse lookup error:', err.message);
+    res.status(500).json({ success: false, error: 'Failed to look up verse. Please try again.' });
+  }
+});
+
 module.exports = router;
