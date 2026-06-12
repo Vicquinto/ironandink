@@ -115,7 +115,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
   const safeName = room.name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
   const content = `
-    <div class="room-page" id="roomPage">
+    <div class="room-page" id="roomPage" style="padding-right:340px;">
 
       <div class="room-header">
         <h2 class="room-title" id="roomTitle">${safeName}</h2>
@@ -157,15 +157,15 @@ router.get('/room/:code', requireAuth, (req, res) => {
 
       <div id="roomPresence" class="room-presence"></div>
 
-      <div style="margin-top:1.5rem;">
-        <div style="font-weight:600;font-size:0.9rem;color:#5C1A28;margin-bottom:0.4rem;">Room Chat</div>
-        <div id="roomChatMessages" style="height:200px;overflow-y:auto;border:1px solid #c4a882;border-radius:8px;padding:0.75rem;background:#f5ede0;margin-bottom:0.75rem;"></div>
-        <div style="display:flex;gap:0.5rem;">
-          <input type="text" id="roomChatInput" placeholder="Say something to the room…" autocomplete="off" style="flex:1;padding:0.5rem 0.75rem;border:1px solid #c4a882;border-radius:6px;font-size:0.95rem;">
-          <button id="roomChatBtn" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.5rem 1rem;cursor:pointer;">Send</button>
-        </div>
-      </div>
+    </div>
 
+    <div style="position:fixed;right:0;top:0;width:320px;height:100vh;background:#f5ede0;border-left:1px solid #c4a882;display:flex;flex-direction:column;padding:1rem;box-sizing:border-box;z-index:100;">
+      <div style="font-weight:600;font-size:0.9rem;color:#5C1A28;margin-bottom:0.75rem;">Room Chat</div>
+      <div id="roomChatMessages" style="flex:1;overflow-y:auto;border:1px solid #c4a882;border-radius:8px;padding:0.75rem;background:#fff;margin-bottom:0.75rem;"></div>
+      <div style="display:flex;gap:0.5rem;">
+        <input type="text" id="roomChatInput" placeholder="Say something to the room…" autocomplete="off" style="flex:1;padding:0.5rem 0.75rem;border:1px solid #c4a882;border-radius:6px;font-size:0.9rem;">
+        <button id="roomChatBtn" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.5rem 1rem;cursor:pointer;font-size:0.9rem;">Send</button>
+      </div>
     </div>`;
 
   res.send(renderLayout({
