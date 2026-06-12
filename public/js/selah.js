@@ -44,6 +44,12 @@
           '</div>' +
           '<div class="selah-entry-preview">' + escapeHtml(preview) + '</div>' +
           '<div class="selah-entry-full" id="full-' + e.id + '" style="display:none;">' + escapeHtml(e.content) + '</div>' +
+          (e.reflectionText
+            ? '<div class="selah-entry-reflection" id="refl-' + e.id + '" style="display:none;">' +
+                '<div class="selah-reflect-label">A word for your reflection</div>' +
+                '<div class="selah-reflect-text">' + escapeHtml(e.reflectionText) + '</div>' +
+              '</div>'
+            : '') +
           '<div class="selah-entry-footer">' +
             '<button class="selah-expand-btn" data-id="' + e.id + '">Read</button>' +
             '<button class="selah-delete-btn" data-id="' + e.id + '">Delete</button>' +
@@ -54,14 +60,16 @@
 
     entryList.querySelectorAll('.selah-expand-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var id      = btn.dataset.id;
-        var fullDiv = document.getElementById('full-' + id);
-        var entry   = btn.closest('.selah-entry');
-        var preview = entry.querySelector('.selah-entry-preview');
+        var id       = btn.dataset.id;
+        var fullDiv  = document.getElementById('full-' + id);
+        var reflDiv  = document.getElementById('refl-' + id);
+        var entry    = btn.closest('.selah-entry');
+        var preview  = entry.querySelector('.selah-entry-preview');
         var expanded = fullDiv.style.display !== 'none';
-        fullDiv.style.display  = expanded ? 'none'  : 'block';
-        preview.style.display  = expanded ? 'block' : 'none';
-        btn.textContent        = expanded ? 'Read'  : 'Collapse';
+        fullDiv.style.display             = expanded ? 'none'  : 'block';
+        preview.style.display             = expanded ? 'block' : 'none';
+        if (reflDiv) reflDiv.style.display = expanded ? 'none'  : 'block';
+        btn.textContent                   = expanded ? 'Read'  : 'Collapse';
       });
     });
 
@@ -88,9 +96,13 @@
 
   // ── Save ──────────────────────────────────────────────────────────────────
   saveBtn.addEventListener('click', function () {
-    var title   = titleInput.value.trim();
-    var content = bodyInput.value.trim();
+    var title          = titleInput.value.trim();
+    var content        = bodyInput.value.trim();
     if (!content) { bodyInput.focus(); return; }
+
+    var reflectionText = (reflectBox.style.display !== 'none' && reflectTxt.textContent.trim())
+      ? reflectTxt.textContent.trim()
+      : '';
 
     saveBtn.disabled    = true;
     saveBtn.textContent = 'Saving…';
@@ -98,7 +110,7 @@
     fetch('/api/selah/save', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ title: title, content: content }),
+      body:    JSON.stringify({ title: title, content: content, reflectionText: reflectionText }),
     })
     .then(function (r) { return r.json(); })
     .then(function (data) {

@@ -3497,6 +3497,14 @@ body {
   margin-bottom: 12px;
 }
 
+.selah-entry-reflection {
+  margin: 14px 0 10px;
+  padding: 14px 18px;
+  background: #f5ede0;
+  border-left: 3px solid var(--accent);
+  border-radius: 3px;
+}
+
 .selah-entry-footer {
   display: flex;
   gap: 10px;

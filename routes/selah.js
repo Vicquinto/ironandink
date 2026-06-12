@@ -68,18 +68,19 @@ router.get('/selah', requireAuth, (req, res) => {
 
 // ─── POST /api/selah/save ────────────────────────────────────────────────────
 router.post('/api/selah/save', requireAuth, (req, res) => {
-  const { title, content } = req.body;
+  const { title, content, reflectionText } = req.body;
   if (!content || !String(content).trim()) {
     return res.status(400).json({ success: false, error: 'Entry content is required.' });
   }
 
   const entry = {
-    id:        randomUUID(),
-    userId:    req.session.userId,
-    userEmail: req.session.user.email,
-    title:     title ? String(title).trim() : '',
-    content:   String(content).trim(),
-    createdAt: new Date().toISOString(),
+    id:             randomUUID(),
+    userId:         req.session.userId,
+    userEmail:      req.session.user.email,
+    title:          title ? String(title).trim() : '',
+    content:        String(content).trim(),
+    reflectionText: reflectionText ? String(reflectionText).trim() : '',
+    createdAt:      new Date().toISOString(),
   };
 
   const entries = readEntries();
