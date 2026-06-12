@@ -14,9 +14,6 @@
   var guideTitle        = document.getElementById('roomGuideTitle');
   var guideBadge        = document.getElementById('roomGuideBadge');
   var guideBody         = document.getElementById('roomGuideBody');
-  var followUpSection   = document.getElementById('roomFollowUp');
-  var followUpInput     = document.getElementById('roomFollowUpInput');
-  var followUpBtn       = document.getElementById('roomFollowUpBtn');
   var saveBtn           = document.getElementById('roomSaveBtn');
   var membersLabel      = document.getElementById('roomMembersLabel');
   var chatInput         = document.getElementById('roomChatInput');
@@ -57,9 +54,6 @@
     displayStudy(data);
   });
 
-  socket.on('room-followup-result', function (data) {
-    displayStudy(data);
-  });
 
   socket.on('room-chat-message', function (data) {
     appendChatMessage(data.senderName, data.message);
@@ -135,48 +129,6 @@
     }
   }
 
-  // ── Follow-up ──────────────────────────────────────────────────────────────
-  if (followUpBtn) {
-    followUpBtn.addEventListener('click', function () {
-      var q = followUpInput ? followUpInput.value.trim() : '';
-      if (!q) { if (followUpInput) followUpInput.focus(); return; }
-      doFollowUp(q);
-    });
-  }
-
-  if (followUpInput) {
-    followUpInput.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') {
-        var q = followUpInput.value.trim();
-        if (q) doFollowUp(q);
-      }
-    });
-  }
-
-  async function doFollowUp(question) {
-    if (followUpBtn) followUpBtn.disabled = true;
-    if (roomLoading) roomLoading.style.display = 'flex';
-    if (guideArea)   guideArea.style.display   = 'none';
-
-    try {
-      var res  = await fetch('/api/study/generate', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ topic: question }),
-      });
-      var data = await res.json();
-      if (!data.success) throw new Error(data.error || 'Request failed.');
-
-      displayStudy(data);
-      socket.emit('room-followup-result', { roomCode: roomCode, data: data });
-      if (followUpInput) followUpInput.value = '';
-    } catch (err) {
-      if (roomLoading) roomLoading.style.display = 'none';
-      showToast('Error: ' + err.message, true);
-    } finally {
-      if (followUpBtn) followUpBtn.disabled = false;
-    }
-  }
 
   // ── Display Study ──────────────────────────────────────────────────────────
   function displayStudy(data) {
@@ -186,7 +138,6 @@
     if (guideBody)       guideBody.innerHTML     = renderMarkdown(data.content || '');
     if (roomLoading)     roomLoading.style.display   = 'none';
     if (guideArea)       guideArea.style.display     = 'block';
-    if (followUpSection) followUpSection.style.display = isHost ? 'block' : 'none';
   }
 
   // ── Save to Library ────────────────────────────────────────────────────────
@@ -328,7 +279,6 @@
   if (!isHost) {
     var searchBar = document.querySelector('.study-search-bar');
     if (searchBar) searchBar.style.display = 'none';
-    if (followUpSection) followUpSection.style.display = 'none';
   }
 
   // ── Init ───────────────────────────────────────────────────────────────────
