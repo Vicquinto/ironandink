@@ -420,12 +420,11 @@ router.get('/study', requireAuth, (req, res) => {
   if (!btn) return;
 
   btn.addEventListener('click', function() {
-    var topic  = APPOINTED_TOPICS[Math.floor(Math.random() * APPOINTED_TOPICS.length)];
-    var input  = document.getElementById('topicInput');
-    var genBtn = document.getElementById('generateBtn');
-    if (input && genBtn) {
+    var topic = APPOINTED_TOPICS[Math.floor(Math.random() * APPOINTED_TOPICS.length)];
+    var input = document.getElementById('topicInput');
+    if (input) {
       input.value = topic;
-      genBtn.click();
+      input.focus();
     }
   });
 })();
