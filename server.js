@@ -199,6 +199,11 @@ io.on('connection', (socket) => {
     io.to(roomCode).emit('room-chat-message', { senderName, message });
   });
 
+  socket.on('room-tooltip-broadcast', ({ roomCode, type, term, response }) => {
+    console.log('room-tooltip-broadcast received: ' + roomCode + ' type: ' + type);
+    io.to(roomCode).emit('room-tooltip-broadcast', { type, term, response });
+  });
+
   socket.on('disconnect', () => {
     console.log(`Socket disconnected: ${socket.id}`);
   });
