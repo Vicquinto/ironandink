@@ -112,31 +112,47 @@ router.get('/room/:code', requireAuth, (req, res) => {
     writeRooms(rooms);
   }
 
+  const safeName = room.name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
   const content = `
     <div class="room-page" id="roomPage">
+
       <div class="room-header">
-        <div>
-          <h2 class="page-title" style="margin-bottom:2px;">${room.name.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</h2>
-          <span class="room-code-label">Room Code: <strong>${room.code}</strong></span>
+        <h2 class="room-title" id="roomTitle">${safeName}</h2>
+        <div class="room-meta">
+          <span id="roomHostLabel">Host: ${room.hostName.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>
+          <span id="roomMembersLabel"></span>
         </div>
       </div>
 
-      <div class="room-body">
-        <div class="room-chat" id="roomChat">
-          <div class="room-messages" id="roomMessages"></div>
-          <div class="room-input-row">
-            <input type="text" class="room-input" id="roomInput" placeholder="Say something…" autocomplete="off">
-            <button class="btn-warm" id="roomSendBtn">Send</button>
-          </div>
-        </div>
+      <div class="study-search-bar">
+        <input type="text" id="roomTopicInput" class="study-input" placeholder="Enter a study topic…" autocomplete="off">
+        <button id="roomGenerateBtn" class="btn-warm">Generate Study</button>
+      </div>
 
-        <div class="room-sidebar">
-          <div class="room-members-panel">
-            <h4 class="room-panel-heading">Members</h4>
-            <ul class="room-members-list" id="roomMembersList"></ul>
-          </div>
+      <div id="roomLoading" class="study-loading" style="display:none;">
+        <div class="study-spinner"></div>
+        <p>Generating study for everyone in the room…</p>
+      </div>
+
+      <div id="roomGuideArea" style="display:none;">
+        <div class="guide-header-bar">
+          <h3 id="roomGuideTitle"></h3>
+          <span id="roomGuideBadge" class="guide-badge"></span>
+        </div>
+        <div id="roomGuideBody" class="guide-body"></div>
+        <div class="guide-actions">
+          <button id="roomSaveBtn" class="btn-primary">Save to My Library</button>
         </div>
       </div>
+
+      <div id="roomFollowUp" class="room-followup" style="display:none;">
+        <input type="text" id="roomFollowUpInput" class="study-input" placeholder="Ask a follow-up question…" autocomplete="off">
+        <button id="roomFollowUpBtn" class="btn-warm">Ask</button>
+      </div>
+
+      <div id="roomPresence" class="room-presence"></div>
+
     </div>`;
 
   res.send(renderLayout({
