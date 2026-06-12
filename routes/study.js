@@ -126,6 +126,7 @@ router.get('/study', requireAuth, (req, res) => {
       <input type="text" id="topicInput" class="form-input study-topic-input"
              placeholder="Study any topic..." autocomplete="off">
       <button id="generateBtn" class="btn-primary">Generate Guide</button>
+      <button id="appointedStudyBtn" class="btn-warm">Appointed Study</button>
     </div>
 
     <div id="studyLoading" class="study-loading" style="display:none;">
@@ -188,7 +189,247 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: '<script src="/js/study.js"></script><script src="/js/library.js?v=8"></script>',
+    scripts: `<script src="/js/study.js"></script><script src="/js/library.js?v=8"></script>
+<script>
+(function() {
+  var APPOINTED_TOPICS = [
+    // Theology Proper
+    "The Existence of God",
+    "The Trinity: One God in Three Persons",
+    "The Aseity of God",
+    "The Immutability of God",
+    "The Omniscience of God",
+    "The Omnipotence of God",
+    "The Omnipresence of God",
+    "The Holiness of God",
+    "The Justice of God",
+    "The Wrath of God",
+    "The Love of God",
+    "The Sovereignty of God",
+    "Divine Simplicity",
+    "Divine Eternity and Timelessness",
+    "The Eternal Generation of the Son",
+    "The Procession of the Holy Spirit",
+    "The Filioque Controversy",
+    "Trinitarian Relations and Perichoresis",
+    // Christology
+    "The Hypostatic Union",
+    "The Communicatio Idiomatum",
+    "The Humiliation and Exaltation of Christ",
+    "The Threefold Office of Christ: Prophet, Priest, and King",
+    "The Virgin Birth",
+    "The Impeccability of Christ",
+    "The Resurrection of Christ",
+    "The Ascension and Session of Christ",
+    "The Active and Passive Obedience of Christ",
+    "Penal Substitutionary Atonement",
+    // Pneumatology
+    "The Personality of the Holy Spirit",
+    "The Deity of the Holy Spirit",
+    "The Work of the Holy Spirit in Regeneration",
+    "The Sealing of the Holy Spirit",
+    "Cessationism and the Gifts of the Spirit",
+    // Anthropology
+    "The Image of God (Imago Dei)",
+    "The Fall and Original Sin",
+    "Total Depravity",
+    "The Bondage of the Will",
+    "Original Sin and Imputation",
+    // Soteriology
+    "Unconditional Election",
+    "Definite Atonement",
+    "Irresistible Grace",
+    "Perseverance of the Saints",
+    "The Ordo Salutis",
+    "Effectual Calling",
+    "Regeneration",
+    "Saving Faith",
+    "Repentance",
+    "Justification by Faith Alone",
+    "The Imputation of Christ's Righteousness",
+    "Adoption into the Family of God",
+    "Sanctification",
+    "Union with Christ",
+    "Glorification",
+    "Assurance of Salvation",
+    // Covenant Theology
+    "The Covenant of Works",
+    "The Covenant of Grace",
+    "The Covenant of Redemption (Pactum Salutis)",
+    "Law and Gospel",
+    "The New Covenant",
+    "Israel and the Church in Covenant Theology",
+    "Infant Baptism and Covenant Theology",
+    // Ecclesiology
+    "The Invisible and Visible Church",
+    "The Marks of a True Church",
+    "Church Discipline",
+    "The Keys of the Kingdom",
+    "Baptism: Mode and Meaning",
+    "The Lord's Supper: Reformed Doctrine",
+    "Presbyterian Church Government",
+    "The Regulative Principle of Worship",
+    "Preaching as a Means of Grace",
+    // Eschatology
+    "Amillennialism",
+    "Postmillennialism",
+    "The Return of Christ",
+    "The General Resurrection",
+    "The Final Judgment",
+    "Heaven and the Beatific Vision",
+    "Hell and Eternal Punishment",
+    "The New Creation",
+    // Bibliology
+    "The Inspiration of Scripture",
+    "The Inerrancy of Scripture",
+    "The Sufficiency of Scripture",
+    "Sola Scriptura",
+    "The Canon of Scripture",
+    "The Perspicuity of Scripture",
+    "Grammatical-Historical Hermeneutics",
+    "Scripture Interprets Scripture",
+    // Biblical Theology
+    "The Kingdom of God in Biblical Theology",
+    "Typology in the Old Testament",
+    "The Messianic Psalms",
+    "Prophecy and Fulfillment in the Old Testament",
+    "The Servant Songs of Isaiah",
+    // Books of the Bible
+    "The Book of Job: Suffering and Sovereignty",
+    "The Psalms: Theology and Worship",
+    "Proverbs and the Fear of the LORD",
+    "Isaiah and the Suffering Servant",
+    "Jeremiah and the New Covenant",
+    "Daniel: Prophecy and the Sovereignty of God",
+    "Romans: The Gospel of Justification",
+    "Galatians: Freedom from the Law",
+    "Ephesians: Election and the Church",
+    "Hebrews: Christ as High Priest",
+    "James: Faith and Works",
+    "Revelation: The Victory of the Lamb",
+    "The Gospel of John: The Incarnate Word",
+    "The Gospel of Matthew: The Kingdom of Heaven",
+    "Romans 8 and the Assurance of the Elect",
+    "Romans 9 to 11 and Divine Sovereignty",
+    "Ephesians 1 and the Blessings of Election",
+    "The Beatitudes: Matthew 5",
+    "The Lord's Prayer: Theology and Practice",
+    "Psalm 119 and the Love of God's Law",
+    "The High Priestly Prayer of John 17",
+    "The New Covenant in Hebrews",
+    // Church History
+    "The Council of Nicaea and the Nicene Creed",
+    "Augustine of Hippo: Grace and Predestination",
+    "The Pelagian Controversy",
+    "Anselm and the Satisfaction Theory of Atonement",
+    "The Medieval Church and Scholasticism",
+    // The Reformation
+    "Martin Luther and Justification by Faith",
+    "The Five Solas of the Reformation",
+    "John Calvin and the Institutes of the Christian Religion",
+    "Calvin on the Knowledge of God",
+    "Calvin on Predestination",
+    "Calvin on the Lord's Supper",
+    "Ulrich Zwingli and the Swiss Reformation",
+    "The Heidelberg Catechism",
+    "The Belgic Confession",
+    "The Canons of Dort",
+    "The Synod of Dort and Arminianism",
+    "The Westminster Confession of Faith",
+    "The Westminster Shorter Catechism",
+    "The Westminster Larger Catechism",
+    "Theodore Beza and Reformed Scholasticism",
+    "Sola Fide: The Article on Which the Church Stands or Falls",
+    "Solus Christus: Christ Alone",
+    "Soli Deo Gloria: For the Glory of God Alone",
+    // Puritan Theology
+    "John Owen: The Death of Death in the Death of Christ",
+    "John Owen: Communion with God",
+    "John Owen: The Holy Spirit",
+    "John Owen: Mortification of Sin",
+    "Thomas Goodwin on Union with Christ",
+    "Richard Sibbes and the Bruised Reed",
+    "John Bunyan: Grace Abounding to the Chief of Sinners",
+    "Thomas Watson: A Body of Divinity",
+    "William Perkins and Covenant Theology",
+    "The Puritans on Prayer",
+    "The Puritan Doctrine of Sanctification",
+    "The Puritan Conscience and Assurance",
+    // Jonathan Edwards
+    "Jonathan Edwards: Religious Affections",
+    "Jonathan Edwards: Freedom of the Will",
+    "Jonathan Edwards: Original Sin",
+    "Jonathan Edwards: The End for Which God Created the World",
+    "The Great Awakening and Reformed Revival",
+    "Edwards on Heaven and the Beauty of God",
+    // Charles Spurgeon
+    "Spurgeon on the Doctrines of Grace",
+    "Spurgeon on Justification",
+    "Spurgeon on Prayer",
+    "Spurgeon: Calvinism and Evangelism",
+    "Spurgeon on the Atonement",
+    // B.B. Warfield
+    "B.B. Warfield on Biblical Inerrancy",
+    "B.B. Warfield on the Person of Christ",
+    "B.B. Warfield on Perfectionism",
+    "Warfield and the Princeton Theology",
+    // J. Gresham Machen
+    "Machen: Christianity and Liberalism",
+    "Machen on the Virgin Birth",
+    "Machen and the Founding of Westminster Seminary",
+    "The Modernist-Fundamentalist Controversy",
+    // Other Key Figures
+    "Abraham Kuyper and Common Grace",
+    "Herman Bavinck on the Doctrine of God",
+    "Herman Bavinck on Holy Scripture",
+    "Francis Turretin and Reformed Orthodoxy",
+    "John Murray: Redemption Accomplished and Applied",
+    "Louis Berkhof: Systematic Theology",
+    "Geerhardus Vos: Biblical Theology",
+    "R.C. Sproul on the Holiness of God",
+    "The Marrow Controversy",
+    // Key Doctrines
+    "The Sabbath and the Lord's Day",
+    "Common Grace",
+    "Natural Law and General Revelation",
+    "The Two Kingdoms Doctrine",
+    "Christian Vocation and the Glory of God",
+    "The Third Use of the Law",
+    "The Mortification of Sin",
+    "The Fear of the LORD",
+    "The Doctrine of Providence",
+    "Miracles and the Cessation of Gifts",
+    "The Regulative Principle of Worship",
+    "The Problem of Evil in Reformed Thought",
+    "Spiritual Warfare and the Christian Life",
+    "Suffering and Providence",
+    "The Means of Grace",
+    // Polemics and Comparative Theology
+    "Calvinism vs. Arminianism",
+    "Justification: Trent vs. the Reformation",
+    "The Federal Vision Controversy",
+    "New Perspective on Paul: A Reformed Critique",
+    "Open Theism: A Reformed Response",
+    "Word-Faith Theology: A Reformed Critique",
+    "Antinomianism and the Third Use of the Law",
+    "Theistic Evolution and Reformed Anthropology",
+    "The Doxology of Romans 11:36: From Him, Through Him, To Him",
+  ];
+
+  var btn = document.getElementById('appointedStudyBtn');
+  if (!btn) return;
+
+  btn.addEventListener('click', function() {
+    var topic  = APPOINTED_TOPICS[Math.floor(Math.random() * APPOINTED_TOPICS.length)];
+    var input  = document.getElementById('topicInput');
+    var genBtn = document.getElementById('generateBtn');
+    if (input && genBtn) {
+      input.value = topic;
+      genBtn.click();
+    }
+  });
+})();
+</script>`,
   }));
 });
 
