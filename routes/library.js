@@ -204,17 +204,18 @@ router.post('/api/library/verse', requireAuth, async (req, res) => {
 
   const ref = String(reference).trim();
 
-  if (process.env.ESVO_API_KEY) {
+  // Primary: ESV API (requires ESV_API_KEY in .env)
+  if (process.env.ESV_API_KEY) {
     try {
       const url = 'https://api.esv.org/v3/passage/text/?' + new URLSearchParams({
-        q:                        ref,
-        'include-headings':       false,
-        'include-footnotes':      false,
-        'include-verse-numbers':  true,
+        q:                         ref,
+        'include-headings':        false,
+        'include-footnotes':       false,
+        'include-verse-numbers':   true,
         'include-short-copyright': false,
       });
       const esvRes = await fetch(url, {
-        headers: { Authorization: `Token ${process.env.ESVO_API_KEY}` },
+        headers: { Authorization: `Token ${process.env.ESV_API_KEY}` },
       });
       const data = await esvRes.json();
       const text = data.passages && data.passages[0] ? data.passages[0].trim() : null;
@@ -224,20 +225,15 @@ router.post('/api/library/verse', requireAuth, async (req, res) => {
     }
   }
 
-  // Fallback: ask Claude for ESV text
+  // Fallback: bible-api.com — World English Bible, public domain, no key needed
   try {
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-    const message = await client.messages.create({
-      model:      'claude-sonnet-4-6',
-      max_tokens: 400,
-      messages: [{
-        role:    'user',
-        content: `Quote the full text of "${ref}" from the English Standard Version (ESV). Return only the verse text with the reference label, no commentary or explanation.`,
-      }],
-    });
-    res.json({ success: true, verse: message.content[0].text });
+    const encodedRef = ref.replace(/\s+/g, '+');
+    const apiRes = await fetch(`https://bible-api.com/${encodedRef}?translation=web`);
+    const data   = await apiRes.json();
+    if (data.text) return res.json({ success: true, verse: data.text.trim() });
+    return res.status(404).json({ success: false, error: 'Verse not found. Check the reference format (e.g. John 3:16).' });
   } catch (err) {
-    console.error('Verse lookup error:', err.message);
+    console.error('Bible API fallback error:', err.message);
     res.status(500).json({ success: false, error: 'Failed to look up verse. Please try again.' });
   }
 });
