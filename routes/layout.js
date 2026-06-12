@@ -27,6 +27,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
     { id: 'writing',     label: 'Writing',     href: '/writing',     icon: '&#9998;' },
     { id: 'library',     label: 'Library',     href: '/library',     icon: '&#8801;' },
     { id: 'community',   label: 'Community',   href: '/community',   icon: '&#9678;' },
+    { id: 'rooms',       label: 'Live Rooms',  href: '/rooms',       icon: '&#9689;' },
     { id: 'my-articles', label: 'My Articles', href: '/my-articles', icon: '&#9634;' },
     { id: 'settings',    label: 'Settings',    href: '/settings',    icon: '&#9881;' },
   ];

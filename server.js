@@ -21,6 +21,7 @@ const writingRoutes       = require('./routes/writing');
 const adminRoutes         = require('./routes/admin');
 const communityRoutes     = require('./routes/community');
 const dictionaryRoutes    = require('./routes/dictionary');
+const roomsRoutes         = require('./routes/rooms');
 const { requireAuth, renderLayout } = require('./routes/layout');
 
 const app  = express();
@@ -155,6 +156,7 @@ app.use('/', writingRoutes);
 app.use('/', adminRoutes);
 app.use('/', communityRoutes);
 app.use('/', dictionaryRoutes);
+app.use('/', roomsRoutes);
 
 // ─── Placeholder Sections (unbuilt) ──────────────────────────────────────
 const placeholders = [];
@@ -172,7 +174,31 @@ placeholders.forEach(({ path: p, id, label, icon, blurb }) => {
 });
 
 // ─── Start ────────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
+const http = require('http');
+const { Server } = require('socket.io');
+
+const httpServer = http.createServer(app);
+const io         = new Server(httpServer);
+
+io.on('connection', (socket) => {
+  socket.on('join-room', (roomCode) => {
+    socket.join(roomCode);
+  });
+
+  socket.on('room-study-result', ({ roomCode, data }) => {
+    socket.to(roomCode).emit('room-study-result', data);
+  });
+
+  socket.on('room-followup-result', ({ roomCode, data }) => {
+    socket.to(roomCode).emit('room-followup-result', data);
+  });
+
+  socket.on('disconnect', () => {
+    console.log(`Socket disconnected: ${socket.id}`);
+  });
+});
+
+httpServer.listen(PORT, () => {
   console.log(`\n  Iron & Ink  |  http://localhost:${PORT}\n`);
 });
 
