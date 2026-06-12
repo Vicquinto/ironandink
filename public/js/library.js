@@ -7,6 +7,7 @@
 
   // ── Load studies on page load ──────────────────────────────────────────────
   async function loadStudies() {
+    if (!document.getElementById('studyCardsGrid')) return;
     try {
       var res  = await fetch('/api/library');
       var data = await res.json();
