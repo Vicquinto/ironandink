@@ -171,12 +171,17 @@
     });
   });
 
+  // ── Style Start button ─────────────────────────────────────────────────────
+  if (startRoomBtn) {
+    startRoomBtn.style.cssText = 'display:block;background:#5C1A28;color:#fff;border:none;border-radius:8px;padding:0.75rem 1.75rem;font-size:1rem;cursor:pointer;margin-bottom:1.25rem;';
+  }
+
   // ── Join with Code ─────────────────────────────────────────────────────────
   if (startRoomBtn) {
     startRoomBtn.insertAdjacentHTML('afterend',
-      '<div class="rooms-join-code">' +
-        '<input type="text" id="joinCodeInput" class="rooms-input" placeholder="Enter room code" maxlength="6" autocomplete="off">' +
-        '<button id="joinCodeBtn" class="btn-warm">Join Room</button>' +
+      '<div style="display:flex;gap:0.75rem;align-items:center;margin-bottom:1.5rem;max-width:420px;">' +
+        '<input type="text" id="joinCodeInput" placeholder="Enter room code" maxlength="6" autocomplete="off" style="flex:1;padding:0.6rem 0.75rem;border:1px solid #c4a882;border-radius:6px;font-size:0.95rem;">' +
+        '<button id="joinCodeBtn" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.6rem 1.25rem;font-size:0.95rem;cursor:pointer;white-space:nowrap;">Join Room</button>' +
       '</div>'
     );
     joinCodeInput = document.getElementById('joinCodeInput');
