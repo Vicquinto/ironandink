@@ -3134,7 +3134,7 @@ body {
 
 .devot-dashboard-body h2 { font-size: 1.05rem; color: var(--accent); margin: 18px 0 8px; font-family: Georgia, serif; }
 .devot-dashboard-body h3 { font-size: 0.98rem; color: var(--accent); margin: 14px 0 6px; font-family: Georgia, serif; }
-.devot-dashboard-body p  { font-size: 0.97rem; line-height: 1.75; color: var(--text); margin: 0 0 10px; }
+.devot-dashboard-body p  { font-size: 1.05rem; line-height: 1.75; color: var(--text); margin: 0 0 10px; }
 .devot-dashboard-body ul,
 .devot-dashboard-body ol { padding-left: 20px; margin: 0 0 10px; }
 .devot-dashboard-body li { font-size: 0.97rem; line-height: 1.7; color: var(--text); margin-bottom: 4px; }
@@ -3144,6 +3144,7 @@ body {
   padding: 4px 14px;
   color: var(--dark-cream);
   font-style: italic;
+  font-size: 1.0rem;
 }
 
 .devot-dashboard-footer {
@@ -3175,7 +3176,7 @@ body {
 
 .devot-content h2 { font-size: 1.1rem; color: var(--accent); margin: 22px 0 10px; font-family: Georgia, serif; }
 .devot-content h3 { font-size: 1.02rem; color: var(--accent); margin: 16px 0 8px; font-family: Georgia, serif; }
-.devot-content p  { font-size: 1rem; line-height: 1.8; color: var(--text); margin: 0 0 12px; }
+.devot-content p  { font-size: 1.05rem; line-height: 1.8; color: var(--text); margin: 0 0 12px; }
 .devot-content ul,
 .devot-content ol { padding-left: 22px; margin: 0 0 12px; }
 .devot-content li { font-size: 1rem; line-height: 1.75; color: var(--text); margin-bottom: 5px; }
@@ -3185,6 +3186,7 @@ body {
   padding: 6px 16px;
   color: var(--dark-cream);
   font-style: italic;
+  font-size: 1.0rem;
 }
 
 .devot-unavailable {
