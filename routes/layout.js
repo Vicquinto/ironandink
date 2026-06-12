@@ -81,6 +81,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   <script src="/js/app.js?v=8"></script>
   <script src="/js/dictionary.js?v=8"></script>
   ${scripts}
+  <script type="text/javascript" src="https://lsbible.org/wp-content/plugins/lsbible-reftagger/dist/xref.min.js"></script>
 </body>
 </html>`;
 }
