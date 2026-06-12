@@ -102,10 +102,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
   const user     = users.find(u => u.id === userId);
   const userName = user ? user.fullName : 'Unknown';
 
-  const isMember = room.members.includes(userId);
-
-  if (!isMember) {
-    if (room.visibility === 'private') return res.redirect('/rooms');
+  if (!room.members.includes(userId)) {
     room.members.push(userId);
     const idx = rooms.findIndex(r => r.code === room.code);
     rooms[idx] = room;
