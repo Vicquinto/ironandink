@@ -2,6 +2,8 @@
   'use strict';
 
   var startRoomBtn      = document.getElementById('startRoomBtn');
+  var joinCodeInput     = null;
+  var joinCodeBtn       = null;
   var createModal       = document.getElementById('roomsCreateModal');
   var createConfirm     = document.getElementById('roomsCreateConfirm');
   var createCancel      = document.getElementById('roomsCreateCancel');
@@ -172,6 +174,43 @@
       createConfirm.disabled = false;
     });
   });
+
+  // ── Join with Code ─────────────────────────────────────────────────────────
+  if (startRoomBtn) {
+    startRoomBtn.insertAdjacentHTML('afterend',
+      '<div class="rooms-join-code">' +
+        '<input type="text" id="joinCodeInput" class="rooms-input" placeholder="Enter room code" maxlength="6" autocomplete="off">' +
+        '<button id="joinCodeBtn" class="btn-warm">Join Room</button>' +
+      '</div>'
+    );
+    joinCodeInput = document.getElementById('joinCodeInput');
+    joinCodeBtn   = document.getElementById('joinCodeBtn');
+  }
+
+  if (joinCodeBtn) {
+    joinCodeBtn.addEventListener('click', function () {
+      var code = joinCodeInput.value.trim().toUpperCase();
+      if (!code) {
+        showToast('Please enter a room code.', true);
+        joinCodeInput.focus();
+        return;
+      }
+      window.location.href = '/room/' + code;
+    });
+  }
+
+  if (joinCodeInput) {
+    joinCodeInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        var code = joinCodeInput.value.trim().toUpperCase();
+        if (!code) {
+          showToast('Please enter a room code.', true);
+          return;
+        }
+        window.location.href = '/room/' + code;
+      }
+    });
+  }
 
   // ── Init ───────────────────────────────────────────────────────────────────
   loadNotifications();
