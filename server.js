@@ -182,6 +182,7 @@ const io         = new Server(httpServer);
 
 io.on('connection', (socket) => {
   socket.on('join-room', (roomCode) => {
+    console.log('join-room received: ' + roomCode);
     socket.join(roomCode);
   });
 
@@ -194,6 +195,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('room-chat', ({ roomCode, message, senderName }) => {
+    console.log('room-chat received: ' + roomCode + ' from: ' + senderName);
     io.to(roomCode).emit('room-chat-message', { senderName, message });
   });
 
