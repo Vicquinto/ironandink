@@ -272,8 +272,9 @@ router.get('/dashboard', requireAuth, async (req, res) => {
       var text = ${JSON.stringify(devotionalContent || '')};
       if (el && text) {
         el.innerHTML = marked.parse(text);
-        el.querySelectorAll('blockquote').forEach(function(bq) {
-          bq.style.fontSize = '1.1rem';
+        el.style.fontSize = '1.1rem';
+        el.querySelectorAll('p, blockquote').forEach(function(node) {
+          node.style.fontSize = '1.1rem';
         });
       }
     })();
