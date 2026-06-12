@@ -16,6 +16,9 @@
   var followUpBtn       = document.getElementById('roomFollowUpBtn');
   var saveBtn           = document.getElementById('roomSaveBtn');
   var membersLabel      = document.getElementById('roomMembersLabel');
+  var chatInput         = document.getElementById('roomChatInput');
+  var chatBtn           = document.getElementById('roomChatBtn');
+  var chatMessages      = document.getElementById('roomChatMessages');
 
   // ── Socket.io ──────────────────────────────────────────────────────────────
   var socket = io();
@@ -27,6 +30,10 @@
 
   socket.on('room-followup-result', function (data) {
     displayStudy(data);
+  });
+
+  socket.on('room-chat-message', function (data) {
+    appendChatMessage(data.senderName, data.message);
   });
 
   // ── Member count ───────────────────────────────────────────────────────────
@@ -169,6 +176,46 @@
       } finally {
         saveBtn.disabled = false;
       }
+    });
+  }
+
+  // ── Chat ──────────────────────────────────────────────────────────────────
+  function sendChat() {
+    if (!chatInput) return;
+    var msg = chatInput.value.trim();
+    if (!msg) return;
+    socket.emit('room-chat', {
+      roomCode:   roomCode,
+      message:    msg,
+      senderName: window.CURRENT_USER ? window.CURRENT_USER.name : 'Anonymous',
+    });
+    chatInput.value = '';
+  }
+
+  function appendChatMessage(sender, message) {
+    if (!chatMessages) return;
+    var div = document.createElement('div');
+    div.style.cssText = 'padding:0.25rem 0;font-size:0.9rem;border-bottom:1px solid #e8d9b8;';
+    div.innerHTML = '<strong>' + escHtml(sender) + '</strong>: ' + escHtml(message);
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  if (chatBtn) {
+    chatBtn.addEventListener('click', sendChat);
+  }
+
+  if (chatInput) {
+    chatInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') sendChat();
     });
   }
 

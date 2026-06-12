@@ -157,6 +157,15 @@ router.get('/room/:code', requireAuth, (req, res) => {
 
       <div id="roomPresence" class="room-presence"></div>
 
+      <div style="margin-top:1.5rem;">
+        <div style="font-weight:600;font-size:0.9rem;color:#5C1A28;margin-bottom:0.4rem;">Room Chat</div>
+        <div id="roomChatMessages" style="height:200px;overflow-y:auto;border:1px solid #c4a882;border-radius:8px;padding:0.75rem;background:#f5ede0;margin-bottom:0.75rem;"></div>
+        <div style="display:flex;gap:0.5rem;">
+          <input type="text" id="roomChatInput" placeholder="Say something to the room…" autocomplete="off" style="flex:1;padding:0.5rem 0.75rem;border:1px solid #c4a882;border-radius:6px;font-size:0.95rem;">
+          <button id="roomChatBtn" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.5rem 1rem;cursor:pointer;">Send</button>
+        </div>
+      </div>
+
     </div>`;
 
   res.send(renderLayout({

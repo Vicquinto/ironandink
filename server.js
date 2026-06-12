@@ -193,6 +193,10 @@ io.on('connection', (socket) => {
     socket.to(roomCode).emit('room-followup-result', data);
   });
 
+  socket.on('room-chat', ({ roomCode, message, senderName }) => {
+    io.to(roomCode).emit('room-chat-message', { senderName, message });
+  });
+
   socket.on('disconnect', () => {
     console.log(`Socket disconnected: ${socket.id}`);
   });
