@@ -1657,7 +1657,7 @@ body {
 }
 
 .question-text {
-  font-size: 1.0rem;
+  font-size: 1.05rem;
   color: var(--dark-cream);
   line-height: 1.65;
   margin-bottom: 16px;
@@ -1691,7 +1691,7 @@ body {
 }
 
 .article-card-title {
-  font-size: 1.0rem;
+  font-size: 1.05rem;
   color: var(--accent);
   font-weight: normal;
   line-height: 1.35;
@@ -3144,7 +3144,7 @@ body {
   padding: 4px 14px;
   color: var(--dark-cream);
   font-style: italic;
-  font-size: 1.0rem;
+  font-size: 1.05rem;
 }
 
 .devot-dashboard-footer {
@@ -3186,7 +3186,7 @@ body {
   padding: 6px 16px;
   color: var(--dark-cream);
   font-style: italic;
-  font-size: 1.0rem;
+  font-size: 1.05rem;
 }
 
 .devot-unavailable {
