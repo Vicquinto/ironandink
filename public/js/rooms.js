@@ -104,12 +104,12 @@
           var badge = room.visibility === 'private'
             ? '<span class="rooms-badge rooms-badge-private">Private</span>'
             : '<span class="rooms-badge rooms-badge-open">Open</span>';
-          return '<div class="rooms-card" style="padding:1.25rem;border:1px solid var(--border);border-radius:8px;background:var(--card-bg);">' +
-            '<div style="display:block;font-size:1.05rem;font-weight:600;margin-bottom:4px;">' + esc(room.name) + '</div>' +
+          return '<div class="rooms-card" style="background:#f5ede0;border:1px solid #c4a882;border-radius:10px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;max-width:420px;box-shadow:0 2px 6px rgba(0,0,0,0.08);">' +
+            '<div style="display:block;font-size:1.15rem;font-weight:700;margin-bottom:4px;">' + esc(room.name) + '</div>' +
             '<div style="display:block;margin-bottom:4px;">' + badge + '</div>' +
             '<div style="display:block;font-size:0.85rem;color:var(--text-muted);margin-bottom:4px;">Host: ' + esc(room.hostName) + '</div>' +
             '<div style="display:block;font-size:0.85rem;color:var(--text-muted);margin-bottom:12px;">' + room.members.length + ' member' + (room.members.length !== 1 ? 's' : '') + '</div>' +
-            '<a class="btn-warm rooms-join-btn" href="/room/' + esc(room.code) + '">Join Room</a>' +
+            '<a class="rooms-join-btn" href="/room/' + esc(room.code) + '" style="display:block;width:100%;padding:0.6rem;background:#5C1A28;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:0.95rem;margin-top:0.5rem;text-align:center;text-decoration:none;box-sizing:border-box;">Join Room</a>' +
           '</div>';
         }).join('');
         roomsList.insertAdjacentHTML('afterbegin', html);
