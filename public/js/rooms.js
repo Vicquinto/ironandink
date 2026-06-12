@@ -105,14 +105,10 @@
             ? '<span class="rooms-badge rooms-badge-private">Private</span>'
             : '<span class="rooms-badge rooms-badge-open">Open</span>';
           return '<div class="rooms-card">' +
-            '<div class="rooms-card-header">' +
-              '<span class="rooms-card-name">' + esc(room.name) + '</span>' +
-              badge +
-            '</div>' +
-            '<div class="rooms-card-meta">' +
-              '<span>Host: ' + esc(room.hostName) + '</span>' +
-              '<span>' + room.members.length + ' member' + (room.members.length !== 1 ? 's' : '') + '</span>' +
-            '</div>' +
+            '<div class="rooms-card-name">' + esc(room.name) + '</div>' +
+            '<div class="rooms-card-badge">' + badge + '</div>' +
+            '<div class="rooms-card-host">Host: ' + esc(room.hostName) + '</div>' +
+            '<div class="rooms-card-count">' + room.members.length + ' member' + (room.members.length !== 1 ? 's' : '') + '</div>' +
             '<a class="btn-warm rooms-join-btn" href="/room/' + esc(room.code) + '">Join Room</a>' +
           '</div>';
         }).join('');

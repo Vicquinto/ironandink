@@ -3065,3 +3065,50 @@ body {
   font-style: italic;
   padding: 1rem 0;
 }
+
+.rooms-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.rooms-card-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.rooms-card-badge {
+  margin-bottom: 0.15rem;
+}
+
+.rooms-card-host {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.rooms-card-count {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.rooms-badge-open {
+  background: #2d6a2d;
+  color: #fff;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+}
+
+.rooms-badge-private {
+  background: var(--accent);
+  color: #fff;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+}
