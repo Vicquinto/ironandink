@@ -648,11 +648,19 @@
     var inGuide   = guideArea && guideArea.style.display !== 'none' &&
                     guideArea.contains(range.commonAncestorContainer);
 
-    if (!inModal && !inGuide) return;
+    // Live room context
+    var roomGuideArea = document.getElementById('roomGuideArea');
+    var inRoom        = roomGuideArea && roomGuideArea.style.display !== 'none' &&
+                        roomGuideArea.contains(range.commonAncestorContainer);
+
+    if (!inModal && !inGuide && !inRoom) return;
 
     upSelectedText = selText;
     if (inModal) {
       var titleEl = document.getElementById('modalTitle');
+      icmTopic = titleEl ? titleEl.textContent : '';
+    } else if (inRoom) {
+      var titleEl = document.getElementById('roomGuideTitle');
       icmTopic = titleEl ? titleEl.textContent : '';
     } else {
       var titleEl = document.getElementById('guideTitle');

@@ -22,6 +22,30 @@
   var chatInput         = document.getElementById('roomChatInput');
   var chatBtn           = document.getElementById('roomChatBtn');
   var chatMessages      = document.getElementById('roomChatMessages');
+  var fontDecBtn        = document.getElementById('roomFontDecBtn');
+  var fontResetBtn      = document.getElementById('roomFontResetBtn');
+  var fontIncBtn        = document.getElementById('roomFontIncBtn');
+
+  // ── Font size control ─────────────────────────────────────────────────────
+  var FONT_DEFAULT  = 16;
+  var FONT_MIN      = 12;
+  var FONT_MAX      = 28;
+  var FONT_STEP     = 2;
+  var roomFontSize  = parseInt(localStorage.getItem('ironink_room_font_size'), 10) || FONT_DEFAULT;
+
+  function applyRoomFontSize(size) {
+    roomFontSize = Math.min(FONT_MAX, Math.max(FONT_MIN, size));
+    if (guideBody) guideBody.style.fontSize = roomFontSize + 'px';
+    localStorage.setItem('ironink_room_font_size', roomFontSize);
+  }
+
+  applyRoomFontSize(roomFontSize);
+
+  if (fontDecBtn) {
+    fontDecBtn.addEventListener('click',   function () { applyRoomFontSize(roomFontSize - FONT_STEP); });
+    fontResetBtn.addEventListener('click', function () { applyRoomFontSize(FONT_DEFAULT); });
+    fontIncBtn.addEventListener('click',   function () { applyRoomFontSize(roomFontSize + FONT_STEP); });
+  }
 
   // ── Socket.io ──────────────────────────────────────────────────────────────
   var socket = io();

@@ -143,6 +143,11 @@ router.get('/room/:code', requireAuth, (req, res) => {
           <h3 id="roomGuideTitle"></h3>
           <span id="roomGuideBadge" class="guide-badge"></span>
         </div>
+        <div class="guide-font-toolbar">
+          <button class="guide-font-btn guide-font-btn-sm" id="roomFontDecBtn">A&#8722;</button>
+          <button class="guide-font-btn guide-font-btn-md" id="roomFontResetBtn">A</button>
+          <button class="guide-font-btn guide-font-btn-lg" id="roomFontIncBtn">A+</button>
+        </div>
         <div id="roomGuideBody" class="guide-body"></div>
         <div class="guide-actions">
           <button id="roomSaveBtn" class="btn-primary">Save to My Library</button>
