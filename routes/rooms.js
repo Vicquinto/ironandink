@@ -97,10 +97,12 @@ router.get('/room/:code', requireAuth, (req, res) => {
 
   if (!room) return res.redirect('/rooms');
 
-  const userId   = req.session.userId;
-  const users    = readUsers();
-  const user     = users.find(u => u.id === userId);
-  const userName = user ? user.fullName : 'Unknown';
+  const userId    = req.session.userId;
+  const users     = readUsers();
+  const user      = users.find(u => u.id === userId);
+  const userName  = user ? user.fullName : 'Unknown';
+  const hostUser  = users.find(u => u.id === room.host);
+  const hostEmail = hostUser ? hostUser.email : '';
 
   if (!room.members.includes(userId)) {
     room.members.push(userId);
@@ -174,7 +176,8 @@ router.get('/room/:code', requireAuth, (req, res) => {
   <script src="/socket.io/socket.io.js"></script>
   <script>
     window.ROOM_CODE    = ${JSON.stringify(room.code)};
-    window.CURRENT_USER = ${JSON.stringify({ id: userId, name: userName })};
+    window.CURRENT_USER = ${JSON.stringify({ id: userId, name: userName, email: user ? user.email : '' })};
+    window.ROOM_HOST    = ${JSON.stringify(hostEmail)};
   </script>
   <script src="/js/room.js?v=1"></script>
   <script src="/js/library.js?v=8"></script>`,

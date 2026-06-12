@@ -3,6 +3,9 @@
 
   var currentStudy      = null;
   var roomCode          = window.ROOM_CODE;
+  var isHost            = !!(window.CURRENT_USER && window.CURRENT_USER.email === window.ROOM_HOST);
+
+  console.log('isHost: ' + isHost);
 
   var generateBtn       = document.getElementById('roomGenerateBtn');
   var topicInput        = document.getElementById('roomTopicInput');
