@@ -183,10 +183,27 @@ router.get('/room/:code', requireAuth, (req, res) => {
     window.ROOM_CODE    = ${JSON.stringify(room.code)};
     window.CURRENT_USER = ${JSON.stringify({ id: userId, name: userName, email: user ? user.email : '' })};
     window.ROOM_HOST    = ${JSON.stringify(hostEmail)};
+    window.ROOM_STUDY   = ${room.study ? JSON.stringify(room.study) : 'null'};
   </script>
-  <script src="/js/room.js?v=1"></script>
+  <script src="/js/room.js?v=2"></script>
   <script src="/js/library.js?v=8"></script>`,
   }));
+});
+
+// ─── POST /api/rooms/:code/save-study ────────────────────────────────────────
+
+router.post('/api/rooms/:code/save-study', requireAuth, (req, res) => {
+  const code  = req.params.code.toUpperCase();
+  const rooms = readRooms();
+  const idx   = rooms.findIndex(r => r.code === code);
+
+  if (idx === -1) return res.status(404).json({ success: false, error: 'Room not found.' });
+
+  const { topic, content, translation } = req.body;
+  rooms[idx].study = { topic: topic || '', content: content || '', translation: translation || '' };
+  writeRooms(rooms);
+
+  res.json({ success: true });
 });
 
 // ─── POST /api/rooms/create ───────────────────────────────────────────────────

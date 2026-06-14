@@ -2,6 +2,7 @@
   'use strict';
 
   var currentStudy      = null;
+  var currentAbortCtrl  = null;
   var roomCode          = window.ROOM_CODE;
   var isHost            = !!(window.CURRENT_USER && window.CURRENT_USER.email === window.ROOM_HOST);
 
@@ -93,6 +94,23 @@
   }
 
   // ── Generate Study ─────────────────────────────────────────────────────────
+
+  // Inject Cancel button into the search bar, hidden by default
+  var cancelBtn = null;
+  if (generateBtn && generateBtn.parentNode) {
+    cancelBtn = document.createElement('button');
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.className   = 'btn-warm';
+    cancelBtn.style.display = 'none';
+    generateBtn.parentNode.insertBefore(cancelBtn, generateBtn.nextSibling);
+  }
+
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', function () {
+      if (currentAbortCtrl) currentAbortCtrl.abort();
+    });
+  }
+
   if (generateBtn) {
     generateBtn.addEventListener('click', function () {
       var topic = topicInput ? topicInput.value.trim() : '';
@@ -111,26 +129,38 @@
   }
 
   async function generateStudy(topic) {
+    currentAbortCtrl = new AbortController();
+
     if (roomLoading)  roomLoading.style.display  = 'flex';
     if (guideArea)    guideArea.style.display     = 'none';
     if (generateBtn)  generateBtn.disabled        = true;
+    if (cancelBtn)    cancelBtn.style.display     = 'inline-block';
 
     try {
       var res  = await fetch('/api/study/generate', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ topic: topic }),
+        signal:  currentAbortCtrl.signal,
       });
       var data = await res.json();
       if (!data.success) throw new Error(data.error || 'Generation failed.');
 
       displayStudy(data);
       socket.emit('room-study-result', { roomCode: roomCode, data: data });
+
+      fetch('/api/rooms/' + encodeURIComponent(roomCode) + '/save-study', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ topic: data.topic, content: data.content, translation: data.translation }),
+      }).catch(function () {});
     } catch (err) {
       if (roomLoading) roomLoading.style.display = 'none';
-      showToast('Error: ' + err.message, true);
+      if (err.name !== 'AbortError') showToast('Error: ' + err.message, true);
     } finally {
-      if (generateBtn) generateBtn.disabled = false;
+      if (generateBtn)  generateBtn.disabled    = false;
+      if (cancelBtn)    cancelBtn.style.display = 'none';
+      currentAbortCtrl = null;
     }
   }
 
@@ -349,5 +379,9 @@
 
   // ── Init ───────────────────────────────────────────────────────────────────
   loadMemberCount();
+
+  if (window.ROOM_STUDY) {
+    displayStudy(window.ROOM_STUDY);
+  }
 
 }());
