@@ -191,6 +191,7 @@ io.on('connection', (socket) => {
   socket.on('join-room', (roomCode) => {
     console.log('join-room received: ' + roomCode);
     socket.join(roomCode);
+    socket.to(roomCode).emit('room-member-joined', { roomCode });
   });
 
   socket.on('room-study-result', ({ roomCode, data }) => {

@@ -110,6 +110,10 @@ router.get('/room/:code', requireAuth, (req, res) => {
           <button onclick="(function(btn){navigator.clipboard.writeText('${room.code}').then(function(){var orig=btn.textContent;btn.textContent='Copied!';setTimeout(function(){btn.textContent=orig;},1500);});})(this)" style="background:transparent;border:1px solid #5C1A28;color:#5C1A28;border-radius:4px;padding:2px 8px;font-size:0.8rem;cursor:pointer;">Copy</button>
         </div>
         <div id="roomCurrentTopic" style="font-style:italic;color:#5C1A28;font-size:0.95rem;margin-top:0.25rem;">${room.study && room.study.topic ? 'Currently studying: ' + room.study.topic.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : ''}</div>
+        <div id="roomMembersList" style="margin-top:0.5rem;">
+          <span style="font-size:0.8rem;color:var(--text-muted);">In this room:</span>
+          <span id="roomMembersBadges"></span>
+        </div>
       </div>
 
       <div class="study-search-bar" style="display:flex;gap:0.75rem;align-items:center;margin-bottom:1.5rem;">
@@ -170,7 +174,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
     window.ROOM_STUDY       = ${room.study ? JSON.stringify(room.study) : 'null'};
     window.ROOM_STUDY_LEVEL = ${JSON.stringify(room.studyLevel || 'journeyman')};
   </script>
-  <script src="/js/room.js?v=2"></script>
+  <script src="/js/room.js?v=3"></script>
   <script src="/js/library.js?v=8"></script>`,
   }));
 });
@@ -308,6 +312,29 @@ router.get('/api/rooms/list', requireAuth, (req, res) => {
     r.visibility === 'open' || r.host === userId || r.members.includes(userId)
   );
   res.json({ success: true, rooms: visible });
+});
+
+// ─── GET /api/rooms/:code/members ────────────────────────────────────────────
+
+router.get('/api/rooms/:code/members', requireAuth, (req, res) => {
+  const code  = req.params.code.toUpperCase();
+  const rooms = readRooms();
+  const room  = rooms.find(r => r.code === code);
+
+  if (!room) return res.status(404).json({ success: false, error: 'Room not found.' });
+
+  const users   = readUsers();
+  const members = (room.members || []).map(memberId => {
+    const user = users.find(u => u.id === memberId);
+    return {
+      id:     memberId,
+      name:   user ? user.fullName : 'Unknown',
+      email:  user ? user.email : '',
+      isHost: memberId === room.host,
+    };
+  });
+
+  res.json({ success: true, members });
 });
 
 module.exports = router;

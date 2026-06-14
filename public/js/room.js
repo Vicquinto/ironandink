@@ -66,8 +66,13 @@
   });
 
 
+  socket.on('room-member-joined', function () {
+    loadMembersList();
+  });
+
   socket.on('room-chat-message', function (data) {
     appendChatMessage(data.senderName, data.message);
+    loadMembersList();
   });
 
   socket.on('room-tooltip-broadcast', function (data) {
@@ -82,6 +87,23 @@
     chatMessages.appendChild(div);
     chatMessages.scrollTop = chatMessages.scrollHeight;
   });
+
+  // ── Members list ──────────────────────────────────────────────────────────
+  function loadMembersList() {
+    fetch('/api/rooms/' + encodeURIComponent(roomCode) + '/members')
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.success) return;
+        var container = document.getElementById('roomMembersBadges');
+        if (!container) return;
+        container.innerHTML = ' ' + (data.members || []).map(function (m) {
+          return '<span style="background:#f5ede0;border:1px solid #c4a882;border-radius:12px;padding:2px 10px;font-size:0.8rem;margin-right:4px;display:inline-block;">' +
+            (m.isHost ? '&#9679; ' : '') + escHtml(m.name) +
+          '</span>';
+        }).join('');
+      })
+      .catch(function () {});
+  }
 
   // ── Member count ───────────────────────────────────────────────────────────
   function loadMemberCount() {
@@ -389,6 +411,7 @@
 
   // ── Init ───────────────────────────────────────────────────────────────────
   loadMemberCount();
+  loadMembersList();
 
   if (window.ROOM_STUDY) {
     displayStudy(window.ROOM_STUDY);
