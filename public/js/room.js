@@ -289,12 +289,34 @@
   if (isHost) {
     var roomHeader = document.querySelector('.room-header');
     if (roomHeader) {
-      var endBtn = document.createElement('button');
-      endBtn.textContent = 'End Study';
-      endBtn.style.cssText = 'background:#8B0000;color:#fff;border:none;border-radius:4px;padding:3px 10px;font-size:0.78rem;cursor:pointer;margin-top:0.5rem;';
-      endBtn.addEventListener('click', async function () {
-        if (!confirm('End this study and close the room for everyone?')) return;
-        endBtn.disabled = true;
+      // ── End Study modal ──────────────────────────────────────────────────
+      var endModal = document.createElement('div');
+      endModal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;';
+      endModal.innerHTML =
+        '<div style="background:#E8D9B8;border:1px solid #5C1A28;border-radius:8px;padding:2rem 2.25rem;max-width:380px;width:90%;font-family:\'EB Garamond\',Georgia,serif;box-shadow:0 8px 32px rgba(0,0,0,0.35);">' +
+          '<h4 style="margin:0 0 0.75rem;color:#5C1A28;font-size:1.15rem;font-weight:600;">End Study Session</h4>' +
+          '<p style="margin:0 0 1.5rem;color:#3a2a1a;font-size:0.97rem;line-height:1.55;">This will close the room for everyone. Are you sure?</p>' +
+          '<div style="display:flex;gap:0.75rem;justify-content:flex-end;">' +
+            '<button class="btn-warm" id="endModalCancel">Cancel</button>' +
+            '<button id="endModalConfirm" style="background:#8B0000;color:#fff;border:none;border-radius:4px;padding:6px 16px;font-size:0.9rem;font-family:inherit;cursor:pointer;">End Study</button>' +
+          '</div>' +
+        '</div>';
+      document.body.appendChild(endModal);
+
+      var endModalCancel  = endModal.querySelector('#endModalCancel');
+      var endModalConfirm = endModal.querySelector('#endModalConfirm');
+
+      endModalCancel.addEventListener('click', function () {
+        endModal.style.display = 'none';
+      });
+
+      endModal.addEventListener('click', function (e) {
+        if (e.target === endModal) endModal.style.display = 'none';
+      });
+
+      endModalConfirm.addEventListener('click', async function () {
+        endModalConfirm.disabled = true;
+        endModalConfirm.textContent = 'Closing…';
         try {
           var r    = await fetch('/api/rooms/' + encodeURIComponent(roomCode), { method: 'DELETE' });
           var data = await r.json();
@@ -302,12 +324,24 @@
             window.location.href = '/rooms';
           } else {
             showToast('Error: ' + (data.error || 'Could not close room.'), true);
-            endBtn.disabled = false;
+            endModal.style.display = 'none';
+            endModalConfirm.disabled = false;
+            endModalConfirm.textContent = 'End Study';
           }
         } catch (err) {
           showToast('Error: ' + err.message, true);
-          endBtn.disabled = false;
+          endModal.style.display = 'none';
+          endModalConfirm.disabled = false;
+          endModalConfirm.textContent = 'End Study';
         }
+      });
+
+      // ── End Study trigger button ─────────────────────────────────────────
+      var endBtn = document.createElement('button');
+      endBtn.textContent = 'End Study';
+      endBtn.style.cssText = 'background:#8B0000;color:#fff;border:none;border-radius:4px;padding:3px 10px;font-size:0.78rem;cursor:pointer;margin-top:0.5rem;';
+      endBtn.addEventListener('click', function () {
+        endModal.style.display = 'flex';
       });
       roomHeader.appendChild(endBtn);
     }
