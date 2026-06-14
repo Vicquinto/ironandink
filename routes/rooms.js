@@ -102,6 +102,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
         <h2 class="room-title" id="roomTitle">${safeName}</h2>
         <div class="room-meta">
           <span id="roomHostLabel">Host: ${room.hostName.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>
+          <span style="background:#A0845C;color:#fff;border-radius:4px;padding:2px 10px;font-size:0.8rem;margin-left:0.5rem;">${{ foundations: 'Foundations', journeyman: 'Journeyman', scholar: 'Scholar' }[room.studyLevel || 'journeyman'] || 'Journeyman'}</span>
           <span id="roomMembersLabel"></span>
         </div>
         <div style="margin-top:0.5rem;display:flex;align-items:center;gap:0.5rem;">
