@@ -37,6 +37,7 @@ const AMENS_PATH           = path.join(__dirname, '../data/community.json');
 const COMMENTS_PATH        = path.join(__dirname, '../data/comments.json');
 const INVITES_PATH         = path.join(__dirname, '../data/invites.json');
 const INVITE_REQUESTS_PATH = path.join(__dirname, '../data/invite_requests.json');
+const ROOMS_PATH           = path.join(__dirname, '../data/rooms.json');
 
 function requireAdmin(req, res, next) {
   if (!req.session.userId) return res.redirect('/');
@@ -76,6 +77,7 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
         <button class="admin-tab active" data-tab="pending">Pending Submissions</button>
         <button class="admin-tab" data-tab="published">Published Articles</button>
         <button class="admin-tab" data-tab="invitations">Invitations</button>
+        <button class="admin-tab" data-tab="rooms">Live Rooms</button>
       </div>
 
       <div id="adminTabPending" class="admin-tab-content">
@@ -86,6 +88,11 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
       <div id="adminTabPublished" class="admin-tab-content" style="display:none;">
         <div id="publishedList" class="article-list-container"></div>
         <p id="publishedEmpty" class="writing-empty" style="display:none;">No published articles.</p>
+      </div>
+
+      <div id="adminTabRooms" class="admin-tab-content" style="display:none;">
+        <div id="adminRoomsList"></div>
+        <p id="adminRoomsEmpty" class="writing-empty" style="display:none;">No active rooms.</p>
       </div>
 
       <div id="adminTabInvitations" class="admin-tab-content" style="display:none;">
@@ -412,6 +419,24 @@ router.delete('/api/admin/invites/:id', requireAuth, requireAdmin, (req, res) =>
   invites.splice(idx, 1);
   writeJSON(INVITES_PATH, invites);
   res.json({ success: true });
+});
+
+// ─── GET /api/admin/rooms ────────────────────────────────────────────────────
+router.get('/api/admin/rooms', requireAuth, requireAdmin, (req, res) => {
+  const rooms = readJSON(ROOMS_PATH);
+  const users = readJSON(USERS_PATH);
+  const result = rooms.map(r => {
+    const host = users.find(u => u.id === r.host);
+    return {
+      code:        r.code,
+      name:        r.name,
+      hostName:    r.hostName || (host ? host.fullName : 'Unknown'),
+      memberCount: Array.isArray(r.members) ? r.members.length : 0,
+      createdAt:   r.createdAt,
+      visibility:  r.visibility,
+    };
+  }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  res.json({ success: true, rooms: result });
 });
 
 module.exports = router;

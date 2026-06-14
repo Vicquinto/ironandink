@@ -2,7 +2,7 @@ const express        = require('express');
 const fs             = require('fs');
 const path           = require('path');
 const { randomUUID } = require('crypto');
-const { requireAuth, renderLayout } = require('./layout');
+const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
 
 const router     = express.Router();
 const ROOMS_PATH = path.join(__dirname, '../data/rooms.json');
@@ -265,6 +265,33 @@ router.post('/api/rooms/notifications/read', requireAuth, (req, res) => {
   const notif = (users[idx].notifications || []).find(n => n.id === id);
   if (notif) notif.read = true;
   writeUsers(users);
+
+  res.json({ success: true });
+});
+
+// ─── DELETE /api/rooms/:code ──────────────────────────────────────────────────
+
+router.delete('/api/rooms/:code', requireAuth, (req, res) => {
+  const code  = req.params.code.toUpperCase();
+  const rooms = readRooms();
+  const idx   = rooms.findIndex(r => r.code === code);
+
+  if (idx === -1) return res.status(404).json({ success: false, error: 'Room not found.' });
+
+  const room    = rooms[idx];
+  const userId  = req.session.userId;
+  const isHost  = room.host === userId;
+  const isAdmin = getIsAdmin(req);
+
+  if (!isHost && !isAdmin) {
+    return res.status(403).json({ success: false, error: 'Not authorized.' });
+  }
+
+  rooms.splice(idx, 1);
+  writeRooms(rooms);
+
+  const io = req.app.locals.io;
+  if (io) io.to(code).emit('room-closed', { code });
 
   res.json({ success: true });
 });

@@ -54,6 +54,11 @@
     displayStudy(data);
   });
 
+  socket.on('room-closed', function () {
+    showToast('The host has ended this study. Redirecting…');
+    setTimeout(function () { window.location.href = '/rooms'; }, 1800);
+  });
+
 
   socket.on('room-chat-message', function (data) {
     appendChatMessage(data.senderName, data.message);
@@ -279,6 +284,33 @@
   if (!isHost) {
     var searchBar = document.querySelector('.study-search-bar');
     if (searchBar) searchBar.style.display = 'none';
+  }
+
+  if (isHost) {
+    var roomHeader = document.querySelector('.room-header');
+    if (roomHeader) {
+      var endBtn = document.createElement('button');
+      endBtn.textContent = 'End Study';
+      endBtn.style.cssText = 'background:#8B0000;color:#fff;border:none;border-radius:4px;padding:3px 10px;font-size:0.78rem;cursor:pointer;margin-top:0.5rem;';
+      endBtn.addEventListener('click', async function () {
+        if (!confirm('End this study and close the room for everyone?')) return;
+        endBtn.disabled = true;
+        try {
+          var r    = await fetch('/api/rooms/' + encodeURIComponent(roomCode), { method: 'DELETE' });
+          var data = await r.json();
+          if (data.success) {
+            window.location.href = '/rooms';
+          } else {
+            showToast('Error: ' + (data.error || 'Could not close room.'), true);
+            endBtn.disabled = false;
+          }
+        } catch (err) {
+          showToast('Error: ' + err.message, true);
+          endBtn.disabled = false;
+        }
+      });
+      roomHeader.appendChild(endBtn);
+    }
   }
 
   // ── Init ───────────────────────────────────────────────────────────────────

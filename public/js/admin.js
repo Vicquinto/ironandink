@@ -23,6 +23,10 @@
   var adminTabPending     = document.getElementById('adminTabPending');
   var adminTabPublished   = document.getElementById('adminTabPublished');
   var adminTabInvitations = document.getElementById('adminTabInvitations');
+  var adminTabRooms       = document.getElementById('adminTabRooms');
+
+  var adminRoomsList  = document.getElementById('adminRoomsList');
+  var adminRoomsEmpty = document.getElementById('adminRoomsEmpty');
 
   var inviteRequestList  = document.getElementById('inviteRequestList');
   var inviteRequestEmpty = document.getElementById('inviteRequestEmpty');
@@ -90,7 +94,9 @@
       adminTabPending.style.display     = which === 'pending'     ? 'block' : 'none';
       adminTabPublished.style.display   = which === 'published'   ? 'block' : 'none';
       adminTabInvitations.style.display = which === 'invitations' ? 'block' : 'none';
+      if (adminTabRooms) adminTabRooms.style.display = which === 'rooms' ? 'block' : 'none';
       if (which === 'invitations') { loadInviteRequests(); loadSentInvites(); }
+      if (which === 'rooms') { loadAdminRooms(); }
     });
   });
 
@@ -513,6 +519,62 @@
         '</div>' +
       '</div>';
     }).join('');
+  }
+
+  // ── Admin room management ─────────────────────────────────────────────────
+  async function loadAdminRooms() {
+    if (!adminRoomsList) return;
+    adminRoomsList.innerHTML = '<p class="writing-empty">Loading…</p>';
+    try {
+      var res  = await fetch('/api/admin/rooms');
+      var data = await res.json();
+      renderAdminRooms(data.rooms || []);
+    } catch (err) {
+      adminRoomsList.innerHTML = '<p class="writing-empty">Could not load rooms.</p>';
+    }
+  }
+
+  function renderAdminRooms(rooms) {
+    if (!rooms.length) {
+      if (adminRoomsEmpty) adminRoomsEmpty.style.display = 'block';
+      if (adminRoomsList)  adminRoomsList.innerHTML = '';
+      return;
+    }
+    if (adminRoomsEmpty) adminRoomsEmpty.style.display = 'none';
+
+    adminRoomsList.innerHTML = rooms.map(function (r) {
+      return '<div class="article-card">' +
+        '<div class="article-card-header">' +
+          '<span class="article-card-title">' + esc(r.name) + '</span>' +
+          '<span class="article-status-badge status-published">' + esc(r.visibility || 'open') + '</span>' +
+        '</div>' +
+        '<div class="article-card-meta">' +
+          '<span style="font-family:\'Courier New\',monospace; font-size:0.85rem; color:var(--warm-brown);">' + esc(r.code) + '</span>' +
+          '<span class="community-card-author">Host: ' + esc(r.hostName) + '</span>' +
+          '<span class="article-card-date">' + r.memberCount + ' member' + (r.memberCount !== 1 ? 's' : '') + '</span>' +
+          '<span class="article-card-date">Created ' + fmtDate(r.createdAt) + '</span>' +
+        '</div>' +
+        '<div style="display:flex; gap:10px; margin-top:12px;">' +
+          '<button class="btn-reject admin-room-delete-btn" data-code="' + esc(r.code) + '" style="font-size:0.82rem; padding:6px 14px;">Delete Room</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    adminRoomsList.querySelectorAll('.admin-room-delete-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var code = btn.getAttribute('data-code');
+        showConfirm('Delete room ' + code + '? All members will be redirected.', 'Delete', async function () {
+          btn.disabled = true;
+          btn.textContent = 'Deleting…';
+          try {
+            var res  = await fetch('/api/rooms/' + encodeURIComponent(code), { method: 'DELETE' });
+            var data = await res.json();
+            if (data.success) { showToast('Room closed.'); loadAdminRooms(); }
+            else { showToast('Error: ' + (data.error || 'Delete failed.'), true); btn.disabled = false; btn.textContent = 'Delete Room'; }
+          } catch (err) { showToast('Error: ' + err.message, true); btn.disabled = false; btn.textContent = 'Delete Room'; }
+        });
+      });
+    });
   }
 
   loadPending();

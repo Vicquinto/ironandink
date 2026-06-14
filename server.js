@@ -185,6 +185,7 @@ const { Server } = require('socket.io');
 
 const httpServer = http.createServer(app);
 const io         = new Server(httpServer);
+app.locals.io    = io;
 
 io.on('connection', (socket) => {
   socket.on('join-room', (roomCode) => {
