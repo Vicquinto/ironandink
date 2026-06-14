@@ -60,6 +60,11 @@
     setTimeout(function () { window.location.href = '/rooms'; }, 1800);
   });
 
+  socket.on('room-topic-update', function (data) {
+    var topicEl = document.getElementById('roomCurrentTopic');
+    if (topicEl && data.topic) topicEl.textContent = 'Currently studying: ' + data.topic;
+  });
+
 
   socket.on('room-chat-message', function (data) {
     appendChatMessage(data.senderName, data.message);
@@ -173,6 +178,11 @@
     if (guideBody)       guideBody.innerHTML     = renderMarkdown(data.content || '');
     if (roomLoading)     roomLoading.style.display   = 'none';
     if (guideArea)       guideArea.style.display     = 'block';
+
+    var topicEl = document.getElementById('roomCurrentTopic');
+    if (topicEl && data.topic) topicEl.textContent = 'Currently studying: ' + data.topic;
+
+    socket.emit('room-topic-update', { roomCode: roomCode, topic: data.topic });
   }
 
   // ── Save to Library ────────────────────────────────────────────────────────

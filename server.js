@@ -211,6 +211,10 @@ io.on('connection', (socket) => {
     io.to(roomCode).emit('room-tooltip-broadcast', { type, term, response });
   });
 
+  socket.on('room-topic-update', ({ roomCode, topic }) => {
+    socket.to(roomCode).emit('room-topic-update', { topic });
+  });
+
   socket.on('disconnect', () => {
     console.log(`Socket disconnected: ${socket.id}`);
   });

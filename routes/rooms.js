@@ -109,6 +109,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
           <span style="font-weight:600;color:#5C1A28;font-size:0.9rem;">Room Code: ${room.code}</span>
           <button onclick="(function(btn){navigator.clipboard.writeText('${room.code}').then(function(){var orig=btn.textContent;btn.textContent='Copied!';setTimeout(function(){btn.textContent=orig;},1500);});})(this)" style="background:transparent;border:1px solid #5C1A28;color:#5C1A28;border-radius:4px;padding:2px 8px;font-size:0.8rem;cursor:pointer;">Copy</button>
         </div>
+        <div id="roomCurrentTopic" style="font-style:italic;color:#5C1A28;font-size:0.95rem;margin-top:0.25rem;">${room.study && room.study.topic ? 'Currently studying: ' + room.study.topic.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : ''}</div>
       </div>
 
       <div class="study-search-bar" style="display:flex;gap:0.75rem;align-items:center;margin-bottom:1.5rem;">
