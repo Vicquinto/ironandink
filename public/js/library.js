@@ -736,7 +736,6 @@
       } else {
         defEl.innerHTML = renderMarkdown(data.definition);
         if (window.ROOM_CODE && window.isHost) {
-          console.log('ROOM_CODE: ' + window.ROOM_CODE + ' isHost: ' + window.isHost + ' socket: ' + !!window.roomSocket);
           var _defPayload = { roomCode: window.ROOM_CODE, type: 'Define', term: upSelectedText, response: data.definition };
           if (window.roomSocket) {
             window.roomSocket.emit('room-tooltip-broadcast', _defPayload);
@@ -790,7 +789,6 @@
       } else {
         verseEl.innerHTML = renderMarkdown(data.verse);
         if (window.ROOM_CODE && window.isHost) {
-          console.log('ROOM_CODE: ' + window.ROOM_CODE + ' isHost: ' + window.isHost + ' socket: ' + !!window.roomSocket);
           var _versePayload = { roomCode: window.ROOM_CODE, type: 'Verse Lookup', term: upSelectedText, response: data.verse };
           if (window.roomSocket) {
             window.roomSocket.emit('room-tooltip-broadcast', _versePayload);
@@ -841,7 +839,6 @@
       if (data.success) {
         resp.innerHTML = renderMarkdown(data.answer);
         if (window.ROOM_CODE && window.isHost) {
-          console.log('ROOM_CODE: ' + window.ROOM_CODE + ' isHost: ' + window.isHost + ' socket: ' + !!window.roomSocket);
           var _aiPayload = { roomCode: window.ROOM_CODE, type: 'Ask AI', term: upSelectedText, response: data.answer };
           if (window.roomSocket) {
             window.roomSocket.emit('room-tooltip-broadcast', _aiPayload);
