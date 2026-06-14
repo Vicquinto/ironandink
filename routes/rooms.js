@@ -165,7 +165,8 @@ router.get('/room/:code', requireAuth, (req, res) => {
     window.ROOM_CODE    = ${JSON.stringify(room.code)};
     window.CURRENT_USER = ${JSON.stringify({ id: userId, name: userName, email: user ? user.email : '' })};
     window.ROOM_HOST    = ${JSON.stringify(hostEmail)};
-    window.ROOM_STUDY   = ${room.study ? JSON.stringify(room.study) : 'null'};
+    window.ROOM_STUDY       = ${room.study ? JSON.stringify(room.study) : 'null'};
+    window.ROOM_STUDY_LEVEL = ${JSON.stringify(room.studyLevel || 'journeyman')};
   </script>
   <script src="/js/room.js?v=2"></script>
   <script src="/js/library.js?v=8"></script>`,
@@ -191,7 +192,7 @@ router.post('/api/rooms/:code/save-study', requireAuth, (req, res) => {
 // ─── POST /api/rooms/create ───────────────────────────────────────────────────
 
 router.post('/api/rooms/create', requireAuth, (req, res) => {
-  const { name, visibility, inviteEmail } = req.body;
+  const { name, visibility, inviteEmail, studyLevel } = req.body;
   if (!name || !String(name).trim()) {
     return res.status(400).json({ success: false, error: 'Room name is required.' });
   }
@@ -211,10 +212,11 @@ router.post('/api/rooms/create', requireAuth, (req, res) => {
     name:       String(name).trim(),
     host:       userId,
     hostName:   host ? host.fullName : 'Unknown',
-    visibility: visibility === 'private' ? 'private' : 'open',
-    members:    [userId],
-    createdAt:  now,
-    study:      null,
+    visibility:  visibility === 'private' ? 'private' : 'open',
+    studyLevel:  ['foundations', 'journeyman', 'scholar'].includes(studyLevel) ? studyLevel : 'journeyman',
+    members:     [userId],
+    createdAt:   now,
+    study:       null,
   };
 
   rooms.push(room);

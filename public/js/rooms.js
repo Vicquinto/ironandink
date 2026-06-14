@@ -10,6 +10,7 @@
   var roomNameInput     = document.getElementById('roomNameInput');
   var roomInviteEmail   = document.getElementById('roomInviteEmail');
   var roomVisibility    = document.getElementById('roomVisibility');
+  var roomStudyLevel    = document.getElementById('roomStudyLevel');
   var createError       = document.getElementById('roomsCreateError');
   var notifSection      = document.getElementById('roomsNotifications');
   var notifList         = document.getElementById('roomsNotifList');
@@ -126,6 +127,13 @@
         '<label style="display:block;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.05em;color:#5C1A28;margin-bottom:0.35rem;">Room Name</label>' +
         '<input type="text" id="roomNameInput" placeholder="e.g. Romans Study – Week 3" maxlength="80" autocomplete="off" style="width:100%;box-sizing:border-box;padding:0.55rem 0.75rem;border:1px solid #c4a882;border-radius:6px;background:#fff;font-size:0.97rem;margin-bottom:1rem;">' +
 
+        '<label style="display:block;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.05em;color:#5C1A28;margin-bottom:0.35rem;">Study Level</label>' +
+        '<select id="roomStudyLevel" style="width:100%;box-sizing:border-box;padding:0.55rem 0.75rem;border:1px solid #c4a882;border-radius:6px;background:#fff;font-size:0.97rem;margin-bottom:1rem;">' +
+          '<option value="foundations">Foundations — Beginner</option>' +
+          '<option value="journeyman" selected>Journeyman — Intermediate</option>' +
+          '<option value="scholar">Scholar — Advanced</option>' +
+        '</select>' +
+
         '<label style="display:block;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.05em;color:#5C1A28;margin-bottom:0.35rem;">Invite by Email <span style="font-weight:400;opacity:0.7;text-transform:none;">(optional)</span></label>' +
         '<input type="email" id="roomInviteEmail" placeholder="member@example.com" autocomplete="off" style="width:100%;box-sizing:border-box;padding:0.55rem 0.75rem;border:1px solid #c4a882;border-radius:6px;background:#fff;font-size:0.97rem;margin-bottom:1rem;">' +
 
@@ -151,6 +159,7 @@
   roomNameInput   = document.getElementById('roomNameInput');
   roomInviteEmail = document.getElementById('roomInviteEmail');
   roomVisibility  = document.getElementById('roomVisibility');
+  roomStudyLevel  = document.getElementById('roomStudyLevel');
   createError     = document.getElementById('roomsCreateError');
 
   startRoomBtn.addEventListener('click', function () {
@@ -158,6 +167,7 @@
     roomNameInput.value       = '';
     roomInviteEmail.value     = '';
     roomVisibility.value      = 'open';
+    roomStudyLevel.value      = 'journeyman';
     createModal.style.display = 'flex';
     roomNameInput.focus();
   });
@@ -188,7 +198,7 @@
     fetch('/api/rooms/create', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ name: name, visibility: visibility, inviteEmail: inviteEmail }),
+      body:    JSON.stringify({ name: name, visibility: visibility, inviteEmail: inviteEmail, studyLevel: roomStudyLevel.value }),
     })
     .then(function (r) { return r.json(); })
     .then(function (data) {

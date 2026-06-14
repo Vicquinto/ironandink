@@ -434,7 +434,7 @@ router.get('/study', requireAuth, (req, res) => {
 
 // ─── POST /api/study/generate ────────────────────────────────────────────────
 router.post('/api/study/generate', requireAuth, async (req, res) => {
-  const { topic } = req.body;
+  const { topic, studyLevel } = req.body;
   if (!topic || !topic.trim()) {
     return res.status(400).json({ success: false, error: 'Topic is required.' });
   }
@@ -443,7 +443,9 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
   const translation  = (userSettings && userSettings.bibleTranslation) || 'LSB';
 
   const { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT } = req.app.locals.prompts;
-  const studyLevelInstruction = getStudyLevelInstruction(userSettings);
+  const studyLevelInstruction = (studyLevel && STUDY_LEVEL_INSTRUCTIONS[studyLevel])
+    ? STUDY_LEVEL_INSTRUCTIONS[studyLevel]
+    : getStudyLevelInstruction(userSettings);
   const systemPrompt = studyLevelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_STUDY_PROMPT;
 
   try {

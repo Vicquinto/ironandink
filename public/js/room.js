@@ -140,7 +140,7 @@
       var res  = await fetch('/api/study/generate', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ topic: topic }),
+        body:    JSON.stringify({ topic: topic, studyLevel: window.ROOM_STUDY_LEVEL || '' }),
         signal:  currentAbortCtrl.signal,
       });
       var data = await res.json();
