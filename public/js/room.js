@@ -23,6 +23,8 @@
   var fontDecBtn        = document.getElementById('roomFontDecBtn');
   var fontResetBtn      = document.getElementById('roomFontResetBtn');
   var fontIncBtn        = document.getElementById('roomFontIncBtn');
+  var loadLibraryBtn    = document.getElementById('roomLoadLibraryBtn');
+  var libraryPanel      = document.getElementById('roomLibraryPanel');
 
   // ── Font size control ─────────────────────────────────────────────────────
   var FONT_DEFAULT  = 16;
@@ -118,6 +120,53 @@
         }
       })
       .catch(function () {});
+  }
+
+  // ── Load from Library ──────────────────────────────────────────────────────
+  function loadLibraryPanel() {
+    if (!libraryPanel) return;
+    libraryPanel.innerHTML = '<p style="font-size:0.9rem;color:var(--text-muted);">Loading…</p>';
+    libraryPanel.style.display = 'block';
+
+    fetch('/api/library')
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var studies = (data.success && data.studies) ? data.studies : [];
+        if (!studies.length) {
+          libraryPanel.innerHTML = '<p style="font-size:0.9rem;color:var(--text-muted);">No saved studies yet.</p>';
+          return;
+        }
+
+        var studyMap = {};
+        studies.forEach(function (s) { studyMap[s.id] = s; });
+
+        libraryPanel.innerHTML = studies.map(function (s) {
+          var date = new Date(s.savedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          return '<div class="room-lib-card" data-id="' + escHtml(s.id) + '" style="padding:0.6rem 0.75rem;border:1px solid #c4a882;border-radius:6px;margin-bottom:0.5rem;cursor:pointer;background:#fff;font-size:0.9rem;">' +
+            '<div style="font-weight:600;color:#3a2a1a;">' + escHtml(s.topic) + '</div>' +
+            '<div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;">' + date + '</div>' +
+          '</div>';
+        }).join('');
+
+        libraryPanel.querySelectorAll('.room-lib-card').forEach(function (card) {
+          card.addEventListener('click', function () {
+            var study = studyMap[card.dataset.id];
+            if (!study) return;
+            var studyData = { topic: study.topic, content: study.content, translation: study.translation || 'LSB', success: true };
+            displayStudy(studyData);
+            socket.emit('room-study-result', { roomCode: roomCode, data: studyData });
+            fetch('/api/rooms/' + encodeURIComponent(roomCode) + '/save-study', {
+              method:  'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body:    JSON.stringify({ topic: study.topic, content: study.content, translation: study.translation || 'LSB' }),
+            }).catch(function () {});
+            libraryPanel.style.display = 'none';
+          });
+        });
+      })
+      .catch(function () {
+        libraryPanel.innerHTML = '<p style="font-size:0.9rem;color:#c05050;">Failed to load library.</p>';
+      });
   }
 
   // ── Generate Study ─────────────────────────────────────────────────────────
@@ -349,6 +398,16 @@
   }
 
   if (isHost) {
+    if (loadLibraryBtn) {
+      loadLibraryBtn.addEventListener('click', function () {
+        if (libraryPanel && libraryPanel.style.display !== 'none') {
+          libraryPanel.style.display = 'none';
+          return;
+        }
+        loadLibraryPanel();
+      });
+    }
+
     var roomHeader = document.querySelector('.room-header');
     if (roomHeader) {
       // ── End Study modal ──────────────────────────────────────────────────

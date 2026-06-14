@@ -121,6 +121,11 @@ router.get('/room/:code', requireAuth, (req, res) => {
         <button id="roomGenerateBtn" class="btn-warm" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.6rem 1.5rem;font-size:1rem;cursor:pointer;white-space:nowrap;">Generate Study</button>
       </div>
 
+      ${room.host === userId ? `
+      <button id="roomLoadLibraryBtn" style="border:1px solid #5C1A28;color:#5C1A28;background:transparent;border-radius:6px;padding:0.4rem 1rem;font-size:0.9rem;cursor:pointer;margin-top:0.5rem;">Load from Library</button>
+      <div id="roomLibraryPanel" style="display:none;background:#f5ede0;border:1px solid #c4a882;border-radius:8px;padding:1rem;margin-top:0.75rem;max-height:300px;overflow-y:auto;"></div>
+      ` : ''}
+
       <div id="roomLoading" class="study-loading" style="display:none;">
         <div class="study-spinner"></div>
         <p>Generating study for everyone in the room…</p>
@@ -174,7 +179,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
     window.ROOM_STUDY       = ${room.study ? JSON.stringify(room.study) : 'null'};
     window.ROOM_STUDY_LEVEL = ${JSON.stringify(room.studyLevel || 'journeyman')};
   </script>
-  <script src="/js/room.js?v=3"></script>
+  <script src="/js/room.js?v=4"></script>
   <script src="/js/library.js?v=8"></script>`,
   }));
 });
