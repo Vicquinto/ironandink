@@ -60,25 +60,7 @@ router.get('/rooms', requireAuth, (req, res) => {
       <p class="rooms-empty" id="roomsEmpty">No open rooms right now.</p>
     </div>
 
-    <div class="rooms-create-modal" id="roomsCreateModal" style="display:none;">
-      <div class="rooms-create-card">
-        <h4 class="rooms-create-heading">Start a Shared Study</h4>
-        <label class="rooms-label">Room Name</label>
-        <input type="text" class="rooms-input" id="roomNameInput" placeholder="e.g. Romans Study – Week 3" maxlength="80">
-        <label class="rooms-label">Invite by Email <span style="font-weight:400;opacity:0.7;">(optional)</span></label>
-        <input type="email" class="rooms-input" id="roomInviteEmail" placeholder="member@example.com">
-        <label class="rooms-label">Visibility</label>
-        <select class="rooms-input" id="roomVisibility">
-          <option value="open">Open — anyone can join</option>
-          <option value="private">Private — invite only</option>
-        </select>
-        <div class="rooms-create-actions">
-          <button class="btn-warm" id="roomsCreateConfirm">Create Room</button>
-          <button class="rooms-cancel-btn" id="roomsCreateCancel">Cancel</button>
-        </div>
-        <p class="rooms-create-error" id="roomsCreateError" style="display:none;"></p>
-      </div>
-    </div>`;
+`;
 
   res.send(renderLayout({
     req,

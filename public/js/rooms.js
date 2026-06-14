@@ -118,6 +118,41 @@
   }
 
   // ── Create Modal ───────────────────────────────────────────────────────────
+  document.body.insertAdjacentHTML('beforeend',
+    '<div id="roomsCreateModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;">' +
+      '<div style="background:#E8D9B8;border:1px solid #c4a882;border-radius:10px;padding:2rem;max-width:460px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.25);box-sizing:border-box;">' +
+        '<h4 style="font-family:Cinzel,serif;color:#5C1A28;font-size:1.2rem;margin:0 0 1.25rem;font-weight:600;">Start a Shared Study</h4>' +
+
+        '<label style="display:block;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.05em;color:#5C1A28;margin-bottom:0.35rem;">Room Name</label>' +
+        '<input type="text" id="roomNameInput" placeholder="e.g. Romans Study – Week 3" maxlength="80" autocomplete="off" style="width:100%;box-sizing:border-box;padding:0.55rem 0.75rem;border:1px solid #c4a882;border-radius:6px;background:#fff;font-size:0.97rem;margin-bottom:1rem;">' +
+
+        '<label style="display:block;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.05em;color:#5C1A28;margin-bottom:0.35rem;">Invite by Email <span style="font-weight:400;opacity:0.7;text-transform:none;">(optional)</span></label>' +
+        '<input type="email" id="roomInviteEmail" placeholder="member@example.com" autocomplete="off" style="width:100%;box-sizing:border-box;padding:0.55rem 0.75rem;border:1px solid #c4a882;border-radius:6px;background:#fff;font-size:0.97rem;margin-bottom:1rem;">' +
+
+        '<label style="display:block;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.05em;color:#5C1A28;margin-bottom:0.35rem;">Visibility</label>' +
+        '<select id="roomVisibility" style="width:100%;box-sizing:border-box;padding:0.55rem 0.75rem;border:1px solid #c4a882;border-radius:6px;background:#fff;font-size:0.97rem;margin-bottom:1.5rem;">' +
+          '<option value="private">Private — Invite Only</option>' +
+          '<option value="open">Open — Anyone Can Join</option>' +
+        '</select>' +
+
+        '<p id="roomsCreateError" style="display:none;color:#c05050;font-size:0.88rem;margin:0 0 0.75rem;"></p>' +
+
+        '<div style="display:flex;gap:0.75rem;justify-content:flex-end;">' +
+          '<button id="roomsCreateCancel" class="btn-warm">Cancel</button>' +
+          '<button id="roomsCreateConfirm" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.6rem 1.5rem;font-size:0.95rem;cursor:pointer;font-family:inherit;">Create Room</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>'
+  );
+
+  createModal     = document.getElementById('roomsCreateModal');
+  createConfirm   = document.getElementById('roomsCreateConfirm');
+  createCancel    = document.getElementById('roomsCreateCancel');
+  roomNameInput   = document.getElementById('roomNameInput');
+  roomInviteEmail = document.getElementById('roomInviteEmail');
+  roomVisibility  = document.getElementById('roomVisibility');
+  createError     = document.getElementById('roomsCreateError');
+
   startRoomBtn.addEventListener('click', function () {
     createError.style.display = 'none';
     roomNameInput.value       = '';
@@ -141,13 +176,13 @@
     var visibility  = roomVisibility.value;
 
     if (!name) {
-      createError.textContent    = 'Please enter a room name.';
-      createError.style.display  = 'block';
+      createError.textContent   = 'Please enter a room name.';
+      createError.style.display = 'block';
       roomNameInput.focus();
       return;
     }
 
-    createConfirm.disabled = true;
+    createConfirm.disabled    = true;
     createError.style.display = 'none';
 
     fetch('/api/rooms/create', {
