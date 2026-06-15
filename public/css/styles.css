@@ -63,7 +63,9 @@ body {
 
 .sidebar {
   width: 220px;
-  background: #5A3834;
+  background-color: #5A3834;
+  background-image: linear-gradient(160deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.04) 50%, rgba(255,255,255,0.02) 100%);
+  box-shadow: inset -4px 0 8px rgba(0,0,0,0.25);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -72,6 +74,17 @@ body {
   height: 100vh;
   overflow: hidden;
   transition: width 0.25s ease;
+}
+
+.sidebar::after {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 60px;
+  bottom: 20px;
+  width: 1px;
+  border-right: 1px dashed rgba(255,255,255,0.12);
+  pointer-events: none;
 }
 
 .sidebar.collapsed {
@@ -86,6 +99,11 @@ body {
   border-bottom: 1px solid rgba(160,132,92,0.18);
   min-height: 72px;
   flex-shrink: 0;
+}
+
+.sidebar-rule {
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  margin: 8px 16px;
 }
 
 .logo-area {

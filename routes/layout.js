@@ -59,6 +59,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
         <div class="logo-area">
           <div class="logo-title">Iron &amp; Ink</div>
           <div class="logo-tagline">Iron sharpens iron</div>
+          <div class="sidebar-rule"></div>
         </div>
         <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">&#9776;</button>
       </div>
