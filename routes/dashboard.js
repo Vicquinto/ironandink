@@ -146,7 +146,7 @@ function getPendingCount() {
 }
 
 async function getDailyDevotional(req) {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Denver' });
 
   try {
     if (fs.existsSync(DEVOTIONAL_PATH)) {
