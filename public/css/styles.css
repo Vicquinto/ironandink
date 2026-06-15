@@ -2554,19 +2554,19 @@ body {
 }
 
 .up-verse-result {
-  font-size: 1.1rem;
+  font-size: 1.1rem !important;
   font-family: 'EB Garamond', Georgia, serif;
   color: #1E1208;
-  line-height: 1.65;
+  line-height: 1.65 !important;
   max-height: 180px;
   overflow-y: auto;
 }
 
 .up-definition {
-  font-size: 1.1rem;
+  font-size: 1.1rem !important;
   font-family: 'EB Garamond', Georgia, serif;
   color: #1E1208;
-  line-height: 1.65;
+  line-height: 1.65 !important;
   max-height: 180px;
   overflow-y: auto;
 }
@@ -2625,8 +2625,8 @@ body {
   background: rgba(160,132,92,0.08);
   border-left: 2px solid #5C1A28;
   border-radius: 0 4px 4px 0;
-  font-size: 1.1rem;
-  line-height: 1.65;
+  font-size: 1.1rem !important;
+  line-height: 1.65 !important;
   color: #1E1208;
   max-height: 180px;
   overflow-y: auto;
