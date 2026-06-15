@@ -217,11 +217,17 @@ router.get('/reset-password', (req, res) => {
         <input type="hidden" id="token" value="${escHtml(token)}">
         <div class="form-group">
           <label class="form-label">New Password <span style="font-size:0.7rem; color:var(--warm-brown);">(min 8 characters)</span></label>
-          <input class="form-input" type="password" id="password" required minlength="8" placeholder="New password">
+          <div style="position:relative;">
+            <input class="form-input" type="password" id="password" required minlength="8" placeholder="New password">
+            <button type="button" tabindex="-1" onclick="var i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';" style="background:none;border:none;cursor:pointer;position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:#8a7a6a;line-height:1;">&#128065;</button>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">Confirm New Password</label>
-          <input class="form-input" type="password" id="confirm" required placeholder="Repeat new password">
+          <div style="position:relative;">
+            <input class="form-input" type="password" id="confirm" required placeholder="Repeat new password">
+            <button type="button" tabindex="-1" onclick="var i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';" style="background:none;border:none;cursor:pointer;position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:#8a7a6a;line-height:1;">&#128065;</button>
+          </div>
         </div>
         <button class="btn-pub" type="submit">Update Password</button>
       </form>

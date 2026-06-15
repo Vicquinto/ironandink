@@ -195,7 +195,10 @@ function renderLoginPage({ error, notice }) {
         </div>
         <div class="form-group">
           <label class="form-label" for="password">Password</label>
-          <input class="form-input" type="password" id="password" name="password" required autocomplete="current-password">
+          <div style="position:relative;">
+            <input class="form-input" type="password" id="password" name="password" required autocomplete="current-password">
+            <button type="button" tabindex="-1" onclick="var i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';" style="background:none;border:none;cursor:pointer;position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:#8a7a6a;line-height:1;">&#128065;</button>
+          </div>
         </div>
         <button class="btn-submit" type="submit">Enter</button>
       </form>
@@ -255,11 +258,17 @@ function renderSetupPage({ error }) {
       <form id="setupForm">
         <div class="form-group">
           <label class="form-label" for="password">New Password</label>
-          <input class="form-input" type="password" id="password" required minlength="8" placeholder="Minimum 8 characters">
+          <div style="position:relative;">
+            <input class="form-input" type="password" id="password" required minlength="8" placeholder="Minimum 8 characters">
+            <button type="button" tabindex="-1" onclick="var i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';" style="background:none;border:none;cursor:pointer;position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:#8a7a6a;line-height:1;">&#128065;</button>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label" for="confirm">Confirm Password</label>
-          <input class="form-input" type="password" id="confirm" required placeholder="Repeat password">
+          <div style="position:relative;">
+            <input class="form-input" type="password" id="confirm" required placeholder="Repeat password">
+            <button type="button" tabindex="-1" onclick="var i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';" style="background:none;border:none;cursor:pointer;position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:#8a7a6a;line-height:1;">&#128065;</button>
+          </div>
         </div>
         <button class="btn-submit" type="submit">Set Password &amp; Enter</button>
       </form>

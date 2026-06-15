@@ -244,11 +244,17 @@ router.get('/register', (req, res) => {
         </div>
         <div class="form-group">
           <label class="form-label">Password <span style="font-size:0.7rem; color:var(--warm-brown);">(min 8 characters)</span></label>
-          <input class="form-input" type="password" id="password" required minlength="8" placeholder="Choose a strong password">
+          <div style="position:relative;">
+            <input class="form-input" type="password" id="password" required minlength="8" placeholder="Choose a strong password">
+            <button type="button" tabindex="-1" onclick="var i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';" style="background:none;border:none;cursor:pointer;position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:#8a7a6a;line-height:1;">&#128065;</button>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">Confirm Password</label>
-          <input class="form-input" type="password" id="confirm" required placeholder="Repeat your password">
+          <div style="position:relative;">
+            <input class="form-input" type="password" id="confirm" required placeholder="Repeat your password">
+            <button type="button" tabindex="-1" onclick="var i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';" style="background:none;border:none;cursor:pointer;position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:#8a7a6a;line-height:1;">&#128065;</button>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">Preferred Bible Translation</label>
