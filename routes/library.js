@@ -208,18 +208,22 @@ router.post('/api/library/verse', requireAuth, async (req, res) => {
   if (process.env.ESV_API_KEY) {
     try {
       const url = 'https://api.esv.org/v3/passage/text/?' + new URLSearchParams({
-        q:                         ref,
-        'include-headings':        false,
-        'include-footnotes':       false,
-        'include-verse-numbers':   true,
-        'include-short-copyright': false,
+        q:                           ref,
+        'include-headings':          false,
+        'include-footnotes':         false,
+        'include-verse-numbers':     true,
+        'include-short-copyright':   false,
+        'include-passage-references': false,
       });
       const esvRes = await fetch(url, {
         headers: { Authorization: `Token ${process.env.ESV_API_KEY}` },
       });
       const data = await esvRes.json();
       const text = data.passages && data.passages[0] ? data.passages[0].trim() : null;
-      if (text) return res.json({ success: true, verse: text });
+      if (text) {
+        const verse = text + '\n\nESV® Bible, Copyright © 2001 by Crossway';
+        return res.json({ success: true, verse, source: 'esv' });
+      }
     } catch (err) {
       console.error('ESV API error:', err.message);
     }
