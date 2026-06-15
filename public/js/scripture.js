@@ -72,12 +72,33 @@
     var selected     = bookSelect.options[bookSelect.selectedIndex];
     var chapterCount = parseInt(selected.dataset.chapters, 10);
     rebuildChapterSelect(chapterCount, 1);
+    localStorage.setItem('ironink_scripture_book', bookSelect.value);
+    localStorage.setItem('ironink_scripture_chapter', 1);
     loadChapter(bookSelect.value, 1);
   });
 
   chapterSelect.addEventListener('change', function () {
-    loadChapter(bookSelect.value, parseInt(chapterSelect.value, 10));
+    var chapter = parseInt(chapterSelect.value, 10);
+    localStorage.setItem('ironink_scripture_book', bookSelect.value);
+    localStorage.setItem('ironink_scripture_chapter', chapter);
+    loadChapter(bookSelect.value, chapter);
   });
+
+  // ── Restore last position ───────────────────────────────────────────────────
+  (function () {
+    var savedBook    = localStorage.getItem('ironink_scripture_book');
+    var savedChapter = parseInt(localStorage.getItem('ironink_scripture_chapter'), 10) || 1;
+    if (!savedBook) return;
+    for (var i = 0; i < bookSelect.options.length; i++) {
+      if (bookSelect.options[i].value === savedBook) {
+        bookSelect.selectedIndex = i;
+        var chapterCount = parseInt(bookSelect.options[i].dataset.chapters, 10);
+        rebuildChapterSelect(chapterCount, savedChapter);
+        loadChapter(savedBook, savedChapter);
+        break;
+      }
+    }
+  })();
 
   // ── Reading Tracker ─────────────────────────────────────────────────────────
 
