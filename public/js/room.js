@@ -208,6 +208,7 @@
 
         var term = question.length > 50 ? question.slice(0, 50) + '…' : question;
 
+        console.log('isHost in askAI handler: ' + isHost);
         if (isHost) {
           socket.emit('room-tooltip-broadcast', { roomCode: roomCode, type: 'Ask AI', term: term, response: data.content });
         } else {
