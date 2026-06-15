@@ -2452,12 +2452,15 @@ body {
   position: fixed;
   z-index: 1100;
   width: 380px;
+  min-width: 280px;
+  min-height: 200px;
   max-width: calc(100vw - 16px);
   background: #DDD0B0;
   border: 1px solid #A0845C;
   border-radius: 8px;
   box-shadow: 0 6px 28px rgba(0,0,0,0.65);
-  overflow: hidden;
+  overflow: auto;
+  resize: both;
 }
 
 .up-header {
@@ -2548,6 +2551,15 @@ body {
 .up-define-pane,
 .up-verse-pane {
   padding: 12px 14px;
+}
+
+.up-verse-result {
+  font-size: 1.1rem;
+  font-family: 'EB Garamond', Georgia, serif;
+  color: #1E1208;
+  line-height: 1.65;
+  max-height: 180px;
+  overflow-y: auto;
 }
 
 .up-definition {
