@@ -25,6 +25,10 @@
   var fontIncBtn        = document.getElementById('roomFontIncBtn');
   var loadLibraryBtn    = document.getElementById('roomLoadLibraryBtn');
   var libraryPanel      = document.getElementById('roomLibraryPanel');
+  var askAIBtn          = document.getElementById('roomAskAIBtn');
+  var askAIPanel        = document.getElementById('roomAskAIPanel');
+  var askAIInput        = document.getElementById('roomAskAIInput');
+  var askAISubmit       = document.getElementById('roomAskAISubmit');
 
   // ── Font size control ─────────────────────────────────────────────────────
   var FONT_DEFAULT  = 16;
@@ -171,6 +175,61 @@
       .catch(function () {
         libraryPanel.innerHTML = '<p style="font-size:0.9rem;color:#c05050;">Failed to load library.</p>';
       });
+  }
+
+  // ── Ask AI ────────────────────────────────────────────────────────────────
+  if (askAIBtn) {
+    askAIBtn.addEventListener('click', function () {
+      if (askAIPanel && askAIPanel.style.display !== 'none') {
+        askAIPanel.style.display = 'none';
+        return;
+      }
+      if (askAIPanel) askAIPanel.style.display = 'block';
+      if (askAIInput) askAIInput.focus();
+    });
+  }
+
+  if (askAISubmit) {
+    askAISubmit.addEventListener('click', function () {
+      var question = askAIInput ? askAIInput.value.trim() : '';
+      if (!question) { if (askAIInput) askAIInput.focus(); return; }
+
+      askAISubmit.disabled     = true;
+      askAISubmit.textContent  = 'Asking…';
+
+      fetch('/api/study/generate', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ topic: question, studyLevel: window.ROOM_STUDY_LEVEL || '' }),
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.success) throw new Error(data.error || 'Request failed.');
+
+        var term = question.length > 50 ? question.slice(0, 50) + '…' : question;
+
+        if (isHost) {
+          socket.emit('room-tooltip-broadcast', { roomCode: roomCode, type: 'Ask AI', term: term, response: data.content });
+        } else {
+          var prev = document.getElementById('roomAskAIResponse');
+          if (prev) prev.remove();
+          var responseDiv = document.createElement('div');
+          responseDiv.id = 'roomAskAIResponse';
+          responseDiv.style.cssText = 'background:#f0e6c8;border-left:4px solid #5C1A28;border-radius:4px;padding:0.75rem 1rem;margin-top:0.75rem;font-size:0.9rem;max-height:300px;overflow-y:auto;';
+          responseDiv.innerHTML = renderMarkdown(data.content);
+          askAIPanel.appendChild(responseDiv);
+        }
+
+        if (askAIInput) askAIInput.value = '';
+      })
+      .catch(function (err) {
+        showToast('Error: ' + err.message, true);
+      })
+      .finally(function () {
+        askAISubmit.disabled    = false;
+        askAISubmit.textContent = 'Ask AI';
+      });
+    });
   }
 
   // ── Generate Study ─────────────────────────────────────────────────────────

@@ -128,6 +128,14 @@ router.get('/room/:code', requireAuth, (req, res) => {
       </div>
       ` : ''}
 
+      <div style="margin-bottom:1.5rem;">
+        <button id="roomAskAIBtn" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.5rem 1.25rem;font-size:0.9rem;cursor:pointer;margin-top:0.5rem;">Ask AI</button>
+        <div id="roomAskAIPanel" style="display:none;margin-top:0.75rem;">
+          <textarea id="roomAskAIInput" rows="3" placeholder="Ask AI anything about this study or any theological question…" style="width:100%;box-sizing:border-box;border:1px solid #c4a882;border-radius:6px;padding:0.75rem;font-family:inherit;font-size:0.95rem;resize:vertical;"></textarea>
+          <button id="roomAskAISubmit" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.5rem 1.25rem;font-size:0.9rem;cursor:pointer;margin-top:0.5rem;">Ask AI</button>
+        </div>
+      </div>
+
       <div id="roomLoading" class="study-loading" style="display:none;">
         <div class="study-spinner"></div>
         <p>Generating study for everyone in the room…</p>
@@ -181,7 +189,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
     window.ROOM_STUDY       = ${room.study ? JSON.stringify(room.study) : 'null'};
     window.ROOM_STUDY_LEVEL = ${JSON.stringify(room.studyLevel || 'journeyman')};
   </script>
-  <script src="/js/room.js?v=4"></script>
+  <script src="/js/room.js?v=5"></script>
   <script src="/js/library.js?v=8"></script>`,
   }));
 });
