@@ -194,17 +194,16 @@ Tone: warm but serious. Reformed and confessional.`;
   }
 }
 
-router.get('/dashboard', requireAuth, async (req, res) => {
-  const user           = req.session.user;
-  const firstName      = (user.fullName || 'Scholar').split(' ')[0];
-  const studyCount     = getStudiesCount(req.session.userId);
-  const dialogueCount  = getDialoguesCount(req.session.userId);
-  const articlesCount  = getArticlesCount(req.session.userId);
-  const isAdmin        = getIsAdmin(req);
-  const pendingCount   = isAdmin ? getPendingCount() : 0;
-  const verse             = getVerseOfTheDay();
-  const devotionalContent = await getDailyDevotional(req);
-  const showWelcome       = req.session.firstLogin === true;
+router.get('/dashboard', requireAuth, (req, res) => {
+  const user          = req.session.user;
+  const firstName     = (user.fullName || 'Scholar').split(' ')[0];
+  const studyCount    = getStudiesCount(req.session.userId);
+  const dialogueCount = getDialoguesCount(req.session.userId);
+  const articlesCount = getArticlesCount(req.session.userId);
+  const isAdmin       = getIsAdmin(req);
+  const pendingCount  = isAdmin ? getPendingCount() : 0;
+  const verse         = getVerseOfTheDay();
+  const showWelcome   = req.session.firstLogin === true;
   if (showWelcome) req.session.firstLogin = false;
 
   const content = `
@@ -228,15 +227,6 @@ router.get('/dashboard', requireAuth, async (req, res) => {
       <div class="verse-text">"${verse.text}"</div>
       <div class="verse-ref">${verse.ref} — Legacy Standard Bible</div>
     </div>
-
-    ${devotionalContent ? `
-    <div class="devot-dashboard-card">
-      <div class="devot-dashboard-label">Daily Devotional</div>
-      <div id="dashDevotionalBody" class="devot-dashboard-body"></div>
-      <div class="devot-dashboard-footer">
-        <a href="/devotional" class="btn-reflect">Reflect on Today's Reading &#8594;</a>
-      </div>
-    </div>` : ''}
 
     <div class="stat-cards">
       <div class="stat-card">
@@ -266,17 +256,6 @@ router.get('/dashboard', requireAuth, async (req, res) => {
       const h = new Date().getHours();
       const greeting = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
       document.getElementById('greeting').textContent = greeting + ', ${firstName}.';
-    })();
-    (function() {
-      var el   = document.getElementById('dashDevotionalBody');
-      var text = ${JSON.stringify(devotionalContent || '')};
-      if (el && text) {
-        el.innerHTML = marked.parse(text);
-        el.style.fontSize = '1.1rem';
-        el.querySelectorAll('p, blockquote').forEach(function(node) {
-          node.style.fontSize = '1.1rem';
-        });
-      }
     })();
   </script>`;
 

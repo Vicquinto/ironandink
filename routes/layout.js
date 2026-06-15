@@ -22,6 +22,7 @@ function getIsAdmin(req) {
 function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   const navItems = [
     { id: 'dashboard',   label: 'Dashboard',   href: '/dashboard',   icon: '&#9685;' },
+    { id: 'devotional',  label: 'Devotional',  href: '/devotional',  icon: '&#9788;' },
     { id: 'study',       label: 'Study',       href: '/study',       icon: '&#10016;' },
     { id: 'dialogue',    label: 'Dialogue',    href: '/dialogue',    icon: '&#9993;' },
     { id: 'writing',     label: 'Writing',     href: '/writing',     icon: '&#9998;' },

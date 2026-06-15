@@ -153,7 +153,7 @@ router.get('/devotional', requireAuth, async (req, res) => {
     });
   </script>`;
 
-  res.send(renderLayout({ req, activeSection: 'dashboard', title: 'Daily Devotional', content, scripts }));
+  res.send(renderLayout({ req, activeSection: 'devotional', title: 'Daily Devotional', content, scripts }));
 });
 
 router.post('/api/devotional/ask', requireAuth, async (req, res) => {
