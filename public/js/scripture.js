@@ -84,12 +84,12 @@
   var trackerData     = {};
   var pendingMarkBook = null;
 
-  var trackerGrid        = document.getElementById('trackerGrid');
-  var goalOverlay        = document.getElementById('trackerGoalOverlay');
-  var goalMsg            = document.getElementById('trackerGoalMsg');
-  var goalInput          = document.getElementById('trackerGoalInput');
-  var goalCancelBtn      = document.getElementById('trackerGoalCancel');
-  var goalConfirmBtn     = document.getElementById('trackerGoalConfirm');
+  var trackerGrid    = document.getElementById('trackerGrid');
+  var goalOverlay    = document.getElementById('trackerGoalOverlay');
+  var goalMsg        = document.getElementById('trackerGoalMsg');
+  var goalInput      = document.getElementById('trackerGoalInput');
+  var goalCancelBtn  = document.getElementById('trackerGoalCancel');
+  var goalConfirmBtn = document.getElementById('trackerGoalConfirm');
 
   function fetchTracker() {
     fetch('/api/reading/tracker')
@@ -121,6 +121,9 @@
       var bar        = goal > 0
         ? '<div class="tracker-progress"><div class="tracker-progress-fill" style="width:' + pct + '%"></div></div>'
         : '<div class="tracker-progress"><div class="tracker-progress-fill" style="width:0%"></div></div>';
+      var editBtn    = (goal > 0 && count > 0)
+        ? '<button class="tracker-edit-btn" data-book="' + name + '">edit count</button>'
+        : '';
 
       return '<div class="tracker-book-card">' +
         '<span class="tracker-book-name">' + name + '</span>' +
@@ -128,17 +131,39 @@
         bar +
         check +
         '<button class="tracker-mark-btn" data-book="' + name + '">' + (goal > 0 ? 'Mark Complete' : 'Set Goal') + '</button>' +
+        editBtn +
         '</div>';
     }).join('');
 
     trackerGrid.innerHTML = html;
-
-    trackerGrid.querySelectorAll('.tracker-mark-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        handleMarkComplete(btn.getAttribute('data-book'));
-      });
-    });
   }
+
+  // Single delegated listener for all tracker interactions
+  trackerGrid.addEventListener('click', function (e) {
+    var target = e.target;
+
+    if (target.classList.contains('tracker-mark-btn')) {
+      handleMarkComplete(target.getAttribute('data-book'));
+      return;
+    }
+
+    if (target.classList.contains('tracker-edit-btn')) {
+      handleEditCount(target);
+      return;
+    }
+
+    if (target.classList.contains('tracker-edit-save')) {
+      saveCount(target);
+      return;
+    }
+  });
+
+  trackerGrid.addEventListener('keydown', function (e) {
+    if (e.target.classList.contains('tracker-edit-input') && e.key === 'Enter') {
+      var saveBtn = e.target.closest('.tracker-edit-inline').querySelector('.tracker-edit-save');
+      if (saveBtn) saveBtn.click();
+    }
+  });
 
   function handleMarkComplete(bookName) {
     var book = trackerData[bookName] || { count: 0, goal: 0 };
@@ -147,6 +172,46 @@
     } else {
       markComplete(bookName);
     }
+  }
+
+  function handleEditCount(btn) {
+    var bookName = btn.getAttribute('data-book');
+    var card     = btn.closest('.tracker-book-card');
+    var existing = card.querySelector('.tracker-edit-inline');
+    if (existing) { existing.remove(); return; }
+
+    var count  = (trackerData[bookName] && trackerData[bookName].count) || 0;
+    var inline = document.createElement('div');
+    inline.className = 'tracker-edit-inline';
+    inline.innerHTML =
+      '<span class="tracker-edit-label">Adjust count for ' + bookName + ':</span>' +
+      '<div class="tracker-edit-row">' +
+        '<input type="number" class="tracker-edit-input" value="' + count + '" min="0" max="9999">' +
+        '<button class="tracker-edit-save" data-book="' + bookName + '">Save</button>' +
+      '</div>';
+    card.appendChild(inline);
+    inline.querySelector('.tracker-edit-input').focus();
+    inline.querySelector('.tracker-edit-input').select();
+  }
+
+  function saveCount(btn) {
+    var bookName = btn.getAttribute('data-book');
+    var input    = btn.closest('.tracker-edit-inline').querySelector('.tracker-edit-input');
+    var count    = parseInt(input.value, 10);
+    if (isNaN(count) || count < 0) { input.focus(); return; }
+
+    fetch('/api/reading/set-count', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ bookName: bookName, count: count }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.success) {
+          trackerData[bookName] = data.book;
+          renderTrackerGrid();
+        }
+      });
   }
 
   function showGoalModal(bookName) {

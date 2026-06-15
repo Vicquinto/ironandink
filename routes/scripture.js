@@ -226,4 +226,26 @@ router.post('/api/reading/set-goal', requireAuth, (req, res) => {
   res.json({ success: true, book: tracker[email][bookName] });
 });
 
+// ─── POST /api/reading/set-count ─────────────────────────────────────────────
+router.post('/api/reading/set-count', requireAuth, (req, res) => {
+  const { bookName, count } = req.body;
+  if (!bookName || count === undefined) {
+    return res.status(400).json({ success: false, error: 'bookName and count required.' });
+  }
+
+  const parsed = parseInt(count, 10);
+  if (isNaN(parsed) || parsed < 0) {
+    return res.status(400).json({ success: false, error: 'count must be a non-negative integer.' });
+  }
+
+  const email   = req.session.user.email;
+  const tracker = readTracker();
+  if (!tracker[email]) tracker[email] = {};
+  if (!tracker[email][bookName]) tracker[email][bookName] = { count: 0, goal: 0, history: [] };
+
+  tracker[email][bookName].count = parsed;
+  writeTracker(tracker);
+  res.json({ success: true, book: tracker[email][bookName] });
+});
+
 module.exports = router;

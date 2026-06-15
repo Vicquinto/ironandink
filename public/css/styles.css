@@ -3453,6 +3453,69 @@ body {
 
 .tracker-mark-btn:hover { opacity: 0.82; }
 
+.tracker-edit-btn {
+  font-size: 0.75rem;
+  color: #8a7a6a;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: block;
+  margin-top: 0.25rem;
+  font-family: Georgia, serif;
+  padding: 0;
+}
+
+.tracker-edit-btn:hover { color: var(--accent); }
+
+.tracker-edit-inline {
+  width: 100%;
+  margin-top: 6px;
+}
+
+.tracker-edit-label {
+  font-size: 0.62rem;
+  color: var(--warm-brown);
+  display: block;
+  margin-bottom: 3px;
+  line-height: 1.3;
+  text-align: left;
+}
+
+.tracker-edit-row {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.tracker-edit-input {
+  width: 52px;
+  font-size: 0.75rem;
+  padding: 3px 5px;
+  border: 1px solid #c4a882;
+  border-radius: 3px;
+  background: var(--bg);
+  color: var(--text);
+  text-align: center;
+  font-family: Georgia, serif;
+  outline: none;
+}
+
+.tracker-edit-input:focus { border-color: var(--accent); }
+
+.tracker-edit-save {
+  font-size: 0.65rem;
+  padding: 3px 7px;
+  background: var(--accent);
+  color: var(--ink);
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: Georgia, serif;
+  transition: opacity 0.15s;
+}
+
+.tracker-edit-save:hover { opacity: 0.82; }
+
 .tracker-goal-overlay {
   position: fixed;
   inset: 0;
