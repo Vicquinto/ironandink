@@ -140,15 +140,19 @@
         var studyMap = {};
         studies.forEach(function (s) { studyMap[s.id] = s; });
 
-        libraryPanel.innerHTML = studies.map(function (s) {
-          var date = new Date(s.savedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-          return '<div class="room-lib-card" data-id="' + escHtml(s.id) + '" style="padding:0.6rem 0.75rem;border:1px solid #c4a882;border-radius:6px;margin-bottom:0.5rem;cursor:pointer;background:#fff;font-size:0.9rem;">' +
-            '<div style="font-weight:600;color:#3a2a1a;">' + escHtml(s.topic) + '</div>' +
-            '<div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;">' + date + '</div>' +
-          '</div>';
-        }).join('');
+        libraryPanel.innerHTML =
+          '<p style="font-size:0.85rem;color:#5C1A28;font-weight:600;margin:0 0 0.75rem;">Select a study to load into the room</p>' +
+          studies.map(function (s) {
+            var date = new Date(s.savedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            return '<div class="room-lib-card" data-id="' + escHtml(s.id) + '" style="background:#fff;border:1px solid #c4a882;border-radius:8px;padding:0.75rem 1rem;margin-bottom:0.5rem;cursor:pointer;">' +
+              '<span style="font-weight:600;font-size:1rem;color:#3a2a1a;display:block;margin-bottom:0.25rem;">' + escHtml(s.topic) + '</span>' +
+              '<span style="font-size:0.8rem;color:#8a7a6a;">' + date + '</span>' +
+            '</div>';
+          }).join('');
 
         libraryPanel.querySelectorAll('.room-lib-card').forEach(function (card) {
+          card.addEventListener('mouseenter', function () { card.style.background = '#f5ede0'; });
+          card.addEventListener('mouseleave', function () { card.style.background = '#fff'; });
           card.addEventListener('click', function () {
             var study = studyMap[card.dataset.id];
             if (!study) return;
