@@ -122,8 +122,10 @@ router.get('/room/:code', requireAuth, (req, res) => {
       </div>
 
       ${room.host === userId ? `
-      <button id="roomLoadLibraryBtn" style="border:1px solid #5C1A28;color:#5C1A28;background:transparent;border-radius:6px;padding:0.4rem 1rem;font-size:0.9rem;cursor:pointer;margin-top:0.5rem;">Load from Library</button>
-      <div id="roomLibraryPanel" style="display:none;background:#f5ede0;border:1px solid #c4a882;border-radius:8px;padding:1rem;margin-top:0.75rem;max-height:300px;overflow-y:auto;"></div>
+      <div style="margin-top:0.75rem;margin-bottom:1.5rem;">
+        <button id="roomLoadLibraryBtn" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.5rem 1.25rem;font-size:0.9rem;cursor:pointer;">Load from Library</button>
+        <div id="roomLibraryPanel" style="display:none;background:#f5ede0;border:1px solid #c4a882;border-radius:8px;padding:1rem;margin-top:0.75rem;max-height:300px;overflow-y:auto;"></div>
+      </div>
       ` : ''}
 
       <div id="roomLoading" class="study-loading" style="display:none;">
