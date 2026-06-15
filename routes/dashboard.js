@@ -161,7 +161,7 @@ async function getDailyDevotional(req) {
     'Write with full doctrinal precision, pastoral warmth, and confessionally Reformed conviction.';
 
   const dateStr    = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-  const userPrompt = `Write the Iron & Ink Daily Devotional for ${dateStr}. Use exactly these four section headings:
+  const userPrompt = `Write the Iron & Ink Daily Devotional for ${dateStr}. Today's date is ${today}. Select a Scripture passage appropriate for this specific day — do NOT use Romans 8:29-32 as it has been used recently. Choose from across the full breadth of Scripture — Psalms, Proverbs, the Gospels, the Epistles, the Old Testament prophets — varying the selection each day. Use exactly these four section headings:
 
 ## Scripture
 Choose a passage of 3–5 verses — a psalm, a prophet, a Gospel, or an epistle. Choose for doctrinal richness. Print the complete LSB text of every verse, word for word.
