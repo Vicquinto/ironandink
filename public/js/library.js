@@ -735,8 +735,6 @@
         defEl.innerHTML = '<span style="color:#e08080;font-style:italic;">' + esc(data.error) + '</span>';
       } else {
         defEl.innerHTML = renderMarkdown(data.definition);
-        defEl.style.fontSize   = '1.1rem';
-        defEl.style.lineHeight = '1.65';
         if (window.ROOM_CODE && window.isHost) {
           var _defPayload = { roomCode: window.ROOM_CODE, type: 'Define', term: upSelectedText, response: data.definition };
           if (window.roomSocket) {
@@ -790,8 +788,6 @@
         verseEl.innerHTML = '<span style="color:#e08080;font-style:italic;">' + esc(data.error) + '</span>';
       } else {
         verseEl.innerHTML = renderMarkdown(data.verse);
-        verseEl.style.fontSize   = '1.1rem';
-        verseEl.style.lineHeight = '1.65';
         if (window.ROOM_CODE && window.isHost) {
           var _versePayload = { roomCode: window.ROOM_CODE, type: 'Verse Lookup', term: upSelectedText, response: data.verse };
           if (window.roomSocket) {
@@ -826,10 +822,8 @@
     var askBtn = upEl.querySelector('.up-ai-ask-btn');
     var resp   = upEl.querySelector('.up-ai-response');
     askBtn.disabled    = true;
-    resp.style.display     = 'block';
-    resp.style.fontSize    = '1.1rem';
-    resp.style.lineHeight  = '1.65';
-    resp.textContent       = 'Thinking…';
+    resp.style.display = 'block';
+    resp.textContent   = 'Thinking…';
 
     try {
       var res  = await fetch('/api/library/ask', {
@@ -843,9 +837,7 @@
       });
       var data = await res.json();
       if (data.success) {
-        resp.innerHTML         = renderMarkdown(data.answer);
-        resp.style.fontSize    = '1.1rem';
-        resp.style.lineHeight  = '1.65';
+        resp.innerHTML = renderMarkdown(data.answer);
         if (window.ROOM_CODE && window.isHost) {
           var _aiPayload = { roomCode: window.ROOM_CODE, type: 'Ask AI', term: upSelectedText, response: data.answer };
           if (window.roomSocket) {
