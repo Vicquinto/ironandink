@@ -132,7 +132,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
         <button id="roomAskAIBtn" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.5rem 1.25rem;font-size:0.9rem;cursor:pointer;margin-top:0.5rem;">Ask AI</button>
         <div id="roomAskAIPanel" style="display:none;margin-top:0.75rem;">
           <textarea id="roomAskAIInput" rows="3" placeholder="Ask AI anything about this study or any theological question…" style="width:100%;box-sizing:border-box;border:1px solid #c4a882;border-radius:6px;padding:0.75rem;font-family:inherit;font-size:0.95rem;resize:vertical;"></textarea>
-          <button id="roomAskAISubmit" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.5rem 1.25rem;font-size:0.9rem;cursor:pointer;margin-top:0.5rem;">Ask AI</button>
+          <button id="roomAskAISubmit" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.5rem 1.25rem;font-size:0.9rem;cursor:pointer;margin-top:0.5rem;">Ask</button>
         </div>
       </div>
 

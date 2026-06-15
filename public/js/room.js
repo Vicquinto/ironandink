@@ -228,7 +228,7 @@
       })
       .finally(function () {
         askAISubmit.disabled    = false;
-        askAISubmit.textContent = 'Ask AI';
+        askAISubmit.textContent = 'Ask';
       });
     });
   }
