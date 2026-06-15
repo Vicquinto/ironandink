@@ -3,8 +3,9 @@ const fs      = require('fs');
 const path    = require('path');
 const { requireAuth, renderLayout } = require('./layout');
 
-const router   = express.Router();
-const KJV_PATH = path.join(__dirname, '../data/kjv.json');
+const router       = express.Router();
+const KJV_PATH     = path.join(__dirname, '../data/kjv.json');
+const TRACKER_PATH = path.join(__dirname, '../data/reading_tracker.json');
 
 const ESV_COPYRIGHT = 'ESV® Bible, Copyright © 2001 by Crossway';
 
@@ -12,6 +13,17 @@ let _bible = null;
 function getBible() {
   if (!_bible) _bible = JSON.parse(fs.readFileSync(KJV_PATH, 'utf8'));
   return _bible;
+}
+
+function readTracker() {
+  try {
+    if (!fs.existsSync(TRACKER_PATH)) return {};
+    return JSON.parse(fs.readFileSync(TRACKER_PATH, 'utf8'));
+  } catch { return {}; }
+}
+
+function writeTracker(data) {
+  fs.writeFileSync(TRACKER_PATH, JSON.stringify(data, null, 2));
 }
 
 function cleanText(text) {
@@ -84,7 +96,8 @@ router.get('/scripture', requireAuth, async (req, res) => {
     initBody = renderKjvVerses(initVerses);
   }
 
-  const subtitle = usingEsv ? 'English Standard Version' : 'King James Version';
+  const subtitle  = usingEsv ? 'English Standard Version' : 'King James Version';
+  const bookNames = JSON.stringify(bible.map(b => b.name));
 
   const content = `
     <div class="page-header">
@@ -106,14 +119,36 @@ router.get('/scripture', requireAuth, async (req, res) => {
       <div class="scripture-body" id="scriptureBody">
         ${initBody}
       </div>
-    </div>`;
+    </div>
+
+    <div class="tracker-section">
+      <h3 class="tracker-heading">Reading Tracker</h3>
+      <div class="tracker-grid" id="trackerGrid">
+        <p class="scripture-loading">Loading tracker&#8230;</p>
+      </div>
+    </div>
+
+    <div class="tracker-goal-overlay" id="trackerGoalOverlay" style="display:none;" role="dialog" aria-modal="true">
+      <div class="tracker-goal-box">
+        <p id="trackerGoalMsg"></p>
+        <div style="width:90px;margin:0 auto;">
+          <input type="number" id="trackerGoalInput" min="1" max="999" class="form-input" style="text-align:center;">
+        </div>
+        <div class="tracker-goal-actions">
+          <button id="trackerGoalCancel" class="btn-warm" style="padding:10px 20px;">Cancel</button>
+          <button id="trackerGoalConfirm" class="btn-primary" style="padding:10px 20px;">Set Goal &amp; Mark</button>
+        </div>
+      </div>
+    </div>
+
+    <script>window._bibleBooks = ${bookNames};</script>`;
 
   res.send(renderLayout({
     req,
     activeSection: 'scripture',
     title:         'Scripture',
     content,
-    scripts:       '<script src="/js/scripture.js"></script>',
+    scripts:       '<script src="/js/scripture.js?v=2"></script>',
   }));
 });
 
@@ -145,6 +180,50 @@ router.get('/api/scripture/:abbrev/:chapter', requireAuth, async (req, res) => {
     text:  cleanText(text),
   }));
   res.json({ success: true, book: book.name, chapter: idx + 1, verses, source: 'kjv' });
+});
+
+// ─── GET /api/reading/tracker ────────────────────────────────────────────────
+router.get('/api/reading/tracker', requireAuth, (req, res) => {
+  const email   = req.session.user.email;
+  const tracker = readTracker();
+  res.json({ success: true, tracker: tracker[email] || {} });
+});
+
+// ─── POST /api/reading/mark-complete ─────────────────────────────────────────
+router.post('/api/reading/mark-complete', requireAuth, (req, res) => {
+  const { bookName } = req.body;
+  if (!bookName) return res.status(400).json({ success: false, error: 'bookName required.' });
+
+  const email   = req.session.user.email;
+  const tracker = readTracker();
+  if (!tracker[email]) tracker[email] = {};
+  if (!tracker[email][bookName]) tracker[email][bookName] = { count: 0, goal: 0, history: [] };
+
+  const book  = tracker[email][bookName];
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Denver' });
+  book.count += 1;
+  if (!Array.isArray(book.history)) book.history = [];
+  book.history.push(today);
+
+  writeTracker(tracker);
+  res.json({ success: true, book });
+});
+
+// ─── POST /api/reading/set-goal ──────────────────────────────────────────────
+router.post('/api/reading/set-goal', requireAuth, (req, res) => {
+  const { bookName, goal } = req.body;
+  if (!bookName || goal === undefined) {
+    return res.status(400).json({ success: false, error: 'bookName and goal required.' });
+  }
+
+  const email   = req.session.user.email;
+  const tracker = readTracker();
+  if (!tracker[email]) tracker[email] = {};
+  if (!tracker[email][bookName]) tracker[email][bookName] = { count: 0, goal: 0, history: [] };
+
+  tracker[email][bookName].goal = Math.max(1, parseInt(goal, 10) || 1);
+  writeTracker(tracker);
+  res.json({ success: true, book: tracker[email][bookName] });
 });
 
 module.exports = router;

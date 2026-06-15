@@ -3355,6 +3355,146 @@ body {
   .scripture-verse { font-size: 1.05rem; }
 }
 
+.scripture-copyright {
+  font-size: 0.75rem;
+  color: var(--warm-brown);
+  font-style: italic;
+  margin-top: 24px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(160,132,92,0.2);
+}
+
+/* ─── READING TRACKER ────────────────────────────────────────────────── */
+
+.tracker-section {
+  margin-top: 40px;
+  max-width: 960px;
+}
+
+.tracker-heading {
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 1.1rem;
+  color: var(--accent);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(160,132,92,0.2);
+}
+
+.tracker-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+.tracker-book-card {
+  background: #f5ede0;
+  border: 1px solid #c4a882;
+  border-radius: 6px;
+  padding: 0.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.tracker-book-name {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.25;
+  display: block;
+}
+
+.tracker-book-count {
+  font-size: 0.75rem;
+  color: var(--warm-brown);
+  display: block;
+  min-height: 1em;
+}
+
+.tracker-progress {
+  width: 100%;
+  background: rgba(160,132,92,0.25);
+  border-radius: 3px;
+  height: 4px;
+  overflow: hidden;
+}
+
+.tracker-progress-fill {
+  background: #5C1A28;
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.35s ease;
+}
+
+.tracker-complete-check {
+  color: #c8a800;
+  font-size: 0.95rem;
+  line-height: 1;
+  display: block;
+}
+
+.tracker-mark-btn {
+  margin-top: 4px;
+  font-size: 0.65rem;
+  padding: 3px 7px;
+  background: var(--accent);
+  color: var(--ink);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: Georgia, serif;
+  letter-spacing: 0.02em;
+  transition: opacity 0.15s;
+}
+
+.tracker-mark-btn:hover { opacity: 0.82; }
+
+.tracker-goal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(30,18,8,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 900;
+}
+
+.tracker-goal-box {
+  background: var(--card-bg);
+  border: 1px solid #c4a882;
+  border-radius: 8px;
+  padding: 28px 32px;
+  max-width: 340px;
+  width: 90%;
+  text-align: center;
+}
+
+.tracker-goal-box p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+.tracker-goal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+@media (max-width: 700px) {
+  .tracker-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 380px) {
+  .tracker-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
 /* ─── SELAH JOURNALING ─────────────────────────────────────────────── */
 
 .selah-compose {

@@ -3,6 +3,8 @@
 
   var ESV_COPYRIGHT = 'ESV® Bible, Copyright © 2001 by Crossway';
 
+  // ── Chapter reader ──────────────────────────────────────────────────────────
+
   var bookSelect    = document.getElementById('bookSelect');
   var chapterSelect = document.getElementById('chapterSelect');
   var heading       = document.getElementById('scriptureHeading');
@@ -76,4 +78,135 @@
   chapterSelect.addEventListener('change', function () {
     loadChapter(bookSelect.value, parseInt(chapterSelect.value, 10));
   });
+
+  // ── Reading Tracker ─────────────────────────────────────────────────────────
+
+  var trackerData     = {};
+  var pendingMarkBook = null;
+
+  var trackerGrid        = document.getElementById('trackerGrid');
+  var goalOverlay        = document.getElementById('trackerGoalOverlay');
+  var goalMsg            = document.getElementById('trackerGoalMsg');
+  var goalInput          = document.getElementById('trackerGoalInput');
+  var goalCancelBtn      = document.getElementById('trackerGoalCancel');
+  var goalConfirmBtn     = document.getElementById('trackerGoalConfirm');
+
+  function fetchTracker() {
+    fetch('/api/reading/tracker')
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.success) {
+          trackerData = data.tracker || {};
+          renderTrackerGrid();
+        }
+      })
+      .catch(function () {
+        trackerGrid.innerHTML = '<p class="scripture-loading">Failed to load tracker.</p>';
+      });
+  }
+
+  function renderTrackerGrid() {
+    var books = window._bibleBooks || [];
+    if (!books.length) return;
+
+    var html = books.map(function (name) {
+      var book  = trackerData[name] || { count: 0, goal: 0, history: [] };
+      var count = book.count || 0;
+      var goal  = book.goal  || 0;
+      var pct   = goal > 0 ? Math.min(100, Math.round((count / goal) * 100)) : 0;
+      var done  = goal > 0 && count >= goal;
+
+      var countLabel = goal > 0 ? count + '/' + goal : (count > 0 ? count : '');
+      var check      = done ? '<span class="tracker-complete-check">✓</span>' : '';
+      var bar        = goal > 0
+        ? '<div class="tracker-progress"><div class="tracker-progress-fill" style="width:' + pct + '%"></div></div>'
+        : '<div class="tracker-progress"><div class="tracker-progress-fill" style="width:0%"></div></div>';
+
+      return '<div class="tracker-book-card">' +
+        '<span class="tracker-book-name">' + name + '</span>' +
+        '<span class="tracker-book-count">' + countLabel + '</span>' +
+        bar +
+        check +
+        '<button class="tracker-mark-btn" data-book="' + name + '">Mark Complete</button>' +
+        '</div>';
+    }).join('');
+
+    trackerGrid.innerHTML = html;
+
+    trackerGrid.querySelectorAll('.tracker-mark-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        handleMarkComplete(btn.getAttribute('data-book'));
+      });
+    });
+  }
+
+  function handleMarkComplete(bookName) {
+    var book = trackerData[bookName] || { count: 0, goal: 0 };
+    if (!book.goal || book.goal === 0) {
+      showGoalModal(bookName);
+    } else {
+      markComplete(bookName);
+    }
+  }
+
+  function showGoalModal(bookName) {
+    pendingMarkBook      = bookName;
+    goalMsg.textContent  = 'How many times do you want to read ' + bookName + '? (Enter your goal)';
+    goalInput.value      = '';
+    goalOverlay.style.display = 'flex';
+    setTimeout(function () { goalInput.focus(); }, 50);
+  }
+
+  function hideGoalModal() {
+    goalOverlay.style.display = 'none';
+    pendingMarkBook = null;
+  }
+
+  goalCancelBtn.addEventListener('click', hideGoalModal);
+
+  goalOverlay.addEventListener('click', function (e) {
+    if (e.target === goalOverlay) hideGoalModal();
+  });
+
+  goalInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') goalConfirmBtn.click();
+    if (e.key === 'Escape') hideGoalModal();
+  });
+
+  goalConfirmBtn.addEventListener('click', function () {
+    var goal     = parseInt(goalInput.value, 10);
+    if (!goal || goal < 1) { goalInput.focus(); return; }
+    var bookName = pendingMarkBook;
+    hideGoalModal();
+    fetch('/api/reading/set-goal', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ bookName: bookName, goal: goal }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.success) {
+          if (!trackerData[bookName]) trackerData[bookName] = { count: 0, goal: 0, history: [] };
+          trackerData[bookName].goal = goal;
+          markComplete(bookName);
+        }
+      });
+  });
+
+  function markComplete(bookName) {
+    fetch('/api/reading/mark-complete', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ bookName: bookName }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.success) {
+          trackerData[bookName] = data.book;
+          renderTrackerGrid();
+        }
+      });
+  }
+
+  fetchTracker();
 })();
