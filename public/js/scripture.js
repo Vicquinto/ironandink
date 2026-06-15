@@ -273,5 +273,37 @@
       });
   }
 
+  // ── Scripture font size controls ───────────────────────────────────────────
+  (function () {
+    var FONT_DEFAULT = 18, FONT_MIN = 12, FONT_MAX = 32, FONT_STEP = 2;
+    var LS_KEY = 'ironink_scripture_font_size';
+
+    var styleTag = document.createElement('style');
+    document.head.appendChild(styleTag);
+
+    var fontSize = parseInt(localStorage.getItem(LS_KEY), 10) || FONT_DEFAULT;
+
+    function applySize() {
+      styleTag.textContent =
+        '#scriptureBody .scripture-verse { font-size: ' + fontSize + 'px; }' +
+        '#scriptureBody .scripture-copyright { font-size: ' + Math.max(11, fontSize - 4) + 'px; }';
+    }
+
+    function setSize(s) {
+      fontSize = Math.min(FONT_MAX, Math.max(FONT_MIN, s));
+      applySize();
+      localStorage.setItem(LS_KEY, fontSize);
+    }
+
+    applySize();
+
+    var decBtn   = document.getElementById('scriptFontDec');
+    var resetBtn = document.getElementById('scriptFontReset');
+    var incBtn   = document.getElementById('scriptFontInc');
+    if (decBtn)   decBtn.addEventListener('click', function () { setSize(fontSize - FONT_STEP); });
+    if (resetBtn) resetBtn.addEventListener('click', function () { setSize(FONT_DEFAULT); });
+    if (incBtn)   incBtn.addEventListener('click', function () { setSize(fontSize + FONT_STEP); });
+  })();
+
   fetchTracker();
 })();

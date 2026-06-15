@@ -116,6 +116,11 @@ router.get('/scripture', requireAuth, async (req, res) => {
 
     <div class="scripture-card" id="scriptureCard">
       <h3 class="scripture-heading" id="scriptureHeading">Genesis 1</h3>
+      <div class="guide-font-toolbar">
+        <button class="guide-font-btn guide-font-btn-sm" id="scriptFontDec">A&#8722;</button>
+        <button class="guide-font-btn guide-font-btn-md" id="scriptFontReset">A</button>
+        <button class="guide-font-btn guide-font-btn-lg" id="scriptFontInc">A+</button>
+      </div>
       <div class="scripture-body" id="scriptureBody">
         ${initBody}
       </div>
@@ -148,7 +153,7 @@ router.get('/scripture', requireAuth, async (req, res) => {
     activeSection: 'scripture',
     title:         'Scripture',
     content,
-    scripts:       '<script src="/js/scripture.js?v=2"></script>',
+    scripts:       '<script src="/js/scripture.js?v=3"></script>',
   }));
 });
 

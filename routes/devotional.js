@@ -17,7 +17,12 @@ router.get('/devotional', requireAuth, async (req, res) => {
 
     <div class="devot-full-card">
       ${devotionalContent
-        ? `<div id="devotionalContent" class="devot-content"></div>`
+        ? `<div class="guide-font-toolbar">
+        <button class="guide-font-btn guide-font-btn-sm" id="devotFontDec">A&#8722;</button>
+        <button class="guide-font-btn guide-font-btn-md" id="devotFontReset">A</button>
+        <button class="guide-font-btn guide-font-btn-lg" id="devotFontInc">A+</button>
+      </div>
+      <div id="devotionalContent" class="devot-content"></div>`
         : `<p class="devot-unavailable">Today's devotional is unavailable. Please try refreshing.</p>`}
     </div>
 
@@ -49,6 +54,37 @@ router.get('/devotional', requireAuth, async (req, res) => {
         console.error('Devotional render error:', e);
         el.textContent = devotionalText;
       }
+    })();
+
+    // ── Font size controls ─────────────────────────────────────────────────
+    (function() {
+      var FONT_DEFAULT = 18, FONT_MIN = 12, FONT_MAX = 32, FONT_STEP = 2;
+      var LS_KEY = 'ironink_devot_font_size';
+
+      var styleTag = document.createElement('style');
+      document.head.appendChild(styleTag);
+
+      var fontSize = parseInt(localStorage.getItem(LS_KEY), 10) || FONT_DEFAULT;
+
+      function applySize() {
+        styleTag.textContent =
+          '#devotionalContent p, #devotionalContent li { font-size: ' + fontSize + 'px; }';
+      }
+
+      function setSize(s) {
+        fontSize = Math.min(FONT_MAX, Math.max(FONT_MIN, s));
+        applySize();
+        localStorage.setItem(LS_KEY, fontSize);
+      }
+
+      applySize();
+
+      var decBtn   = document.getElementById('devotFontDec');
+      var resetBtn = document.getElementById('devotFontReset');
+      var incBtn   = document.getElementById('devotFontInc');
+      if (decBtn)   decBtn.addEventListener('click', function() { setSize(fontSize - FONT_STEP); });
+      if (resetBtn) resetBtn.addEventListener('click', function() { setSize(FONT_DEFAULT); });
+      if (incBtn)   incBtn.addEventListener('click', function() { setSize(fontSize + FONT_STEP); });
     })();
 
     // ── Ask interaction ────────────────────────────────────────────────────
