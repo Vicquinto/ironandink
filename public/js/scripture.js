@@ -127,7 +127,7 @@
         '<span class="tracker-book-count">' + countLabel + '</span>' +
         bar +
         check +
-        '<button class="tracker-mark-btn" data-book="' + name + '">Mark Complete</button>' +
+        '<button class="tracker-mark-btn" data-book="' + name + '">' + (goal > 0 ? 'Mark Complete' : 'Set Goal') + '</button>' +
         '</div>';
     }).join('');
 
