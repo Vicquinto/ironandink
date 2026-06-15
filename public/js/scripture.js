@@ -1,6 +1,8 @@
 (function () {
   'use strict';
 
+  var ESV_COPYRIGHT = 'ESV® Bible, Copyright © 2001 by Crossway';
+
   var bookSelect    = document.getElementById('bookSelect');
   var chapterSelect = document.getElementById('chapterSelect');
   var heading       = document.getElementById('scriptureHeading');
@@ -10,7 +12,22 @@
     body.innerHTML = '<p class="scripture-loading">Loading…</p>';
   }
 
-  function renderVerses(bookName, chapter, verses) {
+  function renderEsv(bookName, chapter, text) {
+    heading.textContent = bookName + ' ' + chapter;
+    var paragraphs = text.trim().split(/\n\s*\n/);
+    var html = paragraphs.map(function (para) {
+      return '<p class="scripture-verse">' +
+        para.trim()
+          .replace(/\[(\d+)\]/g, '<sup class="verse-num">$1</sup>')
+          .replace(/\n/g, ' ') +
+        '</p>';
+    }).join('');
+    html += '<p class="scripture-copyright">' + ESV_COPYRIGHT + '</p>';
+    body.innerHTML = html;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function renderKjv(bookName, chapter, verses) {
     heading.textContent = bookName + ' ' + chapter;
     body.innerHTML = verses.map(function (v) {
       return '<p class="scripture-verse"><sup class="verse-num">' + v.verse + '</sup>' + v.text + '</p>';
@@ -24,7 +41,11 @@
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (data.success) {
-          renderVerses(data.book, data.chapter, data.verses);
+          if (data.source === 'esv') {
+            renderEsv(data.book, data.chapter, data.text);
+          } else {
+            renderKjv(data.book, data.chapter, data.verses);
+          }
         } else {
           body.innerHTML = '<p class="scripture-loading">Failed to load chapter.</p>';
         }
@@ -46,8 +67,8 @@
   }
 
   bookSelect.addEventListener('change', function () {
-    var selected      = bookSelect.options[bookSelect.selectedIndex];
-    var chapterCount  = parseInt(selected.dataset.chapters, 10);
+    var selected     = bookSelect.options[bookSelect.selectedIndex];
+    var chapterCount = parseInt(selected.dataset.chapters, 10);
     rebuildChapterSelect(chapterCount, 1);
     loadChapter(bookSelect.value, 1);
   });
