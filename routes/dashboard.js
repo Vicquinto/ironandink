@@ -248,7 +248,7 @@ router.get('/dashboard', requireAuth, (req, res) => {
       &#9873; ${pendingCount} article${pendingCount !== 1 ? 's' : ''} awaiting your review &#8594;
     </a>` : ''}
 
-    <a href="/study" class="btn-primary">Begin a Study</a>`;
+`;
 
   const scripts = `
   <script>
