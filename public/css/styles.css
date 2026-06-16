@@ -2574,7 +2574,7 @@ body {
 .tooltip-font-ctrl {
   position: fixed;
   bottom: 16px;
-  right: 16px;
+  left: 16px;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -2582,7 +2582,7 @@ body {
   border: 1px solid rgba(196, 168, 130, 0.4);
   border-radius: 6px;
   padding: 5px 8px;
-  z-index: 9000;
+  z-index: 99999;
   opacity: 0.2;
   transition: opacity 0.2s;
   backdrop-filter: blur(2px);
