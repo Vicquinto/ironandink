@@ -530,11 +530,6 @@
       '<button class="up-verse-btn">Verse Lookup</button>' +
     '</div>' +
     '<div class="up-content" style="display:none;">' +
-      '<div class="up-font-toolbar">' +
-        '<button class="up-font-btn" onclick="window._ironUpFont(-1)">A&#8722;</button>' +
-        '<button class="up-font-btn" onclick="window._ironUpFont(0)">A</button>' +
-        '<button class="up-font-btn" onclick="window._ironUpFont(1)">A+</button>' +
-      '</div>' +
       '<div class="up-define-pane" style="display:none;">' +
         '<div class="up-definition"></div>' +
       '</div>' +
@@ -868,37 +863,6 @@
     openIcm(upSelectedText, icmTopic);
   });
 
-  // ── Popup font size controls ───────────────────────────────────────────────
-  (function () {
-    var UP_FONT_DEFAULT = 1.0, UP_FONT_MIN = 0.85, UP_FONT_MAX = 1.3, UP_FONT_STEP = 0.05;
-    var UP_LS_KEY = 'ironink_popup_font_size';
-    var upFontSize = parseFloat(localStorage.getItem(UP_LS_KEY)) || UP_FONT_DEFAULT;
-
-    function applyUpFontSize() {
-      var val = upFontSize + 'rem';
-      var els = [
-        upEl.querySelector('.up-definition'),
-        upEl.querySelector('.up-verse-result'),
-        upEl.querySelector('.up-ai-response'),
-      ];
-      els.forEach(function (el) {
-        if (el) el.style.setProperty('font-size', val, 'important');
-      });
-    }
-
-    function setUpFontSize(s) {
-      upFontSize = Math.min(UP_FONT_MAX, Math.max(UP_FONT_MIN, Math.round(s * 100) / 100));
-      applyUpFontSize();
-      localStorage.setItem(UP_LS_KEY, upFontSize);
-    }
-
-    applyUpFontSize();
-
-    window._ironUpFont = function (dir) {
-      if (dir === 0) setUpFontSize(UP_FONT_DEFAULT);
-      else setUpFontSize(upFontSize + dir * UP_FONT_STEP);
-    };
-  }());
 
   // ── Chat modal ─────────────────────────────────────────────────────────────
   function openIcm(selectedText, topic) {

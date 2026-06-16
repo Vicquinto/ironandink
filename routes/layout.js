@@ -86,6 +86,29 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   <script src="/js/app.js?v=8"></script>
   <script src="/js/dictionary.js?v=8"></script>
   ${scripts}
+  <div class="tooltip-font-ctrl">
+    <span class="tooltip-font-label">Tooltip Text</span>
+    <button class="tooltip-font-btn" onclick="window._ttFont(-1)">A&#8722;</button>
+    <button class="tooltip-font-btn" onclick="window._ttFont(0)">A</button>
+    <button class="tooltip-font-btn" onclick="window._ttFont(1)">A+</button>
+  </div>
+  <script>
+  (function () {
+    var MIN = 0.85, MAX = 1.3, STEP = 0.05, DEFAULT = 1.0;
+    var LS_KEY = 'ironink_popup_font_size';
+    var size = parseFloat(localStorage.getItem(LS_KEY)) || DEFAULT;
+    function apply() {
+      document.documentElement.style.setProperty('--tooltip-font-size', size + 'rem');
+    }
+    apply();
+    window._ttFont = function (dir) {
+      if (dir === 0) size = DEFAULT;
+      else size = Math.min(MAX, Math.max(MIN, Math.round((size + dir * STEP) * 100) / 100));
+      apply();
+      localStorage.setItem(LS_KEY, size);
+    };
+  }());
+  </script>
 </body>
 </html>`;
 }
