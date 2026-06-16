@@ -531,9 +531,9 @@
     '</div>' +
     '<div class="up-content" style="display:none;">' +
       '<div class="up-font-toolbar">' +
-        '<button class="up-font-btn" id="upFontDec">A&#8722;</button>' +
-        '<button class="up-font-btn" id="upFontReset">A</button>' +
-        '<button class="up-font-btn" id="upFontInc">A+</button>' +
+        '<button class="up-font-btn" onclick="window._ironUpFont(-1)">A&#8722;</button>' +
+        '<button class="up-font-btn" onclick="window._ironUpFont(0)">A</button>' +
+        '<button class="up-font-btn" onclick="window._ironUpFont(1)">A+</button>' +
       '</div>' +
       '<div class="up-define-pane" style="display:none;">' +
         '<div class="up-definition"></div>' +
@@ -894,18 +894,10 @@
 
     applyUpFontSize();
 
-    upEl.querySelector('#upFontDec').addEventListener('click', function (e) {
-      e.stopPropagation();
-      setUpFontSize(upFontSize - UP_FONT_STEP);
-    });
-    upEl.querySelector('#upFontReset').addEventListener('click', function (e) {
-      e.stopPropagation();
-      setUpFontSize(UP_FONT_DEFAULT);
-    });
-    upEl.querySelector('#upFontInc').addEventListener('click', function (e) {
-      e.stopPropagation();
-      setUpFontSize(upFontSize + UP_FONT_STEP);
-    });
+    window._ironUpFont = function (dir) {
+      if (dir === 0) setUpFontSize(UP_FONT_DEFAULT);
+      else setUpFontSize(upFontSize + dir * UP_FONT_STEP);
+    };
   }());
 
   // ── Chat modal ─────────────────────────────────────────────────────────────
