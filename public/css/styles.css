@@ -2451,9 +2451,9 @@ body {
 .unified-popup {
   position: fixed;
   z-index: 1100;
-  width: 380px;
+  width: 480px;
   min-width: 280px;
-  min-height: 200px;
+  min-height: 250px;
   max-width: calc(100vw - 16px);
   background: #DDD0B0;
   border: 1px solid #A0845C;
