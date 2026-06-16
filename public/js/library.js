@@ -530,6 +530,11 @@
       '<button class="up-verse-btn">Verse Lookup</button>' +
     '</div>' +
     '<div class="up-content" style="display:none;">' +
+      '<div class="up-font-toolbar">' +
+        '<button class="up-font-btn" id="upFontDec">A&#8722;</button>' +
+        '<button class="up-font-btn" id="upFontReset">A</button>' +
+        '<button class="up-font-btn" id="upFontInc">A+</button>' +
+      '</div>' +
       '<div class="up-define-pane" style="display:none;">' +
         '<div class="up-definition"></div>' +
       '</div>' +
@@ -862,6 +867,46 @@
     upEl.style.display = 'none';
     openIcm(upSelectedText, icmTopic);
   });
+
+  // ── Popup font size controls ───────────────────────────────────────────────
+  (function () {
+    var UP_FONT_DEFAULT = 1.0, UP_FONT_MIN = 0.85, UP_FONT_MAX = 1.3, UP_FONT_STEP = 0.05;
+    var UP_LS_KEY = 'ironink_popup_font_size';
+    var upFontSize = parseFloat(localStorage.getItem(UP_LS_KEY)) || UP_FONT_DEFAULT;
+
+    function applyUpFontSize() {
+      var val = upFontSize + 'rem';
+      var els = [
+        upEl.querySelector('.up-definition'),
+        upEl.querySelector('.up-verse-result'),
+        upEl.querySelector('.up-ai-response'),
+      ];
+      els.forEach(function (el) {
+        if (el) el.style.setProperty('font-size', val, 'important');
+      });
+    }
+
+    function setUpFontSize(s) {
+      upFontSize = Math.min(UP_FONT_MAX, Math.max(UP_FONT_MIN, Math.round(s * 100) / 100));
+      applyUpFontSize();
+      localStorage.setItem(UP_LS_KEY, upFontSize);
+    }
+
+    applyUpFontSize();
+
+    upEl.querySelector('#upFontDec').addEventListener('click', function (e) {
+      e.stopPropagation();
+      setUpFontSize(upFontSize - UP_FONT_STEP);
+    });
+    upEl.querySelector('#upFontReset').addEventListener('click', function (e) {
+      e.stopPropagation();
+      setUpFontSize(UP_FONT_DEFAULT);
+    });
+    upEl.querySelector('#upFontInc').addEventListener('click', function (e) {
+      e.stopPropagation();
+      setUpFontSize(upFontSize + UP_FONT_STEP);
+    });
+  }());
 
   // ── Chat modal ─────────────────────────────────────────────────────────────
   function openIcm(selectedText, topic) {

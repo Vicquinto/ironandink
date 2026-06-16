@@ -2451,9 +2451,9 @@ body {
 .unified-popup {
   position: fixed;
   z-index: 1100;
-  width: 480px;
+  width: 380px;
   min-width: 280px;
-  min-height: 250px;
+  min-height: 200px;
   max-width: calc(100vw - 16px);
   background: #DDD0B0;
   border: 1px solid #A0845C;
@@ -2570,6 +2570,27 @@ body {
   max-height: 180px;
   overflow-y: auto;
 }
+
+.up-font-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 3px;
+  padding: 4px 10px 2px;
+  border-bottom: 1px solid #e8d9b8;
+}
+
+.up-font-btn {
+  font-size: 0.7rem;
+  padding: 1px 5px;
+  background: #f5ede0;
+  border: 1px solid #c4a882;
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: Georgia, serif;
+  color: #5C1A28;
+  line-height: 1.4;
+}
+.up-font-btn:hover { background: #e8d9b8; }
 
 .up-loading {
   color: #A0845C;

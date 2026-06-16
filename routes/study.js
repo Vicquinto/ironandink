@@ -189,7 +189,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study.js"></script><script src="/js/library.js?v=9"></script>
+    scripts: `<script src="/js/study.js"></script><script src="/js/library.js?v=10"></script>
 <script>
 (function() {
   var APPOINTED_TOPICS = [
