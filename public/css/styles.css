@@ -2577,45 +2577,6 @@ body {
   overflow-y: auto;
 }
 
-.tooltip-font-ctrl {
-  position: fixed;
-  bottom: 20px;
-  left: 16px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: rgba(90, 56, 52, 0.55);
-  border: 1px solid rgba(196, 168, 130, 0.4);
-  border-radius: 6px;
-  padding: 5px 8px;
-  z-index: 99999;
-  opacity: 1;
-  backdrop-filter: blur(2px);
-  user-select: none;
-}
-
-.tooltip-font-label {
-  font-size: 0.62rem;
-  color: #f5ede0;
-  font-family: Georgia, serif;
-  margin-right: 3px;
-  white-space: nowrap;
-  letter-spacing: 0.04em;
-}
-
-.tooltip-font-btn {
-  font-size: 0.7rem;
-  padding: 2px 5px;
-  background: rgba(245, 237, 224, 0.15);
-  border: 1px solid rgba(196, 168, 130, 0.5);
-  border-radius: 3px;
-  cursor: pointer;
-  font-family: Georgia, serif;
-  color: #f5ede0;
-  line-height: 1.4;
-}
-.tooltip-font-btn:hover { background: rgba(245, 237, 224, 0.3); }
-
 .up-loading {
   color: #A0845C;
   font-style: italic;
