@@ -678,7 +678,8 @@
   // Dismiss popup on click outside
   document.addEventListener('mousedown', function (e) {
     if (upEl && upEl.style.display !== 'none' &&
-        !e.target.closest('#unifiedPopup')) {
+        !e.target.closest('#unifiedPopup') &&
+        !e.target.closest('.tooltip-font-ctrl')) {
       upEl.style.display = 'none';
     }
   });
