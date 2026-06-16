@@ -2573,7 +2573,7 @@ body {
 
 .tooltip-font-ctrl {
   position: fixed;
-  bottom: 16px;
+  bottom: 20px;
   left: 16px;
   display: flex;
   align-items: center;
@@ -2583,12 +2583,10 @@ body {
   border-radius: 6px;
   padding: 5px 8px;
   z-index: 99999;
-  opacity: 0.2;
-  transition: opacity 0.2s;
+  opacity: 1;
   backdrop-filter: blur(2px);
   user-select: none;
 }
-.tooltip-font-ctrl:hover { opacity: 1; }
 
 .tooltip-font-label {
   font-size: 0.62rem;
