@@ -88,9 +88,9 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   ${scripts}
   <div class="tooltip-font-ctrl">
     <span class="tooltip-font-label">Tooltip Text</span>
-    <button class="tooltip-font-btn" onclick="window._ttFont(-1)">A&#8722;</button>
-    <button class="tooltip-font-btn" onclick="window._ttFont(0)">A</button>
-    <button class="tooltip-font-btn" onclick="window._ttFont(1)">A+</button>
+    <button type="button" class="tooltip-font-btn" onclick="event.preventDefault();event.stopPropagation();window._ttFont(-1)">A&#8722;</button>
+    <button type="button" class="tooltip-font-btn" onclick="event.preventDefault();event.stopPropagation();window._ttFont(0)">A</button>
+    <button type="button" class="tooltip-font-btn" onclick="event.preventDefault();event.stopPropagation();window._ttFont(1)">A+</button>
   </div>
   <script>
   (function () {
