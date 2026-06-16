@@ -2553,6 +2553,12 @@ body {
   padding: 12px 14px;
 }
 
+.unified-popup .up-ai-response,
+.unified-popup .up-definition,
+.unified-popup .up-verse-result {
+  font-size: var(--tooltip-font-size, 1rem) !important;
+}
+
 .up-verse-result {
   font-size: var(--tooltip-font-size, 1rem) !important;
   font-family: 'EB Garamond', Georgia, serif;

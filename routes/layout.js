@@ -98,9 +98,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
     var LS_KEY = 'ironink_popup_font_size';
     var size = parseFloat(localStorage.getItem(LS_KEY)) || DEFAULT;
     function apply() {
-      var val = size + 'rem';
-      document.querySelectorAll('.up-ai-response, .up-definition, .up-verse-result')
-        .forEach(function (el) { el.style.fontSize = val; });
+      document.documentElement.style.setProperty('--tooltip-font-size', size + 'rem');
     }
     apply();
     window._ttFont = function (dir) {
