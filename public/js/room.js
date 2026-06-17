@@ -210,7 +210,7 @@
 
         console.log('isHost in askAI handler: ' + isHost);
         if (isHost) {
-          socket.emit('room-tooltip-broadcast', { roomCode: roomCode, type: 'Ask AI', term: term, response: data.content });
+          socket.emit('room-tooltip-broadcast', { roomCode: roomCode, type: 'Inquire', term: term, response: data.content });
         } else {
           var prev = document.getElementById('roomAskAIResponse');
           if (prev) prev.remove();

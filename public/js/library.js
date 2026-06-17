@@ -527,7 +527,7 @@
     '</div>' +
     '<div class="up-actions">' +
       '<button class="up-define-btn">Define</button>' +
-      '<button class="up-ai-btn">Ask AI</button>' +
+      '<button class="up-ai-btn">Inquire</button>' +
       '<button class="up-verse-btn">Verse Lookup</button>' +
     '</div>' +
     '<div class="up-content" style="display:none;">' +
@@ -862,7 +862,7 @@
       if (data.success) {
         resp.innerHTML = renderMarkdown(data.answer);
         if (window.ROOM_CODE && window.isHost) {
-          showShareFooter({ roomCode: window.ROOM_CODE, type: 'Ask AI', term: upSelectedText, response: data.answer });
+          showShareFooter({ roomCode: window.ROOM_CODE, type: 'Inquire', term: upSelectedText, response: data.answer });
         }
       } else {
         resp.innerHTML = '<span style="color:#e08080;font-style:italic;">Error: ' + esc(data.error || 'Failed.') + '</span>';
