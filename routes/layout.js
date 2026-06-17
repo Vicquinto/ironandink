@@ -51,6 +51,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   <title>${title} — Iron &amp; Ink</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css?v=11">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
   <div class="app-container">

@@ -81,6 +81,7 @@ router.get('/forgot-password', (req, res) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iron &amp; Ink — Forgot Password</title>
   ${publicStyles()}
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
   <div class="pub-container">
@@ -181,6 +182,7 @@ router.get('/reset-password', (req, res) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iron &amp; Ink — Invalid Reset Link</title>
   ${publicStyles()}
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
   <div class="pub-container">
@@ -204,6 +206,7 @@ router.get('/reset-password', (req, res) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iron &amp; Ink — Reset Password</title>
   ${publicStyles()}
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
   <div class="pub-container">

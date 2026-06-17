@@ -13,6 +13,7 @@ router.get('/', (req, res) => {
   <title>Iron &amp; Ink — Reformed Theological Study</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <style>
     /* Landing page layout — no sidebar */
     body { font-family: 'EB Garamond', Georgia, serif; }

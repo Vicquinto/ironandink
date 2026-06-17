@@ -178,6 +178,7 @@ function renderLoginPage({ error, notice }) {
   <title>Iron &amp; Ink — Login</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
   ${loginStyles()}
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
   <div class="login-container">
@@ -243,6 +244,7 @@ function renderSetupPage({ error }) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iron &amp; Ink — Set Password</title>
   ${loginStyles()}
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
   <div class="login-container">

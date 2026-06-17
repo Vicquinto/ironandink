@@ -84,6 +84,7 @@ router.get('/invite-request', (req, res) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iron &amp; Ink — Request an Invitation</title>
   ${publicStyles()}
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
   <div class="pub-container">
@@ -198,6 +199,7 @@ router.get('/register', (req, res) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iron &amp; Ink — Invalid Invitation</title>
   ${publicStyles()}
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
   <div class="pub-container">
@@ -223,6 +225,7 @@ router.get('/register', (req, res) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iron &amp; Ink — Create Your Account</title>
   ${publicStyles()}
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
   <div class="pub-container">
