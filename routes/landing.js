@@ -108,7 +108,7 @@ router.get('/', (req, res) => {
 
     /* ── Feature cards ── */
     .features {
-      background: #6B4226;
+      background: #5A3834 url('/images/sidebar-leather.svg') center center / cover no-repeat;
       border-top: 1px solid rgba(179,140,51,0.15);
       padding: 64px 24px;
     }
@@ -122,10 +122,30 @@ router.get('/', (req, res) => {
     }
 
     .feature-card {
-      background: var(--card-bg);
-      border: 1px solid rgba(179,140,51,0.12);
-      border-radius: 8px;
-      padding: 32px 28px;
+      position: relative;
+      background-color: #FAFAF7;
+      background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 27px,
+        #E8EDF2 27px,
+        #E8EDF2 28px
+      );
+      border: none;
+      border-radius: 3px;
+      padding: 32px 28px 32px 52px;
+      box-shadow: 2px 4px 12px rgba(0,0,0,0.18);
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 32px;
+      width: 2px;
+      background: #C9444A;
     }
 
     .feature-icon {
