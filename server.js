@@ -194,10 +194,12 @@ const io         = new Server(httpServer);
 app.locals.io    = io;
 
 io.on('connection', (socket) => {
-  socket.on('join-room', (roomCode) => {
-    console.log('join-room received: ' + roomCode);
-    socket.join(roomCode);
-    socket.to(roomCode).emit('room-member-joined', { roomCode });
+  socket.on('join-room', (payload) => {
+    const code = typeof payload === 'string' ? payload : (payload && payload.roomCode) || '';
+    const name = (payload && payload.name) ? String(payload.name) : '';
+    console.log('join-room received: ' + code + (name ? ' (' + name + ')' : ''));
+    socket.join(code);
+    socket.to(code).emit('room-member-joined', { roomCode: code, name });
   });
 
   socket.on('room-study-result', ({ roomCode, data }) => {

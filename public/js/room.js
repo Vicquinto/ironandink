@@ -55,7 +55,10 @@
   var socket = io();
   window.roomSocket = socket;
   window.isHost     = isHost;
-  socket.emit('join-room', roomCode);
+  socket.emit('join-room', {
+    roomCode: roomCode,
+    name:     window.CURRENT_USER ? window.CURRENT_USER.name : '',
+  });
 
   socket.on('room-study-result', function (data) {
     displayStudy(data);
@@ -72,8 +75,11 @@
   });
 
 
-  socket.on('room-member-joined', function () {
+  socket.on('room-member-joined', function (data) {
     loadMembersList();
+    var joinerName = (data && data.name) ? data.name : 'A new member';
+    showToast(joinerName + ' joined the room.');
+    playJoinChime();
   });
 
   socket.on('room-chat-message', function (data) {
@@ -438,6 +444,31 @@
     if (inUl) result.push('</ul>');
     if (inOl) result.push('</ol>');
     return result.join('\n');
+  }
+
+  // ── Join chime ─────────────────────────────────────────────────────────────
+  function playJoinChime() {
+    try {
+      var Ctx  = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      var ctx  = new Ctx();
+      var osc  = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      // Soft two-note ascending chime: C5 → E5
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+      osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.13);
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.11, ctx.currentTime + 0.02);
+      gain.gain.setValueAtTime(0.11, ctx.currentTime + 0.13);
+      gain.gain.linearRampToValueAtTime(0.09, ctx.currentTime + 0.15);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.75);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.75);
+      setTimeout(function () { try { ctx.close(); } catch (e) {} }, 900);
+    } catch (e) {}
   }
 
   // ── Toast ──────────────────────────────────────────────────────────────────
