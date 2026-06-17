@@ -2552,6 +2552,7 @@ body {
 .up-ai-btn {
   border-radius: 0;
   border-right: none;
+  font-size: 0.72rem;
 }
 .up-verse-btn {
   border-radius: 0 4px 4px 0;
