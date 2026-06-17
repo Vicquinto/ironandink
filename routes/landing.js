@@ -108,7 +108,7 @@ router.get('/', (req, res) => {
 
     /* ── Feature cards ── */
     .features {
-      background: #5A3834 url('/images/sidebar-leather.svg') center center / cover no-repeat;
+      background: #5A3834 url('/images/landing-leather.svg') center center / cover no-repeat;
       border-top: 1px solid rgba(179,140,51,0.15);
       padding: 64px 24px;
     }
