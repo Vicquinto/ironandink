@@ -16,13 +16,6 @@ export const TOURS = {
       buttons:  ['skip', 'next'],
     },
     {
-      id:       'study-level',
-      attachTo: { element: '#studyLevelSelect', on: 'bottom' },
-      title:    'Choose Your Depth',
-      text:     'Choose Foundations, Journeyman, or Scholar depending on how deep you want to go.',
-      buttons:  ['back', 'next'],
-    },
-    {
       id:       'study-generate',
       attachTo: { element: '#generateBtn', on: 'bottom' },
       title:    'Generate',

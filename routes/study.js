@@ -116,7 +116,6 @@ function buildTopicBrowser() {
 
 // ─── GET /study ──────────────────────────────────────────────────────────────
 router.get('/study', requireAuth, (req, res) => {
-  const userLevel = (req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman';
   const content = `
     <div class="page-header">
       <h2 class="page-title">Study</h2>
@@ -126,11 +125,6 @@ router.get('/study', requireAuth, (req, res) => {
     <div class="study-search-bar">
       <input type="text" id="topicInput" class="form-input study-topic-input"
              placeholder="Study any topic..." autocomplete="off">
-      <select id="studyLevelSelect" class="study-level-select">
-        <option value="foundations"${userLevel === 'foundations' ? ' selected' : ''}>Foundations</option>
-        <option value="journeyman"${userLevel === 'journeyman' ? ' selected' : ''}>Journeyman</option>
-        <option value="scholar"${userLevel === 'scholar' ? ' selected' : ''}>Scholar</option>
-      </select>
       <button id="generateBtn" class="btn-primary">Generate Guide</button>
       <button id="appointedStudyBtn" class="btn-warm">Appointed Study</button>
     </div>

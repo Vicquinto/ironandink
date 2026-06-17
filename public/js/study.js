@@ -120,7 +120,7 @@
       var res  = await fetch('/api/study/generate', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ topic, studyLevel: (document.getElementById('studyLevelSelect') || {}).value || 'journeyman' }),
+        body:    JSON.stringify({ topic }),
         signal:  abortController.signal,
       });
       var data = await res.json();
