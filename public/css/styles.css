@@ -2870,11 +2870,13 @@ body {
 .nav-item.active .nav-icon { color: #E8D9B8; }
 .sidebar.collapsed .nav-item.active { border-right-color: #A0845C; }
 
-/* Logout & admin nav on sidebar */
+/* Logout, admin, and copyright nav on sidebar */
 .logout-link       { color: #A0845C; }
 .logout-link:hover { color: #E8D9B8; background: rgba(160,132,92,0.1); }
 .nav-item.admin-link { color: #A0845C; }
 .nav-item.admin-link.active { color: #E8D9B8; }
+.nav-item.copyright-link { color: #A0845C; }
+.nav-item.copyright-link:hover { color: #E8D9B8; }
 
 /* ─── PRINT AREA (hidden in normal view) ───────────────────────────── */
 #printArea { display: none; }

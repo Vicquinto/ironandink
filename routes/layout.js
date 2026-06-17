@@ -72,6 +72,10 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
           <span class="nav-icon">&#9873;</span>
           <span class="nav-label">Admin</span>
         </a>` : ''}
+        <a href="/copyright" class="nav-item copyright-link">
+          <span class="nav-icon">&#169;</span>
+          <span class="nav-label">Copyright</span>
+        </a>
         <a href="/logout" class="logout-link">
           <span class="nav-icon">&#8617;</span>
           <span class="nav-label">Logout</span>
