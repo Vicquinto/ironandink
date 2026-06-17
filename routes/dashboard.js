@@ -145,12 +145,23 @@ function getPendingCount() {
   } catch { return 0; }
 }
 
+function extractPassageRef(content) {
+  // Match "Book Chapter:Verse" or "Book Chapter:Verse–Verse"
+  // Handles numbered books (1 John), two-word books (Song of Solomon), en-dash/hyphen ranges
+  const m = content.match(
+    /\b((?:\d\s+)?[A-Z][a-z]+(?:\s+of\s+[A-Z][a-z]+)?\s+\d+:\d+(?:[––-]\d+)?)/
+  );
+  return m ? m[1].replace(/\s+/g, ' ').trim() : null;
+}
+
 async function getDailyDevotional(req) {
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Denver' });
 
+  let recentPassages = [];
   try {
     if (fs.existsSync(DEVOTIONAL_PATH)) {
       const cached = JSON.parse(fs.readFileSync(DEVOTIONAL_PATH, 'utf8'));
+      if (Array.isArray(cached.recentPassages)) recentPassages = cached.recentPassages;
       if (cached.date === today && cached.content) return cached.content;
     }
   } catch {}
@@ -160,8 +171,12 @@ async function getDailyDevotional(req) {
     '\n\nFor this task you are generating the daily devotional feature for the Iron & Ink platform. ' +
     'Write with full doctrinal precision, pastoral warmth, and confessionally Reformed conviction.';
 
+  const exclusionNote = recentPassages.length > 0
+    ? `Do NOT use any of these recently used passages: ${recentPassages.join(', ')}.`
+    : 'Vary the passage selection — do not repeat what has been used recently.';
+
   const dateStr    = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-  const userPrompt = `Write the Iron & Ink Daily Devotional for ${dateStr}. Today's date is ${today}. Select a Scripture passage appropriate for this specific day — do NOT use Romans 8:29-32 as it has been used recently. Choose from across the full breadth of Scripture — Psalms, Proverbs, the Gospels, the Epistles, the Old Testament prophets — varying the selection each day. Use exactly these four section headings:
+  const userPrompt = `Write the Iron & Ink Daily Devotional for ${dateStr}. Today's date is ${today}. Select a Scripture passage appropriate for this specific day — ${exclusionNote} Choose from across the full breadth of Scripture — Psalms, Proverbs, the Gospels, the Epistles, the Old Testament prophets — varying the selection each day. Use exactly these four section headings:
 
 ## Scripture
 Choose a passage of 3–5 verses — a psalm, a prophet, a Gospel, or an epistle. Choose for doctrinal richness. Print the complete LSB text of every verse, word for word.
@@ -186,6 +201,12 @@ Tone: warm but serious. Reformed and confessional.`;
       messages:   [{ role: 'user', content: userPrompt }],
     });
     const content = message.content[0].text;
+
+    const passageRef = extractPassageRef(content);
+    if (passageRef) {
+      recentPassages = [passageRef, ...recentPassages.filter(p => p !== passageRef)].slice(0, 7);
+    }
+
     const dataDir = path.dirname(DEVOTIONAL_PATH);
     console.log('[devotional] API succeeded. Attempting cache write.');
     console.log('[devotional] Target path:', DEVOTIONAL_PATH);
@@ -193,8 +214,8 @@ Tone: warm but serious. Reformed and confessional.`;
     try {
       fs.mkdirSync(dataDir, { recursive: true });
       console.log('[devotional] mkdirSync OK');
-      fs.writeFileSync(DEVOTIONAL_PATH, JSON.stringify({ date: today, content }, null, 2), 'utf8');
-      console.log('[devotional] writeFileSync OK — cache written for', today);
+      fs.writeFileSync(DEVOTIONAL_PATH, JSON.stringify({ date: today, content, recentPassages }, null, 2), 'utf8');
+      console.log('[devotional] writeFileSync OK — cache written for', today, '| passages tracked:', recentPassages.length);
     } catch (writeErr) {
       console.error('[devotional] Cache write FAILED');
       console.error('[devotional]   code   :', writeErr.code);
