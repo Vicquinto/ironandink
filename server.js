@@ -101,7 +101,6 @@ app.locals.prompts = { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT, IRON_INK_DIA
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/shepherd', express.static(path.join(__dirname, 'node_modules/shepherd.js/dist')));
 
 app.use(session({
   store:             new FileStore({ path: path.join(__dirname, 'sessions'), ttl: 86400, reapInterval: 3600 }),

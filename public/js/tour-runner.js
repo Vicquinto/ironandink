@@ -3,7 +3,7 @@
  * then starts the matching Shepherd.js tour if this page hasn't been seen.
  */
 
-import Shepherd from '/shepherd/js/shepherd.mjs';
+import Shepherd from '/js/shepherd.mjs';
 import { TOURS } from '/js/tours.js';
 
 const PAGE       = window.__currentPage;
