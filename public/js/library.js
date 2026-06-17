@@ -509,10 +509,11 @@
   var upEl  = null;
   var icmEl = null;
 
-  var upSelectedText = '';
-  var icmHistory     = [];
-  var icmContextText = '';
-  var icmTopic       = '';
+  var upSelectedText    = '';
+  var icmHistory        = [];
+  var icmContextText    = '';
+  var icmTopic          = '';
+  var _pendingBroadcast = null;
 
   // ── Build unified popup ────────────────────────────────────────────────────
   upEl = document.createElement('div');
@@ -546,6 +547,10 @@
           '<button class="up-chat-btn">Open Full Chat →</button>' +
         '</div>' +
       '</div>' +
+    '</div>' +
+    '<div class="up-share-footer" style="display:none;flex-direction:row;gap:0.5rem;justify-content:flex-end;margin-top:0.65rem;padding-top:0.5rem;border-top:1px solid #ddd0b0;">' +
+      '<button class="up-private-btn" style="background:transparent;color:#8a6c30;border:1px solid #c4a882;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Keep Private</button>' +
+      '<button class="up-share-btn" style="background:#5C1A28;color:#fff;border:none;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Share to Chat</button>' +
     '</div>';
   document.body.appendChild(upEl);
 
@@ -572,6 +577,18 @@
     '</div>';
   document.body.appendChild(icmEl);
 
+  function showShareFooter(payload) {
+    _pendingBroadcast = payload;
+    var footer = upEl.querySelector('.up-share-footer');
+    if (footer) { footer.style.display = 'flex'; clampUp(); }
+  }
+
+  function hideShareFooter() {
+    _pendingBroadcast = null;
+    var footer = upEl.querySelector('.up-share-footer');
+    if (footer) footer.style.display = 'none';
+  }
+
   // ── Show unified popup ─────────────────────────────────────────────────────
   function showUp(text, rect) {
     upEl.querySelector('.up-preview').textContent =
@@ -590,6 +607,7 @@
     upEl.querySelector('.up-define-btn').classList.remove('up-btn-active');
     upEl.querySelector('.up-ai-btn').classList.remove('up-btn-active');
     upEl.querySelector('.up-verse-btn').classList.remove('up-btn-active');
+    hideShareFooter();
 
     // Measure collapsed height before committing to a position
     upEl.style.top        = '0';
@@ -709,6 +727,20 @@
 
   // ── Popup interactions ─────────────────────────────────────────────────────
   upEl.querySelector('.up-close').addEventListener('click', function () {
+    hideShareFooter();
+    upEl.style.display = 'none';
+  });
+
+  upEl.querySelector('.up-share-btn').addEventListener('click', function () {
+    if (_pendingBroadcast && window.roomSocket) {
+      window.roomSocket.emit('room-tooltip-broadcast', _pendingBroadcast);
+    }
+    hideShareFooter();
+    upEl.style.display = 'none';
+  });
+
+  upEl.querySelector('.up-private-btn').addEventListener('click', function () {
+    hideShareFooter();
     upEl.style.display = 'none';
   });
 
@@ -737,12 +769,7 @@
       } else {
         defEl.innerHTML = renderMarkdown(data.definition);
         if (window.ROOM_CODE && window.isHost) {
-          var _defPayload = { roomCode: window.ROOM_CODE, type: 'Define', term: upSelectedText, response: data.definition };
-          if (window.roomSocket) {
-            window.roomSocket.emit('room-tooltip-broadcast', _defPayload);
-          } else {
-            setTimeout(function () { if (window.roomSocket) window.roomSocket.emit('room-tooltip-broadcast', _defPayload); }, 500);
-          }
+          showShareFooter({ roomCode: window.ROOM_CODE, type: 'Define', term: upSelectedText, response: data.definition });
         }
       }
       clampUp();
@@ -790,12 +817,7 @@
       } else {
         verseEl.innerHTML = renderMarkdown(data.verse);
         if (window.ROOM_CODE && window.isHost) {
-          var _versePayload = { roomCode: window.ROOM_CODE, type: 'Verse Lookup', term: upSelectedText, response: data.verse };
-          if (window.roomSocket) {
-            window.roomSocket.emit('room-tooltip-broadcast', _versePayload);
-          } else {
-            setTimeout(function () { if (window.roomSocket) window.roomSocket.emit('room-tooltip-broadcast', _versePayload); }, 500);
-          }
+          showShareFooter({ roomCode: window.ROOM_CODE, type: 'Verse Lookup', term: upSelectedText, response: data.verse });
         }
       }
       clampUp();
@@ -840,12 +862,7 @@
       if (data.success) {
         resp.innerHTML = renderMarkdown(data.answer);
         if (window.ROOM_CODE && window.isHost) {
-          var _aiPayload = { roomCode: window.ROOM_CODE, type: 'Ask AI', term: upSelectedText, response: data.answer };
-          if (window.roomSocket) {
-            window.roomSocket.emit('room-tooltip-broadcast', _aiPayload);
-          } else {
-            setTimeout(function () { if (window.roomSocket) window.roomSocket.emit('room-tooltip-broadcast', _aiPayload); }, 500);
-          }
+          showShareFooter({ roomCode: window.ROOM_CODE, type: 'Ask AI', term: upSelectedText, response: data.answer });
         }
       } else {
         resp.innerHTML = '<span style="color:#e08080;font-style:italic;">Error: ' + esc(data.error || 'Failed.') + '</span>';
