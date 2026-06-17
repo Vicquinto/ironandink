@@ -83,6 +83,7 @@ router.post('/api/setup-password', async (req, res) => {
 
   users[idx].passwordHash = await bcrypt.hash(password, 10);
   users[idx].needsSetup = false;
+  users[idx].hasSeenWelcome = false;
   writeUsers(users);
 
   delete req.session.setupEmail;

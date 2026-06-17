@@ -19,6 +19,15 @@ function getIsAdmin(req) {
   return false;
 }
 
+function getShouldShowWelcome(req) {
+  if (!req.session.userId) return false;
+  try {
+    const users = JSON.parse(fs.readFileSync(USERS_PATH_L, 'utf8'));
+    const user  = users.find(u => u.id === req.session.userId);
+    return !!(user && user.hasSeenWelcome === false);
+  } catch { return false; }
+}
+
 function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   const navItems = [
     { id: 'dashboard',   label: 'Dashboard',   href: '/dashboard',   icon: '&#9685;' },
@@ -35,7 +44,8 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
     { id: 'settings',    label: 'Settings',    href: '/settings',    icon: '&#9881;' },
   ];
 
-  const isAdmin = getIsAdmin(req);
+  const isAdmin       = getIsAdmin(req);
+  const showWelcome   = getShouldShowWelcome(req);
 
   const navHTML = navItems.map(item => `
         <a href="${item.href}" class="nav-item${item.id === activeSection ? ' active' : ''}">
@@ -50,7 +60,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title} — Iron &amp; Ink</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/styles.css?v=13">
+  <link rel="stylesheet" href="/css/styles.css?v=14">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
@@ -76,6 +86,10 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
           <span class="nav-icon">&#169;</span>
           <span class="nav-label">Copyright</span>
         </a>
+        <a href="/help" class="nav-item help-link${activeSection === 'help' ? ' active' : ''}">
+          <span class="nav-icon">&#9432;</span>
+          <span class="nav-label">Help</span>
+        </a>
         <a href="/logout" class="logout-link">
           <span class="nav-icon">&#8617;</span>
           <span class="nav-label">Logout</span>
@@ -91,6 +105,48 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   <script src="/js/app.js?v=8"></script>
   <script src="/js/dictionary.js?v=8"></script>
   ${scripts}
+  ${showWelcome ? `<div class="welcome-overlay" id="welcomeOverlay">
+  <div class="welcome-modal">
+    <div class="welcome-modal-eyebrow">Iron &amp; Ink</div>
+    <h2 class="welcome-modal-title">Welcome</h2>
+    <p class="welcome-modal-subtitle">A quick orientation before you begin.</p>
+    <ul class="welcome-feature-list">
+      <li class="welcome-feature-item">
+        <span class="welcome-feature-name">Study</span>
+        <span class="welcome-feature-desc">Generate a full Reformed study guide on any theological topic, passage, or question.</span>
+      </li>
+      <li class="welcome-feature-item">
+        <span class="welcome-feature-name">Dialogue</span>
+        <span class="welcome-feature-desc">Sharpen your understanding by defending the Reformed position against an AI trained to raise the strongest objections.</span>
+      </li>
+      <li class="welcome-feature-item">
+        <span class="welcome-feature-name">Writing</span>
+        <span class="welcome-feature-desc">Compose articles, sermons, or letters in your own voice, scaffolded by guiding questions.</span>
+      </li>
+      <li class="welcome-feature-item">
+        <span class="welcome-feature-name">Library</span>
+        <span class="welcome-feature-desc">Everything you save lives here: studies, tagged and searchable, ready to revisit.</span>
+      </li>
+      <li class="welcome-feature-item">
+        <span class="welcome-feature-name">Scripture</span>
+        <span class="welcome-feature-desc">Read the Bible directly, track your reading, and look up any verse.</span>
+      </li>
+      <li class="welcome-feature-item">
+        <span class="welcome-feature-name">Selah</span>
+        <span class="welcome-feature-desc">Your private journal for prayer and reflection before the Lord.</span>
+      </li>
+      <li class="welcome-feature-item">
+        <span class="welcome-feature-name">Live Rooms</span>
+        <span class="welcome-feature-desc">Study together with others in real time, host or join a room, and discuss as you go.</span>
+      </li>
+    </ul>
+    <div class="welcome-highlight-note">
+      <strong>One feature works everywhere:</strong> Highlight any word or phrase of text on the page, and a small toolbar will appear &mdash; letting you define it, ask a question about it, or look up a related verse, right where you&#39;re reading.
+    </div>
+    <button class="welcome-dismiss-btn" id="welcomeDismiss">Got it &mdash; let&#39;s begin</button>
+  </div>
+</div>
+<script>(function(){var b=document.getElementById('welcomeDismiss');if(b)b.addEventListener('click',function(){fetch('/api/welcome-seen',{method:'POST'});document.getElementById('welcomeOverlay').style.display='none';});})();</script>` : ''}
 
 </body>
 </html>`;
