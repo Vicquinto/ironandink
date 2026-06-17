@@ -65,12 +65,17 @@ router.get('/help', requireAuth, (req, res) => {
   res.send(renderLayout({ req, activeSection: 'help', title: 'Getting Started', content }));
 });
 
-router.post('/api/welcome-seen', requireAuth, (req, res) => {
+const VALID_TOUR_PAGES = ['study','scripture','selah','rooms','library','dialogue','writing'];
+
+router.post('/api/tour-seen', requireAuth, (req, res) => {
+  const { page } = req.body;
+  if (!page || !VALID_TOUR_PAGES.includes(page)) return res.json({ success: false });
   try {
     const users = JSON.parse(fs.readFileSync(USERS_PATH_H, 'utf8'));
     const idx   = users.findIndex(u => u.id === req.session.userId);
     if (idx !== -1) {
-      users[idx].hasSeenWelcome = true;
+      if (!users[idx].toursSeen) users[idx].toursSeen = {};
+      users[idx].toursSeen[page] = true;
       fs.writeFileSync(USERS_PATH_H, JSON.stringify(users, null, 2));
     }
     res.json({ success: true });

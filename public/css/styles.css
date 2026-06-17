@@ -3987,3 +3987,125 @@ body {
 }
 
 .welcome-dismiss-btn:hover { background: #6B4226; }
+
+/* ─── STUDY LEVEL SELECT ─────────────────────────────────────────────── */
+
+.study-level-select {
+  flex-shrink: 0;
+  height: 38px;
+  padding: 0 10px;
+  background: #FDFAF4;
+  border: 1px solid #C4A882;
+  border-radius: 4px;
+  color: #3A2A1E;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+  outline: none;
+}
+.study-level-select:focus { border-color: #A0845C; box-shadow: 0 0 0 2px rgba(160,132,92,0.25); }
+
+/* ─── ROOMS JOIN SECTION ─────────────────────────────────────────────── */
+
+.rooms-join-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.rooms-join-input { width: 148px; text-transform: uppercase; letter-spacing: 0.1em; }
+
+/* ─── SHEPHERD.JS TOUR OVERRIDES ─────────────────────────────────────── */
+
+.shepherd-element {
+  background: #FDFAF4;
+  border: 1px solid #C4A882;
+  border-radius: 6px;
+  box-shadow: 0 8px 32px rgba(58,42,30,0.28);
+  font-family: 'EB Garamond', Georgia, serif;
+  max-width: 360px;
+}
+
+.shepherd-arrow:before {
+  background: #FDFAF4;
+}
+
+.shepherd-has-title .shepherd-content .shepherd-header {
+  background: #5A3834;
+  border-radius: 5px 5px 0 0;
+  padding: 12px 16px;
+}
+
+.shepherd-element.shepherd-has-title[data-popper-placement^=bottom] > .shepherd-arrow:before {
+  background: #5A3834;
+}
+
+.shepherd-title {
+  color: #E8D9B8;
+  font-family: 'Cinzel', 'EB Garamond', Georgia, serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.shepherd-cancel-icon {
+  color: #E8D9B8;
+  opacity: 0.75;
+  font-size: 1.2rem;
+  background: none;
+  border: none;
+}
+.shepherd-cancel-icon:hover { opacity: 1; color: #E8D9B8; }
+
+.shepherd-text {
+  color: #3A2A1E;
+  font-size: 1rem;
+  line-height: 1.55;
+  padding: 14px 16px 10px;
+}
+
+.shepherd-footer {
+  padding: 8px 16px 14px;
+  border-top: 1px solid #E8D9B8;
+  gap: 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.shepherd-button {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 4px;
+  padding: 6px 14px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+  letter-spacing: 0.04em;
+}
+
+.shepherd-btn-next,
+.shepherd-btn-finish {
+  background: #5A3834;
+  color: #E8D9B8;
+}
+.shepherd-btn-next:hover,
+.shepherd-btn-finish:hover { background: #6B4226; }
+
+.shepherd-btn-back {
+  background: transparent;
+  color: #5A3834;
+  border: 1px solid #C4A882;
+}
+.shepherd-btn-back:hover { background: #F5EDD8; }
+
+.shepherd-btn-skip {
+  background: transparent;
+  color: #8B7355;
+  margin-right: auto;
+  padding-left: 0;
+}
+.shepherd-btn-skip:hover { color: #5A3834; }
+
+.shepherd-modal-overlay-container {
+  fill: rgba(30,18,10,0.55);
+}

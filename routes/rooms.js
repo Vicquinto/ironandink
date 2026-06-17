@@ -49,6 +49,12 @@ router.get('/rooms', requireAuth, (req, res) => {
 
     <div class="rooms-toolbar">
       <button class="btn-warm" id="startRoomBtn">Start a Shared Study</button>
+      <div class="rooms-join-section">
+        <input type="text" id="joinCodeInput" class="form-input rooms-join-input"
+               placeholder="Enter room code…" maxlength="6"
+               style="width:148px;text-transform:uppercase;letter-spacing:0.1em;">
+        <button class="btn-primary" id="joinCodeBtn">Join Room</button>
+      </div>
     </div>
 
     <div class="rooms-notifications" id="roomsNotifications" style="display:none;">
@@ -67,7 +73,8 @@ router.get('/rooms', requireAuth, (req, res) => {
     activeSection: 'rooms',
     title:         'Live Study Rooms',
     content,
-    scripts: `<script src="/js/rooms.js?v=1"></script><script src="/js/library.js?v=14"></script>`,
+    scripts: `<script src="/js/rooms.js?v=1"></script><script src="/js/library.js?v=14"></script>
+<script>(function(){var b=document.getElementById('joinCodeBtn'),i=document.getElementById('joinCodeInput');if(b&&i){b.addEventListener('click',function(){var c=i.value.trim().toUpperCase();if(c.length>=4)window.location.href='/room/'+c;else i.focus();});i.addEventListener('keydown',function(e){if(e.key==='Enter'&&b)b.click();});}}());</script>`,
   }));
 });
 
