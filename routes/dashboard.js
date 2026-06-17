@@ -167,9 +167,15 @@ async function getDailyDevotional(req) {
   } catch {}
 
   const { IRON_INK_CORE_PROMPT } = req.app.locals.prompts;
-  const systemPrompt = IRON_INK_CORE_PROMPT +
-    '\n\nFor this task you are generating the daily devotional feature for the Iron & Ink platform. ' +
-    'Write with full doctrinal precision, pastoral warmth, and confessionally Reformed conviction.';
+  // The core prompt's "WHAT YOU ARE NOT" section includes "You are not a devotional generator"
+  // which directly contradicts this task. Strip that line before appending the task context.
+  const devotionalCore = IRON_INK_CORE_PROMPT
+    .replace(/- You are not a devotional generator[^\n]*\n?/, '');
+  const systemPrompt = devotionalCore +
+    '\n\nYou are writing the Daily Devotional for Iron & Ink. ' +
+    'This is an expository and pastoral task. Select one Scripture passage, expound it with doctrinal ' +
+    'seriousness, apply it pointedly to the conscience, and close with a confessional prayer. ' +
+    'Write with Reformed conviction, pastoral warmth, and expository precision.';
 
   const exclusionNote = recentPassages.length > 0
     ? `Do NOT use any of these recently used passages: ${recentPassages.join(', ')}.`
