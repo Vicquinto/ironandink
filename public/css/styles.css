@@ -4016,96 +4016,149 @@ body {
 
 /* ─── SHEPHERD.JS TOUR OVERRIDES ─────────────────────────────────────── */
 
+/* Popup shell */
 .shepherd-element {
-  background: #FDFAF4;
-  border: 1px solid #C4A882;
-  border-radius: 6px;
-  box-shadow: 0 8px 32px rgba(58,42,30,0.28);
+  background: #E8D9B8;
+  border: 1px solid #A0845C;
+  border-radius: 3px;
+  box-shadow: 0 8px 32px rgba(58,42,30,0.32);
   font-family: 'EB Garamond', Georgia, serif;
-  max-width: 360px;
+  max-width: 380px;
 }
 
+.shepherd-content {
+  border-radius: 3px;
+}
+
+/* Arrow matches popup body (default placements) */
 .shepherd-arrow:before {
-  background: #FDFAF4;
+  background: #E8D9B8;
 }
 
+/* Header — leather background */
+.shepherd-header {
+  background: #5A3834;
+  border-radius: 2px 2px 0 0;
+  padding: 12px 16px;
+  align-items: center;
+}
+
+/* The default sheet uses a higher-specificity selector for titled headers;
+   match it so our leather color wins */
 .shepherd-has-title .shepherd-content .shepherd-header {
   background: #5A3834;
-  border-radius: 5px 5px 0 0;
+  border-radius: 2px 2px 0 0;
   padding: 12px 16px;
 }
 
+/* Arrow tinted leather when popup opens below target */
 .shepherd-element.shepherd-has-title[data-popper-placement^=bottom] > .shepherd-arrow:before {
   background: #5A3834;
 }
 
+/* Title — Cinzel, cream */
 .shepherd-title {
   color: #E8D9B8;
-  font-family: 'Cinzel', 'EB Garamond', Georgia, serif;
+  font-family: 'Cinzel', Georgia, serif;
   font-size: 1rem;
   font-weight: 600;
   letter-spacing: 0.06em;
+  margin: 0;
 }
 
-.shepherd-cancel-icon {
+/* X / cancel icon — cream; override Shepherd's high-specificity grey rule */
+.shepherd-cancel-icon,
+.shepherd-has-title .shepherd-content .shepherd-cancel-icon {
   color: #E8D9B8;
   opacity: 0.75;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   background: none;
   border: none;
+  transition: opacity 0.15s;
 }
-.shepherd-cancel-icon:hover { opacity: 1; color: #E8D9B8; }
+.shepherd-cancel-icon:hover,
+.shepherd-has-title .shepherd-content .shepherd-cancel-icon:hover {
+  color: #E8D9B8;
+  opacity: 1;
+}
 
+/* Body text — dark brown, EB Garamond */
 .shepherd-text {
-  color: #3A2A1E;
-  font-size: 1rem;
-  line-height: 1.55;
-  padding: 14px 16px 10px;
+  color: #2A1A0E;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  padding: 16px 18px 12px;
+  background: #E8D9B8;
 }
 
+/* Footer */
 .shepherd-footer {
-  padding: 8px 16px 14px;
-  border-top: 1px solid #E8D9B8;
-  gap: 8px;
+  background: #E8D9B8;
+  border-top: 1px solid #C4A882;
+  border-radius: 0 0 2px 2px;
+  padding: 10px 16px 14px;
   display: flex;
+  gap: 8px;
   justify-content: flex-end;
 }
 
+/* Button base — reset Shepherd's blue, set Iron & Ink typography */
 .shepherd-button {
-  font-family: 'EB Garamond', Georgia, serif;
-  font-size: 0.95rem;
-  font-weight: 600;
-  border-radius: 4px;
-  padding: 6px 14px;
+  background: #5C1A28;
+  color: #E8D9B8;
   border: none;
-  cursor: pointer;
-  transition: background 0.15s;
+  border-radius: 3px;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 1rem;
+  font-weight: 600;
   letter-spacing: 0.04em;
+  padding: 6px 16px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  margin-right: 0;
 }
-
-.shepherd-btn-next,
-.shepherd-btn-finish {
-  background: #5A3834;
+.shepherd-button:not(:disabled):hover {
+  background: #7A2235;
   color: #E8D9B8;
 }
-.shepherd-btn-next:hover,
-.shepherd-btn-finish:hover { background: #6B4226; }
 
-.shepherd-btn-back {
+/* Next / Finish — oxblood */
+.shepherd-button.shepherd-btn-next,
+.shepherd-button.shepherd-btn-finish {
+  background: #5C1A28;
+  color: #E8D9B8;
+}
+.shepherd-button.shepherd-btn-next:not(:disabled):hover,
+.shepherd-button.shepherd-btn-finish:not(:disabled):hover {
+  background: #7A2235;
+}
+
+/* Back — ghost, dark brown border */
+.shepherd-button.shepherd-btn-back {
   background: transparent;
   color: #5A3834;
-  border: 1px solid #C4A882;
+  border: 1px solid #A0845C;
 }
-.shepherd-btn-back:hover { background: #F5EDD8; }
+.shepherd-button.shepherd-btn-back:not(:disabled):hover {
+  background: #D4C4A0;
+  color: #3A2A1E;
+}
 
-.shepherd-btn-skip {
+/* Skip — gold ghost, pushed to the left */
+.shepherd-button.shepherd-btn-skip {
   background: transparent;
-  color: #8B7355;
+  color: #A0845C;
+  border: 1px solid #A0845C;
   margin-right: auto;
-  padding-left: 0;
 }
-.shepherd-btn-skip:hover { color: #5A3834; }
+.shepherd-button.shepherd-btn-skip:not(:disabled):hover {
+  background: #D4C4A0;
+  color: #3A2A1E;
+  border-color: #7A6040;
+}
 
+/* Modal overlay */
 .shepherd-modal-overlay-container {
-  fill: rgba(30,18,10,0.55);
+  fill: rgba(30,18,10,0.6);
 }
