@@ -1,13 +1,13 @@
 const express = require('express');
 const router  = express.Router();
 
-router.get('/copyright', (req, res) => {
+router.get('/dedication', (req, res) => {
   res.send(`<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Copyright &amp; Credits — Iron &amp; Ink</title>
+  <title>Dedication — Iron &amp; Ink</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
@@ -71,8 +71,9 @@ router.get('/copyright', (req, res) => {
 
     .copy-body {
       font-size: 1.05rem;
-      line-height: 1.75;
+      line-height: 1.8;
       color: var(--text);
+      font-style: italic;
     }
 
     .copy-rule {
@@ -101,37 +102,45 @@ router.get('/copyright', (req, res) => {
   <div class="copy-wrap">
     <div class="copy-card">
       <div class="copy-site-name">Iron &amp; Ink</div>
-      <h1 class="copy-page-title">Copyright &amp; Credits</h1>
+      <h1 class="copy-page-title">Dedication</h1>
 
-      <div class="copy-section-heading">English Standard Version (ESV)</div>
+      <div class="copy-section-heading">To the Lord</div>
       <p class="copy-body">
-        Scripture quotations are from the ESV&reg; Bible (The Holy Bible, English Standard Version&reg;),
-        copyright &copy; 2001 by Crossway, a publishing ministry of Good News Publishers.
-        Used by permission. All rights reserved.
+        Before any person, this work belongs to the Lord. Iron &amp; Ink exists because He is worthy of deeper
+        study, clearer thought, and a people sharpened in His Word. Soli Deo Gloria &mdash; to God alone be the glory.
       </p>
 
       <hr class="copy-rule">
 
-      <div class="copy-section-heading">Primary Translation</div>
+      <div class="copy-section-heading">To Jamie</div>
       <p class="copy-body">
-        Iron &amp; Ink uses the <strong>Legacy Standard Bible (LSB)</strong> as its primary translation
-        for all study content, devotionals, and AI-generated theological material.
-        The ESV is made available as a secondary reference through the Crossway ESV API.
+        To my wife, Jamie &mdash; whose vision shaped this platform as much as any line of code. Your hand is in
+        the leather of these pages, your faith steadies mine, and your partnership has carried this work from an
+        idea to something real. Thank you for building this with me.
       </p>
 
       <hr class="copy-rule">
 
-      <div class="copy-section-heading">Platform</div>
+      <div class="copy-section-heading">To Aurora</div>
       <p class="copy-body">
-        Iron &amp; Ink is a confessionally Reformed Christian study and writing platform.
-        All doctrinal content reflects the Westminster Confession of Faith, the Heidelberg Catechism,
-        the Belgic Confession, and the Canons of Dort.
+        To our granddaughter, Aurora &mdash; may you grow up knowing the Word of God as your foundation. This was
+        built in part with you in mind, that the generations after us would have tools to know Christ more deeply
+        than we did at your age.
+      </p>
+
+      <hr class="copy-rule">
+
+      <div class="copy-section-heading">To Barbara</div>
+      <p class="copy-body">
+        To Barbara Starr &mdash; our first member, and a woman whose perseverance through hardship has been a
+        testimony in itself. Thank you for trusting this platform in its earliest days, before it was polished
+        or proven. You believed first.
       </p>
 
       <div class="copy-back">
         <a href="/">&#8592; Back to home</a>
         &nbsp;&nbsp;&middot;&nbsp;&nbsp;
-        <a href="/dedication">Dedication</a>
+        <a href="/copyright">Copyright &amp; Credits</a>
       </div>
     </div>
   </div>

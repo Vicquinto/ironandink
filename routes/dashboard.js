@@ -243,6 +243,11 @@ router.get('/dashboard', requireAuth, (req, res) => {
       </div>
     </div>
 
+    <div class="dash-dedication">
+      <p class="dash-dedication-text">Dedicated to the glory of God, and to Jamie, Aurora, and Barbara &mdash; with thanks for their faithfulness.</p>
+      <a href="/dedication" class="dash-dedication-link">Read the full dedication &#8594;</a>
+    </div>
+
     ${isAdmin && pendingCount > 0 ? `
     <a href="/admin" class="admin-pending-alert">
       &#9873; ${pendingCount} article${pendingCount !== 1 ? 's' : ''} awaiting your review &#8594;

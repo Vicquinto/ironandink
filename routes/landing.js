@@ -207,6 +207,10 @@ router.get('/', (req, res) => {
 
     <footer class="landing-footer">
       Iron &amp; Ink &mdash; Soli Deo Gloria
+      &nbsp;&middot;&nbsp;
+      <a href="/copyright" style="color:inherit; text-decoration:none;">Copyright</a>
+      &nbsp;&middot;&nbsp;
+      <a href="/dedication" style="color:inherit; text-decoration:none;">Dedication</a>
     </footer>
   </div>
 </body>

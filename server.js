@@ -26,6 +26,7 @@ const roomsRoutes         = require('./routes/rooms');
 const scriptureRoutes     = require('./routes/scripture');
 const selahRoutes         = require('./routes/selah');
 const copyrightRoutes     = require('./routes/copyright');
+const dedicationRoutes    = require('./routes/dedication');
 const { requireAuth, renderLayout } = require('./routes/layout');
 
 const app  = express();
@@ -165,6 +166,7 @@ app.use('/', roomsRoutes);
 app.use('/', scriptureRoutes);
 app.use('/', selahRoutes);
 app.use('/', copyrightRoutes);
+app.use('/', dedicationRoutes);
 
 // ─── Placeholder Sections (unbuilt) ──────────────────────────────────────
 const placeholders = [];

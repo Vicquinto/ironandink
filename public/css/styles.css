@@ -360,6 +360,33 @@ body {
   line-height: 1;
 }
 
+/* ─── DASHBOARD DEDICATION FOOTNOTE ────────────────────────────────── */
+
+.dash-dedication {
+  text-align: center;
+  padding: 4px 0 20px;
+}
+
+.dash-dedication-text {
+  font-size: 0.85rem;
+  font-style: italic;
+  color: #A0845C;
+  line-height: 1.6;
+  margin-bottom: 6px;
+}
+
+.dash-dedication-link {
+  display: inline-block;
+  font-size: 0.78rem;
+  color: #A0845C;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+
+.dash-dedication-link:hover {
+  text-decoration: underline;
+}
+
 /* ─── BUTTONS ───────────────────────────────────────────────────────── */
 
 .btn-primary {
