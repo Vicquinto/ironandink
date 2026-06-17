@@ -186,7 +186,12 @@ Tone: warm but serious. Reformed and confessional.`;
       messages:   [{ role: 'user', content: userPrompt }],
     });
     const content = message.content[0].text;
-    fs.writeFileSync(DEVOTIONAL_PATH, JSON.stringify({ date: today, content }, null, 2), 'utf8');
+    try {
+      fs.mkdirSync(path.dirname(DEVOTIONAL_PATH), { recursive: true });
+      fs.writeFileSync(DEVOTIONAL_PATH, JSON.stringify({ date: today, content }, null, 2), 'utf8');
+    } catch (writeErr) {
+      console.error('Devotional cache write error:', writeErr.message);
+    }
     return content;
   } catch (err) {
     console.error('Devotional generation error:', err.message);
