@@ -368,17 +368,17 @@ body {
 }
 
 .dash-dedication-text {
-  font-size: 0.85rem;
+  font-size: 1rem;
   font-style: italic;
-  color: #A0845C;
+  color: #7A5C3A;
   line-height: 1.6;
   margin-bottom: 6px;
 }
 
 .dash-dedication-link {
   display: inline-block;
-  font-size: 0.78rem;
-  color: #A0845C;
+  font-size: 0.9rem;
+  color: #7A5C3A;
   text-decoration: none;
   letter-spacing: 0.02em;
 }
