@@ -186,11 +186,21 @@ Tone: warm but serious. Reformed and confessional.`;
       messages:   [{ role: 'user', content: userPrompt }],
     });
     const content = message.content[0].text;
+    const dataDir = path.dirname(DEVOTIONAL_PATH);
+    console.log('[devotional] API succeeded. Attempting cache write.');
+    console.log('[devotional] Target path:', DEVOTIONAL_PATH);
+    console.log('[devotional] Data directory:', dataDir);
     try {
-      fs.mkdirSync(path.dirname(DEVOTIONAL_PATH), { recursive: true });
+      fs.mkdirSync(dataDir, { recursive: true });
+      console.log('[devotional] mkdirSync OK');
       fs.writeFileSync(DEVOTIONAL_PATH, JSON.stringify({ date: today, content }, null, 2), 'utf8');
+      console.log('[devotional] writeFileSync OK — cache written for', today);
     } catch (writeErr) {
-      console.error('Devotional cache write error:', writeErr.message);
+      console.error('[devotional] Cache write FAILED');
+      console.error('[devotional]   code   :', writeErr.code);
+      console.error('[devotional]   message:', writeErr.message);
+      console.error('[devotional]   path   :', writeErr.path);
+      console.error('[devotional]   stack  :', writeErr.stack);
     }
     return content;
   } catch (err) {
