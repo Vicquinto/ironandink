@@ -79,7 +79,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/library.js?v=13"></script>',
+    scripts: '<script src="/js/library.js?v=14"></script>',
   }));
 });
 
@@ -231,11 +231,11 @@ router.post('/api/library/verse', requireAuth, async (req, res) => {
 
   // Fallback: bible-api.com — World English Bible, public domain, no key needed
   try {
-    const encodedRef = ref.replace(/\s+/g, '+');
+    const encodedRef = encodeURIComponent(ref);
     const apiRes = await fetch(`https://bible-api.com/${encodedRef}?translation=web`);
     const data   = await apiRes.json();
     if (data.text) return res.json({ success: true, verse: data.text.trim() });
-    return res.status(404).json({ success: false, error: 'Verse not found. Check the reference format (e.g. John 3:16).' });
+    return res.json({ success: false, error: 'Verse not found. Check the reference format (e.g. John 3:16).' });
   } catch (err) {
     console.error('Bible API fallback error:', err.message);
     res.status(500).json({ success: false, error: 'Failed to look up verse. Please try again.' });
