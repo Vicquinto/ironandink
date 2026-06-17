@@ -4016,9 +4016,11 @@ body {
 
 /* ─── SHEPHERD.JS TOUR OVERRIDES ─────────────────────────────────────── */
 
-/* Popup shell */
+/* Popup shell — semi-transparent so page content shows faintly through */
 .shepherd-element {
-  background: #E8D9B8;
+  background: rgba(232,217,184,0.88);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   border: 1px solid #A0845C;
   border-radius: 3px;
   box-shadow: 0 8px 32px rgba(58,42,30,0.32);
@@ -4032,12 +4034,12 @@ body {
 
 /* Arrow matches popup body (default placements) */
 .shepherd-arrow:before {
-  background: #E8D9B8;
+  background: rgba(232,217,184,0.88);
 }
 
-/* Header — leather background */
+/* Header — leather background, semi-transparent */
 .shepherd-header {
-  background: #5A3834;
+  background: rgba(90,56,52,0.88);
   border-radius: 2px 2px 0 0;
   padding: 12px 16px;
   align-items: center;
@@ -4046,14 +4048,14 @@ body {
 /* The default sheet uses a higher-specificity selector for titled headers;
    match it so our leather color wins */
 .shepherd-has-title .shepherd-content .shepherd-header {
-  background: #5A3834;
+  background: rgba(90,56,52,0.88);
   border-radius: 2px 2px 0 0;
   padding: 12px 16px;
 }
 
 /* Arrow tinted leather when popup opens below target */
 .shepherd-element.shepherd-has-title[data-popper-placement^=bottom] > .shepherd-arrow:before {
-  background: #5A3834;
+  background: rgba(90,56,52,0.88);
 }
 
 /* Title — Cinzel, cream */
@@ -4082,20 +4084,20 @@ body {
   opacity: 1;
 }
 
-/* Body text — dark brown, EB Garamond */
+/* Body text — dark brown, EB Garamond; transparent so parent opacity shows */
 .shepherd-text {
   color: #2A1A0E;
   font-family: 'EB Garamond', Georgia, serif;
   font-size: 1.05rem;
   line-height: 1.6;
   padding: 16px 18px 12px;
-  background: #E8D9B8;
+  background: transparent;
 }
 
 /* Footer */
 .shepherd-footer {
-  background: #E8D9B8;
-  border-top: 1px solid #C4A882;
+  background: transparent;
+  border-top: 1px solid rgba(196,168,130,0.7);
   border-radius: 0 0 2px 2px;
   padding: 10px 16px 14px;
   display: flex;
@@ -4158,7 +4160,7 @@ body {
   border-color: #7A6040;
 }
 
-/* Modal overlay */
+/* Modal overlay — subtle dimming, not near-black */
 .shepherd-modal-overlay-container {
-  fill: rgba(30,18,10,0.6);
+  fill: rgba(30,18,10,0.25);
 }
