@@ -29,6 +29,8 @@
   var askAIPanel        = document.getElementById('roomAskAIPanel');
   var askAIInput        = document.getElementById('roomAskAIInput');
   var askAISubmit       = document.getElementById('roomAskAISubmit');
+  var roomExitBtn       = document.getElementById('roomExitBtn');
+  var roomPauseBtn      = document.getElementById('roomPauseBtn');
 
   // ── Font size control ─────────────────────────────────────────────────────
   var FONT_DEFAULT  = 16;
@@ -89,6 +91,19 @@
     var joinerName = (data && data.name) ? data.name : 'A new member';
     showToast(joinerName + ' joined the room.');
     playJoinChime();
+  });
+
+  socket.on('room-paused', function () {
+    if (isHost) {
+      if (roomPauseBtn) {
+        roomPauseBtn.textContent = 'Resume Room';
+        roomPauseBtn.disabled    = false;
+      }
+      showToast('Room paused — members have been redirected.');
+    } else {
+      showToast('Host has paused this room. Redirecting…');
+      setTimeout(function () { window.location.href = '/rooms'; }, 2000);
+    }
   });
 
   socket.on('room-chat-message', function (data) {
@@ -367,6 +382,42 @@
     });
   }
 
+  // ── Exit Room ─────────────────────────────────────────────────────────────
+  if (roomExitBtn) {
+    roomExitBtn.addEventListener('click', function () {
+      socket.disconnect();
+      window.location.href = '/rooms';
+    });
+  }
+
+  // ── Pause / Resume Room ───────────────────────────────────────────────────
+  if (roomPauseBtn) {
+    roomPauseBtn.addEventListener('click', function () {
+      var resuming = roomPauseBtn.textContent.trim() === 'Resume Room';
+      var endpoint = resuming ? 'resume' : 'pause';
+      roomPauseBtn.disabled = true;
+
+      fetch('/api/rooms/' + encodeURIComponent(roomCode) + '/' + endpoint, {
+        method:  'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.success) throw new Error(data.error || 'Request failed.');
+        if (resuming) {
+          roomPauseBtn.textContent = 'Pause Room';
+          roomPauseBtn.disabled    = false;
+          showToast('Room resumed.');
+        }
+        // Pause: 'room-paused' socket event updates button state and re-enables
+      })
+      .catch(function (err) {
+        showToast('Error: ' + err.message, true);
+        roomPauseBtn.disabled = false;
+      });
+    });
+  }
+
   // ── Chat ──────────────────────────────────────────────────────────────────
   function sendChat() {
     if (!chatInput) return;
@@ -575,6 +626,63 @@
         endModal.style.display = 'flex';
       });
       roomHeader.appendChild(endBtn);
+
+      // ── Delete Room modal ─────────────────────────────────────────────────
+      var deleteModal = document.createElement('div');
+      deleteModal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;';
+      deleteModal.innerHTML =
+        '<div style="background:#E8D9B8;border:2px solid #8B0000;border-radius:8px;padding:2rem 2.25rem;max-width:400px;width:90%;font-family:\'EB Garamond\',Georgia,serif;box-shadow:0 8px 32px rgba(0,0,0,0.4);">' +
+          '<h4 style="margin:0 0 0.75rem;color:#8B0000;font-size:1.15rem;font-weight:600;">Delete Room Permanently</h4>' +
+          '<p style="margin:0 0 1.5rem;color:#3a2a1a;font-size:0.97rem;line-height:1.6;">Delete this room permanently? All chat history and study content will be removed. This cannot be undone.</p>' +
+          '<div style="display:flex;gap:0.75rem;justify-content:flex-end;">' +
+            '<button class="btn-warm" id="deleteModalCancel">Cancel</button>' +
+            '<button id="deleteModalConfirm" style="background:#8B0000;color:#fff;border:none;border-radius:4px;padding:6px 16px;font-size:0.9rem;font-family:inherit;cursor:pointer;">Delete Room</button>' +
+          '</div>' +
+        '</div>';
+      document.body.appendChild(deleteModal);
+
+      var deleteModalCancel  = deleteModal.querySelector('#deleteModalCancel');
+      var deleteModalConfirm = deleteModal.querySelector('#deleteModalConfirm');
+
+      deleteModalCancel.addEventListener('click', function () {
+        deleteModal.style.display = 'none';
+      });
+      deleteModal.addEventListener('click', function (e) {
+        if (e.target === deleteModal) deleteModal.style.display = 'none';
+      });
+
+      deleteModalConfirm.addEventListener('click', async function () {
+        deleteModalConfirm.disabled    = true;
+        deleteModalConfirm.textContent = 'Deleting…';
+        try {
+          var r    = await fetch('/api/rooms/' + encodeURIComponent(roomCode), { method: 'DELETE' });
+          var data = await r.json();
+          if (data.success) {
+            window.location.href = '/rooms';
+          } else {
+            showToast('Error: ' + (data.error || 'Could not delete room.'), true);
+            deleteModal.style.display      = 'none';
+            deleteModalConfirm.disabled    = false;
+            deleteModalConfirm.textContent = 'Delete Room';
+          }
+        } catch (err) {
+          showToast('Error: ' + err.message, true);
+          deleteModal.style.display      = 'none';
+          deleteModalConfirm.disabled    = false;
+          deleteModalConfirm.textContent = 'Delete Room';
+        }
+      });
+
+      // ── Delete Room trigger button ─────────────────────────────────────────
+      var deleteBtn = document.createElement('button');
+      deleteBtn.textContent = 'Delete Room';
+      deleteBtn.style.cssText = 'background:#5a0a0a;color:#fff;border:none;border-radius:4px;padding:3px 10px;font-size:0.78rem;cursor:pointer;margin-top:0.5rem;margin-left:0.5rem;opacity:0.85;';
+      deleteBtn.addEventListener('mouseenter', function () { deleteBtn.style.opacity = '1'; });
+      deleteBtn.addEventListener('mouseleave', function () { deleteBtn.style.opacity = '0.85'; });
+      deleteBtn.addEventListener('click', function () {
+        deleteModal.style.display = 'flex';
+      });
+      roomHeader.appendChild(deleteBtn);
     }
   }
 

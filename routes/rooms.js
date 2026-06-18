@@ -67,7 +67,7 @@ router.get('/rooms', requireAuth, (req, res) => {
     activeSection: 'rooms',
     title:         'Live Study Rooms',
     content,
-    scripts: `<script src="/js/rooms.js?v=1"></script><script src="/js/library.js?v=18"></script>`,
+    scripts: `<script src="/js/rooms.js?v=2"></script><script src="/js/library.js?v=18"></script>`,
   }));
 });
 
@@ -128,8 +128,12 @@ router.get('/room/:code', requireAuth, (req, res) => {
       </div>
       ` : ''}
 
-      <div style="margin-bottom:1.5rem;">
-        <button id="roomAskAIBtn" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;margin-top:0.5rem;">Study Assistant</button>
+      <div id="roomActionRow" style="margin-bottom:1.5rem;">
+        <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+          <button id="roomExitBtn" style="background:transparent;color:#5C1A28;border:1px solid #5C1A28;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;">Exit Room</button>
+          ${room.host === userId ? `<button id="roomPauseBtn" style="background:#A0845C;color:#fff;border:none;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;">${(room.status || 'active') === 'paused' ? 'Resume Room' : 'Pause Room'}</button>` : ''}
+          <button id="roomAskAIBtn" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;">Study Assistant</button>
+        </div>
         <div id="roomAskAIPanel" style="display:none;margin-top:0.75rem;">
           <textarea id="roomAskAIInput" rows="3" placeholder="Study Assistant — ask about this study or any theological question…" style="width:100%;box-sizing:border-box;border:1px solid #c4a882;border-radius:6px;padding:0.75rem;font-family:inherit;font-size:0.95rem;resize:vertical;"></textarea>
           <button id="roomAskAISubmit" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.5rem 1.25rem;font-size:0.9rem;cursor:pointer;margin-top:0.5rem;">Ask</button>
@@ -190,7 +194,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
     window.ROOM_STUDY_LEVEL = ${JSON.stringify(room.studyLevel || 'journeyman')};
     window.ROOM_CHAT        = ${JSON.stringify(room.chat || [])};
   </script>
-  <script src="/js/room.js?v=9"></script>
+  <script src="/js/room.js?v=10"></script>
   <script src="/js/library.js?v=18"></script>`,
   }));
 });
@@ -268,6 +272,7 @@ router.post('/api/rooms/create', requireAuth, (req, res) => {
     studyLevel:  ['foundations', 'journeyman', 'scholar'].includes(studyLevel) ? studyLevel : 'journeyman',
     members:     [userId],
     createdAt:   now,
+    status:      'active',
     study:       null,
     chat:        [],
   };
@@ -346,6 +351,45 @@ router.delete('/api/rooms/:code', requireAuth, (req, res) => {
 
   const io = req.app.locals.io;
   if (io) io.to(code).emit('room-closed', { code });
+
+  res.json({ success: true });
+});
+
+// ─── PATCH /api/rooms/:code/pause ────────────────────────────────────────────
+
+router.patch('/api/rooms/:code/pause', requireAuth, (req, res) => {
+  const code  = req.params.code.toUpperCase();
+  const rooms = readRooms();
+  const idx   = rooms.findIndex(r => r.code === code);
+
+  if (idx === -1) return res.status(404).json({ success: false, error: 'Room not found.' });
+  if (rooms[idx].host !== req.session.userId) {
+    return res.status(403).json({ success: false, error: 'Not authorized.' });
+  }
+
+  rooms[idx].status = 'paused';
+  writeRooms(rooms);
+
+  const io = req.app.locals.io;
+  if (io) io.to(code).emit('room-paused', { code });
+
+  res.json({ success: true });
+});
+
+// ─── PATCH /api/rooms/:code/resume ───────────────────────────────────────────
+
+router.patch('/api/rooms/:code/resume', requireAuth, (req, res) => {
+  const code  = req.params.code.toUpperCase();
+  const rooms = readRooms();
+  const idx   = rooms.findIndex(r => r.code === code);
+
+  if (idx === -1) return res.status(404).json({ success: false, error: 'Room not found.' });
+  if (rooms[idx].host !== req.session.userId) {
+    return res.status(403).json({ success: false, error: 'Not authorized.' });
+  }
+
+  rooms[idx].status = 'active';
+  writeRooms(rooms);
 
   res.json({ success: true });
 });
