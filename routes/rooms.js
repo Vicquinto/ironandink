@@ -38,6 +38,53 @@ function generateCode() {
   return code;
 }
 
+function escHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function renderMarkdown(text) {
+  if (!text) return '';
+  let html = text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/^#### (.+)$/gm, '<h5 class="guide-h5">$1</h5>')
+    .replace(/^### (.+)$/gm,  '<h4 class="guide-h4">$1</h4>')
+    .replace(/^## (.+)$/gm,   '<h3 class="guide-h3">$1</h3>')
+    .replace(/^# (.+)$/gm,    '<h2 class="guide-h2">$1</h2>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,     '<em>$1</em>')
+    .replace(/^---$/gm,        '<hr class="guide-hr">');
+  const lines = html.split('\n');
+  const result = [];
+  let inUl = false, inOl = false;
+  for (const line of lines) {
+    const ulM = line.match(/^[-*] (.+)/);
+    const olM = line.match(/^\d+\. (.+)/);
+    if (ulM) {
+      if (inOl) { result.push('</ol>'); inOl = false; }
+      if (!inUl) { result.push('<ul class="guide-list">'); inUl = true; }
+      result.push('<li>' + ulM[1] + '</li>');
+    } else if (olM) {
+      if (inUl) { result.push('</ul>'); inUl = false; }
+      if (!inOl) { result.push('<ol class="guide-list guide-ol">'); inOl = true; }
+      result.push('<li>' + olM[1] + '</li>');
+    } else {
+      if (inUl) { result.push('</ul>'); inUl = false; }
+      if (inOl) { result.push('</ol>'); inOl = false; }
+      const t = line.trim();
+      if (!t) {
+        result.push('<div class="guide-spacer"></div>');
+      } else if (t.startsWith('<h') || t.startsWith('<hr')) {
+        result.push(t);
+      } else {
+        result.push('<p class="guide-p">' + t + '</p>');
+      }
+    }
+  }
+  if (inUl) result.push('</ul>');
+  if (inOl) result.push('</ol>');
+  return result.join('\n');
+}
+
 // ─── GET /rooms ───────────────────────────────────────────────────────────────
 
 router.get('/rooms', requireAuth, (req, res) => {
@@ -67,7 +114,7 @@ router.get('/rooms', requireAuth, (req, res) => {
     activeSection: 'rooms',
     title:         'Live Study Rooms',
     content,
-    scripts: `<script src="/js/rooms.js?v=2"></script><script src="/js/library.js?v=20"></script>`,
+    scripts: `<script src="/js/rooms.js?v=3"></script><script src="/js/library.js?v=20"></script>`,
   }));
 });
 
@@ -91,6 +138,109 @@ router.get('/room/:code', requireAuth, (req, res) => {
     const idx = rooms.findIndex(r => r.code === room.code);
     rooms[idx] = room;
     writeRooms(rooms);
+  }
+
+  const isPaused   = (room.status || 'active') === 'paused';
+  const isRoomHost = room.host === userId;
+
+  if (isPaused && !isRoomHost) {
+    const levelLabel   = { foundations: 'Foundations', journeyman: 'Journeyman', scholar: 'Scholar' }[room.studyLevel || 'journeyman'] || 'Journeyman';
+    const topicText    = room.study && room.study.topic ? 'Currently studying: ' + escHtml(room.study.topic) : '';
+    const studySection = room.study && room.study.content
+      ? `<div id="roomGuideArea">
+        <div class="guide-header-bar">
+          <h3 id="roomGuideTitle">${escHtml(room.study.topic || '')}</h3>
+          <span id="roomGuideBadge" class="guide-badge">${escHtml(room.study.translation || 'LSB')}</span>
+        </div>
+        <div id="roomGuideBody" class="guide-body">${renderMarkdown(room.study.content)}</div>
+      </div>` : '';
+
+    return res.send(renderLayout({
+      req,
+      activeSection: 'rooms',
+      title:         room.name,
+      content: `
+    <div class="room-page" id="roomPage" style="padding-right:340px;">
+
+      <div class="room-header">
+        <h2 class="room-title">${escHtml(room.name)}</h2>
+        <div class="room-meta">
+          <span>Host: ${escHtml(room.hostName)}</span>
+          <span style="background:#A0845C;color:#fff;border-radius:4px;padding:2px 10px;font-size:0.8rem;margin-left:0.5rem;">${levelLabel}</span>
+        </div>
+        <div style="margin-top:0.5rem;">
+          <span style="font-weight:600;color:#5C1A28;font-size:0.9rem;">Room Code: ${room.code}</span>
+        </div>
+        <div style="font-style:italic;color:#5C1A28;font-size:0.95rem;margin-top:0.25rem;">${topicText}</div>
+      </div>
+
+      <div style="background:#f5ede0;border:1px solid #c4a882;border-left:4px solid #A0845C;border-radius:8px;padding:1rem 1.25rem;margin-bottom:1.5rem;">
+        <div style="font-weight:700;color:#5C1A28;font-size:0.97rem;margin-bottom:0.2rem;">Room Paused</div>
+        <div style="font-size:0.88rem;color:#6b5030;line-height:1.5;">This study session has been paused by the host. You are in read-only mode &mdash; all interactions are disabled until the host resumes.</div>
+      </div>
+
+      ${studySection}
+
+    </div>
+
+    <div style="position:fixed;right:0;top:0;width:320px;height:100vh;background:#f5ede0;border-left:1px solid #c4a882;display:flex;flex-direction:column;padding:1rem;box-sizing:border-box;z-index:100;">
+      <div style="font-weight:600;font-size:0.9rem;color:#5C1A28;margin-bottom:0.75rem;">Room Chat <span style="font-weight:400;color:#9a8060;font-size:0.8rem;">(paused)</span></div>
+      <div id="roomChatMessages" style="flex:1;overflow-y:auto;border:1px solid #c4a882;border-radius:8px;padding:0.75rem;background:#fff;margin-bottom:0.75rem;"></div>
+      <div style="text-align:center;padding:0.5rem 0;font-size:0.85rem;color:#9a8060;font-style:italic;">Chat is paused</div>
+    </div>`,
+      scripts: `
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    window.ROOM_CODE    = ${JSON.stringify(room.code)};
+    window.CURRENT_USER = ${JSON.stringify({ id: userId, name: userName, email: user ? user.email : '' })};
+    window.ROOM_CHAT    = ${JSON.stringify(room.chat || [])};
+  </script>
+  <script>
+    (function () {
+      var socket = io();
+      function joinRoom() {
+        socket.emit('join-room', { roomCode: window.ROOM_CODE, name: window.CURRENT_USER ? window.CURRENT_USER.name : '' });
+      }
+      joinRoom();
+      socket.on('connect', function () { joinRoom(); });
+      socket.on('room-resumed', function () {
+        var toast = document.createElement('div');
+        toast.className = 'toast-msg';
+        toast.textContent = 'Room resumed — reloading…';
+        document.body.appendChild(toast);
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () { toast.classList.add('visible'); });
+        });
+        setTimeout(function () { window.location.reload(); }, 2000);
+      });
+      socket.on('room-closed', function () {
+        var toast = document.createElement('div');
+        toast.className = 'toast-msg';
+        toast.textContent = 'The host has ended this study. Redirecting…';
+        document.body.appendChild(toast);
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () { toast.classList.add('visible'); });
+        });
+        setTimeout(function () { window.location.href = '/rooms'; }, 2000);
+      });
+      var chat = window.ROOM_CHAT || [];
+      var container = document.getElementById('roomChatMessages');
+      if (container && chat.length) {
+        chat.forEach(function (m) {
+          var div = document.createElement('div');
+          div.style.cssText = 'padding:0.25rem 0;font-size:0.9rem;border-bottom:1px solid #e8d9b8;';
+          var strong = document.createElement('strong');
+          strong.textContent = m.senderName;
+          div.appendChild(strong);
+          div.appendChild(document.createTextNode(': ' + m.message));
+          container.appendChild(div);
+        });
+        container.scrollTop = container.scrollHeight;
+      }
+    })();
+  </script>
+  <script src="/js/library.js?v=20"></script>`,
+    }));
   }
 
   const safeName = room.name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -196,7 +346,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
     window.ROOM_STUDY_LEVEL = ${JSON.stringify(room.studyLevel || 'journeyman')};
     window.ROOM_CHAT        = ${JSON.stringify(room.chat || [])};
   </script>
-  <script src="/js/room.js?v=12"></script>
+  <script src="/js/room.js?v=13"></script>
   <script src="/js/library.js?v=20"></script>`,
   }));
 });
@@ -410,6 +560,9 @@ router.patch('/api/rooms/:code/resume', requireAuth, (req, res) => {
   rooms[idx].status = 'active';
   writeRooms(rooms);
 
+  const io = req.app.locals.io;
+  if (io) io.to(code).emit('room-resumed', { code });
+
   res.json({ success: true });
 });
 
@@ -417,7 +570,12 @@ router.patch('/api/rooms/:code/resume', requireAuth, (req, res) => {
 
 router.get('/api/rooms/list', requireAuth, (req, res) => {
   const rooms = readRooms();
-  res.json({ success: true, rooms });
+  const io    = req.app.locals.io;
+  const roomsOut = rooms.map(room => {
+    const liveCount = io ? (io.sockets.adapter.rooms.get(room.code)?.size ?? 0) : 0;
+    return Object.assign({}, room, { liveCount });
+  });
+  res.json({ success: true, rooms: roomsOut });
 });
 
 // ─── GET /api/rooms/:code/members ────────────────────────────────────────────

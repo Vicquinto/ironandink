@@ -108,6 +108,10 @@
     }
   });
 
+  socket.on('room-resumed', function () {
+    if (!isHost) window.location.reload();
+  });
+
   socket.on('room-clear-study', function () {
     clearStudy();
   });
@@ -155,8 +159,8 @@
         if (!data.success) return;
         var room = (data.rooms || []).find(function (r) { return r.code === roomCode; });
         if (room && membersLabel) {
-          membersLabel.textContent = room.members.length + ' member' +
-            (room.members.length !== 1 ? 's' : '');
+          var lc = typeof room.liveCount === 'number' ? room.liveCount : 0;
+          membersLabel.textContent = lc + ' member' + (lc !== 1 ? 's' : '');
         }
       })
       .catch(function () {});

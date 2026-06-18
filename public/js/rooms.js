@@ -102,7 +102,8 @@
         }
         roomsEmpty.style.display = 'none';
         var html = rooms.map(function (room) {
-          var paused = room.status === 'paused';
+          var paused    = room.status === 'paused';
+          var liveCount = typeof room.liveCount === 'number' ? room.liveCount : 0;
           var badge = room.visibility === 'private'
             ? '<span class="rooms-badge rooms-badge-private">Private</span>'
             : '<span class="rooms-badge rooms-badge-open">Open</span>';
@@ -120,7 +121,7 @@
             '<div style="display:block;font-size:1.15rem;font-weight:700;margin-bottom:4px;">' + esc(room.name) + '</div>' +
             '<div style="display:block;margin-bottom:4px;">' + badge + ' ' + levelBadge + pausedBadge + '</div>' +
             '<div style="display:block;font-size:0.85rem;color:var(--text-muted);margin-bottom:4px;">Host: ' + esc(room.hostName) + '</div>' +
-            '<div style="display:block;font-size:0.85rem;color:var(--text-muted);margin-bottom:12px;">' + room.members.length + ' member' + (room.members.length !== 1 ? 's' : '') + '</div>' +
+            '<div style="display:block;font-size:0.85rem;color:var(--text-muted);margin-bottom:12px;">' + liveCount + ' member' + (liveCount !== 1 ? 's' : '') + '</div>' +
             '<a class="rooms-join-btn" href="/room/' + esc(room.code) + '" style="' + joinStyle + '">' + (paused ? 'Paused' : 'Join Room') + '</a>' +
           '</div>';
         }).join('');
