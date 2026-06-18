@@ -2577,7 +2577,7 @@ body {
 
 .up-define-pane,
 .up-verse-pane {
-  padding: 12px 14px;
+  padding: 12px 14px 4px;
 }
 
 .unified-popup .up-ai-response,
@@ -2611,7 +2611,7 @@ body {
 }
 
 .up-ai-pane {
-  padding: 10px 14px 12px;
+  padding: 10px 14px 4px;
 }
 
 .up-ai-input-row {
