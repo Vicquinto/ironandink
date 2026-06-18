@@ -548,7 +548,7 @@
         '</div>' +
       '</div>' +
     '</div>' +
-    '<div class="up-share-footer" style="display:none;flex-direction:row;gap:0.5rem;justify-content:flex-end;margin-top:0.65rem;padding-top:0.5rem;border-top:1px solid #ddd0b0;">' +
+    '<div class="up-share-footer" style="display:none;flex-direction:row;gap:0.5rem;justify-content:flex-end;margin-top:0.2rem;padding-top:0.5rem;border-top:1px solid #ddd0b0;">' +
       '<button class="up-private-btn" style="background:transparent;color:#8a6c30;border:1px solid #c4a882;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Keep Private</button>' +
       '<button class="up-share-btn" style="background:#5C1A28;color:#fff;border:none;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Share to Chat</button>' +
     '</div>';
@@ -732,11 +732,17 @@
   });
 
   upEl.querySelector('.up-share-btn').addEventListener('click', function () {
+    var btn = this;
     if (_pendingBroadcast && window.roomSocket) {
       window.roomSocket.emit('room-tooltip-broadcast', _pendingBroadcast);
     }
-    hideShareFooter();
-    upEl.style.display = 'none';
+    btn.textContent = 'Shared ✓';
+    btn.disabled    = true;
+    setTimeout(function () {
+      hideShareFooter();
+      btn.textContent = 'Share to Chat';
+      btn.disabled    = false;
+    }, 1500);
   });
 
   upEl.querySelector('.up-private-btn').addEventListener('click', function () {

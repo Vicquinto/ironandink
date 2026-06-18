@@ -67,7 +67,7 @@ router.get('/rooms', requireAuth, (req, res) => {
     activeSection: 'rooms',
     title:         'Live Study Rooms',
     content,
-    scripts: `<script src="/js/rooms.js?v=2"></script><script src="/js/library.js?v=18"></script>`,
+    scripts: `<script src="/js/rooms.js?v=2"></script><script src="/js/library.js?v=19"></script>`,
   }));
 });
 
@@ -197,7 +197,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
     window.ROOM_CHAT        = ${JSON.stringify(room.chat || [])};
   </script>
   <script src="/js/room.js?v=11"></script>
-  <script src="/js/library.js?v=18"></script>`,
+  <script src="/js/library.js?v=19"></script>`,
   }));
 });
 
