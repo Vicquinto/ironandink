@@ -55,9 +55,18 @@
   var socket = io();
   window.roomSocket = socket;
   window.isHost     = isHost;
-  socket.emit('join-room', {
-    roomCode: roomCode,
-    name:     window.CURRENT_USER ? window.CURRENT_USER.name : '',
+
+  function joinRoom() {
+    socket.emit('join-room', {
+      roomCode: roomCode,
+      name:     window.CURRENT_USER ? window.CURRENT_USER.name : '',
+    });
+  }
+
+  joinRoom();
+
+  socket.on('reconnect', function () {
+    joinRoom();
   });
 
   socket.on('room-study-result', function (data) {
@@ -363,12 +372,18 @@
     if (!chatInput) return;
     var msg = chatInput.value.trim();
     if (!msg) return;
-    socket.emit('room-chat', {
-      roomCode:   roomCode,
-      message:    msg,
-      senderName: window.CURRENT_USER ? window.CURRENT_USER.name : 'Anonymous',
-    });
+    var senderName = window.CURRENT_USER ? window.CURRENT_USER.name : 'Anonymous';
+
+    appendChatMessage(senderName, msg);
     chatInput.value = '';
+
+    socket.emit('room-chat', { roomCode: roomCode, message: msg, senderName: senderName });
+
+    fetch('/api/rooms/' + encodeURIComponent(roomCode) + '/chat', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ senderName: senderName, message: msg }),
+    }).catch(function () {});
   }
 
   function appendChatMessage(sender, message) {
@@ -569,6 +584,12 @@
 
   if (window.ROOM_STUDY) {
     displayStudy(window.ROOM_STUDY);
+  }
+
+  if (window.ROOM_CHAT && window.ROOM_CHAT.length) {
+    window.ROOM_CHAT.forEach(function (m) {
+      appendChatMessage(m.senderName, m.message);
+    });
   }
 
 }());

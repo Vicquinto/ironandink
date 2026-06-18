@@ -188,8 +188,9 @@ router.get('/room/:code', requireAuth, (req, res) => {
     window.ROOM_HOST    = ${JSON.stringify(hostEmail)};
     window.ROOM_STUDY       = ${room.study ? JSON.stringify(room.study) : 'null'};
     window.ROOM_STUDY_LEVEL = ${JSON.stringify(room.studyLevel || 'journeyman')};
+    window.ROOM_CHAT        = ${JSON.stringify(room.chat || [])};
   </script>
-  <script src="/js/room.js?v=8"></script>
+  <script src="/js/room.js?v=9"></script>
   <script src="/js/library.js?v=18"></script>`,
   }));
 });
@@ -207,6 +208,36 @@ router.post('/api/rooms/:code/save-study', requireAuth, (req, res) => {
   rooms[idx].study = { topic: topic || '', content: content || '', translation: translation || '' };
   writeRooms(rooms);
 
+  res.json({ success: true });
+});
+
+// ─── POST /api/rooms/:code/chat ──────────────────────────────────────────────
+
+const CHAT_HISTORY_LIMIT = 100;
+
+router.post('/api/rooms/:code/chat', requireAuth, (req, res) => {
+  const code  = req.params.code.toUpperCase();
+  const rooms = readRooms();
+  const idx   = rooms.findIndex(r => r.code === code);
+
+  if (idx === -1) return res.status(404).json({ success: false, error: 'Room not found.' });
+
+  const { senderName, message } = req.body;
+  if (!message || !String(message).trim()) {
+    return res.status(400).json({ success: false, error: 'Message is required.' });
+  }
+
+  if (!Array.isArray(rooms[idx].chat)) rooms[idx].chat = [];
+  rooms[idx].chat.push({
+    senderName: String(senderName || 'Anonymous').trim(),
+    message:    String(message).trim(),
+  });
+
+  if (rooms[idx].chat.length > CHAT_HISTORY_LIMIT) {
+    rooms[idx].chat = rooms[idx].chat.slice(-CHAT_HISTORY_LIMIT);
+  }
+
+  writeRooms(rooms);
   res.json({ success: true });
 });
 
@@ -238,6 +269,7 @@ router.post('/api/rooms/create', requireAuth, (req, res) => {
     members:     [userId],
     createdAt:   now,
     study:       null,
+    chat:        [],
   };
 
   rooms.push(room);

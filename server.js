@@ -212,7 +212,7 @@ io.on('connection', (socket) => {
 
   socket.on('room-chat', ({ roomCode, message, senderName }) => {
     console.log('room-chat received: ' + roomCode + ' from: ' + senderName);
-    io.to(roomCode).emit('room-chat-message', { senderName, message });
+    socket.to(roomCode).emit('room-chat-message', { senderName, message });
   });
 
   socket.on('room-tooltip-broadcast', ({ roomCode, type, term, response }) => {
