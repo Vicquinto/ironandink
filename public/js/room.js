@@ -31,6 +31,8 @@
   var askAISubmit       = document.getElementById('roomAskAISubmit');
   var roomExitBtn       = document.getElementById('roomExitBtn');
   var roomPauseBtn      = document.getElementById('roomPauseBtn');
+  var roomNewStudyBtn   = document.getElementById('roomNewStudyBtn');
+  var roomDeleteBtn     = document.getElementById('roomDeleteBtn');
 
   // ── Font size control ─────────────────────────────────────────────────────
   var FONT_DEFAULT  = 16;
@@ -104,6 +106,10 @@
       showToast('Host has paused this room. Redirecting…');
       setTimeout(function () { window.location.href = '/rooms'; }, 2000);
     }
+  });
+
+  socket.on('room-clear-study', function () {
+    clearStudy();
   });
 
   socket.on('room-chat-message', function (data) {
@@ -350,6 +356,17 @@
     socket.emit('room-topic-update', { roomCode: roomCode, topic: data.topic });
   }
 
+  // ── Clear Study ────────────────────────────────────────────────────────────
+  function clearStudy() {
+    currentStudy = null;
+    if (guideTitle)  guideTitle.textContent  = '';
+    if (guideBadge)  guideBadge.textContent  = '';
+    if (guideBody)   guideBody.innerHTML     = '';
+    if (guideArea)   guideArea.style.display = 'none';
+    var topicEl = document.getElementById('roomCurrentTopic');
+    if (topicEl) topicEl.textContent = '';
+  }
+
   // ── Save to Library ────────────────────────────────────────────────────────
   if (saveBtn) {
     saveBtn.addEventListener('click', async function () {
@@ -569,65 +586,45 @@
       });
     }
 
-    var roomHeader = document.querySelector('.room-header');
-    if (roomHeader) {
-      // ── End Study modal ──────────────────────────────────────────────────
-      var endModal = document.createElement('div');
-      endModal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;';
-      endModal.innerHTML =
+    // ── New Study modal ────────────────────────────────────────────────────
+    if (roomNewStudyBtn) {
+      var newStudyModal = document.createElement('div');
+      newStudyModal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;';
+      newStudyModal.innerHTML =
         '<div style="background:#E8D9B8;border:1px solid #5C1A28;border-radius:8px;padding:2rem 2.25rem;max-width:380px;width:90%;font-family:\'EB Garamond\',Georgia,serif;box-shadow:0 8px 32px rgba(0,0,0,0.35);">' +
-          '<h4 style="margin:0 0 0.75rem;color:#5C1A28;font-size:1.15rem;font-weight:600;">End Study Session</h4>' +
-          '<p style="margin:0 0 1.5rem;color:#3a2a1a;font-size:0.97rem;line-height:1.55;">This will close the room for everyone. Are you sure?</p>' +
+          '<h4 style="margin:0 0 0.75rem;color:#5C1A28;font-size:1.15rem;font-weight:600;">Start New Study</h4>' +
+          '<p style="margin:0 0 1.5rem;color:#3a2a1a;font-size:0.97rem;line-height:1.55;">Clear the current study content so a new one can be generated? The room stays open.</p>' +
           '<div style="display:flex;gap:0.75rem;justify-content:flex-end;">' +
-            '<button class="btn-warm" id="endModalCancel">Cancel</button>' +
-            '<button id="endModalConfirm" style="background:#8B0000;color:#fff;border:none;border-radius:4px;padding:6px 16px;font-size:0.9rem;font-family:inherit;cursor:pointer;">End Study</button>' +
+            '<button class="btn-warm" id="newStudyModalCancel">Cancel</button>' +
+            '<button id="newStudyModalConfirm" style="background:#5C1A28;color:#fff;border:none;border-radius:4px;padding:6px 16px;font-size:0.9rem;font-family:inherit;cursor:pointer;">Clear &amp; Continue</button>' +
           '</div>' +
         '</div>';
-      document.body.appendChild(endModal);
+      document.body.appendChild(newStudyModal);
 
-      var endModalCancel  = endModal.querySelector('#endModalCancel');
-      var endModalConfirm = endModal.querySelector('#endModalConfirm');
+      var newStudyCancel  = newStudyModal.querySelector('#newStudyModalCancel');
+      var newStudyConfirm = newStudyModal.querySelector('#newStudyModalConfirm');
 
-      endModalCancel.addEventListener('click', function () {
-        endModal.style.display = 'none';
+      newStudyCancel.addEventListener('click', function () {
+        newStudyModal.style.display = 'none';
+      });
+      newStudyModal.addEventListener('click', function (e) {
+        if (e.target === newStudyModal) newStudyModal.style.display = 'none';
+      });
+      newStudyConfirm.addEventListener('click', function () {
+        clearStudy();
+        socket.emit('room-clear-study', { roomCode: roomCode });
+        fetch('/api/rooms/' + encodeURIComponent(roomCode) + '/study', { method: 'DELETE' })
+          .catch(function () {});
+        newStudyModal.style.display = 'none';
       });
 
-      endModal.addEventListener('click', function (e) {
-        if (e.target === endModal) endModal.style.display = 'none';
+      roomNewStudyBtn.addEventListener('click', function () {
+        newStudyModal.style.display = 'flex';
       });
+    }
 
-      endModalConfirm.addEventListener('click', async function () {
-        endModalConfirm.disabled = true;
-        endModalConfirm.textContent = 'Closing…';
-        try {
-          var r    = await fetch('/api/rooms/' + encodeURIComponent(roomCode), { method: 'DELETE' });
-          var data = await r.json();
-          if (data.success) {
-            window.location.href = '/rooms';
-          } else {
-            showToast('Error: ' + (data.error || 'Could not close room.'), true);
-            endModal.style.display = 'none';
-            endModalConfirm.disabled = false;
-            endModalConfirm.textContent = 'End Study';
-          }
-        } catch (err) {
-          showToast('Error: ' + err.message, true);
-          endModal.style.display = 'none';
-          endModalConfirm.disabled = false;
-          endModalConfirm.textContent = 'End Study';
-        }
-      });
-
-      // ── End Study trigger button ─────────────────────────────────────────
-      var endBtn = document.createElement('button');
-      endBtn.textContent = 'End Study';
-      endBtn.style.cssText = 'background:#8B0000;color:#fff;border:none;border-radius:4px;padding:3px 10px;font-size:0.78rem;cursor:pointer;margin-top:0.5rem;';
-      endBtn.addEventListener('click', function () {
-        endModal.style.display = 'flex';
-      });
-      roomHeader.appendChild(endBtn);
-
-      // ── Delete Room modal ─────────────────────────────────────────────────
+    // ── Delete Room modal ──────────────────────────────────────────────────
+    if (roomDeleteBtn) {
       var deleteModal = document.createElement('div');
       deleteModal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;';
       deleteModal.innerHTML =
@@ -650,7 +647,6 @@
       deleteModal.addEventListener('click', function (e) {
         if (e.target === deleteModal) deleteModal.style.display = 'none';
       });
-
       deleteModalConfirm.addEventListener('click', async function () {
         deleteModalConfirm.disabled    = true;
         deleteModalConfirm.textContent = 'Deleting…';
@@ -673,16 +669,9 @@
         }
       });
 
-      // ── Delete Room trigger button ─────────────────────────────────────────
-      var deleteBtn = document.createElement('button');
-      deleteBtn.textContent = 'Delete Room';
-      deleteBtn.style.cssText = 'background:#5a0a0a;color:#fff;border:none;border-radius:4px;padding:3px 10px;font-size:0.78rem;cursor:pointer;margin-top:0.5rem;margin-left:0.5rem;opacity:0.85;';
-      deleteBtn.addEventListener('mouseenter', function () { deleteBtn.style.opacity = '1'; });
-      deleteBtn.addEventListener('mouseleave', function () { deleteBtn.style.opacity = '0.85'; });
-      deleteBtn.addEventListener('click', function () {
+      roomDeleteBtn.addEventListener('click', function () {
         deleteModal.style.display = 'flex';
       });
-      roomHeader.appendChild(deleteBtn);
     }
   }
 
@@ -690,7 +679,7 @@
   loadMemberCount();
   loadMembersList();
 
-  if (window.ROOM_STUDY) {
+  if (window.ROOM_STUDY && window.ROOM_STUDY.content) {
     displayStudy(window.ROOM_STUDY);
   }
 

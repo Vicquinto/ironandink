@@ -224,6 +224,10 @@ io.on('connection', (socket) => {
     socket.to(roomCode).emit('room-topic-update', { topic });
   });
 
+  socket.on('room-clear-study', ({ roomCode }) => {
+    socket.to(roomCode).emit('room-clear-study');
+  });
+
   socket.on('disconnect', () => {
     console.log(`Socket disconnected: ${socket.id}`);
   });

@@ -121,23 +121,25 @@ router.get('/room/:code', requireAuth, (req, res) => {
         <button id="roomGenerateBtn" class="btn-warm" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.6rem 1.5rem;font-size:1rem;cursor:pointer;white-space:nowrap;">Generate Study</button>
       </div>
 
-      ${room.host === userId ? `
-      <div style="margin-top:0.75rem;margin-bottom:1.5rem;">
-        <button id="roomLoadLibraryBtn" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.5rem 1.25rem;font-size:0.9rem;cursor:pointer;">Load from Library</button>
-        <div id="roomLibraryPanel" style="display:none;background:#f5ede0;border:1px solid #c4a882;border-radius:8px;padding:1rem;margin-top:0.75rem;max-height:300px;overflow-y:auto;"></div>
-      </div>
-      ` : ''}
-
-      <div id="roomActionRow" style="margin-bottom:1.5rem;">
+      <div style="margin-bottom:0.25rem;">
         <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
-          <button id="roomExitBtn" style="background:transparent;color:#5C1A28;border:1px solid #5C1A28;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;">Exit Room</button>
-          ${room.host === userId ? `<button id="roomPauseBtn" style="background:#A0845C;color:#fff;border:none;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;">${(room.status || 'active') === 'paused' ? 'Resume Room' : 'Pause Room'}</button>` : ''}
+          ${room.host === userId ? `<button id="roomLoadLibraryBtn" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;">Load from Library</button>` : ''}
+          ${room.host === userId ? `<button id="roomNewStudyBtn" style="background:transparent;color:#5C1A28;border:1px solid #5C1A28;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;">New Study</button>` : ''}
           <button id="roomAskAIBtn" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;">Study Assistant</button>
         </div>
+        ${room.host === userId ? `<div id="roomLibraryPanel" style="display:none;background:#f5ede0;border:1px solid #c4a882;border-radius:8px;padding:1rem;margin-top:0.75rem;max-height:300px;overflow-y:auto;"></div>` : ''}
         <div id="roomAskAIPanel" style="display:none;margin-top:0.75rem;">
           <textarea id="roomAskAIInput" rows="3" placeholder="Study Assistant — ask about this study or any theological question…" style="width:100%;box-sizing:border-box;border:1px solid #c4a882;border-radius:6px;padding:0.75rem;font-family:inherit;font-size:0.95rem;resize:vertical;"></textarea>
           <button id="roomAskAISubmit" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.5rem 1.25rem;font-size:0.9rem;cursor:pointer;margin-top:0.5rem;">Ask</button>
         </div>
+      </div>
+
+      <hr style="border:none;border-top:1px solid #d4b896;margin:0.9rem 0 0.5rem;" />
+      <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:#9a8060;margin-bottom:0.6rem;font-family:'EB Garamond',Georgia,serif;">Room Functions</div>
+      <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:1.5rem;">
+        <button id="roomExitBtn" style="background:transparent;color:#5C1A28;border:1px solid #5C1A28;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;">Exit Room</button>
+        ${room.host === userId ? `<button id="roomPauseBtn" style="background:#A0845C;color:#fff;border:none;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;">${(room.status || 'active') === 'paused' ? 'Resume Room' : 'Pause Room'}</button>` : ''}
+        ${room.host === userId ? `<button id="roomDeleteBtn" style="background:#5a0a0a;color:#fff;border:none;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;opacity:0.85;">Delete Room</button>` : ''}
       </div>
 
       <div id="roomLoading" class="study-loading" style="display:none;">
@@ -194,7 +196,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
     window.ROOM_STUDY_LEVEL = ${JSON.stringify(room.studyLevel || 'journeyman')};
     window.ROOM_CHAT        = ${JSON.stringify(room.chat || [])};
   </script>
-  <script src="/js/room.js?v=10"></script>
+  <script src="/js/room.js?v=11"></script>
   <script src="/js/library.js?v=18"></script>`,
   }));
 });
@@ -241,6 +243,23 @@ router.post('/api/rooms/:code/chat', requireAuth, (req, res) => {
     rooms[idx].chat = rooms[idx].chat.slice(-CHAT_HISTORY_LIMIT);
   }
 
+  writeRooms(rooms);
+  res.json({ success: true });
+});
+
+// ─── DELETE /api/rooms/:code/study ───────────────────────────────────────────
+
+router.delete('/api/rooms/:code/study', requireAuth, (req, res) => {
+  const code  = req.params.code.toUpperCase();
+  const rooms = readRooms();
+  const idx   = rooms.findIndex(r => r.code === code);
+
+  if (idx === -1) return res.status(404).json({ success: false, error: 'Room not found.' });
+  if (rooms[idx].host !== req.session.userId) {
+    return res.status(403).json({ success: false, error: 'Not authorized.' });
+  }
+
+  rooms[idx].study = null;
   writeRooms(rooms);
   res.json({ success: true });
 });
