@@ -416,12 +416,8 @@ router.patch('/api/rooms/:code/resume', requireAuth, (req, res) => {
 // ─── GET /api/rooms/list ──────────────────────────────────────────────────────
 
 router.get('/api/rooms/list', requireAuth, (req, res) => {
-  const userId = req.session.userId;
-  const rooms  = readRooms();
-  const visible = rooms.filter(r =>
-    r.visibility === 'open' || r.host === userId || r.members.includes(userId)
-  );
-  res.json({ success: true, rooms: visible });
+  const rooms = readRooms();
+  res.json({ success: true, rooms });
 });
 
 // ─── GET /api/rooms/:code/members ────────────────────────────────────────────
