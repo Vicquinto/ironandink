@@ -7,23 +7,23 @@ const { requireAuth } = require('./layout');
 
 const router = express.Router();
 
-// ─── Load Webster's dictionary at module init (once on server startup) ────────
-const DICT_PATH   = path.join(__dirname, '../data/dictionary.json');
+// ─── Load Webster's dictionary asynchronously (does not block server startup) ──
+const DICT_PATH    = path.join(__dirname, '../data/dictionary.json');
 const websterIndex = {};
+let   dictReady    = false;
 
-try {
-  const entries = JSON.parse(fs.readFileSync(DICT_PATH, 'utf8'));
-  for (const entry of entries) {
-    if (!entry.word || !entry.definitions || !entry.definitions[0]) continue;
-    const key = entry.word.toLowerCase();
-    if (!websterIndex[key]) {
-      websterIndex[key] = entry.definitions[0];
+fs.promises.readFile(DICT_PATH, 'utf8')
+  .then(raw => {
+    const entries = JSON.parse(raw);
+    for (const entry of entries) {
+      if (!entry.word || !entry.definitions || !entry.definitions[0]) continue;
+      const key = entry.word.toLowerCase();
+      if (!websterIndex[key]) websterIndex[key] = entry.definitions[0];
     }
-  }
-  console.log(`[Dict] Webster's loaded: ${Object.keys(websterIndex).length} entries`);
-} catch (err) {
-  console.error('[Dict] Failed to load Webster\'s dictionary:', err.message);
-}
+    dictReady = true;
+    console.log(`[Dict] Webster's loaded: ${Object.keys(websterIndex).length} entries`);
+  })
+  .catch(err => console.error('[Dict] Failed to load Webster\'s dictionary:', err.message));
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function isMultiWord(term) {
@@ -98,8 +98,8 @@ router.post('/api/dictionary/define', requireAuth, async (req, res) => {
     }
   }
 
-  // Single word → Webster's local index first
-  if (websterIndex[key]) {
+  // Single word → Webster's local index first (falls through if still loading)
+  if (dictReady && websterIndex[key]) {
     return res.json({ term: cleanTerm, definition: websterIndex[key], source: 'dictionary' });
   }
 

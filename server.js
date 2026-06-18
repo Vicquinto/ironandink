@@ -103,7 +103,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(session({
-  store:             new FileStore({ path: path.join(__dirname, 'sessions'), ttl: 86400, reapInterval: 3600 }),
+  store:             new FileStore({ path: path.join(__dirname, 'sessions'), ttl: 86400, reapInterval: 3600, retries: 2 }),
   secret:            process.env.SESSION_SECRET,
   resave:            false,
   saveUninitialized: false,
@@ -235,6 +235,7 @@ io.on('connection', (socket) => {
 
 httpServer.listen(PORT, () => {
   console.log(`\n  Iron & Ink  |  http://localhost:${PORT}\n`);
+  if (process.send) process.send('ready');
 });
 
 module.exports = { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT, IRON_INK_DIALOGUE_PROMPT, IRON_INK_WRITING_PROMPT };
