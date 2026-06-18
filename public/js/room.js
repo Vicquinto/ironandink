@@ -69,7 +69,7 @@
 
   joinRoom();
 
-  socket.on('reconnect', function () {
+  socket.on('connect', function () {
     joinRoom();
   });
 

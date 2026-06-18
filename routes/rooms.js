@@ -196,7 +196,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
     window.ROOM_STUDY_LEVEL = ${JSON.stringify(room.studyLevel || 'journeyman')};
     window.ROOM_CHAT        = ${JSON.stringify(room.chat || [])};
   </script>
-  <script src="/js/room.js?v=11"></script>
+  <script src="/js/room.js?v=12"></script>
   <script src="/js/library.js?v=19"></script>`,
   }));
 });
