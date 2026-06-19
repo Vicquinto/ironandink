@@ -85,6 +85,39 @@ router.get('/invite-request', (req, res) => {
   <title>Iron &amp; Ink — Request an Invitation</title>
   ${publicStyles()}
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <style>
+    .pub-container { max-width: 560px; }
+    .doctrine-section { margin-top: 28px; border-top: 1px solid rgba(179,140,51,0.2); padding-top: 22px; }
+    .doctrine-intro { font-size: 0.88rem; color: var(--dark-cream); line-height: 1.7; margin-bottom: 22px; }
+    .doctrine-stmt { margin-bottom: 18px; }
+    .doctrine-question { font-size: 0.9rem; color: var(--text); line-height: 1.55; margin: 5px 0 9px; font-style: italic; }
+    .doctrine-choices { display: flex; gap: 6px; }
+    .doctrine-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--bg); border: 1.5px solid rgba(179,140,51,0.35);
+      border-radius: 4px; padding: 5px 16px;
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.85rem;
+      color: var(--warm-brown); cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      user-select: none;
+    }
+    .doctrine-btn.selected { background: #5C1A28; border-color: #5C1A28; color: #f5ede0; font-weight: 600; }
+    .doctrine-btn input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
+    .doctrine-closing {
+      font-size: 0.87rem; color: var(--dark-cream); line-height: 1.7;
+      margin: 22px 0 0; padding: 14px 16px;
+      background: rgba(179,140,51,0.07);
+      border-left: 3px solid rgba(179,140,51,0.4);
+      border-radius: 0 4px 4px 0;
+    }
+    .doctrine-final { margin-top: 22px; border-top: 1px solid rgba(179,140,51,0.2); padding-top: 20px; }
+    .decline-msg {
+      margin-top: 16px; padding: 18px 20px;
+      background: rgba(80,60,40,0.12); border: 1px solid rgba(179,140,51,0.22);
+      border-radius: 6px; font-size: 0.95rem; color: var(--dark-cream);
+      line-height: 1.65; text-align: center;
+    }
+  </style>
 </head>
 <body>
   <div class="pub-container">
@@ -111,26 +144,175 @@ router.get('/invite-request', (req, res) => {
           <textarea class="form-textarea" id="reason" required
             placeholder="Tell us briefly about your theological background and what you hope to gain&#8230;"></textarea>
         </div>
-        <button class="btn-pub" type="submit">Submit Request</button>
+
+        <div class="doctrine-section">
+          <p class="doctrine-intro">
+            Iron &amp; Ink Theology is a confessionally Reformed Bible study and community platform,
+            built on the historic doctrines of grace (often summarized as TULIP) and a high view of
+            Scripture&#8217;s authority. Before requesting access, please respond honestly to the
+            following six statements. There are no wrong answers if you&#8217;re still studying or
+            undecided &#8212; &#8220;Maybe&#8221; is a welcome response. This is simply to make sure
+            you understand what kind of community you&#8217;re joining, and that it will be a good
+            fit for you.
+          </p>
+
+          <div class="doctrine-stmt">
+            <label class="form-label">1. Scripture Authority</label>
+            <p class="doctrine-question">&#8220;I affirm that Scripture alone is the final, sufficient, and inerrant authority for Christian faith and life.&#8221;</p>
+            <div class="doctrine-choices" data-field="scriptureAuthority">
+              <label class="doctrine-btn"><input type="radio" name="doc_scriptureAuthority" value="Yes"> Yes</label>
+              <label class="doctrine-btn"><input type="radio" name="doc_scriptureAuthority" value="Maybe"> Maybe</label>
+              <label class="doctrine-btn"><input type="radio" name="doc_scriptureAuthority" value="No"> No</label>
+            </div>
+          </div>
+
+          <div class="doctrine-stmt">
+            <label class="form-label">2. Total Depravity</label>
+            <p class="doctrine-question">&#8220;I affirm that, apart from God&#8217;s grace, fallen humanity is spiritually unable to choose or come to Christ on its own.&#8221;</p>
+            <div class="doctrine-choices" data-field="totalDepravity">
+              <label class="doctrine-btn"><input type="radio" name="doc_totalDepravity" value="Yes"> Yes</label>
+              <label class="doctrine-btn"><input type="radio" name="doc_totalDepravity" value="Maybe"> Maybe</label>
+              <label class="doctrine-btn"><input type="radio" name="doc_totalDepravity" value="No"> No</label>
+            </div>
+          </div>
+
+          <div class="doctrine-stmt">
+            <label class="form-label">3. Unconditional Election</label>
+            <p class="doctrine-question">&#8220;I affirm that God&#8217;s choice to save His people is rooted in His own sovereign will, not in anything foreseen or merited in the person.&#8221;</p>
+            <div class="doctrine-choices" data-field="unconditionalElection">
+              <label class="doctrine-btn"><input type="radio" name="doc_unconditionalElection" value="Yes"> Yes</label>
+              <label class="doctrine-btn"><input type="radio" name="doc_unconditionalElection" value="Maybe"> Maybe</label>
+              <label class="doctrine-btn"><input type="radio" name="doc_unconditionalElection" value="No"> No</label>
+            </div>
+          </div>
+
+          <div class="doctrine-stmt">
+            <label class="form-label">4. Particular (Limited) Atonement</label>
+            <p class="doctrine-question">&#8220;I affirm that Christ&#8217;s death on the cross was specifically and effectively for the salvation of His elect, not merely a possibility offered to all.&#8221;</p>
+            <div class="doctrine-choices" data-field="particularAtonement">
+              <label class="doctrine-btn"><input type="radio" name="doc_particularAtonement" value="Yes"> Yes</label>
+              <label class="doctrine-btn"><input type="radio" name="doc_particularAtonement" value="Maybe"> Maybe</label>
+              <label class="doctrine-btn"><input type="radio" name="doc_particularAtonement" value="No"> No</label>
+            </div>
+          </div>
+
+          <div class="doctrine-stmt">
+            <label class="form-label">5. Irresistible Grace</label>
+            <p class="doctrine-question">&#8220;I affirm that when God effectually calls one of His elect, that call accomplishes its purpose and cannot be ultimately refused.&#8221;</p>
+            <div class="doctrine-choices" data-field="irresistibleGrace">
+              <label class="doctrine-btn"><input type="radio" name="doc_irresistibleGrace" value="Yes"> Yes</label>
+              <label class="doctrine-btn"><input type="radio" name="doc_irresistibleGrace" value="Maybe"> Maybe</label>
+              <label class="doctrine-btn"><input type="radio" name="doc_irresistibleGrace" value="No"> No</label>
+            </div>
+          </div>
+
+          <div class="doctrine-stmt">
+            <label class="form-label">6. Perseverance of the Saints</label>
+            <p class="doctrine-question">&#8220;I affirm that those truly regenerated by God will be kept by His power and will not ultimately lose their salvation.&#8221;</p>
+            <div class="doctrine-choices" data-field="perseverance">
+              <label class="doctrine-btn"><input type="radio" name="doc_perseverance" value="Yes"> Yes</label>
+              <label class="doctrine-btn"><input type="radio" name="doc_perseverance" value="Maybe"> Maybe</label>
+              <label class="doctrine-btn"><input type="radio" name="doc_perseverance" value="No"> No</label>
+            </div>
+          </div>
+
+          <div class="doctrine-closing">
+            Iron &amp; Ink is meant to be a safe, doctrinally settled space for Reformed believers to
+            study, write, and discuss together. We ask that members engage from within this framework
+            rather than using the community as a venue to debate or challenge these core convictions.
+            If after reading these statements this sounds like a community you&#8217;d value being
+            part of, we&#8217;d love to have you.
+          </div>
+
+          <div class="doctrine-final">
+            <label class="form-label">Final Question</label>
+            <p class="doctrine-question">Do you wish to join the Reformed Christian Iron &amp; Ink community?</p>
+            <div class="doctrine-choices" id="wishChoices">
+              <label class="doctrine-btn"><input type="radio" name="wishToJoin" value="Yes"> Yes</label>
+              <label class="doctrine-btn"><input type="radio" name="wishToJoin" value="No"> No</label>
+            </div>
+            <div id="declineMsg" class="decline-msg" style="display:none;">
+              Thank you for taking the time to consider Iron &amp; Ink. We wish you well in your walk.
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-pub" type="submit" id="submitBtn" style="margin-top:24px;">Submit Request</button>
       </form>
     </div>
     <p class="pub-footer"><a href="/">&#8592; Back to home</a></p>
   </div>
   <script>
-    document.getElementById('inviteForm').addEventListener('submit', async (e) => {
+    // Wire doctrine-btn visual selection state
+    document.querySelectorAll('.doctrine-choices').forEach(function (group) {
+      group.querySelectorAll('.doctrine-btn').forEach(function (btn) {
+        var radio = btn.querySelector('input[type="radio"]');
+        radio.addEventListener('change', function () {
+          group.querySelectorAll('.doctrine-btn').forEach(function (b) { b.classList.remove('selected'); });
+          btn.classList.add('selected');
+        });
+      });
+    });
+
+    // Final question: show decline message / hide submit on "No"
+    document.querySelectorAll('input[name="wishToJoin"]').forEach(function (radio) {
+      radio.addEventListener('change', function () {
+        var declineMsg = document.getElementById('declineMsg');
+        var submitBtn  = document.getElementById('submitBtn');
+        if (this.value === 'No') {
+          declineMsg.style.display = 'block';
+          submitBtn.style.display  = 'none';
+        } else {
+          declineMsg.style.display = 'none';
+          submitBtn.style.display  = 'block';
+        }
+      });
+    });
+
+    // Form submit
+    document.getElementById('inviteForm').addEventListener('submit', async function (e) {
       e.preventDefault();
       var errEl = document.getElementById('errMsg');
       errEl.classList.remove('visible');
-      var btn = e.target.querySelector('button');
+
+      var docFieldKeys = [
+        'scriptureAuthority', 'totalDepravity', 'unconditionalElection',
+        'particularAtonement', 'irresistibleGrace', 'perseverance',
+      ];
+      var doctrines = {};
+      for (var i = 0; i < docFieldKeys.length; i++) {
+        var checked = document.querySelector('input[name="doc_' + docFieldKeys[i] + '"]:checked');
+        if (!checked) {
+          errEl.textContent = 'Please answer all six doctrinal statements before submitting.';
+          errEl.classList.add('visible');
+          errEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          return;
+        }
+        doctrines[docFieldKeys[i]] = checked.value;
+      }
+
+      var wishChecked = document.querySelector('input[name="wishToJoin"]:checked');
+      if (!wishChecked) {
+        errEl.textContent = 'Please answer the final question before submitting.';
+        errEl.classList.add('visible');
+        return;
+      }
+      if (wishChecked.value !== 'Yes') return; // decline path — button is hidden, guard anyway
+
+      var btn = document.getElementById('submitBtn');
       btn.disabled = true;
+      btn.textContent = 'Submitting…';
+
       try {
         var res  = await fetch('/api/invite-request', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify({
-            name:   document.getElementById('name').value.trim(),
-            email:  document.getElementById('email').value.trim(),
-            reason: document.getElementById('reason').value.trim(),
+            name:       document.getElementById('name').value.trim(),
+            email:      document.getElementById('email').value.trim(),
+            reason:     document.getElementById('reason').value.trim(),
+            doctrines:  doctrines,
+            wishToJoin: 'Yes',
           }),
         });
         var data = await res.json();
@@ -141,11 +323,13 @@ router.get('/invite-request', (req, res) => {
           errEl.textContent = data.error || 'Submission failed.';
           errEl.classList.add('visible');
           btn.disabled = false;
+          btn.textContent = 'Submit Request';
         }
       } catch (err) {
         errEl.textContent = 'Error: ' + err.message;
         errEl.classList.add('visible');
         btn.disabled = false;
+        btn.textContent = 'Submit Request';
       }
     });
   </script>
@@ -155,10 +339,25 @@ router.get('/invite-request', (req, res) => {
 
 // ─── POST /api/invite-request ─────────────────────────────────────────────────
 router.post('/api/invite-request', (req, res) => {
-  const { name, email, reason } = req.body;
+  const { name, email, reason, doctrines, wishToJoin } = req.body;
   if (!name || !email || !reason) {
     return res.status(400).json({ success: false, error: 'All fields are required.' });
   }
+
+  const DOC_KEYS    = ['scriptureAuthority', 'totalDepravity', 'unconditionalElection', 'particularAtonement', 'irresistibleGrace', 'perseverance'];
+  const VALID_ANS   = ['Yes', 'Maybe', 'No'];
+  const cleanDoctrines = {};
+  for (const key of DOC_KEYS) {
+    const val = doctrines && doctrines[key];
+    if (!VALID_ANS.includes(val)) {
+      return res.status(400).json({ success: false, error: 'Please answer all six doctrinal statements.' });
+    }
+    cleanDoctrines[key] = val;
+  }
+  if (wishToJoin !== 'Yes') {
+    return res.status(400).json({ success: false, error: 'Invalid submission.' });
+  }
+
   const requests = readJSON(INVITE_REQUESTS_PATH);
   const existing = requests.find(r => r.email.toLowerCase() === email.toLowerCase() && r.status === 'pending');
   if (existing) {
@@ -169,6 +368,8 @@ router.post('/api/invite-request', (req, res) => {
     name:        name.trim(),
     email:       email.trim().toLowerCase(),
     reason:      reason.trim(),
+    doctrines:   cleanDoctrines,
+    wishToJoin:  'Yes',
     status:      'pending',
     submittedAt: new Date().toISOString(),
   };

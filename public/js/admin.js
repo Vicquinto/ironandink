@@ -414,6 +414,33 @@
     }
   }
 
+  var DOCTRINE_LABELS = [
+    ['scriptureAuthority',    'Scripture Authority'],
+    ['totalDepravity',        'Total Depravity'],
+    ['unconditionalElection', 'Uncond. Election'],
+    ['particularAtonement',   'Part. Atonement'],
+    ['irresistibleGrace',     'Irres. Grace'],
+    ['perseverance',          'Perseverance'],
+  ];
+
+  function renderDoctrineAnswers(doctrines) {
+    if (!doctrines) return '';
+    var items = DOCTRINE_LABELS.map(function (pair) {
+      var val   = doctrines[pair[0]] || '—';
+      var color = val === 'Yes' ? '#4a9a60' : val === 'No' ? '#b03030' : '#a0845c';
+      return (
+        '<span style="font-size:0.78rem;color:var(--dark-cream);">' + pair[1] + ': </span>' +
+        '<span style="font-size:0.78rem;font-weight:600;color:' + color + ';">' + esc(val) + '</span>'
+      );
+    });
+    return (
+      '<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px 18px;padding:9px 12px;' +
+        'background:rgba(179,140,51,0.06);border:1px solid rgba(179,140,51,0.18);border-radius:4px;">' +
+        items.join('') +
+      '</div>'
+    );
+  }
+
   function renderInviteRequests(requests) {
     if (!requests.length) {
       if (inviteRequestEmpty) inviteRequestEmpty.style.display = 'block';
@@ -433,6 +460,7 @@
           '<span class="article-card-date">' + fmtDate(r.submittedAt) + '</span>' +
         '</div>' +
         '<p style="font-size:0.85rem; color:var(--dark-cream); margin-top:10px; line-height:1.55; font-style:italic;">"' + esc(r.reason) + '"</p>' +
+        renderDoctrineAnswers(r.doctrines) +
         '<div style="display:flex; gap:10px; margin-top:12px;">' +
           '<button class="btn-primary invite-send-btn" data-id="' + esc(r.id) + '" style="font-size:0.82rem; padding:6px 14px;">Send Invite</button>' +
           '<button class="btn-reject invite-decline-btn" data-id="' + esc(r.id) + '" style="font-size:0.82rem; padding:6px 14px;">Decline</button>' +
