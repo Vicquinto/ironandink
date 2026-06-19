@@ -1,12 +1,15 @@
 const express   = require('express');
 const Anthropic = require('@anthropic-ai/sdk');
 const { requireAuth, renderLayout }  = require('./layout');
-const { getDailyDevotional }         = require('./dashboard');
+const { getDailyDevotional, getDevotionalArchive } = require('./dashboard');
 
 const router = express.Router();
 
 router.get('/devotional', requireAuth, async (req, res) => {
-  const devotionalContent = await getDailyDevotional(req);
+  const [devotionalContent, archiveEntries] = await Promise.all([
+    getDailyDevotional(req),
+    Promise.resolve(getDevotionalArchive()),
+  ]);
   const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
   const content = `
@@ -35,12 +38,18 @@ router.get('/devotional', requireAuth, async (req, res) => {
                placeholder="What does this passage teach about…" />
         <button id="devotAskBtn" class="btn-primary">Ask</button>
       </div>
+    </div>
+
+    <div class="devot-archive-card">
+      <div class="devot-archive-heading">Browse Past Devotionals</div>
+      <div id="devotArchiveList"></div>
     </div>`;
 
   const scripts = `
   <script>
     var devotionalText   = ${JSON.stringify(devotionalContent || '')};
     var devotChatHistory = [];
+    var archiveEntries   = ${JSON.stringify(archiveEntries)};
 
     // ── Render devotional content ──────────────────────────────────────────
     (function() {
@@ -151,6 +160,68 @@ router.get('/devotional', requireAuth, async (req, res) => {
     if (devotInput) devotInput.addEventListener('keydown', function(e) {
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); askDevotional(); }
     });
+
+    // ── Archive rendering ──────────────────────────────────────────────────
+    (function() {
+      var list = document.getElementById('devotArchiveList');
+      if (!list) return;
+
+      if (!archiveEntries || archiveEntries.length === 0) {
+        list.innerHTML = '<p class="devot-archive-empty">No past devotionals yet. Check back tomorrow.</p>';
+        return;
+      }
+
+      archiveEntries.forEach(function(entry, idx) {
+        var dateLabel = entry.date
+          ? new Date(entry.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+          : entry.date;
+
+        var item = document.createElement('div');
+        item.className = 'devot-archive-item';
+
+        var header = document.createElement('div');
+        header.className = 'devot-archive-item-header';
+        header.setAttribute('role', 'button');
+        header.setAttribute('tabindex', '0');
+        header.setAttribute('aria-expanded', 'false');
+        header.innerHTML =
+          '<div class="devot-archive-meta">' +
+            '<span class="devot-archive-date">' + dateLabel + '</span>' +
+            (entry.scripture ? '<span class="devot-archive-scripture">' + entry.scripture + '</span>' : '') +
+          '</div>' +
+          (entry.snippet ? '<div class="devot-archive-snippet">' + entry.snippet + '</div>' : '') +
+          '<span class="devot-archive-toggle">&#9662;</span>';
+
+        var body = document.createElement('div');
+        body.className = 'devot-archive-item-body';
+        if (entry.content) {
+          try {
+            body.innerHTML = (typeof marked !== 'undefined')
+              ? marked.parse(entry.content)
+              : '<pre>' + entry.content + '</pre>';
+          } catch(e) {
+            body.textContent = entry.content;
+          }
+        }
+
+        function toggle() {
+          var open = body.classList.contains('open');
+          body.classList.toggle('open', !open);
+          header.setAttribute('aria-expanded', String(!open));
+          var chevron = header.querySelector('.devot-archive-toggle');
+          if (chevron) chevron.innerHTML = open ? '&#9662;' : '&#9652;';
+        }
+
+        header.addEventListener('click', toggle);
+        header.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+        });
+
+        item.appendChild(header);
+        item.appendChild(body);
+        list.appendChild(item);
+      });
+    })();
   </script>`;
 
   res.send(renderLayout({ req, activeSection: 'devotional', title: 'Daily Devotional', content, scripts }));

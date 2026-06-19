@@ -154,15 +154,61 @@ function extractPassageRef(content) {
   return m ? m[1].replace(/\s+/g, ' ').trim() : null;
 }
 
+function extractSnippet(content) {
+  const stripped = content
+    .replace(/^#{1,6}\s+.*$/gm, '')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/\*([^*]+)\*/g, '$1')
+    .trim();
+  const lines = stripped.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  if (!lines.length) return '';
+  const text = lines[0];
+  if (text.length <= 120) return text;
+  const cutoff = text.lastIndexOf(' ', 120);
+  return text.slice(0, cutoff > 0 ? cutoff : 120) + '…';
+}
+
+function getDevotionalArchive() {
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Denver' });
+  try {
+    if (!fs.existsSync(DEVOTIONAL_PATH)) return [];
+    const raw = JSON.parse(fs.readFileSync(DEVOTIONAL_PATH, 'utf8'));
+    const entries = Array.isArray(raw.entries) ? raw.entries : [];
+    return entries
+      .filter(e => e.date !== today)
+      .map(e => ({
+        date:      e.date,
+        scripture: e.scripture || '',
+        snippet:   extractSnippet(e.content || ''),
+        content:   e.content || '',
+      }));
+  } catch {
+    return [];
+  }
+}
+
 async function getDailyDevotional(req) {
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Denver' });
 
   let recentPassages = [];
+  let entries = [];
+
   try {
     if (fs.existsSync(DEVOTIONAL_PATH)) {
-      const cached = JSON.parse(fs.readFileSync(DEVOTIONAL_PATH, 'utf8'));
-      if (Array.isArray(cached.recentPassages)) recentPassages = cached.recentPassages;
-      if (cached.date === today && cached.content) return cached.content;
+      const raw = JSON.parse(fs.readFileSync(DEVOTIONAL_PATH, 'utf8'));
+      // Migration: old format has a top-level .date string instead of .entries array
+      if (raw.date !== undefined && !Array.isArray(raw.entries)) {
+        if (raw.content) {
+          entries = [{ date: raw.date, scripture: extractPassageRef(raw.content) || '', content: raw.content }];
+        }
+        recentPassages = Array.isArray(raw.recentPassages) ? raw.recentPassages : [];
+      } else {
+        entries        = Array.isArray(raw.entries)         ? raw.entries         : [];
+        recentPassages = Array.isArray(raw.recentPassages)  ? raw.recentPassages  : [];
+      }
+      if (entries.length > 0 && entries[0].date === today && entries[0].content) {
+        return entries[0].content;
+      }
     }
   } catch {}
 
@@ -213,17 +259,18 @@ Tone: warm but serious. Reformed and confessional.`;
       recentPassages = [passageRef, ...recentPassages.filter(p => p !== passageRef)].slice(0, 7);
     }
 
+    const newEntry = { date: today, scripture: passageRef || '', content };
+    entries = [newEntry, ...entries.filter(e => e.date !== today)];
+
     const dataDir = path.dirname(DEVOTIONAL_PATH);
-    console.log('[devotional] API succeeded. Attempting cache write.');
+    console.log('[devotional] API succeeded. Attempting archive write.');
     console.log('[devotional] Target path:', DEVOTIONAL_PATH);
-    console.log('[devotional] Data directory:', dataDir);
     try {
       fs.mkdirSync(dataDir, { recursive: true });
-      console.log('[devotional] mkdirSync OK');
-      fs.writeFileSync(DEVOTIONAL_PATH, JSON.stringify({ date: today, content, recentPassages }, null, 2), 'utf8');
-      console.log('[devotional] writeFileSync OK — cache written for', today, '| passages tracked:', recentPassages.length);
+      fs.writeFileSync(DEVOTIONAL_PATH, JSON.stringify({ recentPassages, entries }, null, 2), 'utf8');
+      console.log('[devotional] writeFileSync OK — archive updated for', today, '| total entries:', entries.length, '| passages tracked:', recentPassages.length);
     } catch (writeErr) {
-      console.error('[devotional] Cache write FAILED');
+      console.error('[devotional] Archive write FAILED');
       console.error('[devotional]   code   :', writeErr.code);
       console.error('[devotional]   message:', writeErr.message);
       console.error('[devotional]   path   :', writeErr.path);
@@ -309,4 +356,4 @@ router.get('/dashboard', requireAuth, (req, res) => {
   res.send(renderLayout({ req, activeSection: 'dashboard', title: 'Dashboard', content, scripts }));
 });
 
-module.exports = { router, getDailyDevotional };
+module.exports = { router, getDailyDevotional, getDevotionalArchive };

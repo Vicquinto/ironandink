@@ -3352,6 +3352,114 @@ body {
 .devot-input::placeholder { color: var(--warm-brown); opacity: 0.7; }
 .devot-input:focus { border-color: var(--accent); }
 
+/* ─── DEVOTIONAL ARCHIVE ─────────────────────────────────────────────────── */
+
+.devot-archive-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(160,132,92,0.18);
+  border-radius: 6px;
+  padding: 24px 28px;
+  margin-bottom: 28px;
+}
+
+.devot-archive-heading {
+  font-size: 0.78rem;
+  color: var(--warm-brown);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 18px;
+}
+
+.devot-archive-empty {
+  font-style: italic;
+  color: var(--warm-brown);
+  font-size: 0.92rem;
+  margin: 0;
+}
+
+.devot-archive-item {
+  border-top: 1px solid rgba(160,132,92,0.12);
+}
+.devot-archive-item:last-child {
+  border-bottom: 1px solid rgba(160,132,92,0.12);
+}
+
+.devot-archive-item-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 0;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+}
+.devot-archive-item-header:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.devot-archive-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.devot-archive-date {
+  font-size: 0.82rem;
+  color: var(--warm-brown);
+  white-space: nowrap;
+}
+
+.devot-archive-scripture {
+  font-size: 0.9rem;
+  color: var(--accent);
+  font-family: Georgia, serif;
+  font-weight: bold;
+}
+
+.devot-archive-snippet {
+  flex-basis: 100%;
+  font-size: 0.88rem;
+  color: var(--dark-cream);
+  font-style: italic;
+  margin-top: 3px;
+  line-height: 1.5;
+}
+
+.devot-archive-toggle {
+  font-size: 0.8rem;
+  color: var(--warm-brown);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.devot-archive-item-body {
+  display: none;
+  padding: 0 0 20px;
+  border-top: 1px solid rgba(160,132,92,0.08);
+  margin-top: 0;
+}
+.devot-archive-item-body.open { display: block; }
+
+.devot-archive-item-body h2 { font-size: 1.05rem; color: var(--accent); margin: 20px 0 8px; font-family: Georgia, serif; }
+.devot-archive-item-body h3 { font-size: 0.98rem; color: var(--accent); margin: 14px 0 6px; font-family: Georgia, serif; }
+.devot-archive-item-body p  { font-size: 1rem; line-height: 1.8; color: var(--text); margin: 0 0 10px; }
+.devot-archive-item-body ul,
+.devot-archive-item-body ol { padding-left: 20px; margin: 0 0 10px; }
+.devot-archive-item-body li { font-size: 0.97rem; line-height: 1.75; color: var(--text); margin-bottom: 4px; }
+.devot-archive-item-body blockquote {
+  border-left: 3px solid rgba(160,132,92,0.4);
+  margin: 10px 0;
+  padding: 6px 16px;
+  color: var(--dark-cream);
+  font-style: italic;
+  font-size: 1rem;
+}
+
 /* ─── SCRIPTURE READER ───────────────────────────────────────────────────── */
 
 .scripture-nav {
