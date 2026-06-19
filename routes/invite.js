@@ -357,11 +357,13 @@ router.get('/invite-request', (req, res) => {
       clearErr();
 
       if (currentStep === 0) {
-        var name   = document.getElementById('infoName').value.trim();
-        var email  = document.getElementById('infoEmail').value.trim();
-        var reason = document.getElementById('infoReason').value.trim();
+        var name    = document.getElementById('infoName').value.trim();
+        var email   = document.getElementById('infoEmail').value.trim();
+        var reason  = document.getElementById('infoReason').value.trim();
         if (!name)   { showErr('Please enter your full name.'); return; }
-        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        var atIdx   = email.indexOf('@');
+        var lastDot = email.lastIndexOf('.');
+        if (!email || atIdx < 1 || lastDot < atIdx + 2 || lastDot >= email.length - 1) {
           showErr('Please enter a valid email address.'); return;
         }
         if (!reason) { showErr('Please tell us why you want to join.'); return; }
