@@ -514,6 +514,9 @@
   var icmContextText    = '';
   var icmTopic          = '';
   var _pendingBroadcast = null;
+  var _inScripture      = false;
+  var _pendingPinData   = null;
+  var PINS_KEY          = 'ironink_scripture_pins';
 
   // ── Build unified popup ────────────────────────────────────────────────────
   upEl = document.createElement('div');
@@ -551,6 +554,10 @@
     '<div class="up-share-footer" style="display:none;flex-direction:row;gap:0.5rem;justify-content:flex-end;padding-top:0.5rem;border-top:1px solid #ddd0b0;">' +
       '<button class="up-private-btn" style="background:transparent;color:#8a6c30;border:1px solid #c4a882;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Keep Private</button>' +
       '<button class="up-share-btn" style="background:#5C1A28;color:#fff;border:none;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Share to Chat</button>' +
+    '</div>' +
+    '<div class="up-pin-footer" style="display:none;flex-direction:row;gap:0.5rem;justify-content:flex-end;padding-top:0.5rem;border-top:1px solid #ddd0b0;">' +
+      '<button class="up-pin-dismiss-btn" style="background:transparent;color:#8a6c30;border:1px solid #c4a882;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Dismiss</button>' +
+      '<button class="up-pin-btn" style="background:#5C1A28;color:#fff;border:none;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Pin to Sidebar</button>' +
     '</div>';
   document.body.appendChild(upEl);
 
@@ -589,6 +596,18 @@
     if (footer) footer.style.display = 'none';
   }
 
+  function showPinFooter(data) {
+    _pendingPinData = data;
+    var footer = upEl.querySelector('.up-pin-footer');
+    if (footer) { footer.style.display = 'flex'; clampUp(); }
+  }
+
+  function hidePinFooter() {
+    _pendingPinData = null;
+    var footer = upEl.querySelector('.up-pin-footer');
+    if (footer) footer.style.display = 'none';
+  }
+
   // ── Show unified popup ─────────────────────────────────────────────────────
   function showUp(text, rect) {
     upEl.querySelector('.up-preview').textContent =
@@ -608,6 +627,7 @@
     upEl.querySelector('.up-ai-btn').classList.remove('up-btn-active');
     upEl.querySelector('.up-verse-btn').classList.remove('up-btn-active');
     hideShareFooter();
+    hidePinFooter();
 
     // Measure collapsed height before committing to a position
     upEl.style.top        = '0';
@@ -672,8 +692,13 @@
     var inRoom        = roomGuideArea && roomGuideArea.style.display !== 'none' &&
                         roomGuideArea.contains(range.commonAncestorContainer);
 
-    if (!inModal && !inGuide && !inRoom) return;
+    // Scripture reader context
+    var scriptureBody = document.getElementById('scriptureBody');
+    var inScripture   = !!scriptureBody && scriptureBody.contains(range.commonAncestorContainer);
 
+    if (!inModal && !inGuide && !inRoom && !inScripture) return;
+
+    _inScripture   = inScripture;
     upSelectedText = selText;
     if (inModal) {
       var titleEl = document.getElementById('modalTitle');
@@ -681,6 +706,9 @@
     } else if (inRoom) {
       var titleEl = document.getElementById('roomGuideTitle');
       icmTopic = titleEl ? titleEl.textContent : '';
+    } else if (inScripture) {
+      var titleEl = document.getElementById('scriptureHeading');
+      icmTopic = titleEl ? titleEl.textContent : 'Scripture';
     } else {
       var titleEl = document.getElementById('guideTitle');
       icmTopic = titleEl ? titleEl.textContent : '';
@@ -749,6 +777,32 @@
     hideShareFooter();
   });
 
+  upEl.querySelector('.up-pin-dismiss-btn').addEventListener('click', function () {
+    hidePinFooter();
+  });
+
+  upEl.querySelector('.up-pin-btn').addEventListener('click', function () {
+    var btn = this;
+    if (!_pendingPinData) return;
+    var pins = loadPins();
+    pins.unshift({
+      id:       Date.now(),
+      type:     _pendingPinData.type,
+      term:     _pendingPinData.term,
+      content:  _pendingPinData.content,
+      pinnedAt: new Date().toISOString(),
+    });
+    savePins(pins);
+    renderPinSidebar(pins);
+    btn.textContent = 'Pinned ✓';
+    btn.disabled    = true;
+    setTimeout(function () {
+      hidePinFooter();
+      btn.textContent = 'Pin to Sidebar';
+      btn.disabled    = false;
+    }, 1500);
+  });
+
   upEl.querySelector('.up-define-btn').addEventListener('click', function () {
     upEl.querySelector('.up-content').style.display     = 'block';
     upEl.querySelector('.up-define-pane').style.display = 'block';
@@ -775,6 +829,9 @@
         defEl.innerHTML = renderMarkdown(data.definition);
         if (window.ROOM_CODE && window.isHost) {
           showShareFooter({ roomCode: window.ROOM_CODE, type: 'Define', term: upSelectedText, response: data.definition });
+        }
+        if (_inScripture) {
+          showPinFooter({ type: 'Define', term: upSelectedText, content: data.definition });
         }
       }
       clampUp();
@@ -824,6 +881,9 @@
         if (window.ROOM_CODE && window.isHost) {
           showShareFooter({ roomCode: window.ROOM_CODE, type: 'Verse Lookup', term: upSelectedText, response: data.verse });
         }
+        if (_inScripture) {
+          showPinFooter({ type: 'Verse Lookup', term: upSelectedText, content: data.verse });
+        }
       }
       clampUp();
     })
@@ -868,6 +928,9 @@
         resp.innerHTML = renderMarkdown(data.answer);
         if (window.ROOM_CODE && window.isHost) {
           showShareFooter({ roomCode: window.ROOM_CODE, type: 'Explore', term: upSelectedText, response: data.answer });
+        }
+        if (_inScripture) {
+          showPinFooter({ type: 'Explore', term: upSelectedText, content: data.answer });
         }
       } else {
         resp.innerHTML = '<span style="color:#e08080;font-style:italic;">Error: ' + esc(data.error || 'Failed.') + '</span>';
@@ -976,6 +1039,71 @@
       sendBtn.disabled = false;
       input.focus();
     }
+  }
+
+  // ── Scripture pin sidebar ──────────────────────────────────────────────────
+
+  function loadPins() {
+    try { return JSON.parse(localStorage.getItem(PINS_KEY) || '[]'); }
+    catch { return []; }
+  }
+
+  function savePins(pins) {
+    localStorage.setItem(PINS_KEY, JSON.stringify(pins));
+  }
+
+  function renderPinSidebar(pins) {
+    var list  = document.getElementById('spsList');
+    var empty = document.getElementById('spsEmpty');
+    if (!list) return;
+
+    list.innerHTML = '';
+
+    if (!pins || !pins.length) {
+      if (empty) empty.style.display = '';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+
+    var typeShort = { 'Define': 'Define', 'Explore': 'Explore', 'Verse Lookup': 'Verse' };
+
+    pins.forEach(function (pin) {
+      var item = document.createElement('div');
+      item.className = 'sps-item';
+
+      var label    = typeShort[pin.type] || pin.type;
+      var termDisp = pin.term.length > 42 ? pin.term.slice(0, 42) + '…' : pin.term;
+
+      var bodyHtml = '';
+      try {
+        bodyHtml = (typeof marked !== 'undefined')
+          ? marked.parse(pin.content || '')
+          : '<pre>' + esc(pin.content || '') + '</pre>';
+      } catch (e) {
+        bodyHtml = esc(pin.content || '');
+      }
+
+      item.innerHTML =
+        '<div class="sps-item-header">' +
+          '<span class="sps-type-badge">' + esc(label) + '</span>' +
+          '<span class="sps-item-term" title="' + esc(pin.term) + '">' + esc(termDisp) + '</span>' +
+          '<button class="sps-remove-btn" aria-label="Remove pin" title="Remove">×</button>' +
+        '</div>' +
+        '<div class="sps-item-body">' + bodyHtml + '</div>';
+
+      item.querySelector('.sps-remove-btn').addEventListener('click', function () {
+        var updated = loadPins().filter(function (p) { return p.id !== pin.id; });
+        savePins(updated);
+        renderPinSidebar(updated);
+      });
+
+      list.appendChild(item);
+    });
+  }
+
+  // Initialize sidebar on scripture page load
+  if (document.getElementById('spsList')) {
+    renderPinSidebar(loadPins());
   }
 
   loadStudies();

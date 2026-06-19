@@ -100,36 +100,46 @@ router.get('/scripture', requireAuth, async (req, res) => {
   const bookNames = JSON.stringify(bible.map(b => b.name));
 
   const content = `
-    <div class="page-header">
-      <h2 class="page-title">Scripture</h2>
-      <p class="page-subtitle">${subtitle}</p>
-    </div>
+    <div class="scripture-page-layout">
+      <div class="scripture-main-col">
+        <div class="page-header">
+          <h2 class="page-title">Scripture</h2>
+          <p class="page-subtitle">${subtitle}</p>
+        </div>
 
-    <div class="scripture-nav">
-      <select id="bookSelect" class="scripture-select">
-        ${bookOptions}
-      </select>
-      <select id="chapterSelect" class="scripture-select">
-        ${chapterOptions}
-      </select>
-    </div>
+        <div class="scripture-nav">
+          <select id="bookSelect" class="scripture-select">
+            ${bookOptions}
+          </select>
+          <select id="chapterSelect" class="scripture-select">
+            ${chapterOptions}
+          </select>
+        </div>
 
-    <div class="scripture-card" id="scriptureCard">
-      <h3 class="scripture-heading" id="scriptureHeading">Genesis 1</h3>
-      <div class="guide-font-toolbar">
-        <button class="guide-font-btn guide-font-btn-sm" id="scriptFontDec">A&#8722;</button>
-        <button class="guide-font-btn guide-font-btn-md" id="scriptFontReset">A</button>
-        <button class="guide-font-btn guide-font-btn-lg" id="scriptFontInc">A+</button>
+        <div class="scripture-card" id="scriptureCard">
+          <h3 class="scripture-heading" id="scriptureHeading">Genesis 1</h3>
+          <div class="guide-font-toolbar">
+            <button class="guide-font-btn guide-font-btn-sm" id="scriptFontDec">A&#8722;</button>
+            <button class="guide-font-btn guide-font-btn-md" id="scriptFontReset">A</button>
+            <button class="guide-font-btn guide-font-btn-lg" id="scriptFontInc">A+</button>
+          </div>
+          <div class="scripture-body" id="scriptureBody">
+            ${initBody}
+          </div>
+        </div>
+
+        <div class="tracker-section">
+          <h3 class="tracker-heading">Reading Tracker</h3>
+          <div class="tracker-grid" id="trackerGrid">
+            <p class="scripture-loading">Loading tracker&#8230;</p>
+          </div>
+        </div>
       </div>
-      <div class="scripture-body" id="scriptureBody">
-        ${initBody}
-      </div>
-    </div>
 
-    <div class="tracker-section">
-      <h3 class="tracker-heading">Reading Tracker</h3>
-      <div class="tracker-grid" id="trackerGrid">
-        <p class="scripture-loading">Loading tracker&#8230;</p>
+      <div class="scripture-pin-sidebar" id="scripturePinSidebar">
+        <div class="sps-heading">Pinned Notes</div>
+        <div class="sps-empty-msg" id="spsEmpty">Pin a tooltip result to keep it here.</div>
+        <div class="sps-list" id="spsList"></div>
       </div>
     </div>
 
@@ -153,7 +163,7 @@ router.get('/scripture', requireAuth, async (req, res) => {
     activeSection: 'scripture',
     title:         'Scripture',
     content,
-    scripts:       '<script src="/js/scripture.js?v=3"></script>',
+    scripts:       '<script src="/js/scripture.js?v=3"></script><script src="/js/library.js?v=21"></script>',
   }));
 });
 
