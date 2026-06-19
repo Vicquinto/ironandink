@@ -317,6 +317,8 @@ router.get('/room/:code', requireAuth, (req, res) => {
         <div class="guide-actions">
           <button id="roomSaveBtn" class="btn-primary">Save to My Library</button>
         </div>
+        <!-- TEMP: admin word-count monitor for Study Length tuning — remove later -->
+        <div id="roomAdminWc" style="display:none;margin-top:8px;font-size:0.78rem;color:#9a8060;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.03em;"></div>
       </div>
 
       <div id="roomFollowUp" class="room-followup" style="display:none;">
@@ -351,6 +353,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
     window.ROOM_STUDY       = ${room.study ? JSON.stringify(room.study) : 'null'};
     window.ROOM_STUDY_LEVEL = ${JSON.stringify(room.studyLevel || 'journeyman')};
     window.ROOM_CHAT        = ${JSON.stringify(room.chat || [])};
+    window.IS_ADMIN         = ${getIsAdmin(req)};
   </script>
   <script src="/js/room.js?v=13"></script>
   <script src="/js/library.js?v=20"></script>`,

@@ -148,6 +148,8 @@
       guideBody.innerHTML      = renderMarkdown(data.content);
       showState('guide');
       studyGenerated = true;
+      // TEMP: admin word-count monitor for Study Length tuning — remove later
+      if (window.IS_ADMIN) { showAdminWordCount(data.content, 'studyAdminWc'); }
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
     } catch (err) {
@@ -321,5 +323,14 @@
       );
     });
   });
+
+  // TEMP: admin word-count monitor for Study Length tuning — remove later
+  function showAdminWordCount(markdownContent, elId) {
+    var el = document.getElementById(elId);
+    if (!el) return;
+    var words = (markdownContent || '').replace(/[#*_`>\-]/g, ' ').trim().split(/\s+/).filter(Boolean).length;
+    el.textContent = words + ' words';
+    el.style.display = 'block';
+  }
 
 })();

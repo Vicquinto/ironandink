@@ -1,6 +1,6 @@
 const express = require('express');
 const Anthropic = require('@anthropic-ai/sdk');
-const { requireAuth, renderLayout } = require('./layout');
+const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
 
 const router = express.Router();
 
@@ -162,6 +162,8 @@ router.get('/study', requireAuth, (req, res) => {
         <button class="btn-primary" id="saveLibraryBtn">Save to Library</button>
         <button class="btn-warm" id="dismissGuideBtn">Dismiss</button>
       </div>
+      <!-- TEMP: admin word-count monitor for Study Length tuning — remove later -->
+      <div id="studyAdminWc" style="display:none;margin-top:8px;font-size:0.78rem;color:#9a8060;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.03em;"></div>
     </div>
 
     <div id="savePanel" class="save-panel" style="display:none;">
@@ -196,12 +198,16 @@ router.get('/study', requireAuth, (req, res) => {
       ${buildTopicBrowser()}
     </div>`;
 
+  const isAdmin = getIsAdmin(req);
   res.send(renderLayout({
     req,
     activeSection: 'study',
     title: 'Study',
     content,
     scripts: `<script src="/js/study.js"></script><script src="/js/library.js?v=20"></script>
+<script>
+window.IS_ADMIN = ${isAdmin};
+</script>
 <script>
 (function() {
   var APPOINTED_TOPICS = [
@@ -462,7 +468,7 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
     : getStudyLevelInstruction(userSettings);
   const systemPrompt = studyLevelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_STUDY_PROMPT;
 
-  const lengthInstruction = `LENGTH: Target approximately ${lengthCfg.wordCount} words for this study. Adjust the depth of explanation, number of illustrative examples, and level of doctrinal detail within the existing six-section structure to hit this target — treat it as an approximation, not a strict cap.`;
+  const lengthInstruction = `LENGTH: Target approximately ${lengthCfg.wordCount} words for this study. Adjust the depth of explanation, number of illustrative examples, and level of doctrinal detail within the existing six-section structure to hit this target — treat it as an approximation, not a strict cap. If the topic does not have enough substantive theological, exegetical, or historical content to responsibly reach the target length, it is acceptable to end the study shorter rather than pad with repetition, speculation, or filler. Depth should come from genuine substance — not from manufactured content to reach a word count.`;
 
   try {
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
