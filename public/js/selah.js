@@ -8,7 +8,50 @@
   var reflectBox = document.getElementById('selahReflect');
   var reflectTxt = document.getElementById('selahReflectText');
   var entryList  = document.getElementById('selahEntriesList');
+  var filterTabs = document.getElementById('selahFilterTabs');
+  var catPicker  = document.getElementById('selahCatPicker');
 
+  var allEntries    = [];
+  var activeFilter  = 'All';
+  var activeCategory = 'Journal';
+
+  // ── Category picker ────────────────────────────────────────────────────────
+  if (catPicker) {
+    catPicker.querySelectorAll('.selah-cat-pick-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        catPicker.querySelectorAll('.selah-cat-pick-btn').forEach(function (b) {
+          b.classList.remove('selah-cat-pick-btn--active');
+        });
+        btn.classList.add('selah-cat-pick-btn--active');
+        activeCategory = btn.dataset.cat;
+      });
+    });
+  }
+
+  // ── Filter tabs ────────────────────────────────────────────────────────────
+  if (filterTabs) {
+    filterTabs.querySelectorAll('.selah-filter-tab').forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        filterTabs.querySelectorAll('.selah-filter-tab').forEach(function (t) {
+          t.classList.remove('active');
+        });
+        tab.classList.add('active');
+        activeFilter = tab.dataset.filter;
+        applyFilter();
+      });
+    });
+  }
+
+  function applyFilter() {
+    var filtered = activeFilter === 'All'
+      ? allEntries
+      : allEntries.filter(function (e) {
+          return (e.category || 'Journal') === activeFilter;
+        });
+    renderEntries(filtered, activeFilter);
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
   function escapeHtml(str) {
     return String(str)
       .replace(/&/g, '&amp;')
@@ -23,23 +66,36 @@
     });
   }
 
-  function renderEntries(entries) {
+  // ── Render entries ─────────────────────────────────────────────────────────
+  function renderEntries(entries, filter) {
     if (!entries || entries.length === 0) {
-      entryList.innerHTML = '<p class="selah-no-entries">No entries yet. Begin writing above.</p>';
+      var msg = (filter && filter !== 'All')
+        ? 'No ' + filter + ' entries yet.'
+        : 'No entries yet. Begin writing above.';
+      entryList.innerHTML = '<p class="selah-no-entries">' + msg + '</p>';
       return;
     }
 
     entryList.innerHTML = entries.map(function (e) {
+      var cat      = e.category || 'Journal';
+      var catSlug  = cat.toLowerCase();
+      var catBadge = '<span class="selah-cat-badge selah-cat-badge--' + catSlug + '">' + escapeHtml(cat) + '</span>';
+
       var titleHtml = e.title
-        ? '<span class="selah-entry-title">'           + escapeHtml(e.title) + '</span>'
+        ? '<span class="selah-entry-title">'                         + escapeHtml(e.title) + '</span>'
         : '<span class="selah-entry-title selah-entry-untitled">Untitled</span>';
+
       var preview = e.content.length > 200
         ? e.content.slice(0, 200) + '…'
         : e.content;
+
       return (
         '<div class="selah-entry" data-id="' + e.id + '">' +
           '<div class="selah-entry-header">' +
-            titleHtml +
+            '<div class="selah-entry-header-left">' +
+              catBadge +
+              titleHtml +
+            '</div>' +
             '<span class="selah-entry-date">' + formatDate(e.createdAt) + '</span>' +
           '</div>' +
           '<div class="selah-entry-preview">' + escapeHtml(preview) + '</div>' +
@@ -60,11 +116,11 @@
 
     entryList.querySelectorAll('.selah-expand-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var id       = btn.dataset.id;
-        var fullDiv  = document.getElementById('full-' + id);
-        var reflDiv  = document.getElementById('refl-' + id);
-        var entry    = btn.closest('.selah-entry');
-        var preview  = entry.querySelector('.selah-entry-preview');
+        var id      = btn.dataset.id;
+        var fullDiv = document.getElementById('full-' + id);
+        var reflDiv = document.getElementById('refl-' + id);
+        var entry   = btn.closest('.selah-entry');
+        var preview = entry.querySelector('.selah-entry-preview');
         var expanded = fullDiv.style.display !== 'none';
         fullDiv.style.display             = expanded ? 'none'  : 'block';
         preview.style.display             = expanded ? 'block' : 'none';
@@ -78,10 +134,16 @@
     });
   }
 
+  // ── Load / Delete ──────────────────────────────────────────────────────────
   function loadEntries() {
     fetch('/api/selah/entries')
       .then(function (r) { return r.json(); })
-      .then(function (data) { if (data.success) renderEntries(data.entries); })
+      .then(function (data) {
+        if (data.success) {
+          allEntries = data.entries;
+          applyFilter();
+        }
+      })
       .catch(function () {
         entryList.innerHTML = '<p class="selah-no-entries">Could not load entries.</p>';
       });
@@ -94,10 +156,10 @@
       .then(function (data) { if (data.success) loadEntries(); });
   }
 
-  // ── Save ──────────────────────────────────────────────────────────────────
+  // ── Save ───────────────────────────────────────────────────────────────────
   saveBtn.addEventListener('click', function () {
-    var title          = titleInput.value.trim();
-    var content        = bodyInput.value.trim();
+    var title   = titleInput.value.trim();
+    var content = bodyInput.value.trim();
     if (!content) { bodyInput.focus(); return; }
 
     var reflectionText = (reflectBox.style.display !== 'none' && reflectTxt.textContent.trim())
@@ -110,7 +172,12 @@
     fetch('/api/selah/save', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ title: title, content: content, reflectionText: reflectionText }),
+      body:    JSON.stringify({
+        title:          title,
+        content:        content,
+        reflectionText: reflectionText,
+        category:       activeCategory,
+      }),
     })
     .then(function (r) { return r.json(); })
     .then(function (data) {
@@ -120,6 +187,13 @@
         titleInput.value         = '';
         bodyInput.value          = '';
         reflectBox.style.display = 'none';
+        // Reset picker to Journal
+        if (catPicker) {
+          catPicker.querySelectorAll('.selah-cat-pick-btn').forEach(function (b) {
+            b.classList.toggle('selah-cat-pick-btn--active', b.dataset.cat === 'Journal');
+          });
+          activeCategory = 'Journal';
+        }
         loadEntries();
       }
     })
@@ -129,7 +203,7 @@
     });
   });
 
-  // ── Reflect ───────────────────────────────────────────────────────────────
+  // ── Reflect ────────────────────────────────────────────────────────────────
   reflectBtn.addEventListener('click', function () {
     var content = bodyInput.value.trim();
     if (!content) { bodyInput.focus(); return; }
@@ -159,9 +233,10 @@
     });
   });
 
-  // ── Initial render ────────────────────────────────────────────────────────
+  // ── Initial render ─────────────────────────────────────────────────────────
   if (typeof SELAH_INIT_ENTRIES !== 'undefined') {
-    renderEntries(SELAH_INIT_ENTRIES);
+    allEntries = SELAH_INIT_ENTRIES;
+    applyFilter();
   } else {
     loadEntries();
   }

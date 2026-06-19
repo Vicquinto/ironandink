@@ -3916,6 +3916,34 @@ body {
 .selah-textarea:focus { border-color: var(--accent); }
 .selah-textarea::placeholder { color: var(--warm-brown); opacity: 0.6; font-style: italic; }
 
+.selah-cat-picker {
+  display: flex;
+  align-self: flex-start;
+  border: 1px solid rgba(160,132,92,0.3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.selah-cat-pick-btn {
+  background: transparent;
+  border: none;
+  border-right: 1px solid rgba(160,132,92,0.3);
+  color: var(--warm-brown);
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 0.88rem;
+  padding: 6px 16px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  letter-spacing: 0.02em;
+}
+.selah-cat-pick-btn:last-child { border-right: none; }
+.selah-cat-pick-btn:hover { background: rgba(160,132,92,0.1); color: var(--accent); }
+.selah-cat-pick-btn--active {
+  background: rgba(92,26,40,0.1);
+  color: var(--accent);
+  font-weight: 600;
+}
+
 .selah-compose-actions {
   display: flex;
   gap: 12px;
@@ -3949,6 +3977,33 @@ body {
   white-space: pre-wrap;
 }
 
+.selah-filter-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.selah-filter-tab {
+  background: transparent;
+  border: 1px solid rgba(160,132,92,0.28);
+  border-radius: 4px;
+  color: var(--warm-brown);
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 0.85rem;
+  padding: 5px 14px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  letter-spacing: 0.02em;
+}
+.selah-filter-tab:hover { border-color: var(--accent); color: var(--accent); }
+.selah-filter-tab.active {
+  background: rgba(92,26,40,0.1);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
 .selah-entries-section { max-width: 760px; }
 
 .selah-entries-heading {
@@ -3980,10 +4035,34 @@ body {
 .selah-entry-header {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
+  align-items: flex-start;
+  gap: 10px;
   margin-bottom: 8px;
 }
+
+.selah-entry-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.selah-cat-badge {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-family: Georgia, serif;
+  font-weight: 600;
+  flex-shrink: 0;
+  line-height: 1.6;
+}
+.selah-cat-badge--prayer     { background: rgba(92,26,40,0.12);  color: var(--accent); }
+.selah-cat-badge--meditation { background: rgba(160,132,92,0.18); color: #7a5c30; }
+.selah-cat-badge--journal    { background: rgba(100,100,100,0.1); color: var(--warm-brown); }
 
 .selah-entry-title {
   font-family: 'EB Garamond', Georgia, serif;
@@ -4046,6 +4125,8 @@ body {
 
 @media (max-width: 600px) {
   .selah-compose-actions { flex-direction: column; align-items: stretch; }
+  .selah-cat-picker { align-self: stretch; }
+  .selah-cat-pick-btn { flex: 1; text-align: center; }
   .selah-entry-header { flex-direction: column; gap: 4px; }
 }
 

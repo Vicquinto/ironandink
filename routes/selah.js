@@ -37,6 +37,11 @@ router.get('/selah', requireAuth, (req, res) => {
              placeholder="Title (optional)" autocomplete="off">
       <textarea id="selahBody" class="selah-textarea"
                 placeholder="Write freely. This is between you and God."></textarea>
+      <div class="selah-cat-picker" id="selahCatPicker" aria-label="Entry category">
+        <button class="selah-cat-pick-btn" data-cat="Prayer">Prayer</button>
+        <button class="selah-cat-pick-btn" data-cat="Meditation">Meditation</button>
+        <button class="selah-cat-pick-btn selah-cat-pick-btn--active" data-cat="Journal">Journal</button>
+      </div>
       <div class="selah-compose-actions">
         <button id="saveSelahBtn" class="btn-primary">Save Entry</button>
         <button id="reflectBtn" class="btn-warm">Reflect with AI</button>
@@ -50,6 +55,12 @@ router.get('/selah', requireAuth, (req, res) => {
 
     <div class="selah-entries-section">
       <h3 class="selah-entries-heading">Past Entries</h3>
+      <div class="selah-filter-tabs" id="selahFilterTabs">
+        <button class="selah-filter-tab active" data-filter="All">All</button>
+        <button class="selah-filter-tab" data-filter="Prayer">Prayer</button>
+        <button class="selah-filter-tab" data-filter="Meditation">Meditation</button>
+        <button class="selah-filter-tab" data-filter="Journal">Journal</button>
+      </div>
       <div id="selahEntriesList" class="selah-entries-list"></div>
     </div>`;
 
@@ -66,9 +77,11 @@ router.get('/selah', requireAuth, (req, res) => {
   }));
 });
 
+const VALID_CATEGORIES = ['Prayer', 'Meditation', 'Journal'];
+
 // ─── POST /api/selah/save ────────────────────────────────────────────────────
 router.post('/api/selah/save', requireAuth, (req, res) => {
-  const { title, content, reflectionText } = req.body;
+  const { title, content, reflectionText, category } = req.body;
   if (!content || !String(content).trim()) {
     return res.status(400).json({ success: false, error: 'Entry content is required.' });
   }
@@ -80,6 +93,7 @@ router.post('/api/selah/save', requireAuth, (req, res) => {
     title:          title ? String(title).trim() : '',
     content:        String(content).trim(),
     reflectionText: reflectionText ? String(reflectionText).trim() : '',
+    category:       VALID_CATEGORIES.includes(category) ? category : 'Journal',
     createdAt:      new Date().toISOString(),
   };
 
