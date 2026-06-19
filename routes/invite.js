@@ -65,9 +65,9 @@ function publicStyles() {
       }
       .error-msg.visible { display:block; }
       .success-box {
-        background:rgba(80,140,80,0.1); border:1px solid rgba(80,140,80,0.3);
-        color:#a0d0a0; padding:20px 24px; border-radius:8px;
-        font-size:1rem; line-height:1.7; text-align:center;
+        background:rgba(179,140,51,0.1); border:1px solid rgba(179,140,51,0.35);
+        color:var(--text); padding:24px 28px; border-radius:8px;
+        font-size:1rem; line-height:1.8; text-align:center;
       }
       .pub-footer { text-align:center; font-size:0.75rem; color:var(--warm-brown); margin-top:20px; }
       .pub-footer a { color:var(--warm-brown); text-decoration:none; }
@@ -129,9 +129,9 @@ router.get('/invite-request', (req, res) => {
     .step-inline-err { font-size: 0.8rem; color: #e08080; margin-top: 10px; font-style: italic; }
     .decline-msg {
       margin-top: 18px; padding: 18px 20px;
-      background: rgba(80,60,40,0.12); border: 1px solid rgba(179,140,51,0.22);
-      border-radius: 6px; font-size: 0.95rem; color: var(--dark-cream);
-      line-height: 1.65; text-align: center;
+      background: rgba(179,140,51,0.08); border: 1px solid rgba(179,140,51,0.28);
+      border-radius: 6px; font-size: 1rem; color: var(--text);
+      line-height: 1.7; text-align: center;
     }
   </style>
 </head>
@@ -262,10 +262,8 @@ router.get('/invite-request', (req, res) => {
             choiceBtn('Maybe', sel) +
             choiceBtn('No',    sel) +
           '</div>' +
-          '<div class="step-inline-err" id="stepErr" style="display:none;">Please select an answer to continue.</div>' +
           '<div class="step-nav">' +
             '<button class="btn-back" id="backBtn" type="button">← Back</button>' +
-            '<button class="btn-pub"  id="nextBtn" type="button">Next</button>' +
           '</div>';
 
       } else if (currentStep === 8) {
@@ -310,17 +308,18 @@ router.get('/invite-request', (req, res) => {
       if (backBtn) backBtn.addEventListener('click', function () { goTo(currentStep - 1); });
       if (nextBtn) nextBtn.addEventListener('click', handleNext);
 
-      // Statement choice buttons
+      // Statement choice buttons — selecting auto-advances after brief visible state
       var docChoices = document.getElementById('docChoices');
       if (docChoices) {
         docChoices.querySelectorAll('.doctrine-btn').forEach(function (btn) {
           btn.addEventListener('click', function () {
+            var val = btn.getAttribute('data-value');
             docChoices.querySelectorAll('.doctrine-btn').forEach(function (b) { b.classList.remove('selected'); });
             btn.classList.add('selected');
             var r = btn.querySelector('input');
             if (r) r.checked = true;
-            var stepErr = document.getElementById('stepErr');
-            if (stepErr) stepErr.style.display = 'none';
+            docAnswers[DOCS[currentStep - 2].key] = val;
+            setTimeout(function () { goTo(currentStep + 1); }, 200);
           });
         });
       }
@@ -372,18 +371,6 @@ router.get('/invite-request', (req, res) => {
 
       } else if (currentStep === 1) {
         goTo(2);
-
-      } else if (currentStep >= 2 && currentStep <= 7) {
-        var idx    = currentStep - 2;
-        var doc    = DOCS[idx];
-        var chosen = container.querySelector('input[name="doc_choice"]:checked');
-        if (!chosen) {
-          var stepErr = document.getElementById('stepErr');
-          if (stepErr) stepErr.style.display = 'block';
-          return;
-        }
-        docAnswers[doc.key] = chosen.value;
-        goTo(currentStep + 1);
 
       } else if (currentStep === 8) {
         goTo(9);
