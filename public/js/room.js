@@ -5,6 +5,7 @@
   var currentAbortCtrl  = null;
   var roomCode          = window.ROOM_CODE;
   var isHost            = !!(window.CURRENT_USER && window.CURRENT_USER.email === window.ROOM_HOST);
+  var selectedRoomLength = 'Short';
 
   console.log('isHost: ' + isHost);
 
@@ -33,6 +34,20 @@
   var roomPauseBtn      = document.getElementById('roomPauseBtn');
   var roomNewStudyBtn   = document.getElementById('roomNewStudyBtn');
   var roomDeleteBtn     = document.getElementById('roomDeleteBtn');
+  var roomLengthPicker  = document.getElementById('roomLengthPicker');
+
+  // ── Room length picker ─────────────────────────────────────────────────────
+  if (roomLengthPicker) {
+    roomLengthPicker.querySelectorAll('.study-length-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        roomLengthPicker.querySelectorAll('.study-length-btn').forEach(function (b) {
+          b.classList.remove('study-length-btn--active');
+        });
+        btn.classList.add('study-length-btn--active');
+        selectedRoomLength = btn.dataset.length;
+      });
+    });
+  }
 
   // ── Font size control ─────────────────────────────────────────────────────
   var FONT_DEFAULT  = 16;
@@ -320,7 +335,7 @@
       var res  = await fetch('/api/study/generate', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ topic: topic, studyLevel: window.ROOM_STUDY_LEVEL || '' }),
+        body:    JSON.stringify({ topic: topic, studyLevel: window.ROOM_STUDY_LEVEL || '', length: selectedRoomLength }),
         signal:  currentAbortCtrl.signal,
       });
       var data = await res.json();
@@ -577,6 +592,7 @@
   if (!isHost) {
     var searchBar = document.querySelector('.study-search-bar');
     if (searchBar) searchBar.style.display = 'none';
+    if (roomLengthPicker) roomLengthPicker.style.display = 'none';
   }
 
   if (isHost) {

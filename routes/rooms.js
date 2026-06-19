@@ -271,6 +271,12 @@ router.get('/room/:code', requireAuth, (req, res) => {
         <button id="roomGenerateBtn" class="btn-warm" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.6rem 1.5rem;font-size:1rem;cursor:pointer;white-space:nowrap;">Generate Study</button>
       </div>
 
+      <div class="study-length-picker" id="roomLengthPicker" aria-label="Study length">
+        <button class="study-length-btn study-length-btn--active" data-length="Short">Short</button>
+        <button class="study-length-btn" data-length="Standard">Standard</button>
+        <button class="study-length-btn" data-length="Deep">Deep</button>
+      </div>
+
       <div style="margin-bottom:0.25rem;">
         <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
           ${room.host === userId ? `<button id="roomLoadLibraryBtn" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;">Load from Library</button>` : ''}
