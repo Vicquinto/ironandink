@@ -4,6 +4,12 @@ const { requireAuth, renderLayout } = require('./layout');
 
 const router = express.Router();
 
+const STUDY_LENGTH_CONFIG = {
+  Short:    { wordCount: 800,  maxTokens: 1600 },
+  Standard: { wordCount: 1500, maxTokens: 2800 },
+  Deep:     { wordCount: 3000, maxTokens: 5000 },
+};
+
 const STUDY_LEVEL_INSTRUCTIONS = {
   foundations: "STUDY LEVEL: This user is a beginner. Use plain conversational language. Define all theological terms when first introduced. Avoid academic jargon. Build explanations from the ground up. Use simple sentence structure.",
   journeyman:  "STUDY LEVEL: This user has solid familiarity with Reformed theology. Engage at a serious but readable level. Assume basic doctrinal literacy.",
@@ -127,6 +133,12 @@ router.get('/study', requireAuth, (req, res) => {
              placeholder="Study any topic..." autocomplete="off">
       <button id="generateBtn" class="btn-primary">Generate Guide</button>
       <button id="appointedStudyBtn" class="btn-warm">Appointed Study</button>
+    </div>
+
+    <div class="study-length-picker" id="studyLengthPicker" aria-label="Study length">
+      <button class="study-length-btn study-length-btn--active" data-length="Short">Short</button>
+      <button class="study-length-btn" data-length="Standard">Standard</button>
+      <button class="study-length-btn" data-length="Deep">Deep</button>
     </div>
 
     <div id="studyLoading" class="study-loading" style="display:none;">
@@ -434,13 +446,15 @@ router.get('/study', requireAuth, (req, res) => {
 
 // ─── POST /api/study/generate ────────────────────────────────────────────────
 router.post('/api/study/generate', requireAuth, async (req, res) => {
-  const { topic, studyLevel } = req.body;
+  const { topic, studyLevel, length } = req.body;
   if (!topic || !topic.trim()) {
     return res.status(400).json({ success: false, error: 'Topic is required.' });
   }
 
-  const userSettings = req.session.user && req.session.user.settings;
-  const translation  = (userSettings && userSettings.bibleTranslation) || 'LSB';
+  const userSettings  = req.session.user && req.session.user.settings;
+  const translation   = (userSettings && userSettings.bibleTranslation) || 'LSB';
+  const lengthCfg     = STUDY_LENGTH_CONFIG[length] || STUDY_LENGTH_CONFIG.Short;
+  const studyLength   = STUDY_LENGTH_CONFIG[length] ? length : 'Short';
 
   const { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT } = req.app.locals.prompts;
   const studyLevelInstruction = (studyLevel && STUDY_LEVEL_INSTRUCTIONS[studyLevel])
@@ -448,20 +462,22 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
     : getStudyLevelInstruction(userSettings);
   const systemPrompt = studyLevelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_STUDY_PROMPT;
 
+  const lengthInstruction = `LENGTH: Target approximately ${lengthCfg.wordCount} words for this study. Adjust the depth of explanation, number of illustrative examples, and level of doctrinal detail within the existing six-section structure to hit this target — treat it as an approximation, not a strict cap.`;
+
   try {
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const message = await client.messages.create({
       model:      'claude-sonnet-4-6',
-      max_tokens: 4000,
+      max_tokens: lengthCfg.maxTokens,
       system:     systemPrompt,
       messages: [{
         role:    'user',
-        content: `Generate a Reformed theological study guide on the following topic from a biblical and confessional perspective: ${topic.trim()}\n\nBible translation preference: ${translation}`,
+        content: `Generate a Reformed theological study guide on the following topic from a biblical and confessional perspective: ${topic.trim()}\n\nBible translation preference: ${translation}\n\n${lengthInstruction}`,
       }],
     });
 
     const content = message.content[0].text;
-    res.json({ success: true, content, topic: topic.trim(), translation });
+    res.json({ success: true, content, topic: topic.trim(), translation, studyLength });
   } catch (err) {
     console.error('Study generation error — status:', err.status);
     console.error('Study generation error — message:', err.message);

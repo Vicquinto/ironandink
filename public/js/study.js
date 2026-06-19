@@ -5,6 +5,7 @@
   let selectedRating  = 0;
   let abortController = null;
   let studyGenerated  = false;
+  var selectedLength  = 'Short';
 
   // ── DOM refs ──────────────────────────────────────────────────────────────
   const topicInput       = document.getElementById('topicInput');
@@ -53,6 +54,20 @@
   // ── Prefill from dialogue gap analysis ───────────────────────────────────
   var urlPrefill = new URLSearchParams(window.location.search).get('studyNext');
   if (urlPrefill && topicInput) { topicInput.value = urlPrefill; topicInput.focus(); }
+
+  // ── Length picker ─────────────────────────────────────────────────────────
+  var lengthPicker = document.getElementById('studyLengthPicker');
+  if (lengthPicker) {
+    lengthPicker.querySelectorAll('.study-length-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        lengthPicker.querySelectorAll('.study-length-btn').forEach(function (b) {
+          b.classList.remove('study-length-btn--active');
+        });
+        btn.classList.add('study-length-btn--active');
+        selectedLength = btn.dataset.length;
+      });
+    });
+  }
 
   // ── Accordion ─────────────────────────────────────────────────────────────
   document.querySelectorAll('.topic-cat-header').forEach(function (btn) {
@@ -120,14 +135,14 @@
       var res  = await fetch('/api/study/generate', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ topic }),
+        body:    JSON.stringify({ topic, length: selectedLength }),
         signal:  abortController.signal,
       });
       var data = await res.json();
 
       if (!data.success) throw new Error(data.error || 'Generation failed.');
 
-      currentGuide = data;
+      currentGuide = { studyLength: selectedLength, ...data };
       guideTitle.textContent   = data.topic;
       guideBadge.textContent   = data.translation || 'LSB';
       guideBody.innerHTML      = renderMarkdown(data.content);
@@ -197,6 +212,7 @@
       translation: currentGuide.translation,
       tags:        saveTagsInput.value,
       rating:      selectedRating,
+      studyLength: currentGuide.studyLength,
       createdAt:   new Date().toISOString(),
     };
 

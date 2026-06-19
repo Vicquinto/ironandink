@@ -92,7 +92,7 @@ router.get('/api/library', requireAuth, (req, res) => {
 
 // ─── POST /api/library/save ──────────────────────────────────────────────────
 router.post('/api/library/save', requireAuth, (req, res) => {
-  const { topic, content, translation, tags, rating, createdAt } = req.body;
+  const { topic, content, translation, tags, rating, studyLength, createdAt } = req.body;
   if (!topic || !content) {
     return res.status(400).json({ success: false, error: 'Topic and content are required.' });
   }
@@ -111,6 +111,7 @@ router.post('/api/library/save', requireAuth, (req, res) => {
     tags:        parsedTags,
     rating:      Math.min(5, Math.max(0, parseInt(rating) || 0)),
     studyLevel:  (userSettings && userSettings.studyLevel) || 'journeyman',
+    studyLength: ['Short', 'Standard', 'Deep'].includes(studyLength) ? studyLength : 'Short',
     createdAt:   createdAt || new Date().toISOString(),
     savedAt:     new Date().toISOString(),
   };
