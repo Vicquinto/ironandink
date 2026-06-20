@@ -39,6 +39,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
     { id: 'scripture',   label: 'Scripture',   href: '/scripture',   icon: '&#10070;' },
     { id: 'selah',       label: 'Selah',       href: '/selah',       icon: '&#10022;' },
     { id: 'community',   label: 'Community',   href: '/community',   icon: '&#9678;' },
+    { id: 'messages',    label: 'Messages',    href: '/messages',    icon: '&#9743;' },
     { id: 'rooms',       label: 'Live Rooms',  href: '/rooms',       icon: '&#9689;' },
     { id: 'my-articles', label: 'My Articles', href: '/my-articles', icon: '&#9634;' },
     { id: 'settings',    label: 'Settings',    href: '/settings',    icon: '&#9881;' },

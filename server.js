@@ -29,6 +29,7 @@ const copyrightRoutes     = require('./routes/copyright');
 const dedicationRoutes    = require('./routes/dedication');
 const helpRoutes          = require('./routes/help');
 const believeRoutes       = require('./routes/believe');
+const messagesRoutes      = require('./routes/messages');
 const { requireAuth, renderLayout } = require('./routes/layout');
 
 const app  = express();
@@ -171,6 +172,7 @@ app.use('/', copyrightRoutes);
 app.use('/', dedicationRoutes);
 app.use('/', helpRoutes);
 app.use('/', believeRoutes);
+app.use('/', messagesRoutes);
 
 // ─── Placeholder Sections (unbuilt) ──────────────────────────────────────
 const placeholders = [];
