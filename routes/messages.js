@@ -2,6 +2,7 @@ const express  = require('express');
 const fs       = require('fs');
 const path     = require('path');
 const { requireAuth, renderLayout } = require('./layout');
+const { getOnlineList } = require('./presence');
 
 const router     = express.Router();
 const DATA_PATH  = path.join(__dirname, '../data/messages.json');
@@ -73,6 +74,7 @@ router.get('/messages', requireAuth, (req, res) => {
         <span class="dm-inbox-title">Messages</span>
         <button class="dm-new-btn" id="dmNewBtn">+ New</button>
       </div>
+      <div id="dmOnlinePanel"></div>
       <div class="dm-thread-list" id="dmThreadList"></div>
       <p class="dm-empty-inbox" id="dmEmpty" style="display:none;">
         No conversations yet.<br>Press <strong>+ New</strong> to start one.
@@ -101,11 +103,15 @@ router.get('/messages', requireAuth, (req, res) => {
     </div>
   </div>`;
 
+  const userSockets = req.app.locals.userSockets || new Map();
+  const onlineList  = getOnlineList(userSockets);
+
   const scripts = `
 <script>
-window.__dm = ${safeJson({ threads: myThreads, users: allUsers, me: userId })};
+window.__dm       = ${safeJson({ threads: myThreads, users: allUsers, me: userId })};
+window.__presence = ${safeJson({ online: onlineList })};
 </script>
-<script src="/js/messages.js?v=3"></script>`;
+<script src="/js/messages.js?v=4"></script>`;
 
   res.send(renderLayout({ req, activeSection: 'messages', title: 'Messages', content, scripts }));
 });

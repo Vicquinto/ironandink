@@ -30,6 +30,7 @@ const dedicationRoutes    = require('./routes/dedication');
 const helpRoutes          = require('./routes/help');
 const believeRoutes       = require('./routes/believe');
 const messagesRoutes      = require('./routes/messages');
+const { router: presenceRoutes, broadcastPresence, savePresenceStatus } = require('./routes/presence');
 const { requireAuth, renderLayout } = require('./routes/layout');
 
 const app  = express();
@@ -173,6 +174,7 @@ app.use('/', dedicationRoutes);
 app.use('/', helpRoutes);
 app.use('/', believeRoutes);
 app.use('/', messagesRoutes);
+app.use('/', presenceRoutes);
 
 // ─── Placeholder Sections (unbuilt) ──────────────────────────────────────
 const placeholders = [];
@@ -237,12 +239,22 @@ io.on('connection', (socket) => {
     socket.to(roomCode).emit('room-clear-study');
   });
 
-  // ── Direct Message registration ─────────────────────────────────────────
+  // ── Direct Message registration + Presence ─────────────────────────────
   socket.on('dm-register', (userId) => {
     if (!userId || typeof userId !== 'string') return;
+    const isNew = !userSockets.has(userId) || userSockets.get(userId).size === 0;
     socket._dmUserId = userId;
     if (!userSockets.has(userId)) userSockets.set(userId, new Set());
     userSockets.get(userId).add(socket.id);
+    if (isNew) broadcastPresence(io, userSockets);
+  });
+
+  socket.on('presence:set-status', (status) => {
+    const userId = socket._dmUserId;
+    if (!userId) return;
+    if (!['available', 'away', 'dnd'].includes(status)) return;
+    savePresenceStatus(userId, status);
+    broadcastPresence(io, userSockets);
   });
 
   socket.on('disconnect', () => {
@@ -250,7 +262,10 @@ io.on('connection', (socket) => {
       const set = userSockets.get(socket._dmUserId);
       if (set) {
         set.delete(socket.id);
-        if (set.size === 0) userSockets.delete(socket._dmUserId);
+        if (set.size === 0) {
+          userSockets.delete(socket._dmUserId);
+          broadcastPresence(io, userSockets);
+        }
       }
     }
     console.log(`Socket disconnected: ${socket.id}`);

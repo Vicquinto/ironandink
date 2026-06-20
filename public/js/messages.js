@@ -7,6 +7,9 @@
   var ME        = dm.me;
   var activeId  = null;         // thread id currently open in the right panel
 
+  var ONLINE          = (window.__presence && window.__presence.online) || [];
+  var onlinePanelOpen = true;
+
   // ── Utilities ─────────────────────────────────────────────────────────────
 
   function esc(str) {
@@ -48,6 +51,107 @@
         }
       })
       .catch(function () {});
+  }
+
+  // ── Presence panel ───────────────────────────────────────────────────────
+
+  function statusLabel(s) {
+    if (s === 'away') return 'Away';
+    if (s === 'dnd')  return 'DND';
+    return 'Available';
+  }
+
+  function renderOnlinePanel() {
+    var panel = document.getElementById('dmOnlinePanel');
+    if (!panel) return;
+
+    var myEntry      = ONLINE.find(function (u) { return u.userId === ME; });
+    var myStatus     = myEntry ? myEntry.status : 'available';
+    var others       = ONLINE.filter(function (u) { return u.userId !== ME; });
+    var countLabel   = ONLINE.length > 0 ? String(ONLINE.length) : '0';
+
+    var listHtml;
+    if (onlinePanelOpen) {
+      var ownRow = [
+        '<div class="dm-online-item dm-own-status-row">',
+          '<span class="dm-online-dot dm-dot-' + myStatus + '"></span>',
+          '<span class="dm-online-name">You</span>',
+          '<select class="dm-status-select" id="dmStatusSelect">',
+            '<option value="available"' + (myStatus === 'available' ? ' selected' : '') + '>Available</option>',
+            '<option value="away"'      + (myStatus === 'away'      ? ' selected' : '') + '>Away</option>',
+            '<option value="dnd"'       + (myStatus === 'dnd'       ? ' selected' : '') + '>Do Not Disturb</option>',
+          '</select>',
+        '</div>',
+      ].join('');
+
+      var othersHtml = others.length === 0
+        ? '<div class="dm-online-empty">No others online.</div>'
+        : others.map(function (u) {
+            return [
+              '<div class="dm-online-item" data-uid="' + esc(u.userId) + '" data-uname="' + esc(u.fullName) + '">',
+                '<span class="dm-online-dot dm-dot-' + u.status + '"></span>',
+                '<span class="dm-online-name">' + esc(u.fullName) + '</span>',
+                '<span class="dm-online-status">' + statusLabel(u.status) + '</span>',
+              '</div>',
+            ].join('');
+          }).join('');
+
+      listHtml = '<div class="dm-online-list" id="dmOnlineList">' + ownRow + othersHtml + '</div>';
+    } else {
+      listHtml = '<div class="dm-online-list" id="dmOnlineList" style="display:none;"></div>';
+    }
+
+    panel.innerHTML = [
+      '<div class="dm-online-header" id="dmOnlineToggle">',
+        '<span class="dm-online-label">Online</span>',
+        '<span class="dm-online-count">' + countLabel + '</span>',
+        '<span class="dm-online-arrow">' + (onlinePanelOpen ? '&#9650;' : '&#9660;') + '</span>',
+      '</div>',
+      listHtml,
+    ].join('');
+
+    var toggle = document.getElementById('dmOnlineToggle');
+    if (toggle) {
+      toggle.addEventListener('click', function () {
+        onlinePanelOpen = !onlinePanelOpen;
+        renderOnlinePanel();
+      });
+    }
+
+    var sel = document.getElementById('dmStatusSelect');
+    if (sel) {
+      sel.addEventListener('click', function (e) { e.stopPropagation(); });
+      sel.addEventListener('change', function (e) {
+        e.stopPropagation();
+        setMyStatus(sel.value);
+      });
+    }
+
+    panel.querySelectorAll('.dm-online-item[data-uid]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        var uid   = el.getAttribute('data-uid');
+        var uname = el.getAttribute('data-uname');
+        var existing = THREADS.find(function (t) { return t.otherId === uid; });
+        if (existing) {
+          loadThread(existing.id);
+        } else {
+          openCompose(uid, uname);
+        }
+      });
+    });
+  }
+
+  function setMyStatus(status) {
+    var socket = window.__socket;
+    if (socket && socket.connected) {
+      socket.emit('presence:set-status', status);
+    } else {
+      fetch('/api/presence/status', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ status: status }),
+      }).catch(function () {});
+    }
   }
 
   // ── Thread list ───────────────────────────────────────────────────────────
@@ -333,6 +437,11 @@
     var socket = window.__socket;
     if (!socket) return;
 
+    socket.on('presence:update', function (payload) {
+      ONLINE = payload.online || [];
+      renderOnlinePanel();
+    });
+
     socket.on('dm:new-message', function (payload) {
       var tid = payload.threadId;
       var msg = payload.message;
@@ -368,6 +477,7 @@
   // ── Bootstrap ─────────────────────────────────────────────────────────────
 
   document.addEventListener('DOMContentLoaded', function () {
+    renderOnlinePanel();
     renderThreadList();
 
     var params  = new URLSearchParams(window.location.search);

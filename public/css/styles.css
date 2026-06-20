@@ -5054,3 +5054,110 @@ body {
   .dm-view { min-height: 380px; }
   .dm-msg  { max-width: 88%; }
 }
+
+/* ─── PRESENCE / WHO IS ONLINE ──────────────────────────────────────────── */
+
+.dm-online-panel {
+  border-bottom: 1px solid rgba(107,66,38,0.18);
+  flex-shrink: 0;
+}
+
+.dm-online-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+  user-select: none;
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--warm-brown);
+  text-transform: uppercase;
+}
+.dm-online-header:hover { background: rgba(107,66,38,0.07); }
+
+.dm-online-label { flex: 1; }
+
+.dm-online-count {
+  font-size: 0.68rem;
+  color: var(--warm-brown);
+  opacity: 0.7;
+}
+
+.dm-online-arrow {
+  font-size: 0.6rem;
+  opacity: 0.45;
+}
+
+.dm-online-list {
+  overflow-y: auto;
+  max-height: 180px;
+}
+
+.dm-online-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.dm-online-item:hover { background: rgba(107,66,38,0.07); }
+
+.dm-own-status-row { cursor: default; background: rgba(107,66,38,0.04); }
+.dm-own-status-row:hover { background: rgba(107,66,38,0.04); }
+
+.dm-online-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dm-dot-available { background: #4a8c4a; }
+.dm-dot-away      { background: #b38c33; }
+.dm-dot-dnd       { background: #8b3a3a; }
+
+.dm-online-name {
+  flex: 1;
+  font-size: 0.84rem;
+  color: var(--dark-cream);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dm-online-status {
+  font-size: 0.72rem;
+  color: var(--warm-brown);
+  opacity: 0.65;
+  flex-shrink: 0;
+}
+
+.dm-status-select {
+  margin-left: auto;
+  font-family: inherit;
+  font-size: 0.75rem;
+  color: var(--warm-brown);
+  background: transparent;
+  border: 1px solid rgba(107,66,38,0.3);
+  border-radius: 4px;
+  padding: 2px 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+  max-width: 120px;
+}
+.dm-status-select:focus {
+  outline: none;
+  border-color: rgba(179,140,51,0.6);
+}
+
+.dm-online-empty {
+  padding: 7px 14px;
+  font-size: 0.8rem;
+  color: var(--warm-brown);
+  opacity: 0.55;
+  font-style: italic;
+}
