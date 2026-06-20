@@ -114,6 +114,13 @@ router.get('/scripture', requireAuth, async (req, res) => {
           <select id="chapterSelect" class="scripture-select">
             ${chapterOptions}
           </select>
+          <button class="scripture-mark-spot-btn" id="markSpotBtn" type="button" title="Save your place in this book">Mark My Spot</button>
+        </div>
+
+        <div class="spot-resume-banner" id="spotResumeBanner" style="display:none;" role="status">
+          <span class="spot-resume-text" id="spotResumeText"></span>
+          <button class="spot-resume-go" id="spotResumeBtn" type="button">Go there</button>
+          <button class="spot-resume-dismiss" id="spotResumeDismiss" type="button" aria-label="Dismiss">&#215;</button>
         </div>
 
         <div class="scripture-card" id="scriptureCard">
@@ -156,14 +163,15 @@ router.get('/scripture', requireAuth, async (req, res) => {
       </div>
     </div>
 
-    <script>window._bibleBooks = ${bookNames};</script>`;
+    <script>window._bibleBooks = ${bookNames};</script>
+    <div class="spot-toast" id="spotToast">Spot saved ✓</div>`;
 
   res.send(renderLayout({
     req,
     activeSection: 'scripture',
     title:         'Scripture',
     content,
-    scripts:       '<script src="/js/scripture.js?v=3"></script><script src="/js/library.js?v=21"></script>',
+    scripts:       '<script src="/js/scripture.js?v=4"></script><script src="/js/library.js?v=21"></script>',
   }));
 });
 
@@ -239,6 +247,27 @@ router.post('/api/reading/set-goal', requireAuth, (req, res) => {
   tracker[email][bookName].goal = Math.max(1, parseInt(goal, 10) || 1);
   writeTracker(tracker);
   res.json({ success: true, book: tracker[email][bookName] });
+});
+
+// ─── POST /api/reading/mark-spot ─────────────────────────────────────────────
+router.post('/api/reading/mark-spot', requireAuth, (req, res) => {
+  const { bookName, chapter } = req.body;
+  if (!bookName || !chapter) {
+    return res.status(400).json({ success: false, error: 'bookName and chapter required.' });
+  }
+
+  const email   = req.session.user.email;
+  const tracker = readTracker();
+  if (!tracker[email]) tracker[email] = {};
+  if (!tracker[email][bookName]) tracker[email][bookName] = { count: 0, goal: 0, history: [] };
+
+  tracker[email][bookName].spot = {
+    chapter: parseInt(chapter, 10),
+    savedAt: new Date().toISOString(),
+  };
+
+  writeTracker(tracker);
+  res.json({ success: true, spot: tracker[email][bookName].spot });
 });
 
 // ─── POST /api/reading/set-count ─────────────────────────────────────────────

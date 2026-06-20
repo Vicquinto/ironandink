@@ -75,6 +75,7 @@
     localStorage.setItem('ironink_scripture_book', bookSelect.value);
     localStorage.setItem('ironink_scripture_chapter', 1);
     loadChapter(bookSelect.value, 1);
+    checkResumeBanner(selected.text, 1);
   });
 
   chapterSelect.addEventListener('change', function () {
@@ -82,6 +83,8 @@
     localStorage.setItem('ironink_scripture_book', bookSelect.value);
     localStorage.setItem('ironink_scripture_chapter', chapter);
     loadChapter(bookSelect.value, chapter);
+    var curBookName = bookSelect.options[bookSelect.selectedIndex].text;
+    checkResumeBanner(curBookName, chapter);
   });
 
   // ── Restore last position ───────────────────────────────────────────────────
@@ -119,6 +122,10 @@
         if (data.success) {
           trackerData = data.tracker || {};
           renderTrackerGrid();
+          // Check resume banner now that we have spot data
+          var curBookName = bookSelect.options[bookSelect.selectedIndex].text;
+          var curChapter  = parseInt(chapterSelect.value, 10) || 1;
+          checkResumeBanner(curBookName, curChapter);
         }
       })
       .catch(function () {
@@ -293,6 +300,73 @@
         }
       });
   }
+
+  // ── Mark My Spot ───────────────────────────────────────────────────────────
+
+  function markMySpot() {
+    var bookName = bookSelect.options[bookSelect.selectedIndex].text;
+    var chapter  = parseInt(chapterSelect.value, 10);
+    fetch('/api/reading/mark-spot', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ bookName: bookName, chapter: chapter }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.success) {
+          if (!trackerData[bookName]) trackerData[bookName] = { count: 0, goal: 0, history: [] };
+          trackerData[bookName].spot = data.spot;
+          showSpotToast();
+          hideBanner();
+        }
+      })
+      .catch(function () {});
+  }
+
+  function showSpotToast() {
+    var toast = document.getElementById('spotToast');
+    if (!toast) return;
+    toast.classList.add('visible');
+    setTimeout(function () { toast.classList.remove('visible'); }, 2000);
+  }
+
+  function checkResumeBanner(bookName, currentChapter) {
+    var banner = document.getElementById('spotResumeBanner');
+    if (!banner) return;
+    var spot = trackerData[bookName] && trackerData[bookName].spot;
+    if (!spot || spot.chapter === parseInt(currentChapter, 10)) {
+      banner.style.display = 'none';
+      return;
+    }
+    var textEl = document.getElementById('spotResumeText');
+    if (textEl) textEl.textContent = 'Resume ' + bookName + ' from Chapter ' + spot.chapter + '?';
+    banner.style.display = '';
+    var btn = document.getElementById('spotResumeBtn');
+    if (btn) btn.onclick = function () { resumeFromSpot(spot); };
+  }
+
+  function hideBanner() {
+    var banner = document.getElementById('spotResumeBanner');
+    if (banner) banner.style.display = 'none';
+  }
+
+  function resumeFromSpot(spot) {
+    for (var i = 0; i < chapterSelect.options.length; i++) {
+      if (parseInt(chapterSelect.options[i].value, 10) === spot.chapter) {
+        chapterSelect.selectedIndex = i;
+        break;
+      }
+    }
+    localStorage.setItem('ironink_scripture_chapter', spot.chapter);
+    loadChapter(bookSelect.value, spot.chapter);
+    hideBanner();
+  }
+
+  var markSpotBtn = document.getElementById('markSpotBtn');
+  if (markSpotBtn) markSpotBtn.addEventListener('click', markMySpot);
+
+  var spotDismissBtn = document.getElementById('spotResumeDismiss');
+  if (spotDismissBtn) spotDismissBtn.addEventListener('click', hideBanner);
 
   // ── Scripture font size controls ───────────────────────────────────────────
   (function () {
