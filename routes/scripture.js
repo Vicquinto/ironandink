@@ -168,7 +168,7 @@ router.get('/scripture', requireAuth, async (req, res) => {
     activeSection: 'scripture',
     title:         'Scripture',
     content,
-    scripts:       '<script src="/js/scripture.js?v=6"></script><script src="/js/library.js?v=21"></script>',
+    scripts:       '<script src="/js/scripture.js?v=7"></script><script src="/js/library.js?v=21"></script>',
   }));
 });
 
@@ -267,6 +267,18 @@ router.post('/api/reading/mark-spot', requireAuth, (req, res) => {
   tracker[email][bookName].spot = spot;
   writeTracker(tracker);
   res.json({ success: true, spot });
+});
+
+// ─── DELETE /api/reading/mark-spot/:bookName ─────────────────────────────────
+router.delete('/api/reading/mark-spot/:bookName', requireAuth, (req, res) => {
+  const bookName = decodeURIComponent(req.params.bookName);
+  const email    = req.session.user.email;
+  const tracker  = readTracker();
+  if (tracker[email] && tracker[email][bookName]) {
+    delete tracker[email][bookName].spot;
+    writeTracker(tracker);
+  }
+  res.json({ success: true });
 });
 
 // ─── POST /api/reading/set-count ─────────────────────────────────────────────

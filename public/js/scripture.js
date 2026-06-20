@@ -402,12 +402,33 @@
       goBtn.textContent = 'Go there';
       goBtn.onclick     = (function (snap) { return function () { goToSpot(snap); }; })(s);
 
+      var delBtn = document.createElement('button');
+      delBtn.className          = 'sps-remove-btn';
+      delBtn.type               = 'button';
+      delBtn.setAttribute('aria-label', 'Remove mark');
+      delBtn.setAttribute('title', 'Remove');
+      delBtn.textContent        = '×';
+      delBtn.onclick            = (function (name) { return function () { deleteSpot(name); }; })(s.bookName);
+
       row.appendChild(refSpan);
       row.appendChild(goBtn);
+      row.appendChild(delBtn);
       list.appendChild(row);
     });
 
     wrap.style.display = '';
+  }
+
+  function deleteSpot(bookName) {
+    fetch('/api/reading/mark-spot/' + encodeURIComponent(bookName), { method: 'DELETE' })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.success) {
+          if (trackerData[bookName]) delete trackerData[bookName].spot;
+          renderSpotNote();
+        }
+      })
+      .catch(function () {});
   }
 
   function goToSpot(spot) {
