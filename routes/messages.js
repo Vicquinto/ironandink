@@ -140,7 +140,10 @@ router.get('/api/messages/widget', requireAuth, (req, res) => {
     })
     .sort((a, b) => new Date(b.lastAt) - new Date(a.lastAt));
 
-  res.json({ threads: myThreads, me: userId });
+  const userSocketsW = req.app.locals.userSockets || new Map();
+  const onlineListW  = getOnlineList(userSocketsW);
+
+  res.json({ threads: myThreads, me: userId, online: onlineListW });
 });
 
 // ─── GET /api/messages/threads/:id ────────────────────────────────────────────

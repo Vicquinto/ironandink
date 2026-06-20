@@ -4,7 +4,8 @@
   var ME             = '';
   var isOpen         = false;
   var activeThreadId = null;
-  var widgetThreads  = [];
+  var widgetThreads  = [];   // threads the current user is part of
+  var WIDGET_ONLINE  = [];   // full presence list from server
   var widgetEl       = null;
 
   // ── Utilities ─────────────────────────────────────────────────────────────
@@ -30,6 +31,12 @@
     if (diff < 3600000)   return Math.floor(diff / 60000) + 'm ago';
     if (diff < 86400000)  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+  }
+
+  function statusLabel(s) {
+    if (s === 'away') return 'Away';
+    if (s === 'dnd')  return 'DND';
+    return 'Available';
   }
 
   // ── Widget DOM (created once, reused) ─────────────────────────────────────
@@ -75,7 +82,7 @@
     window.__dmActiveThread = null;
   }
 
-  // ── Load thread list + auto-open most recent ──────────────────────────────
+  // ── Fetch data + auto-open most recent thread ─────────────────────────────
 
   function fetchAndRender() {
     setBody('<div class="dm-widget-empty">Loading…</div>');
@@ -84,12 +91,12 @@
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(function (data) {
         widgetThreads = data.threads || [];
+        WIDGET_ONLINE = data.online  || [];
         ME = data.me || ME;
         if (widgetThreads.length > 0) {
-          renderListInBackground();
           openWidgetThread(widgetThreads[0].id);
         } else {
-          renderThreadList();
+          renderHomeScreen();
         }
       })
       .catch(function () {
@@ -102,44 +109,172 @@
     if (body) body.innerHTML = html;
   }
 
-  // ── Thread list view ──────────────────────────────────────────────────────
+  // ── Home screen: online members first, offline threads below ──────────────
 
-  function renderListInBackground() {
-    widgetThreads.sort(function (a, b) { return new Date(b.lastAt) - new Date(a.lastAt); });
-  }
-
-  function renderThreadList() {
+  function renderHomeScreen() {
     activeThreadId = null;
     window.__dmActiveThread = null;
 
-    if (widgetThreads.length === 0) {
-      setBody('<div class="dm-widget-empty">No conversations yet.<br>Press <strong>+ New</strong> on the Messages page to start one.</div>');
+    // Online members excluding self
+    var onlineOthers = WIDGET_ONLINE.filter(function (u) { return u.userId !== ME; });
+
+    // Index of online userIds for deduplication
+    var onlineIdSet = {};
+    onlineOthers.forEach(function (u) { onlineIdSet[u.userId] = true; });
+
+    // Offline threads: other person is not currently online
+    var offlineThreads = widgetThreads.filter(function (t) { return !onlineIdSet[t.otherId]; });
+
+    if (onlineOthers.length === 0 && offlineThreads.length === 0) {
+      setBody([
+        '<div class="dm-widget-empty">',
+          'No one online and no past conversations.<br>',
+          'Use the <strong>Messages</strong> page to start one.',
+        '</div>',
+      ].join(''));
       return;
     }
 
-    var rows = widgetThreads.map(function (t) {
-      var active  = t.id === activeThreadId ? ' active' : '';
-      var preview = t.lastText
-        ? esc(t.lastText.length > 42 ? t.lastText.slice(0, 39) + '…' : t.lastText)
-        : '<em style="opacity:.6">No messages yet</em>';
-      var badge = t.unread > 0
-        ? '<span class="dm-widget-unread">' + t.unread + '</span>'
-        : '';
-      return [
-        '<div class="dm-widget-thread-item' + active + '" data-tid="' + esc(t.id) + '">',
-          '<div class="dm-widget-thread-name">' + esc(t.otherName) + badge + '</div>',
-          '<div class="dm-widget-thread-preview">' + preview + '</div>',
-        '</div>',
-      ].join('');
-    }).join('');
+    var html = '';
 
-    setBody('<div class="dm-widget-thread-list" id="dmWidgetThreadList">' + rows + '</div>');
+    // ── Online members ──────────────────────────────────────────────────────
+    if (onlineOthers.length > 0) {
+      html += '<div class="dm-widget-section-label">Online</div>';
+      html += onlineOthers.map(function (u) {
+        var existingThread = widgetThreads.find(function (t) { return t.otherId === u.userId; });
+        var badge = (existingThread && existingThread.unread > 0)
+          ? '<span class="dm-widget-unread">' + existingThread.unread + '</span>'
+          : '';
+        var tid   = existingThread ? esc(existingThread.id) : '';
+        return [
+          '<div class="dm-widget-home-item"',
+            ' data-uid="' + esc(u.userId) + '"',
+            ' data-uname="' + esc(u.fullName) + '"',
+            (tid ? ' data-tid="' + tid + '"' : ''),
+          '>',
+            '<span class="dm-online-dot dm-dot-' + u.status + '"></span>',
+            '<span class="dm-widget-home-name">' + esc(u.fullName) + '</span>',
+            '<span class="dm-widget-home-status">' + statusLabel(u.status) + '</span>',
+            badge,
+          '</div>',
+        ].join('');
+      }).join('');
+    }
 
-    document.querySelectorAll('.dm-widget-thread-item').forEach(function (el) {
+    // ── Offline threads ─────────────────────────────────────────────────────
+    if (offlineThreads.length > 0) {
+      if (onlineOthers.length > 0) {
+        html += '<div class="dm-widget-section-divider"></div>';
+      }
+      html += offlineThreads.map(function (t) {
+        var preview = t.lastText
+          ? esc(t.lastText.length > 38 ? t.lastText.slice(0, 35) + '…' : t.lastText)
+          : '<em style="opacity:.55">No messages yet</em>';
+        var badge = t.unread > 0
+          ? '<span class="dm-widget-unread">' + t.unread + '</span>'
+          : '';
+        return [
+          '<div class="dm-widget-home-item dm-widget-home-thread" data-tid="' + esc(t.id) + '">',
+            '<span class="dm-online-dot dm-dot-offline"></span>',
+            '<div class="dm-widget-home-thread-info">',
+              '<div class="dm-widget-home-thread-name">' + esc(t.otherName) + badge + '</div>',
+              '<div class="dm-widget-thread-preview">' + preview + '</div>',
+            '</div>',
+          '</div>',
+        ].join('');
+      }).join('');
+    }
+
+    setBody('<div class="dm-widget-home-list">' + html + '</div>');
+
+    // Wire click handlers
+    document.querySelectorAll('.dm-widget-home-item').forEach(function (el) {
       el.addEventListener('click', function () {
-        openWidgetThread(el.getAttribute('data-tid'));
+        var tid   = el.getAttribute('data-tid');
+        var uid   = el.getAttribute('data-uid');
+        var uname = el.getAttribute('data-uname');
+        if (tid) {
+          openWidgetThread(tid);
+        } else if (uid) {
+          openWidgetCompose(uid, uname || 'Unknown');
+        }
       });
     });
+  }
+
+  // ── Compose view (first message to someone with no existing thread) ────────
+
+  function openWidgetCompose(uid, uname) {
+    activeThreadId = null;
+    window.__dmActiveThread = null;
+
+    var body = document.getElementById('dmWidgetBody');
+    if (!body) return;
+
+    body.innerHTML = [
+      '<div class="dm-widget-chat-header">',
+        '<button class="dm-widget-back-btn" id="dmWidgetBack" aria-label="Back">&#8592;</button>',
+        '<span class="dm-widget-chat-name">' + esc(uname) + '</span>',
+      '</div>',
+      '<div class="dm-widget-msg-list" id="dmWidgetMsgList">',
+        '<div class="dm-widget-empty" style="flex:1;min-height:0;">',
+          'Start a conversation with ' + esc(uname) + '.',
+        '</div>',
+      '</div>',
+      '<div class="dm-widget-send-area">',
+        '<textarea class="dm-widget-send-input" id="dmWidgetInput" placeholder="Write a message…" rows="1" aria-label="Message"></textarea>',
+        '<button class="dm-widget-send-btn" id="dmWidgetSend">Send</button>',
+      '</div>',
+    ].join('');
+
+    document.getElementById('dmWidgetBack').addEventListener('click', renderHomeScreen);
+
+    var input   = document.getElementById('dmWidgetInput');
+    var sendBtn = document.getElementById('dmWidgetSend');
+    if (input) input.focus();
+    sendBtn.addEventListener('click', function () { widgetSendNew(uid, uname); });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); widgetSendNew(uid, uname); }
+    });
+  }
+
+  function widgetSendNew(recipientId, recipientName) {
+    var input = document.getElementById('dmWidgetInput');
+    var btn   = document.getElementById('dmWidgetSend');
+    if (!input) return;
+    var text = input.value.trim();
+    if (!text) return;
+
+    input.value = '';
+    if (btn) { btn.disabled = true; btn.textContent = '…'; }
+
+    fetch('/api/messages/send', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ recipientId: recipientId, text: text }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.ok) {
+          if (btn) { btn.disabled = false; btn.textContent = 'Send'; }
+          input.value = text;
+          return;
+        }
+        var now = new Date().toISOString();
+        widgetThreads.unshift({
+          id:        data.threadId,
+          otherId:   recipientId,
+          otherName: recipientName,
+          lastText:  text,
+          lastAt:    now,
+          unread:    0,
+        });
+        openWidgetThread(data.threadId);
+      })
+      .catch(function () {
+        if (btn) { btn.disabled = false; btn.textContent = 'Send'; }
+        input.value = text;
+      });
   }
 
   // ── Chat view ─────────────────────────────────────────────────────────────
@@ -197,9 +332,7 @@
     var msgList = document.getElementById('dmWidgetMsgList');
     if (msgList) msgList.scrollTop = msgList.scrollHeight;
 
-    document.getElementById('dmWidgetBack').addEventListener('click', function () {
-      renderThreadList();
-    });
+    document.getElementById('dmWidgetBack').addEventListener('click', renderHomeScreen);
 
     var sendBtn = document.getElementById('dmWidgetSend');
     var input   = document.getElementById('dmWidgetInput');
@@ -222,7 +355,7 @@
     list.scrollTop = list.scrollHeight;
   }
 
-  // ── Send ──────────────────────────────────────────────────────────────────
+  // ── Send (existing thread) ────────────────────────────────────────────────
 
   function widgetSend(threadId) {
     var input = document.getElementById('dmWidgetInput');
@@ -267,7 +400,7 @@
       .catch(function () {});
   }
 
-  // ── Socket — single listener for real-time delivery ───────────────────────
+  // ── Socket: real-time delivery + presence updates ─────────────────────────
 
   function initSocket() {
     var socket = window.__socket;
@@ -275,11 +408,9 @@
 
     socket.on('dm:new-message', function (payload) {
       if (!isOpen) return;
-
       var tid = payload.threadId;
       var msg = payload.message;
 
-      // Update in-memory thread list
       var t = widgetThreads.find(function (x) { return x.id === tid; });
       if (t) {
         t.lastText = msg.text;
@@ -299,6 +430,13 @@
 
       if (tid === activeThreadId) {
         appendWidgetMessage(msg);
+      }
+    });
+
+    socket.on('presence:update', function (payload) {
+      WIDGET_ONLINE = payload.online || [];
+      if (!activeThreadId) {
+        renderHomeScreen();
       }
     });
   }

@@ -5414,3 +5414,73 @@ body {
   padding: 20px;
   line-height: 1.5;
 }
+
+/* ── Widget home screen (online + offline threads combined list) */
+
+.dm-dot-offline { background: rgba(107,66,38,0.28); }
+
+.dm-widget-home-list { flex: 1; overflow-y: auto; }
+
+.dm-widget-section-label {
+  padding: 6px 12px 4px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--warm-brown);
+  opacity: 0.55;
+}
+
+.dm-widget-section-divider {
+  margin: 4px 12px;
+  border-top: 1px solid rgba(107,66,38,0.14);
+}
+
+.dm-widget-home-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(107,66,38,0.08);
+  transition: background 0.12s;
+}
+.dm-widget-home-item:hover { background: rgba(107,66,38,0.07); }
+.dm-widget-home-item:last-child { border-bottom: none; }
+
+.dm-widget-home-name {
+  flex: 1;
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--dark-cream);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dm-widget-home-status {
+  font-family: Georgia, serif;
+  font-size: 0.7rem;
+  color: var(--warm-brown);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+/* Offline thread row — thread info stacks name + preview */
+.dm-widget-home-thread { align-items: flex-start; padding-top: 9px; padding-bottom: 9px; }
+.dm-widget-home-thread .dm-online-dot { margin-top: 3px; flex-shrink: 0; }
+
+.dm-widget-home-thread-info { flex: 1; min-width: 0; }
+
+.dm-widget-home-thread-name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--dark-cream);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
