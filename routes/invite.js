@@ -51,13 +51,13 @@ function publicStyles() {
       .form-textarea { resize:vertical; min-height:90px; }
       .form-select option { background:#1A0F0A; }
       .btn-pub {
-        width:100%; background:var(--accent); color:#1A0F0A;
+        width:100%; background:var(--accent); color:#E8D9B8;
         border:none; padding:13px; font-size:1rem;
         font-family:'EB Garamond',Georgia,serif; font-weight:600;
         border-radius:4px; cursor:pointer; letter-spacing:0.04em;
         margin-top:4px; transition:background 0.15s;
       }
-      .btn-pub:hover { background:#c9a040; }
+      .btn-pub:hover { background:#c9a040; color:#1A0F0A; }
       .error-msg {
         background:rgba(180,60,60,0.15); border:1px solid rgba(180,60,60,0.4);
         color:#e08080; padding:10px 14px; border-radius:4px;
