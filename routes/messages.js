@@ -116,6 +116,33 @@ window.__presence = ${safeJson({ online: onlineList })};
   res.send(renderLayout({ req, activeSection: 'messages', title: 'Messages', content, scripts }));
 });
 
+// ─── GET /api/messages/widget — compact thread list for the floating widget ───
+
+router.get('/api/messages/widget', requireAuth, (req, res) => {
+  const userId = req.session.userId;
+  const data   = readData();
+  const users  = readUsers();
+
+  const myThreads = data.threads
+    .filter(t => t.participants.includes(userId))
+    .map(t => {
+      const otherId   = t.participants.find(p => p !== userId);
+      const otherUser = users.find(u => u.id === otherId) || {};
+      const lastMsg   = t.messages[t.messages.length - 1] || null;
+      return {
+        id:        t.id,
+        otherId,
+        otherName: otherUser.fullName || 'Unknown',
+        lastText:  lastMsg ? lastMsg.text : '',
+        lastAt:    lastMsg ? lastMsg.sentAt : (t.createdAt || ''),
+        unread:    t.messages.filter(m => m.senderId !== userId && !m.readBy.includes(userId)).length,
+      };
+    })
+    .sort((a, b) => new Date(b.lastAt) - new Date(a.lastAt));
+
+  res.json({ threads: myThreads, me: userId });
+});
+
 // ─── GET /api/messages/threads/:id ────────────────────────────────────────────
 
 router.get('/api/messages/threads/:id', requireAuth, (req, res) => {

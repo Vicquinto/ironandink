@@ -53,6 +53,17 @@
     });
   }
 
+  // ── Keyboard shortcut: Ctrl+Alt+M ────────────────────────────────────────
+
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey && e.altKey && (e.key === 'm' || e.key === 'M')) {
+      var tag = document.activeElement ? document.activeElement.tagName : '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      e.preventDefault();
+      if (window.__dmWidget) window.__dmWidget.toggle();
+    }
+  });
+
   // ── Bootstrap ─────────────────────────────────────────────────────────────
 
   document.addEventListener('DOMContentLoaded', function () {
