@@ -84,7 +84,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   <title>${title} — Iron &amp; Ink</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/shepherd.css">
-  <link rel="stylesheet" href="/css/styles.css?v=21">
+  <link rel="stylesheet" href="/css/styles.css?v=22">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
@@ -98,9 +98,11 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
         </div>
         <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">&#9776;</button>
       </div>
-      <nav class="sidebar-nav">
-        ${navHTML}
-      </nav>
+      <div class="sidebar-nav-wrap" id="sidebarNavWrap">
+        <nav class="sidebar-nav" id="sidebarNav">
+          ${navHTML}
+        </nav>
+      </div>
       <div class="sidebar-footer">
         ${isAdmin ? `<a href="/admin" class="nav-item admin-link${activeSection === 'admin' ? ' active' : ''}">
           <span class="nav-icon">&#9873;</span>
@@ -143,6 +145,25 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   <script src="/js/dm-widget.js?v=2"></script>
   ${scripts}
   <script type="module" src="/js/tour-runner.js"></script>
+  <script>
+  (function () {
+    function updateSidebarFade() {
+      var nav  = document.getElementById('sidebarNav');
+      var wrap = document.getElementById('sidebarNavWrap');
+      if (!nav || !wrap) return;
+      var overflows = nav.scrollHeight > nav.clientHeight;
+      var atBottom  = nav.scrollTop + nav.clientHeight >= nav.scrollHeight - 1;
+      wrap.classList.toggle('has-below', overflows && !atBottom);
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+      var nav = document.getElementById('sidebarNav');
+      if (!nav) return;
+      updateSidebarFade();
+      nav.addEventListener('scroll', updateSidebarFade, { passive: true });
+      window.addEventListener('resize', updateSidebarFade);
+    });
+  })();
+  </script>
 </body>
 </html>`;
 }
