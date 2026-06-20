@@ -114,13 +114,6 @@ router.get('/scripture', requireAuth, async (req, res) => {
           <select id="chapterSelect" class="scripture-select">
             ${chapterOptions}
           </select>
-          <button class="scripture-mark-spot-btn" id="markSpotBtn" type="button" title="Save your place in this book">Mark My Spot</button>
-        </div>
-
-        <div class="spot-resume-banner" id="spotResumeBanner" style="display:none;" role="status">
-          <span class="spot-resume-text" id="spotResumeText"></span>
-          <button class="spot-resume-go" id="spotResumeBtn" type="button">Go there</button>
-          <button class="spot-resume-dismiss" id="spotResumeDismiss" type="button" aria-label="Dismiss">&#215;</button>
         </div>
 
         <div class="scripture-card" id="scriptureCard">
@@ -144,6 +137,13 @@ router.get('/scripture', requireAuth, async (req, res) => {
       </div>
 
       <div class="scripture-pin-sidebar" id="scripturePinSidebar">
+        <div class="spot-note-wrap" id="spotNoteWrap" style="display:none;">
+          <div class="sps-heading">Last Marked</div>
+          <div class="spot-note-body">
+            <span class="spot-note-ref" id="spotNoteRef"></span>
+            <button class="spot-note-go" id="spotNoteGo" type="button">Go there</button>
+          </div>
+        </div>
         <div class="sps-heading">Pinned Notes</div>
         <div class="sps-empty-msg" id="spsEmpty">Pin a tooltip result to keep it here.</div>
         <div class="sps-list" id="spsList"></div>
@@ -171,7 +171,7 @@ router.get('/scripture', requireAuth, async (req, res) => {
     activeSection: 'scripture',
     title:         'Scripture',
     content,
-    scripts:       '<script src="/js/scripture.js?v=4"></script><script src="/js/library.js?v=21"></script>',
+    scripts:       '<script src="/js/scripture.js?v=5"></script><script src="/js/library.js?v=21"></script>',
   }));
 });
 
@@ -251,7 +251,7 @@ router.post('/api/reading/set-goal', requireAuth, (req, res) => {
 
 // ─── POST /api/reading/mark-spot ─────────────────────────────────────────────
 router.post('/api/reading/mark-spot', requireAuth, (req, res) => {
-  const { bookName, chapter } = req.body;
+  const { bookName, chapter, verse } = req.body;
   if (!bookName || !chapter) {
     return res.status(400).json({ success: false, error: 'bookName and chapter required.' });
   }
@@ -261,13 +261,15 @@ router.post('/api/reading/mark-spot', requireAuth, (req, res) => {
   if (!tracker[email]) tracker[email] = {};
   if (!tracker[email][bookName]) tracker[email][bookName] = { count: 0, goal: 0, history: [] };
 
-  tracker[email][bookName].spot = {
+  const spot = {
     chapter: parseInt(chapter, 10),
     savedAt: new Date().toISOString(),
   };
+  if (verse) spot.verse = parseInt(verse, 10);
 
+  tracker[email][bookName].spot = spot;
   writeTracker(tracker);
-  res.json({ success: true, spot: tracker[email][bookName].spot });
+  res.json({ success: true, spot });
 });
 
 // ─── POST /api/reading/set-count ─────────────────────────────────────────────

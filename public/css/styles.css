@@ -3734,7 +3734,10 @@ body {
   font-style: normal;
   font-weight: 600;
   letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: opacity 0.12s;
 }
+.verse-num:hover { opacity: 0.55; text-decoration: underline; }
 
 .scripture-loading {
   color: var(--warm-brown);
@@ -5510,73 +5513,47 @@ body {
 
 /* ─── SCRIPTURE MARK MY SPOT ─────────────────────────────────────────────── */
 
-.scripture-mark-spot-btn {
-  background: transparent;
-  border: 1px solid rgba(92,26,40,0.35);
-  color: var(--accent);
-  font-family: 'EB Garamond', Georgia, serif;
-  font-size: 0.88rem;
-  padding: 6px 14px;
-  border-radius: 4px;
-  cursor: pointer;
-  letter-spacing: 0.03em;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
-  white-space: nowrap;
-}
-.scripture-mark-spot-btn:hover {
-  background: var(--accent);
-  color: #E8D9B8;
-  border-color: var(--accent);
+.spot-note-wrap {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(160,132,92,0.15);
 }
 
-.spot-resume-banner {
+.spot-note-body {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(92,26,40,0.07);
-  border: 1px solid rgba(92,26,40,0.18);
-  border-radius: 5px;
-  padding: 10px 16px;
-  margin-bottom: 16px;
+  margin-top: 6px;
   flex-wrap: wrap;
 }
 
-.spot-resume-text {
-  flex: 1;
-  font-size: 0.9rem;
-  color: var(--dark-cream);
-  font-style: italic;
-  min-width: 0;
-}
-
-.spot-resume-go {
-  background: var(--accent);
-  color: #E8D9B8;
-  border: none;
-  border-radius: 4px;
-  padding: 5px 14px;
-  font-family: 'EB Garamond', Georgia, serif;
+.spot-note-ref {
   font-size: 0.88rem;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.15s;
-  flex-shrink: 0;
+  color: var(--text);
+  font-family: Georgia, serif;
+  font-style: italic;
 }
-.spot-resume-go:hover { background: #7a2235; }
 
-.spot-resume-dismiss {
+.spot-note-go {
   background: none;
   border: none;
-  color: var(--warm-brown);
-  font-size: 1.1rem;
+  color: var(--accent);
+  font-family: Georgia, serif;
+  font-size: 0.82rem;
   cursor: pointer;
-  line-height: 1;
-  padding: 2px 4px;
-  opacity: 0.7;
-  flex-shrink: 0;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
   transition: opacity 0.15s;
 }
-.spot-resume-dismiss:hover { opacity: 1; }
+.spot-note-go:hover { opacity: 0.65; }
+
+.verse-highlight {
+  background: rgba(92,26,40,0.09);
+  border-radius: 3px;
+  transition: background 1.4s ease-out;
+}
+.verse-highlight.fade-out { background: transparent; }
 
 .spot-toast {
   position: fixed;
