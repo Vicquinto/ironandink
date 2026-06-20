@@ -139,10 +139,7 @@ router.get('/scripture', requireAuth, async (req, res) => {
       <div class="scripture-pin-sidebar" id="scripturePinSidebar">
         <div class="spot-note-wrap" id="spotNoteWrap" style="display:none;">
           <div class="sps-heading">Last Marked</div>
-          <div class="spot-note-body">
-            <span class="spot-note-ref" id="spotNoteRef"></span>
-            <button class="spot-note-go" id="spotNoteGo" type="button">Go there</button>
-          </div>
+          <div class="spot-note-list" id="spotNoteList"></div>
         </div>
         <div class="sps-heading">Pinned Notes</div>
         <div class="sps-empty-msg" id="spsEmpty">Pin a tooltip result to keep it here.</div>
@@ -171,7 +168,7 @@ router.get('/scripture', requireAuth, async (req, res) => {
     activeSection: 'scripture',
     title:         'Scripture',
     content,
-    scripts:       '<script src="/js/scripture.js?v=5"></script><script src="/js/library.js?v=21"></script>',
+    scripts:       '<script src="/js/scripture.js?v=6"></script><script src="/js/library.js?v=21"></script>',
   }));
 });
 

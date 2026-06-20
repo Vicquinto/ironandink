@@ -5519,11 +5519,17 @@ body {
   border-bottom: 1px solid rgba(160,132,92,0.15);
 }
 
-.spot-note-body {
+.spot-note-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: 6px;
+}
+
+.spot-note-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-top: 6px;
   flex-wrap: wrap;
 }
 

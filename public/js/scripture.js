@@ -363,26 +363,71 @@
 
   function renderSpotNote() {
     var wrap = document.getElementById('spotNoteWrap');
-    if (!wrap) return;
-    var bookName = bookSelect.options[bookSelect.selectedIndex].text;
-    var spot     = trackerData[bookName] && trackerData[bookName].spot;
-    if (!spot || !spot.chapter) {
+    var list = document.getElementById('spotNoteList');
+    if (!wrap || !list) return;
+
+    var spots = [];
+    Object.keys(trackerData).forEach(function (bookName) {
+      var spot = trackerData[bookName] && trackerData[bookName].spot;
+      if (spot && spot.chapter) {
+        spots.push({
+          bookName: bookName,
+          chapter:  spot.chapter,
+          verse:    spot.verse || null,
+          savedAt:  spot.savedAt || '',
+        });
+      }
+    });
+
+    if (spots.length === 0) {
       wrap.style.display = 'none';
       return;
     }
-    var ref   = bookName + ' ' + spot.chapter + (spot.verse ? ':' + spot.verse : '');
-    var refEl = document.getElementById('spotNoteRef');
-    if (refEl) refEl.textContent = ref;
-    var goBtn = document.getElementById('spotNoteGo');
-    if (goBtn) {
-      goBtn.onclick = (function (s) {
-        return function () { goToSpot(s); };
-      })(spot);
-    }
+
+    spots.sort(function (a, b) { return b.savedAt.localeCompare(a.savedAt); });
+
+    list.innerHTML = '';
+    spots.forEach(function (s) {
+      var ref    = s.bookName + ' ' + s.chapter + (s.verse ? ':' + s.verse : '');
+      var row    = document.createElement('div');
+      row.className = 'spot-note-row';
+
+      var refSpan = document.createElement('span');
+      refSpan.className   = 'spot-note-ref';
+      refSpan.textContent = ref;
+
+      var goBtn = document.createElement('button');
+      goBtn.className   = 'spot-note-go';
+      goBtn.type        = 'button';
+      goBtn.textContent = 'Go there';
+      goBtn.onclick     = (function (snap) { return function () { goToSpot(snap); }; })(s);
+
+      row.appendChild(refSpan);
+      row.appendChild(goBtn);
+      list.appendChild(row);
+    });
+
     wrap.style.display = '';
   }
 
   function goToSpot(spot) {
+    var curBookName = bookSelect.options[bookSelect.selectedIndex].text;
+
+    if (spot.bookName !== curBookName) {
+      for (var b = 0; b < bookSelect.options.length; b++) {
+        if (bookSelect.options[b].text === spot.bookName) {
+          bookSelect.selectedIndex = b;
+          var chCount = parseInt(bookSelect.options[b].dataset.chapters, 10);
+          rebuildChapterSelect(chCount, spot.chapter);
+          localStorage.setItem('ironink_scripture_book', bookSelect.value);
+          localStorage.setItem('ironink_scripture_chapter', spot.chapter);
+          if (spot.verse) pendingScrollVerse = spot.verse;
+          loadChapter(bookSelect.value, spot.chapter);
+          return;
+        }
+      }
+    }
+
     var curChapter = parseInt(chapterSelect.value, 10);
     if (spot.chapter === curChapter) {
       if (spot.verse) scrollToVerse(spot.verse);
