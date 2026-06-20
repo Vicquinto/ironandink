@@ -4518,3 +4518,149 @@ body {
 .shepherd-modal-overlay-container {
   fill: rgba(30,18,10,0.25);
 }
+
+/* ─── WHAT WE BELIEVE ────────────────────────────────────────────────────── */
+
+.believe-wrap {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 40px 8px 80px;
+}
+
+.believe-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid rgba(92,26,40,0.2);
+  margin-bottom: 32px;
+  margin-top: 4px;
+}
+
+.believe-tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 22px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--warm-brown);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  margin-bottom: -1px;
+}
+.believe-tab:hover { color: var(--dark-cream); }
+.believe-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.believe-landing-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.believe-landing-card {
+  background: rgba(92,26,40,0.04);
+  border: 1px solid rgba(92,26,40,0.2);
+  border-radius: 5px;
+  padding: 24px 16px 20px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--warm-brown);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.believe-landing-card:hover {
+  background: rgba(92,26,40,0.09);
+  border-color: rgba(92,26,40,0.45);
+  color: var(--accent);
+}
+.believe-landing-card:hover .believe-card-num { opacity: 0.8; }
+
+.believe-card-num {
+  font-family: 'Cinzel', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--accent);
+  display: block;
+}
+
+.believe-article {
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(92,26,40,0.1);
+}
+.believe-article-last {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.believe-article-heading {
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--warm-brown);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 9px;
+}
+
+.believe-article-num {
+  color: var(--accent);
+  margin-right: 5px;
+}
+
+.believe-covenant-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.believe-covenant-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(92,26,40,0.1);
+  font-size: 1.05rem;
+  line-height: 1.72;
+  color: var(--text);
+}
+.believe-covenant-item:last-child { border-bottom: none; }
+
+.believe-covenant-bullet {
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 4px;
+  font-size: 1rem;
+}
+
+.believe-placeholder {
+  margin-top: 28px;
+  padding: 18px 20px;
+  background: rgba(179,140,51,0.07);
+  border: 1px dashed rgba(179,140,51,0.4);
+  border-radius: 4px;
+  font-size: 0.92rem;
+  font-style: italic;
+  color: var(--warm-brown);
+  line-height: 1.65;
+}
+
+@media (max-width: 500px) {
+  .believe-landing-cards { grid-template-columns: 1fr; }
+  .believe-tab { padding: 10px 14px; font-size: 0.68rem; }
+}

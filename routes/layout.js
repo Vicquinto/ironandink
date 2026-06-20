@@ -83,6 +83,10 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
           <span class="nav-icon">&#9873;</span>
           <span class="nav-label">Admin</span>
         </a>` : ''}
+        <a href="/what-we-believe" class="nav-item${activeSection === 'believe' ? ' active' : ''}">
+          <span class="nav-icon">&#10013;</span>
+          <span class="nav-label">What We Believe</span>
+        </a>
         <a href="/copyright" class="nav-item copyright-link">
           <span class="nav-icon">&#169;</span>
           <span class="nav-label">Copyright</span>
