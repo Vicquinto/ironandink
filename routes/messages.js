@@ -105,8 +105,7 @@ router.get('/messages', requireAuth, (req, res) => {
 <script>
 window.__dm = ${safeJson({ threads: myThreads, users: allUsers, me: userId })};
 </script>
-<script src="/socket.io/socket.io.js"></script>
-<script src="/js/messages.js?v=2"></script>`;
+<script src="/js/messages.js?v=3"></script>`;
 
   res.send(renderLayout({ req, activeSection: 'messages', title: 'Messages', content, scripts }));
 });
@@ -212,6 +211,19 @@ router.post('/api/messages/send', requireAuth, (req, res) => {
   }
 
   res.json({ ok: true, threadId: thread.id, messageId: msg.id });
+});
+
+// ─── GET /api/messages/unread-count ──────────────────────────────────────────
+
+router.get('/api/messages/unread-count', requireAuth, (req, res) => {
+  const userId = req.session.userId;
+  const data   = readData();
+  const count  = data.threads
+    .filter(t => t.participants.includes(userId))
+    .reduce((sum, t) => {
+      return sum + t.messages.filter(m => m.senderId !== userId && !m.readBy.includes(userId)).length;
+    }, 0);
+  res.json({ count });
 });
 
 module.exports = router;

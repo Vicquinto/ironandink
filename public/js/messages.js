@@ -37,6 +37,19 @@
     return u ? u.fullName : 'Unknown';
   }
 
+  // ── Refresh global unread badge via server count ──────────────────────────
+
+  function fetchUnreadCount() {
+    fetch('/api/messages/unread-count')
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (typeof d.count === 'number') {
+          window.dispatchEvent(new CustomEvent('dm:unread-update', { detail: { count: d.count } }));
+        }
+      })
+      .catch(function () {});
+  }
+
   // ── Thread list ───────────────────────────────────────────────────────────
 
   function renderThreadList() {
@@ -109,6 +122,7 @@
 
   function loadThread(tid) {
     activeId = tid;
+    window.__dmActiveThread = tid;   // tells dm-badge.js which thread is open
     renderThreadList();
     var view = document.getElementById('dmView');
     if (!view) return;
@@ -120,7 +134,10 @@
         if (!r.ok) throw new Error(r.status);
         return r.json();
       })
-      .then(function (data) { renderThread(data.thread); })
+      .then(function (data) {
+        renderThread(data.thread);
+        fetchUnreadCount();   // messages marked as read server-side; refresh badge
+      })
       .catch(function () {
         view.innerHTML = '<div class="dm-placeholder">Could not load conversation.</div>';
       });
@@ -165,6 +182,7 @@
   function openCompose(recipId, recipName) {
     closeModal();
     activeId = null;
+    window.__dmActiveThread = null;
     renderThreadList();
     history.replaceState(null, '', '/messages?r=' + recipId);
 
@@ -195,7 +213,6 @@
     var text = input.value.trim();
     if (!text) return;
 
-    // Optimistically clear the input and disable button
     input.value = '';
     if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
 
@@ -215,17 +232,15 @@
           return;
         }
 
-        var tid  = data.threadId;
-        var now  = new Date().toISOString();
+        var tid = data.threadId;
+        var now = new Date().toISOString();
 
-        // Update in-memory thread list (move to top, update preview)
         var existing = THREADS.find(function (t) { return t.id === tid; });
         if (existing) {
           existing.lastText = text;
           existing.lastAt   = now;
           THREADS = [existing].concat(THREADS.filter(function (t) { return t.id !== tid; }));
         } else {
-          // First message in a new thread
           var recipId   = params.recipientId || '';
           var recipUser = ALL_USERS.find(function (u) { return u.id === recipId; }) || {};
           THREADS.unshift({
@@ -239,13 +254,11 @@
         }
 
         if (activeId !== tid) {
-          // Switching to a new thread — load it fully
           activeId = tid;
           history.replaceState(null, '', '/messages?t=' + tid);
           renderThreadList();
           loadThread(tid);
         } else {
-          // Already on this thread — just append and re-enable
           renderThreadList();
           appendMessage({
             id:         data.messageId,
@@ -314,27 +327,23 @@
     });
   }
 
-  // ── Socket.io real-time delivery ─────────────────────────────────────────
+  // ── Socket.io — reuse the connection dm-badge.js already created ──────────
 
   function initSocket() {
-    if (typeof io === 'undefined') return;
-
-    var socket = io({ transports: ['websocket', 'polling'] });
-
-    socket.on('connect', function () {
-      socket.emit('dm-register', ME);
-    });
+    var socket = window.__socket;
+    if (!socket) return;
 
     socket.on('dm:new-message', function (payload) {
       var tid = payload.threadId;
       var msg = payload.message;
 
       if (tid === activeId) {
-        // Thread is open — append the bubble immediately
+        // Thread is open — append immediately and correct badge from server
         appendMessage(msg);
+        fetchUnreadCount();
       }
 
-      // Update THREADS list (move to top, update preview, bump unread if not open)
+      // Update in-memory thread list regardless
       var existing = THREADS.find(function (t) { return t.id === tid; });
       if (existing) {
         existing.lastText = msg.text;
@@ -342,7 +351,6 @@
         if (tid !== activeId) existing.unread = (existing.unread || 0) + 1;
         THREADS = [existing].concat(THREADS.filter(function (t) { return t.id !== tid; }));
       } else {
-        // New thread (first message from this sender)
         THREADS.unshift({
           id:        tid,
           otherId:   msg.senderId,
@@ -362,7 +370,6 @@
   document.addEventListener('DOMContentLoaded', function () {
     renderThreadList();
 
-    // Auto-open from URL params
     var params  = new URLSearchParams(window.location.search);
     var initTid = params.get('t');
     var initRid = params.get('r');
@@ -374,11 +381,9 @@
       if (user) openCompose(user.id, user.fullName);
     }
 
-    // + New button
     var newBtn = document.getElementById('dmNewBtn');
     if (newBtn) newBtn.addEventListener('click', openModal);
 
-    // Modal close
     var closeBtn = document.getElementById('dmModalClose');
     if (closeBtn) closeBtn.addEventListener('click', closeModal);
 
@@ -396,7 +401,6 @@
       if (e.key === 'Escape') closeModal();
     });
 
-    // Real-time socket
     initSocket();
   });
 })();

@@ -189,7 +189,6 @@ router.get('/room/:code', requireAuth, (req, res) => {
       <div style="text-align:center;padding:0.5rem 0;font-size:0.85rem;color:#9a8060;font-style:italic;">Chat is paused</div>
     </div>`,
       scripts: `
-  <script src="/socket.io/socket.io.js"></script>
   <script>
     window.ROOM_CODE    = ${JSON.stringify(room.code)};
     window.CURRENT_USER = ${JSON.stringify({ id: userId, name: userName, email: user ? user.email : '' })};
@@ -345,7 +344,6 @@ router.get('/room/:code', requireAuth, (req, res) => {
     title:         room.name,
     content,
     scripts: `
-  <script src="/socket.io/socket.io.js"></script>
   <script>
     window.ROOM_CODE    = ${JSON.stringify(room.code)};
     window.CURRENT_USER = ${JSON.stringify({ id: userId, name: userName, email: user ? user.email : '' })};

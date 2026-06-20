@@ -226,6 +226,31 @@ body {
   font-weight: 400;
 }
 
+/* ─── DM UNREAD BADGE (on Messages nav icon) ────────────────────────── */
+
+.sidebar-dm-badge {
+  position: absolute;
+  top: -5px;
+  right: -8px;
+  background: rgba(179,140,51,0.88);
+  color: #1E1208;
+  font-family: 'Cinzel', serif;
+  font-size: 0.56rem;
+  font-weight: 700;
+  border-radius: 8px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0;
+  line-height: 1;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  box-sizing: border-box;
+}
+
 /* ─── SIDEBAR FOOTER ────────────────────────────────────────────────── */
 
 .sidebar-footer {

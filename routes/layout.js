@@ -1,6 +1,7 @@
 const fs   = require('fs');
 const path = require('path');
-const USERS_PATH_L = path.join(__dirname, '../data/users.json');
+const USERS_PATH_L    = path.join(__dirname, '../data/users.json');
+const MESSAGES_PATH_L = path.join(__dirname, '../data/messages.json');
 
 function requireAuth(req, res, next) {
   if (!req.session.userId) return res.redirect('/');
@@ -28,6 +29,19 @@ function getToursSeen(req) {
   } catch { return {}; }
 }
 
+function getDmUnreadCount(userId) {
+  if (!userId) return 0;
+  try {
+    if (!fs.existsSync(MESSAGES_PATH_L)) return 0;
+    const data = JSON.parse(fs.readFileSync(MESSAGES_PATH_L, 'utf8'));
+    return (data.threads || [])
+      .filter(t => t.participants && t.participants.includes(userId))
+      .reduce((sum, t) => {
+        return sum + (t.messages || []).filter(m => m.senderId !== userId && !(m.readBy || []).includes(userId)).length;
+      }, 0);
+  } catch { return 0; }
+}
+
 function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   const navItems = [
     { id: 'dashboard',   label: 'Dashboard',   href: '/dashboard',   icon: '&#9685;' },
@@ -45,14 +59,22 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
     { id: 'settings',    label: 'Settings',    href: '/settings',    icon: '&#9881;' },
   ];
 
-  const isAdmin    = getIsAdmin(req);
-  const toursSeen  = getToursSeen(req);
+  const isAdmin     = getIsAdmin(req);
+  const toursSeen   = getToursSeen(req);
+  const userId      = req.session ? req.session.userId : '';
+  const dmUnread    = getDmUnreadCount(userId);
 
-  const navHTML = navItems.map(item => `
+  const navHTML = navItems.map(item => {
+    const isMessages = item.id === 'messages';
+    const badgeHtml  = isMessages
+      ? `<span id="dmBadge" class="sidebar-dm-badge" style="display:none;"></span>`
+      : '';
+    return `
         <a href="${item.href}" class="nav-item${item.id === activeSection ? ' active' : ''}">
-          <span class="nav-icon">${item.icon}</span>
+          <span class="nav-icon"${isMessages ? ' style="position:relative;"' : ''}>${item.icon}${badgeHtml}</span>
           <span class="nav-label">${item.label}</span>
-        </a>`).join('');
+        </a>`;
+  }).join('');
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -62,7 +84,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   <title>${title} — Iron &amp; Ink</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/shepherd.css">
-  <link rel="stylesheet" href="/css/styles.css?v=17">
+  <link rel="stylesheet" href="/css/styles.css?v=18">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
@@ -106,11 +128,18 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
       ${content}
     </main>
   </div>
-  <script>window.__currentPage='${activeSection}';window.__toursSeen=${JSON.stringify(toursSeen)};</script>
+  <script>
+    window.__currentPage    = '${activeSection}';
+    window.__toursSeen      = ${JSON.stringify(toursSeen)};
+    window.__dmUnread       = ${dmUnread};
+    window.__currentUserId  = ${JSON.stringify(userId || '')};
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="/js/modal.js?v=8"></script>
   <script src="/js/app.js?v=8"></script>
   <script src="/js/dictionary.js?v=8"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/dm-badge.js?v=1"></script>
   ${scripts}
   <script type="module" src="/js/tour-runner.js"></script>
 </body>
