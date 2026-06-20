@@ -312,14 +312,19 @@ router.get('/invite-request', (req, res) => {
       var docChoices = document.getElementById('docChoices');
       if (docChoices) {
         docChoices.querySelectorAll('.doctrine-btn').forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            var val = btn.getAttribute('data-value');
+          btn.addEventListener('click', function (e) {
+            // Clicking a <label> wrapping a radio fires two click events: one on the
+            // label, then the browser-synthesized click on the <input> bubbles back up.
+            // Ignore that second event so the advance only runs once per user action.
+            if (e.target.tagName === 'INPUT') return;
+            var val        = btn.getAttribute('data-value');
+            var targetStep = currentStep + 1; // capture now — not in the setTimeout closure
             docChoices.querySelectorAll('.doctrine-btn').forEach(function (b) { b.classList.remove('selected'); });
             btn.classList.add('selected');
             var r = btn.querySelector('input');
             if (r) r.checked = true;
             docAnswers[DOCS[currentStep - 2].key] = val;
-            setTimeout(function () { goTo(currentStep + 1); }, 200);
+            setTimeout(function () { goTo(targetStep); }, 200);
           });
         });
       }
