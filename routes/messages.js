@@ -105,7 +105,8 @@ router.get('/messages', requireAuth, (req, res) => {
 <script>
 window.__dm = ${safeJson({ threads: myThreads, users: allUsers, me: userId })};
 </script>
-<script src="/js/messages.js?v=1"></script>`;
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/messages.js?v=2"></script>`;
 
   res.send(renderLayout({ req, activeSection: 'messages', title: 'Messages', content, scripts }));
 });
@@ -190,6 +191,26 @@ router.post('/api/messages/send', requireAuth, (req, res) => {
   thread.updatedAt = msg.sentAt;
 
   writeData(data);
+
+  // ── Real-time delivery to recipient ──────────────────────────────────────
+  const recipientId2 = thread.participants.find(p => p !== senderId);
+  const io           = req.app.locals.io;
+  const userSockets  = req.app.locals.userSockets;
+  if (io && userSockets && recipientId2) {
+    const recipSockets = userSockets.get(recipientId2);
+    if (recipSockets && recipSockets.size > 0) {
+      const senderUser = users.find(u => u.id === senderId) || {};
+      const payload = {
+        threadId:   thread.id,
+        message:    { ...msg, senderName: senderUser.fullName || 'Unknown' },
+        senderName: senderUser.fullName || 'Unknown',
+      };
+      recipSockets.forEach(socketId => {
+        io.to(socketId).emit('dm:new-message', payload);
+      });
+    }
+  }
+
   res.json({ ok: true, threadId: thread.id, messageId: msg.id });
 });
 

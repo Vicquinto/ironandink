@@ -1,13 +1,13 @@
 (function () {
   'use strict';
 
-  var dm            = window.__dm || { threads: [], users: [], me: '' };
-  var THREADS       = dm.threads;
-  var ALL_USERS     = dm.users;
-  var ME            = dm.me;
-  var activeId      = null;   // currently open thread id
+  var dm        = window.__dm || { threads: [], users: [], me: '' };
+  var THREADS   = dm.threads;   // mutable list kept in sync
+  var ALL_USERS = dm.users;
+  var ME        = dm.me;
+  var activeId  = null;         // thread id currently open in the right panel
 
-  // ── Utilities ────────────────────────────────────────────────────────────────
+  // ── Utilities ─────────────────────────────────────────────────────────────
 
   function esc(str) {
     return String(str)
@@ -17,31 +17,27 @@
       .replace(/"/g, '&quot;');
   }
 
-  function nl2br(str) {
-    return esc(str).replace(/\n/g, '<br>');
-  }
+  function nl2br(str) { return esc(str).replace(/\n/g, '<br>'); }
 
   function fmtTime(iso) {
     if (!iso) return '';
     var d    = new Date(iso);
     var now  = new Date();
     var diff = now - d;
-    if (diff < 60000)    return 'just now';
-    if (diff < 3600000)  return Math.floor(diff / 60000) + 'm ago';
-    if (diff < 86400000) return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    if (diff < 604800000) {
-      return d.toLocaleDateString([], { weekday: 'short' }) + ' ' +
-             d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
+    if (diff < 60000)     return 'just now';
+    if (diff < 3600000)   return Math.floor(diff / 60000) + 'm ago';
+    if (diff < 86400000)  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    if (diff < 604800000) return d.toLocaleDateString([], { weekday: 'short' }) + ' ' +
+                                 d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
   }
 
-  function userName(userId) {
+  function getUserName(userId) {
     var u = ALL_USERS.find(function (x) { return x.id === userId; });
     return u ? u.fullName : 'Unknown';
   }
 
-  // ── Thread list ───────────────────────────────────────────────────────────────
+  // ── Thread list ───────────────────────────────────────────────────────────
 
   function renderThreadList() {
     var list  = document.getElementById('dmThreadList');
@@ -50,10 +46,10 @@
 
     if (!THREADS.length) {
       list.innerHTML = '';
-      empty.style.display = '';
+      if (empty) empty.style.display = '';
       return;
     }
-    empty.style.display = 'none';
+    if (empty) empty.style.display = 'none';
 
     list.innerHTML = THREADS.map(function (t) {
       var active  = t.id === activeId ? ' active' : '';
@@ -75,13 +71,41 @@
     }).join('');
 
     list.querySelectorAll('.dm-thread-item').forEach(function (el) {
-      el.addEventListener('click', function () {
-        loadThread(el.getAttribute('data-tid'));
-      });
+      el.addEventListener('click', function () { loadThread(el.getAttribute('data-tid')); });
     });
   }
 
-  // ── Load + render a thread ────────────────────────────────────────────────────
+  // ── Append a single message bubble to the open thread ────────────────────
+
+  function appendMessage(msg) {
+    var msgList = document.getElementById('dmMsgList');
+    if (!msgList) return;
+    var mine = msg.senderId === ME;
+    var div  = document.createElement('div');
+    div.className = 'dm-msg ' + (mine ? 'mine' : 'theirs');
+    div.innerHTML =
+      '<div class="dm-sender">' +
+        (mine ? 'You' : esc(msg.senderName || getUserName(msg.senderId))) +
+        ' &middot; <span class="dm-time">' + fmtTime(msg.sentAt) + '</span>' +
+      '</div>' +
+      '<div class="dm-bubble">' + nl2br(msg.text) + '</div>';
+    msgList.appendChild(div);
+    msgList.scrollTop = msgList.scrollHeight;
+  }
+
+  // ── Attach send-form handlers ─────────────────────────────────────────────
+
+  function attachSendHandlers(params) {
+    var btn   = document.getElementById('dmSendBtn');
+    var input = document.getElementById('dmSendInput');
+    if (!btn || !input) return;
+    btn.addEventListener('click', function () { doSend(params); });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doSend(params); }
+    });
+  }
+
+  // ── Load + render a thread via API ────────────────────────────────────────
 
   function loadThread(tid) {
     activeId = tid;
@@ -104,7 +128,7 @@
 
   function renderThread(thread) {
     var otherId   = thread.participants.find(function (p) { return p !== ME; });
-    var otherName = esc(userName(otherId));
+    var otherName = esc(getUserName(otherId));
 
     var msgs = thread.messages.map(function (m) {
       var mine = m.senderId === ME;
@@ -121,9 +145,7 @@
 
     var view = document.getElementById('dmView');
     view.innerHTML =
-      '<div class="dm-view-header">' +
-        '<div class="dm-view-name">' + otherName + '</div>' +
-      '</div>' +
+      '<div class="dm-view-header"><div class="dm-view-name">' + otherName + '</div></div>' +
       '<div class="dm-msg-list" id="dmMsgList">' +
         (msgs || '<div style="padding:24px;color:var(--warm-brown);font-style:italic;text-align:center;">No messages yet. Say something!</div>') +
       '</div>' +
@@ -135,15 +157,10 @@
     var msgList = document.getElementById('dmMsgList');
     msgList.scrollTop = msgList.scrollHeight;
 
-    document.getElementById('dmSendBtn').addEventListener('click', function () {
-      doSend({ threadId: thread.id });
-    });
-    document.getElementById('dmSendInput').addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doSend({ threadId: thread.id }); }
-    });
+    attachSendHandlers({ threadId: thread.id });
   }
 
-  // ── Open a new (compose) view before first message is sent ───────────────────
+  // ── Open a compose view (new conversation, no thread yet) ─────────────────
 
   function openCompose(recipId, recipName) {
     closeModal();
@@ -153,9 +170,7 @@
 
     var view = document.getElementById('dmView');
     view.innerHTML =
-      '<div class="dm-view-header">' +
-        '<div class="dm-view-name">' + esc(recipName) + '</div>' +
-      '</div>' +
+      '<div class="dm-view-header"><div class="dm-view-name">' + esc(recipName) + '</div></div>' +
       '<div class="dm-msg-list" id="dmMsgList">' +
         '<div style="padding:24px;color:var(--warm-brown);font-style:italic;text-align:center;">' +
           'Start a conversation with ' + esc(recipName) + '.' +
@@ -166,17 +181,12 @@
         '<button class="dm-send-btn" id="dmSendBtn">Send</button>' +
       '</div>';
 
-    document.getElementById('dmSendBtn').addEventListener('click', function () {
-      doSend({ recipientId: recipId });
-    });
-    document.getElementById('dmSendInput').addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doSend({ recipientId: recipId }); }
-    });
-
-    document.getElementById('dmSendInput').focus();
+    attachSendHandlers({ recipientId: recipId });
+    var input = document.getElementById('dmSendInput');
+    if (input) input.focus();
   }
 
-  // ── Send a message ─────────────────────────────────────────────────────────────
+  // ── Send a message ────────────────────────────────────────────────────────
 
   function doSend(params) {
     var input = document.getElementById('dmSendInput');
@@ -185,6 +195,8 @@
     var text = input.value.trim();
     if (!text) return;
 
+    // Optimistically clear the input and disable button
+    input.value = '';
     if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
 
     var body = Object.assign({ text: text }, params);
@@ -196,20 +208,63 @@
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {
-        if (data.ok) {
-          window.location.href = '/messages?t=' + data.threadId;
-        } else {
+        if (!data.ok) {
+          input.value = text;
           alert(data.error || 'Failed to send message.');
+          if (btn) { btn.disabled = false; btn.textContent = 'Send'; }
+          return;
+        }
+
+        var tid  = data.threadId;
+        var now  = new Date().toISOString();
+
+        // Update in-memory thread list (move to top, update preview)
+        var existing = THREADS.find(function (t) { return t.id === tid; });
+        if (existing) {
+          existing.lastText = text;
+          existing.lastAt   = now;
+          THREADS = [existing].concat(THREADS.filter(function (t) { return t.id !== tid; }));
+        } else {
+          // First message in a new thread
+          var recipId   = params.recipientId || '';
+          var recipUser = ALL_USERS.find(function (u) { return u.id === recipId; }) || {};
+          THREADS.unshift({
+            id:        tid,
+            otherId:   recipId,
+            otherName: recipUser.fullName || 'Unknown',
+            lastText:  text,
+            lastAt:    now,
+            unread:    0,
+          });
+        }
+
+        if (activeId !== tid) {
+          // Switching to a new thread — load it fully
+          activeId = tid;
+          history.replaceState(null, '', '/messages?t=' + tid);
+          renderThreadList();
+          loadThread(tid);
+        } else {
+          // Already on this thread — just append and re-enable
+          renderThreadList();
+          appendMessage({
+            id:         data.messageId,
+            senderId:   ME,
+            senderName: 'You',
+            text:       text,
+            sentAt:     now,
+          });
           if (btn) { btn.disabled = false; btn.textContent = 'Send'; }
         }
       })
       .catch(function () {
+        input.value = text;
         alert('Failed to send message. Please try again.');
         if (btn) { btn.disabled = false; btn.textContent = 'Send'; }
       });
   }
 
-  // ── New Message modal ──────────────────────────────────────────────────────────
+  // ── New Message modal ────────────────────────────────────────────────────
 
   function openModal() {
     var overlay = document.getElementById('dmOverlay');
@@ -226,9 +281,9 @@
   }
 
   function renderMemberList(query) {
-    var list  = document.getElementById('dmMemberList');
+    var list = document.getElementById('dmMemberList');
     if (!list) return;
-    var q     = query.toLowerCase().trim();
+    var q    = query.toLowerCase().trim();
     var shown = ALL_USERS.filter(function (u) {
       return !q || u.fullName.toLowerCase().indexOf(q) !== -1;
     });
@@ -248,11 +303,10 @@
       el.addEventListener('click', function () {
         var uid   = el.getAttribute('data-uid');
         var uname = el.getAttribute('data-uname');
-        // if thread already exists, open it; otherwise open compose view
         var existing = THREADS.find(function (t) { return t.otherId === uid; });
         if (existing) {
-          loadThread(existing.id);
           closeModal();
+          loadThread(existing.id);
         } else {
           openCompose(uid, uname);
         }
@@ -260,15 +314,58 @@
     });
   }
 
-  // ── Bootstrap ─────────────────────────────────────────────────────────────────
+  // ── Socket.io real-time delivery ─────────────────────────────────────────
+
+  function initSocket() {
+    if (typeof io === 'undefined') return;
+
+    var socket = io({ transports: ['websocket', 'polling'] });
+
+    socket.on('connect', function () {
+      socket.emit('dm-register', ME);
+    });
+
+    socket.on('dm:new-message', function (payload) {
+      var tid = payload.threadId;
+      var msg = payload.message;
+
+      if (tid === activeId) {
+        // Thread is open — append the bubble immediately
+        appendMessage(msg);
+      }
+
+      // Update THREADS list (move to top, update preview, bump unread if not open)
+      var existing = THREADS.find(function (t) { return t.id === tid; });
+      if (existing) {
+        existing.lastText = msg.text;
+        existing.lastAt   = msg.sentAt;
+        if (tid !== activeId) existing.unread = (existing.unread || 0) + 1;
+        THREADS = [existing].concat(THREADS.filter(function (t) { return t.id !== tid; }));
+      } else {
+        // New thread (first message from this sender)
+        THREADS.unshift({
+          id:        tid,
+          otherId:   msg.senderId,
+          otherName: payload.senderName || getUserName(msg.senderId),
+          lastText:  msg.text,
+          lastAt:    msg.sentAt,
+          unread:    tid !== activeId ? 1 : 0,
+        });
+      }
+
+      renderThreadList();
+    });
+  }
+
+  // ── Bootstrap ─────────────────────────────────────────────────────────────
 
   document.addEventListener('DOMContentLoaded', function () {
     renderThreadList();
 
-    // auto-open from URL params
-    var params   = new URLSearchParams(window.location.search);
-    var initTid  = params.get('t');
-    var initRid  = params.get('r');
+    // Auto-open from URL params
+    var params  = new URLSearchParams(window.location.search);
+    var initTid = params.get('t');
+    var initRid = params.get('r');
 
     if (initTid) {
       loadThread(initTid);
@@ -277,7 +374,7 @@
       if (user) openCompose(user.id, user.fullName);
     }
 
-    // New message button
+    // + New button
     var newBtn = document.getElementById('dmNewBtn');
     if (newBtn) newBtn.addEventListener('click', openModal);
 
@@ -286,23 +383,20 @@
     if (closeBtn) closeBtn.addEventListener('click', closeModal);
 
     var overlay = document.getElementById('dmOverlay');
-    if (overlay) {
-      overlay.addEventListener('click', function (e) {
-        if (e.target === overlay) closeModal();
-      });
-    }
+    if (overlay) overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) closeModal();
+    });
 
-    // Live search inside modal
     var searchInput = document.getElementById('dmSearchInput');
-    if (searchInput) {
-      searchInput.addEventListener('input', function () {
-        renderMemberList(searchInput.value);
-      });
-    }
+    if (searchInput) searchInput.addEventListener('input', function () {
+      renderMemberList(searchInput.value);
+    });
 
-    // Esc key closes modal
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') closeModal();
     });
+
+    // Real-time socket
+    initSocket();
   });
 })();

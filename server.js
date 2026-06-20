@@ -195,9 +195,14 @@ const { Server } = require('socket.io');
 
 const httpServer = http.createServer(app);
 const io         = new Server(httpServer);
-app.locals.io    = io;
+
+// userId → Set<socketId>  (for direct-message delivery)
+const userSockets = new Map();
+app.locals.io          = io;
+app.locals.userSockets = userSockets;
 
 io.on('connection', (socket) => {
+  // ── Live Room handlers (unchanged) ─────────────────────────────────────
   socket.on('join-room', (payload) => {
     const code = typeof payload === 'string' ? payload : (payload && payload.roomCode) || '';
     const name = (payload && payload.name) ? String(payload.name) : '';
@@ -232,7 +237,22 @@ io.on('connection', (socket) => {
     socket.to(roomCode).emit('room-clear-study');
   });
 
+  // ── Direct Message registration ─────────────────────────────────────────
+  socket.on('dm-register', (userId) => {
+    if (!userId || typeof userId !== 'string') return;
+    socket._dmUserId = userId;
+    if (!userSockets.has(userId)) userSockets.set(userId, new Set());
+    userSockets.get(userId).add(socket.id);
+  });
+
   socket.on('disconnect', () => {
+    if (socket._dmUserId) {
+      const set = userSockets.get(socket._dmUserId);
+      if (set) {
+        set.delete(socket.id);
+        if (set.size === 0) userSockets.delete(socket._dmUserId);
+      }
+    }
     console.log(`Socket disconnected: ${socket.id}`);
   });
 });
