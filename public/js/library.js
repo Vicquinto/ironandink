@@ -257,8 +257,13 @@
     lines.forEach(function (line) {
       var ulM = line.match(/^[-*] (.+)/);
       var olM = line.match(/^\d+\. (.+)/);
+      var bqM = line.match(/^> (.+)/);
 
-      if (ulM) {
+      if (bqM) {
+        if (inUl) { result.push('</ul>'); inUl = false; }
+        if (inOl) { result.push('</ol>'); inOl = false; }
+        result.push('<blockquote class="guide-bq">' + bqM[1] + '</blockquote>');
+      } else if (ulM) {
         if (inOl) { result.push('</ol>'); inOl = false; }
         if (!inUl) { result.push('<ul class="guide-list">'); inUl = true; }
         result.push('<li>' + ulM[1] + '</li>');

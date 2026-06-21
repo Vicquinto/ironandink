@@ -758,6 +758,15 @@ body {
 }
 .guide-list li { margin-bottom: 4px; }
 .guide-ol { list-style-type: decimal; }
+.guide-bq {
+  border-left: 3px solid rgba(160,132,92,0.4);
+  margin: 12px 0;
+  padding: 4px 14px;
+  color: var(--dark-cream);
+  font-style: italic;
+}
+.guide-body .guide-bq,
+.guide-modal-body .guide-bq { font-size: 1em; }
 .guide-body strong { color: var(--dark-cream); }
 .guide-body em    { color: var(--dark-cream); font-style: italic; }
 
