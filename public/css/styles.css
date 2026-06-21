@@ -1155,8 +1155,13 @@ body {
 
 .guide-modal-inner {
   background: var(--bg);
+  background-image:
+    radial-gradient(ellipse at 15% 20%, rgba(180,148,85,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 80%, rgba(158,128,68,0.05) 0%, transparent 50%),
+    linear-gradient(170deg, rgba(212,188,138,0.08) 0%, transparent 60%);
   border: 1px solid rgba(160,132,92,0.25);
   border-radius: 8px;
+  color: var(--text);
   width: 100%;
   max-width: 780px;
   padding: 32px 36px 36px;
@@ -1173,9 +1178,10 @@ body {
 }
 
 .guide-modal-title {
-  font-size: 1.4rem;
+  font-size: 1.45rem;
   color: var(--accent);
   font-weight: normal;
+  letter-spacing: 0.03em;
 }
 
 .modal-close-btn {
@@ -1195,7 +1201,12 @@ body {
 }
 .modal-close-btn:hover { color: var(--dark-cream); border-color: var(--dark-cream); }
 
-.guide-modal-body { line-height: 1.8; }
+.guide-modal-body {
+  line-height: 1.8;
+  color: var(--text);
+}
+.guide-modal-body strong { color: var(--dark-cream); }
+.guide-modal-body em    { color: var(--dark-cream); font-style: italic; }
 
 /* ─── TOAST ─────────────────────────────────────────────────────────── */
 
