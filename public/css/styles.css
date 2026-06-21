@@ -3465,6 +3465,7 @@ body {
 .devot-archive-item-header {
   display: flex;
   align-items: flex-start;
+  flex-wrap: wrap;
   gap: 12px;
   padding: 14px 0;
   cursor: pointer;
@@ -3479,9 +3480,8 @@ body {
 
 .devot-archive-meta {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 10px;
+  flex-direction: column;
+  gap: 3px;
   flex: 1;
   min-width: 0;
 }
