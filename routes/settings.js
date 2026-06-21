@@ -106,11 +106,11 @@ router.get('/settings', requireAuth, (req, res) => {
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Study Level</label>
+          <label class="form-label">Writing Register</label>
           <select class="form-select" id="studyLevel">
-            <option value="foundations"${sel(s.studyLevel || 'journeyman', 'foundations')}>Foundations — Beginner</option>
-            <option value="journeyman"${sel(s.studyLevel || 'journeyman', 'journeyman')}>Journeyman — Intermediate</option>
-            <option value="scholar"${sel(s.studyLevel || 'journeyman', 'scholar')}>Scholar — Advanced</option>
+            <option value="foundations"${sel(s.studyLevel || 'journeyman', 'foundations')}>Foundational</option>
+            <option value="journeyman"${sel(s.studyLevel || 'journeyman', 'journeyman')}>Standard</option>
+            <option value="scholar"${sel(s.studyLevel || 'journeyman', 'scholar')}>Advanced</option>
           </select>
         </div>
         <div class="settings-save-row">
@@ -227,6 +227,21 @@ router.post('/api/settings/preferences', requireAuth, (req, res) => {
   users[idx].settings = { bibleTranslation, doctrinalTradition, defaultWritingTier, studyLevel };
   writeUsers(users);
 
+  req.session.user.settings = users[idx].settings;
+  res.json({ success: true });
+});
+
+// POST /api/settings/study-level — lightweight single-field save used by the study-page selector
+router.post('/api/settings/study-level', requireAuth, (req, res) => {
+  const { studyLevel } = req.body;
+  if (!['foundations', 'journeyman', 'scholar'].includes(studyLevel)) {
+    return res.status(400).json({ success: false, error: 'Invalid level.' });
+  }
+  const users = readUsers();
+  const idx   = users.findIndex(u => u.id === req.session.userId);
+  if (idx === -1) return res.json({ success: false, error: 'User not found.' });
+  users[idx].settings = Object.assign({}, users[idx].settings, { studyLevel });
+  writeUsers(users);
   req.session.user.settings = users[idx].settings;
   res.json({ success: true });
 });

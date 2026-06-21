@@ -26,9 +26,22 @@
   const cancelSaveBtn   = document.getElementById('cancelSaveBtn');
   const topicBrowser    = document.getElementById('topicBrowser');
   const stars           = document.querySelectorAll('.star');
-  const fontDecBtn      = document.getElementById('fontDecBtn');
-  const fontResetBtn    = document.getElementById('fontResetBtn');
-  const fontIncBtn      = document.getElementById('fontIncBtn');
+  const fontDecBtn        = document.getElementById('fontDecBtn');
+  const fontResetBtn      = document.getElementById('fontResetBtn');
+  const fontIncBtn        = document.getElementById('fontIncBtn');
+  const studyLevelSelect  = document.getElementById('studyLevelSelect');
+
+  // ── Level selector — seed from server-saved preference, persist on change ─
+  if (studyLevelSelect) {
+    studyLevelSelect.value = window.USER_STUDY_LEVEL || 'journeyman';
+    studyLevelSelect.addEventListener('change', function () {
+      fetch('/api/settings/study-level', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ studyLevel: studyLevelSelect.value }),
+      });
+    });
+  }
 
   // ── Font size control ─────────────────────────────────────────────────────
   var FONT_DEFAULT = 16;
@@ -135,7 +148,7 @@
       var res  = await fetch('/api/study/generate', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ topic, length: selectedLength }),
+        body:    JSON.stringify({ topic, length: selectedLength, studyLevel: studyLevelSelect ? studyLevelSelect.value : '' }),
         signal:  abortController.signal,
       });
       var data = await res.json();

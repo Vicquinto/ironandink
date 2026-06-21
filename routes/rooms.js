@@ -114,7 +114,7 @@ router.get('/rooms', requireAuth, (req, res) => {
     activeSection: 'rooms',
     title:         'Live Study Rooms',
     content,
-    scripts: `<script src="/js/rooms.js?v=3"></script><script src="/js/library.js?v=20"></script>`,
+    scripts: `<script>window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};</script><script src="/js/rooms.js?v=4"></script><script src="/js/library.js?v=20"></script>`,
   }));
 });
 
@@ -144,7 +144,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
   const isRoomHost = room.host === userId;
 
   if (isPaused && !isRoomHost) {
-    const levelLabel   = { foundations: 'Foundations', journeyman: 'Journeyman', scholar: 'Scholar' }[room.studyLevel || 'journeyman'] || 'Journeyman';
+    const levelLabel   = { foundations: 'Foundational', journeyman: 'Standard', scholar: 'Advanced' }[room.studyLevel || 'journeyman'] || 'Standard';
     const topicText    = room.study && room.study.topic ? 'Currently studying: ' + escHtml(room.study.topic) : '';
     const studySection = room.study && room.study.content
       ? `<div id="roomGuideArea">
@@ -251,7 +251,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
         <h2 class="room-title" id="roomTitle">${safeName}</h2>
         <div class="room-meta">
           <span id="roomHostLabel">Host: ${room.hostName.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>
-          <span style="background:#A0845C;color:#fff;border-radius:4px;padding:2px 10px;font-size:0.8rem;margin-left:0.5rem;">${{ foundations: 'Foundations', journeyman: 'Journeyman', scholar: 'Scholar' }[room.studyLevel || 'journeyman'] || 'Journeyman'}</span>
+          <span style="background:#A0845C;color:#fff;border-radius:4px;padding:2px 10px;font-size:0.8rem;margin-left:0.5rem;">${{ foundations: 'Foundational', journeyman: 'Standard', scholar: 'Advanced' }[room.studyLevel || 'journeyman'] || 'Standard'}</span>
           <span id="roomMembersLabel"></span>
         </div>
         <div style="margin-top:0.5rem;display:flex;align-items:center;gap:0.5rem;">
@@ -349,7 +349,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
     window.CURRENT_USER = ${JSON.stringify({ id: userId, name: userName, email: user ? user.email : '' })};
     window.ROOM_HOST    = ${JSON.stringify(hostEmail)};
     window.ROOM_STUDY       = ${room.study ? JSON.stringify(room.study) : 'null'};
-    window.ROOM_STUDY_LEVEL = ${JSON.stringify(room.studyLevel || 'journeyman')};
+    window.ROOM_STUDY_LEVEL  = ${JSON.stringify(room.studyLevel || 'journeyman')};
     window.ROOM_CHAT        = ${JSON.stringify(room.chat || [])};
     window.IS_ADMIN         = ${getIsAdmin(req)};
   </script>

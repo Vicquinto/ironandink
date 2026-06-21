@@ -107,9 +107,9 @@
           var badge = room.visibility === 'private'
             ? '<span class="rooms-badge rooms-badge-private">Private</span>'
             : '<span class="rooms-badge rooms-badge-open">Open</span>';
-          var levelLabels = { foundations: 'Foundations', journeyman: 'Journeyman', scholar: 'Scholar' };
+          var levelLabels = { foundations: 'Foundational', journeyman: 'Standard', scholar: 'Advanced' };
           var levelBadge = '<span style="background:#A0845C;color:#fff;border-radius:4px;padding:2px 8px;font-size:0.75rem;">' +
-            (levelLabels[room.studyLevel] || 'Journeyman') + '</span>';
+            (levelLabels[room.studyLevel] || 'Standard') + '</span>';
           var pausedBadge = paused
             ? '<span style="background:#7a6040;color:#f5ede0;border-radius:4px;padding:2px 8px;font-size:0.75rem;margin-left:4px;letter-spacing:0.04em;">Paused</span>'
             : '';
@@ -141,9 +141,9 @@
 
         '<label style="display:block;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.05em;color:#5C1A28;margin-bottom:0.35rem;">Study Level</label>' +
         '<select id="roomStudyLevel" style="width:100%;box-sizing:border-box;padding:0.55rem 0.75rem;border:1px solid #c4a882;border-radius:6px;background:#fff;font-size:0.97rem;margin-bottom:1rem;">' +
-          '<option value="foundations">Foundations — Beginner</option>' +
-          '<option value="journeyman" selected>Journeyman — Intermediate</option>' +
-          '<option value="scholar">Scholar — Advanced</option>' +
+          '<option value="foundations">Foundational</option>' +
+          '<option value="journeyman">Standard</option>' +
+          '<option value="scholar">Advanced</option>' +
         '</select>' +
 
         '<label style="display:block;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.05em;color:#5C1A28;margin-bottom:0.35rem;">Invite by Email <span style="font-weight:400;opacity:0.7;text-transform:none;">(optional)</span></label>' +
@@ -179,7 +179,7 @@
     roomNameInput.value       = '';
     roomInviteEmail.value     = '';
     roomVisibility.value      = 'open';
-    roomStudyLevel.value      = 'journeyman';
+    roomStudyLevel.value      = window.USER_STUDY_LEVEL || 'journeyman';
     createModal.style.display = 'flex';
     roomNameInput.focus();
   });

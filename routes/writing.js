@@ -8,9 +8,9 @@ const { requireAuth, renderLayout } = require('./layout');
 const router       = express.Router();
 
 const STUDY_LEVEL_INSTRUCTIONS = {
-  foundations: "STUDY LEVEL: This user is a beginner. Use plain conversational language. Define all theological terms when first introduced. Avoid academic jargon. Build explanations from the ground up. Use simple sentence structure.",
-  journeyman:  "STUDY LEVEL: This user has solid familiarity with Reformed theology. Engage at a serious but readable level. Assume basic doctrinal literacy.",
-  scholar:     "STUDY LEVEL: This user is at an advanced level. Use full academic register. Assume seminary-level vocabulary. Reference primary sources freely. Engage with technical theological distinctions.",
+  foundations: "WRITING REGISTER: FOUNDATIONAL. Write for a reader who is new to this topic and may not yet have much theological vocabulary. Define theological terms in plain language as you introduce them. Take time to explain reasoning step by step rather than assuming familiarity with how these arguments typically run. This does NOT mean simplifying the actual content, shortening the study, or omitting hard questions — every hard question must still be fully resolved in-line per the Core Governing Principle. It means writing with more patience and more explanation for someone earlier in their theological reading, while still producing a real, substantive, adult treatment of the subject.",
+  journeyman:  "WRITING REGISTER: STANDARD. Write for a reader with some working theological vocabulary and familiarity with how Reformed argumentation typically proceeds. You do not need to define every basic term, but should still clarify genuinely technical or less common terminology as it arises. The Core Governing Principle applies fully: every hard question and objection must be resolved in-line, never deferred to the reader.",
+  scholar:     "WRITING REGISTER: ADVANCED. Write for a reader who is comfortable with theological vocabulary, confessional language, and the typical shape of Reformed exegetical and doctrinal argument. You do not need to pause to define common theological terms, but should still be clear and precise. The Core Governing Principle applies fully: every hard question and objection must be resolved in-line, never deferred to the reader.",
 };
 
 function getStudyLevelInstruction(settings) {
