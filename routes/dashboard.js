@@ -262,6 +262,11 @@ Tone: warm but serious. Reformed and confessional.`;
     const newEntry = { date: today, scripture: passageRef || '', content };
     entries = [newEntry, ...entries.filter(e => e.date !== today)];
 
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 30);
+    const cutoffDate = cutoff.toLocaleDateString('en-CA', { timeZone: 'America/Denver' });
+    entries = entries.filter(e => e.date >= cutoffDate);
+
     const dataDir = path.dirname(DEVOTIONAL_PATH);
     console.log('[devotional] API succeeded. Attempting archive write.');
     console.log('[devotional] Target path:', DEVOTIONAL_PATH);
