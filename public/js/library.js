@@ -669,32 +669,63 @@
           e.target.closest('#inlineChatModal'))) return;
 
     var sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
+    if (!sel) return;
 
-    var selText = sel.toString().trim();
-    if (!selText || selText.length < 4) return;
+    // Single-click on <em>/<i>: italic foreign-language terms (Greek, Hebrew, Latin
+    // transliterations) are naturally clicked rather than drag-selected. A single click
+    // produces a collapsed selection that would otherwise exit silently — detect the
+    // click target instead and use the element's text content as the lookup term.
+    var emTarget = null;
+    if (!sel.rangeCount || sel.isCollapsed) {
+      var tgt = e.target;
+      if (tgt) {
+        if (tgt.tagName === 'EM' || tgt.tagName === 'I') {
+          emTarget = tgt;
+        } else if (tgt.closest) {
+          emTarget = tgt.closest('em, i');
+        }
+      }
+      if (!emTarget) return;
+    }
 
-    var range = sel.getRangeAt(0);
+    var selText, rect, anchorNode;
+
+    if (emTarget) {
+      selText    = emTarget.textContent.trim();
+      if (!selText || selText.length < 2) return;
+      rect       = emTarget.getBoundingClientRect();
+      anchorNode = emTarget;
+    } else {
+      selText = sel.toString().trim();
+      if (!selText || selText.length < 4) return;
+      var range  = sel.getRangeAt(0);
+      rect       = range.getBoundingClientRect();
+      // Normalize text node → parent element: text nodes inside <em>/<i> and other
+      // inline elements may not pass Node.contains() uniformly across all browsers
+      var cac = range.commonAncestorContainer;
+      anchorNode = (cac.nodeType === 3) ? cac.parentElement : cac;
+      if (!anchorNode) return;
+    }
 
     // Library modal context
     var modalBody = document.getElementById('modalBody');
     var modal     = document.getElementById('guideModal');
     var inModal   = modal && modal.style.display !== 'none' &&
-                    modalBody && modalBody.contains(range.commonAncestorContainer);
+                    modalBody && modalBody.contains(anchorNode);
 
     // Study page context
     var guideArea = document.getElementById('guideArea');
     var inGuide   = guideArea && guideArea.style.display !== 'none' &&
-                    guideArea.contains(range.commonAncestorContainer);
+                    guideArea.contains(anchorNode);
 
     // Live room context
     var roomGuideArea = document.getElementById('roomGuideArea');
     var inRoom        = roomGuideArea && roomGuideArea.style.display !== 'none' &&
-                        roomGuideArea.contains(range.commonAncestorContainer);
+                        roomGuideArea.contains(anchorNode);
 
     // Scripture reader context
     var scriptureBody = document.getElementById('scriptureBody');
-    var inScripture   = !!scriptureBody && scriptureBody.contains(range.commonAncestorContainer);
+    var inScripture   = !!scriptureBody && scriptureBody.contains(anchorNode);
 
     if (!inModal && !inGuide && !inRoom && !inScripture) return;
 
@@ -713,7 +744,7 @@
       var titleEl = document.getElementById('guideTitle');
       icmTopic = titleEl ? titleEl.textContent : '';
     }
-    showUp(selText, range.getBoundingClientRect());
+    showUp(selText, rect);
     // Suppress any legacy dictionary tooltip that may fire after its 400 ms debounce
     setTimeout(function () {
       var dictTt = document.getElementById('dictTooltip');
