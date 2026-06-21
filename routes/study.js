@@ -135,7 +135,7 @@ router.get('/study', requireAuth, (req, res) => {
       <button id="appointedStudyBtn" class="btn-warm">Appointed Study</button>
     </div>
 
-    <div class="study-length-picker" id="studyLengthPicker" aria-label="Study length">
+    <div class="study-length-picker" id="studyLengthPicker" aria-label="Study length" style="display:none;">
       <button class="study-length-btn study-length-btn--active" data-length="Short">Short</button>
       <button class="study-length-btn" data-length="Standard">Standard</button>
       <button class="study-length-btn" data-length="Deep">Deep</button>
@@ -459,7 +459,7 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
 
   const userSettings  = req.session.user && req.session.user.settings;
   const translation   = (userSettings && userSettings.bibleTranslation) || 'LSB';
-  const lengthCfg     = STUDY_LENGTH_CONFIG[length] || STUDY_LENGTH_CONFIG.Short;
+  // Length tier system suspended — tiers kept in STUDY_LENGTH_CONFIG but bypassed for now
   const studyLength   = STUDY_LENGTH_CONFIG[length] ? length : 'Short';
 
   const { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT } = req.app.locals.prompts;
@@ -468,17 +468,15 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
     : getStudyLevelInstruction(userSettings);
   const systemPrompt = studyLevelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_STUDY_PROMPT;
 
-  const lengthInstruction = `LENGTH: Target approximately ${lengthCfg.wordCount} words for this study. Adjust the depth of explanation, number of illustrative examples, and level of doctrinal detail within the existing six-section structure to hit this target — treat it as an approximation, not a strict cap. If the topic does not have enough substantive theological, exegetical, or historical content to responsibly reach the target length, it is acceptable to end the study shorter rather than pad with repetition, speculation, or filler. Depth should come from genuine substance — not from manufactured content to reach a word count.`;
-
   try {
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const message = await client.messages.create({
       model:      'claude-sonnet-4-6',
-      max_tokens: lengthCfg.maxTokens,
+      max_tokens: 6000,
       system:     systemPrompt,
       messages: [{
         role:    'user',
-        content: `Generate a Reformed theological study guide on the following topic from a biblical and confessional perspective: ${topic.trim()}\n\nBible translation preference: ${translation}\n\n${lengthInstruction}`,
+        content: `Generate a Reformed theological study guide on the following topic from a biblical and confessional perspective: ${topic.trim()}\n\nBible translation preference: ${translation}`,
       }],
     });
 

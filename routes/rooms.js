@@ -270,7 +270,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
         <button id="roomGenerateBtn" class="btn-warm" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.6rem 1.5rem;font-size:1rem;cursor:pointer;white-space:nowrap;">Generate Study</button>
       </div>
 
-      <div class="study-length-picker" id="roomLengthPicker" aria-label="Study length">
+      <div class="study-length-picker" id="roomLengthPicker" aria-label="Study length" style="display:none;">
         <button class="study-length-btn study-length-btn--active" data-length="Short">Short</button>
         <button class="study-length-btn" data-length="Standard">Standard</button>
         <button class="study-length-btn" data-length="Deep">Deep</button>
