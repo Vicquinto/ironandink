@@ -94,12 +94,12 @@
       var study     = allStudies.find(function (s) { return s.id === id; }) || {};
       var editRating = study.rating || 0;
 
-      // Card click → open modal (skip if clicking inside edit area or action buttons)
+      // Card click → render study inline (skip if clicking inside edit area or action buttons)
       card.addEventListener('click', function (e) {
         if (e.target.closest('.card-edit-panel') ||
             e.target.classList.contains('card-edit-btn') ||
             e.target.classList.contains('card-delete-btn')) return;
-        if (study) openModal(study);
+        if (study) showStudyInline(study);
       });
       card.addEventListener('keydown', function (e) {
         if (e.key === 'Enter' && editPanel.style.display === 'none') card.click();
@@ -168,6 +168,34 @@
       });
     });
   }
+
+  // ── Inline study view (replaces card grid, matches Study page) ──────────────
+  var libGuideArea  = document.getElementById('libGuideArea');
+  var libGuideTitle = document.getElementById('libGuideTitle');
+  var libGuideBadge = document.getElementById('libGuideBadge');
+  var libGuideBody  = document.getElementById('libGuideBody');
+  var studyCardsGrid = document.getElementById('studyCardsGrid');
+  var libFilterBar   = document.querySelector('#tab-studies .library-filter-bar');
+
+  function showStudyInline(study) {
+    if (!libGuideArea) return;
+    libGuideTitle.textContent = study.topic;
+    libGuideBadge.textContent = study.translation || 'LSB';
+    libGuideBody.innerHTML    = renderMarkdown(study.content);
+    if (studyCardsGrid) studyCardsGrid.style.display = 'none';
+    if (libFilterBar)   libFilterBar.style.display   = 'none';
+    libGuideArea.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function backToLibrary() {
+    if (libGuideArea) libGuideArea.style.display = 'none';
+    if (studyCardsGrid) studyCardsGrid.style.display = '';
+    if (libFilterBar)   libFilterBar.style.display   = '';
+  }
+
+  var libBackBtn = document.getElementById('libBackBtn');
+  if (libBackBtn) libBackBtn.addEventListener('click', backToLibrary);
 
   // ── Modal ──────────────────────────────────────────────────────────────────
   function openModal(study) {
@@ -483,6 +511,23 @@
     mFontDec.addEventListener('click',   function () { applyModalFontSize(rfontSize - RFONT_STEP); });
     mFontReset.addEventListener('click', function () { applyModalFontSize(RFONT_DEFAULT); });
     mFontInc.addEventListener('click',   function () { applyModalFontSize(rfontSize + RFONT_STEP); });
+  }
+
+  // Inline study view shares the same reading font size
+  function applyLibFontSize(size) {
+    rfontSize = Math.min(RFONT_MAX, Math.max(RFONT_MIN, size));
+    if (libGuideBody) libGuideBody.style.fontSize = rfontSize + 'px';
+    localStorage.setItem('ironink_study_font_size', rfontSize);
+  }
+  if (libGuideBody) libGuideBody.style.fontSize = rfontSize + 'px';
+
+  var libFontDec   = document.getElementById('libFontDecBtn');
+  var libFontReset = document.getElementById('libFontResetBtn');
+  var libFontInc   = document.getElementById('libFontIncBtn');
+  if (libFontDec) {
+    libFontDec.addEventListener('click',   function () { applyLibFontSize(rfontSize - RFONT_STEP); });
+    libFontReset.addEventListener('click', function () { applyLibFontSize(RFONT_DEFAULT); });
+    libFontInc.addEventListener('click',   function () { applyLibFontSize(rfontSize + RFONT_STEP); });
   }
 
   // ── Print / Download ──────────────────────────────────────────────────────

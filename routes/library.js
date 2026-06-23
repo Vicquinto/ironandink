@@ -47,6 +47,22 @@ router.get('/library', requireAuth, (req, res) => {
       <div id="studyCardsGrid" class="study-cards-grid">
         <p class="library-loading-msg">Loading&#8230;</p>
       </div>
+
+      <div id="libGuideArea" style="display:none;">
+        <div class="guide-header-bar">
+          <h3 class="guide-display-title" id="libGuideTitle"></h3>
+          <span class="guide-translation-badge" id="libGuideBadge"></span>
+        </div>
+        <div class="guide-font-toolbar">
+          <button class="guide-font-btn guide-font-btn-sm" id="libFontDecBtn">A&#8722;</button>
+          <button class="guide-font-btn guide-font-btn-md" id="libFontResetBtn">A</button>
+          <button class="guide-font-btn guide-font-btn-lg" id="libFontIncBtn">A+</button>
+        </div>
+        <div class="guide-body" id="libGuideBody"></div>
+        <div class="guide-actions">
+          <button class="btn-warm" id="libBackBtn">Back to Library</button>
+        </div>
+      </div>
     </div>
 
     <div id="tab-dialogues" class="lib-tab-content" style="display:none;">
@@ -79,7 +95,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/library.js?v=20"></script>',
+    scripts: '<script src="/js/library.js?v=21"></script>',
   }));
 });
 
