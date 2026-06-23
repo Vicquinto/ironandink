@@ -17,7 +17,11 @@ function writeUsers(users) {
 // GET /login — login page (redirect to dashboard if already logged in)
 router.get('/login', (req, res) => {
   if (req.session.userId) return res.redirect('/dashboard');
-  const notice = req.query.reset === '1' ? 'Password updated. Please sign in.' : null;
+  const notice = req.query.reset === '1'
+    ? 'Password updated. Please sign in.'
+    : req.query.suspended === '1'
+      ? 'Your account has been suspended. Please contact the administrator.'
+      : null;
   res.send(renderLoginPage({ error: null, notice }));
 });
 

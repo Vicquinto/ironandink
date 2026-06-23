@@ -5,6 +5,16 @@ const MESSAGES_PATH_L = path.join(__dirname, '../data/messages.json');
 
 function requireAuth(req, res, next) {
   if (!req.session.userId) return res.redirect('/');
+  // Mid-session suspension check: bounce an already-logged-in member whose
+  // account was suspended. Strict === false so legacy records without the
+  // field are unaffected. Fail open on a read error — don't lock everyone out.
+  try {
+    const users = JSON.parse(fs.readFileSync(USERS_PATH_L, 'utf8'));
+    const user  = users.find(u => u.id === req.session.userId);
+    if (user && user.isActive === false) {
+      return req.session.destroy(() => res.redirect('/login?suspended=1'));
+    }
+  } catch { /* fail open */ }
   next();
 }
 
