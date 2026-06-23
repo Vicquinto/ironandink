@@ -228,6 +228,7 @@
       tags:        saveTagsInput.value,
       rating:      selectedRating,
       studyLength: currentGuide.studyLength,
+      studyLevel:  currentGuide.studyLevel,
       createdAt:   new Date().toISOString(),
     };
 

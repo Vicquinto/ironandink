@@ -469,9 +469,10 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
   const studyLength   = STUDY_LENGTH_CONFIG[length] ? length : 'Short';
 
   const { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT } = req.app.locals.prompts;
-  const studyLevelInstruction = (studyLevel && STUDY_LEVEL_INSTRUCTIONS[studyLevel])
-    ? STUDY_LEVEL_INSTRUCTIONS[studyLevel]
-    : getStudyLevelInstruction(userSettings);
+  const resolvedStudyLevel = (studyLevel && STUDY_LEVEL_INSTRUCTIONS[studyLevel])
+    ? studyLevel
+    : ((userSettings && userSettings.studyLevel) || 'journeyman');
+  const studyLevelInstruction = STUDY_LEVEL_INSTRUCTIONS[resolvedStudyLevel] || STUDY_LEVEL_INSTRUCTIONS.journeyman;
   const systemPrompt = studyLevelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_STUDY_PROMPT;
 
   try {
@@ -487,7 +488,7 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
     });
 
     const content = message.content[0].text;
-    res.json({ success: true, content, topic: topic.trim(), translation, studyLength });
+    res.json({ success: true, content, topic: topic.trim(), translation, studyLength, studyLevel: resolvedStudyLevel });
   } catch (err) {
     console.error('Study generation error — status:', err.status);
     console.error('Study generation error — message:', err.message);
