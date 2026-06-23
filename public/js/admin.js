@@ -632,12 +632,35 @@
     }
     if (memberEmpty) memberEmpty.style.display = 'none';
 
+    var meId = String(window.__currentUserId || '');
+
     memberList.innerHTML = members.map(function (m) {
-      var statusClass = m.accountStatus === 'Active' ? 'status-published' : 'status-pending';
+      // Mirror the backend guardrail: no moderation control on the admin's own
+      // row or on any other admin row.
+      var isSelf      = String(m.id) === meId;
+      var isAdminRow  = m.role === 'Admin';
+      var canModerate = !isSelf && !isAdminRow;
+
+      var statusBadge = m.isActive
+        ? '<span class="article-status-badge ' +
+            (m.accountStatus === 'Active' ? 'status-published' : 'status-pending') + '">' +
+            esc(m.accountStatus) + '</span>'
+        : '<span class="article-status-badge" style="background:rgba(176,48,48,0.15); color:#b03030; border:1px solid rgba(176,48,48,0.4);">Suspended</span>';
+
+      var actionRow = canModerate
+        ? '<div style="display:flex; gap:10px; margin-top:12px;">' +
+            '<button class="' + (m.isActive ? 'btn-reject' : 'btn-primary') + ' member-moderate-btn" ' +
+              'data-id="' + esc(m.id) + '" data-action="' + (m.isActive ? 'suspend' : 'reinstate') + '" ' +
+              'style="font-size:0.82rem; padding:6px 14px;">' +
+              (m.isActive ? 'Suspend' : 'Reinstate') +
+            '</button>' +
+          '</div>'
+        : '';
+
       return '<div class="article-card">' +
         '<div class="article-card-header">' +
           '<span class="article-card-title">' + esc(m.fullName) + '</span>' +
-          '<span class="article-status-badge ' + statusClass + '">' + esc(m.accountStatus) + '</span>' +
+          statusBadge +
         '</div>' +
         '<div class="article-card-meta">' +
           '<span class="community-card-author">' + esc(m.email) + '</span>' +
@@ -646,8 +669,34 @@
             ' · Dialogues: ' + m.dialogueSessions +
             ' · Articles: ' + m.articlesWritten + '</span>' +
         '</div>' +
+        actionRow +
       '</div>';
     }).join('');
+
+    memberList.querySelectorAll('.member-moderate-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id     = btn.dataset.id;
+        var action = btn.dataset.action;
+        var verb   = action === 'suspend' ? 'Suspend' : 'Reinstate';
+        showConfirm(verb + ' this member?', verb, async function () {
+          btn.disabled = true;
+          try {
+            var res  = await fetch('/api/admin/members/' + encodeURIComponent(id) + '/' + action, { method: 'POST' });
+            var data = await res.json();
+            if (data.success) {
+              showToast('Member ' + (action === 'suspend' ? 'suspended' : 'reinstated') + '.');
+              loadMembers();
+            } else {
+              showToast(data.error || 'Action failed.', true);
+              btn.disabled = false;
+            }
+          } catch (err) {
+            showToast('Error: ' + err.message, true);
+            btn.disabled = false;
+          }
+        });
+      });
+    });
   }
 
   loadPending();

@@ -45,6 +45,12 @@ router.post('/api/login', async (req, res) => {
     return res.json({ success: false, error: 'Invalid email or password.' });
   }
 
+  // Suspended accounts: credentials are valid but login is blocked. No session
+  // is established. Active unless explicitly isActive === false.
+  if (user.isActive === false) {
+    return res.json({ success: false, error: 'Your account has been suspended. Please contact the administrator.' });
+  }
+
   req.session.userId = user.id;
   req.session.user = {
     id:       user.id,

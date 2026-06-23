@@ -171,7 +171,7 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
     activeSection: 'admin',
     title:         'Admin Panel',
     content,
-    scripts: `<script src="/js/admin.js?v=9"></script>
+    scripts: `<script src="/js/admin.js?v=10"></script>
 <script>
 (function () {
   var form     = document.getElementById('directInviteForm');
@@ -456,6 +456,7 @@ router.get('/api/admin/members', requireAuth, requireAdmin, (req, res) => {
       fullName:         u.fullName || 'Unknown',
       email:            u.email || '',
       role:             u.role === 'admin' ? 'Admin' : 'Member',
+      isActive:         u.isActive !== false,
       accountStatus:    u.needsSetup ? 'Pending setup' : 'Active',
       studiesCompleted: stats.studiesCompleted || 0,
       dialogueSessions: stats.dialogueSessions || 0,
@@ -463,6 +464,33 @@ router.get('/api/admin/members', requireAuth, requireAdmin, (req, res) => {
     };
   }).sort((a, b) => a.fullName.localeCompare(b.fullName));
   res.json({ success: true, members });
+});
+
+// ─── POST /api/admin/members/:id/suspend ─────────────────────────────────────
+// Reversible suspension (blocks login, keeps all data). Only flips isActive.
+router.post('/api/admin/members/:id/suspend', requireAuth, requireAdmin, (req, res) => {
+  const users = readJSON(USERS_PATH);
+  const idx   = users.findIndex(u => u.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ success: false, error: 'Member not found.' });
+  if (users[idx].id === req.session.userId) {
+    return res.status(400).json({ success: false, error: 'You cannot suspend your own account.' });
+  }
+  if (users[idx].role === 'admin') {
+    return res.status(400).json({ success: false, error: 'Administrators cannot be suspended.' });
+  }
+  users[idx].isActive = false;
+  writeJSON(USERS_PATH, users);
+  res.json({ success: true });
+});
+
+// ─── POST /api/admin/members/:id/reinstate ───────────────────────────────────
+router.post('/api/admin/members/:id/reinstate', requireAuth, requireAdmin, (req, res) => {
+  const users = readJSON(USERS_PATH);
+  const idx   = users.findIndex(u => u.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ success: false, error: 'Member not found.' });
+  users[idx].isActive = true;
+  writeJSON(USERS_PATH, users);
+  res.json({ success: true });
 });
 
 module.exports = router;
