@@ -57,6 +57,7 @@ router.get('/library', requireAuth, (req, res) => {
           <button class="guide-font-btn guide-font-btn-sm" id="libFontDecBtn">A&#8722;</button>
           <button class="guide-font-btn guide-font-btn-md" id="libFontResetBtn">A</button>
           <button class="guide-font-btn guide-font-btn-lg" id="libFontIncBtn">A+</button>
+          <button class="guide-print-btn" id="libPrintBtn" title="Print or save as PDF">&#9113; Print / Download</button>
         </div>
         <div class="guide-body" id="libGuideBody"></div>
         <div class="guide-actions">
@@ -95,7 +96,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/library.js?v=21"></script>',
+    scripts: '<script src="/js/library.js?v=22"></script>',
   }));
 });
 

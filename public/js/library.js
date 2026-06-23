@@ -536,14 +536,25 @@
   printArea.setAttribute('aria-hidden', 'true');
   document.body.appendChild(printArea);
 
+  // Shared print/Save-as-PDF flow — fills the print area from a source element
+  function printGuide(sourceEl) {
+    if (!sourceEl) return;
+    printArea.innerHTML = sourceEl.innerHTML;
+    document.body.classList.add('is-printing');
+    window.print();
+  }
+
   var mPrintBtn = document.getElementById('modalPrint');
   if (mPrintBtn) {
     mPrintBtn.addEventListener('click', function () {
-      var body = document.getElementById('modalBody');
-      if (!body) return;
-      printArea.innerHTML = body.innerHTML;
-      document.body.classList.add('is-printing');
-      window.print();
+      printGuide(document.getElementById('modalBody'));
+    });
+  }
+
+  var libPrintBtn = document.getElementById('libPrintBtn');
+  if (libPrintBtn) {
+    libPrintBtn.addEventListener('click', function () {
+      printGuide(libGuideBody);
     });
   }
 
