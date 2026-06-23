@@ -224,7 +224,7 @@ router.post('/api/settings/preferences', requireAuth, (req, res) => {
   const idx = users.findIndex(u => u.id === req.session.userId);
   if (idx === -1) return res.json({ success: false, error: 'User not found.' });
 
-  users[idx].settings = { bibleTranslation, doctrinalTradition, defaultWritingTier, studyLevel };
+  users[idx].settings = Object.assign({}, users[idx].settings, { bibleTranslation, doctrinalTradition, defaultWritingTier, studyLevel });
   writeUsers(users);
 
   req.session.user.settings = users[idx].settings;
