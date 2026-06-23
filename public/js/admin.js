@@ -24,9 +24,13 @@
   var adminTabPublished   = document.getElementById('adminTabPublished');
   var adminTabInvitations = document.getElementById('adminTabInvitations');
   var adminTabRooms       = document.getElementById('adminTabRooms');
+  var adminTabMembers     = document.getElementById('adminTabMembers');
 
   var adminRoomsList  = document.getElementById('adminRoomsList');
   var adminRoomsEmpty = document.getElementById('adminRoomsEmpty');
+
+  var memberList  = document.getElementById('memberList');
+  var memberEmpty = document.getElementById('memberEmpty');
 
   var inviteRequestList  = document.getElementById('inviteRequestList');
   var inviteRequestEmpty = document.getElementById('inviteRequestEmpty');
@@ -95,8 +99,10 @@
       adminTabPublished.style.display   = which === 'published'   ? 'block' : 'none';
       adminTabInvitations.style.display = which === 'invitations' ? 'block' : 'none';
       if (adminTabRooms) adminTabRooms.style.display = which === 'rooms' ? 'block' : 'none';
+      if (adminTabMembers) adminTabMembers.style.display = which === 'members' ? 'block' : 'none';
       if (which === 'invitations') { loadInviteRequests(); loadSentInvites(); }
       if (which === 'rooms') { loadAdminRooms(); }
+      if (which === 'members') { loadMembers(); }
     });
   });
 
@@ -603,6 +609,45 @@
         });
       });
     });
+  }
+
+  // ── Member roster (read-only) ─────────────────────────────────────────────
+  async function loadMembers() {
+    if (!memberList) return;
+    memberList.innerHTML = '<p class="writing-empty">Loading…</p>';
+    try {
+      var res  = await fetch('/api/admin/members');
+      var data = await res.json();
+      renderMembers(data.members || []);
+    } catch (err) {
+      memberList.innerHTML = '<p class="writing-empty">Could not load members.</p>';
+    }
+  }
+
+  function renderMembers(members) {
+    if (!members.length) {
+      if (memberEmpty) memberEmpty.style.display = 'block';
+      if (memberList)  memberList.innerHTML = '';
+      return;
+    }
+    if (memberEmpty) memberEmpty.style.display = 'none';
+
+    memberList.innerHTML = members.map(function (m) {
+      var statusClass = m.accountStatus === 'Active' ? 'status-published' : 'status-pending';
+      return '<div class="article-card">' +
+        '<div class="article-card-header">' +
+          '<span class="article-card-title">' + esc(m.fullName) + '</span>' +
+          '<span class="article-status-badge ' + statusClass + '">' + esc(m.accountStatus) + '</span>' +
+        '</div>' +
+        '<div class="article-card-meta">' +
+          '<span class="community-card-author">' + esc(m.email) + '</span>' +
+          '<span class="article-card-date">Role: ' + esc(m.role) + '</span>' +
+          '<span class="article-word-count">Studies: ' + m.studiesCompleted +
+            ' · Dialogues: ' + m.dialogueSessions +
+            ' · Articles: ' + m.articlesWritten + '</span>' +
+        '</div>' +
+      '</div>';
+    }).join('');
   }
 
   loadPending();

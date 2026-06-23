@@ -78,6 +78,7 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
         <button class="admin-tab" data-tab="published">Published Articles</button>
         <button class="admin-tab" data-tab="invitations">Invitations</button>
         <button class="admin-tab" data-tab="rooms">Live Rooms</button>
+        <button class="admin-tab" data-tab="members">Members</button>
       </div>
 
       <div id="adminTabPending" class="admin-tab-content">
@@ -93,6 +94,11 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
       <div id="adminTabRooms" class="admin-tab-content" style="display:none;">
         <div id="adminRoomsList"></div>
         <p id="adminRoomsEmpty" class="writing-empty" style="display:none;">No active rooms.</p>
+      </div>
+
+      <div id="adminTabMembers" class="admin-tab-content" style="display:none;">
+        <div id="memberList" class="article-list-container"></div>
+        <p id="memberEmpty" class="writing-empty" style="display:none;">No members.</p>
       </div>
 
       <div id="adminTabInvitations" class="admin-tab-content" style="display:none;">
@@ -165,7 +171,7 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
     activeSection: 'admin',
     title:         'Admin Panel',
     content,
-    scripts: `<script src="/js/admin.js?v=8"></script>
+    scripts: `<script src="/js/admin.js?v=9"></script>
 <script>
 (function () {
   var form     = document.getElementById('directInviteForm');
@@ -437,6 +443,26 @@ router.get('/api/admin/rooms', requireAuth, requireAdmin, (req, res) => {
     };
   }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   res.json({ success: true, rooms: result });
+});
+
+// ─── GET /api/admin/members ──────────────────────────────────────────────────
+// Read-only roster. Explicitly whitelists fields — passwordHash and any other
+// sensitive data are never serialized into the response.
+router.get('/api/admin/members', requireAuth, requireAdmin, (req, res) => {
+  const members = readJSON(USERS_PATH).map(u => {
+    const stats = u.stats || {};
+    return {
+      id:               u.id,
+      fullName:         u.fullName || 'Unknown',
+      email:            u.email || '',
+      role:             u.role === 'admin' ? 'Admin' : 'Member',
+      accountStatus:    u.needsSetup ? 'Pending setup' : 'Active',
+      studiesCompleted: stats.studiesCompleted || 0,
+      dialogueSessions: stats.dialogueSessions || 0,
+      articlesWritten:  stats.articlesWritten  || 0,
+    };
+  }).sort((a, b) => a.fullName.localeCompare(b.fullName));
+  res.json({ success: true, members });
 });
 
 module.exports = router;
