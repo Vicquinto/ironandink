@@ -88,16 +88,6 @@ router.get('/settings', requireAuth, (req, res) => {
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Doctrinal Tradition</label>
-          <select class="form-select" id="doctrinalTradition">
-            <option value="Reformed/Calvinist"${sel(s.doctrinalTradition, 'Reformed/Calvinist')}>Reformed / Calvinist</option>
-            <option value="Presbyterian"${sel(s.doctrinalTradition, 'Presbyterian')}>Presbyterian</option>
-            <option value="Reformed Baptist"${sel(s.doctrinalTradition, 'Reformed Baptist')}>Reformed Baptist</option>
-            <option value="Continental Reformed"${sel(s.doctrinalTradition, 'Continental Reformed')}>Continental Reformed</option>
-            <option value="Other"${sel(s.doctrinalTradition, 'Other')}>Other</option>
-          </select>
-        </div>
-        <div class="form-group">
           <label class="form-label">Default Writing Tier</label>
           <select class="form-select" id="defaultWritingTier">
             <option value="tier1"${sel(s.defaultWritingTier, 'tier1')}>Tier 1 — Full Scaffold</option>
@@ -165,7 +155,6 @@ router.get('/settings', requireAuth, (req, res) => {
       e.preventDefault();
       const data = await postJSON('/api/settings/preferences', {
         bibleTranslation:   document.getElementById('bibleTranslation').value,
-        doctrinalTradition: document.getElementById('doctrinalTradition').value,
         defaultWritingTier: document.getElementById('defaultWritingTier').value,
         studyLevel:         document.getElementById('studyLevel').value,
       });
@@ -218,13 +207,13 @@ router.post('/api/settings/password', requireAuth, async (req, res) => {
 
 // POST /api/settings/preferences
 router.post('/api/settings/preferences', requireAuth, (req, res) => {
-  const { bibleTranslation, doctrinalTradition, defaultWritingTier, studyLevel } = req.body;
+  const { bibleTranslation, defaultWritingTier, studyLevel } = req.body;
 
   const users = readUsers();
   const idx = users.findIndex(u => u.id === req.session.userId);
   if (idx === -1) return res.json({ success: false, error: 'User not found.' });
 
-  users[idx].settings = Object.assign({}, users[idx].settings, { bibleTranslation, doctrinalTradition, defaultWritingTier, studyLevel });
+  users[idx].settings = Object.assign({}, users[idx].settings, { bibleTranslation, defaultWritingTier, studyLevel });
   writeUsers(users);
 
   req.session.user.settings = users[idx].settings;
