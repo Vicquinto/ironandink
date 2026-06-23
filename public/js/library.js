@@ -788,7 +788,12 @@
     var scriptureBody = document.getElementById('scriptureBody');
     var inScripture   = !!scriptureBody && scriptureBody.contains(anchorNode);
 
-    if (!inModal && !inGuide && !inRoom && !inScripture) return;
+    // Library inline context
+    var libGuideArea = document.getElementById('libGuideArea');
+    var inLib        = libGuideArea && libGuideArea.style.display !== 'none' &&
+                       libGuideArea.contains(anchorNode);
+
+    if (!inModal && !inGuide && !inRoom && !inScripture && !inLib) return;
 
     _inScripture   = inScripture;
     upSelectedText = selText;
@@ -801,6 +806,9 @@
     } else if (inScripture) {
       var titleEl = document.getElementById('scriptureHeading');
       icmTopic = titleEl ? titleEl.textContent : 'Scripture';
+    } else if (inLib) {
+      var titleEl = document.getElementById('libGuideTitle');
+      icmTopic = titleEl ? titleEl.textContent : '';
     } else {
       var titleEl = document.getElementById('guideTitle');
       icmTopic = titleEl ? titleEl.textContent : '';
