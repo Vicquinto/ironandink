@@ -595,7 +595,7 @@ body {
   flex-direction: column;
   flex-shrink: 0;
 }
-.study-level-field .form-label { margin-bottom: 4px; }
+.study-level-field .form-label { margin-bottom: 4px; text-align: center; }
 
 .study-topic-input {
   flex: 1;
