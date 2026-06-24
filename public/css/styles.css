@@ -585,8 +585,17 @@ body {
   display: flex;
   gap: 12px;
   margin-bottom: 28px;
-  align-items: center;
+  align-items: flex-end;
 }
+
+/* Label stacks above the dropdown; bottom-aligned bar keeps the
+   input/select/buttons on a shared baseline. */
+.study-level-field {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+.study-level-field .form-label { margin-bottom: 4px; }
 
 .study-topic-input {
   flex: 1;

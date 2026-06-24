@@ -131,11 +131,14 @@ router.get('/study', requireAuth, (req, res) => {
     <div class="study-search-bar">
       <input type="text" id="topicInput" class="form-input study-topic-input"
              placeholder="Study any topic..." autocomplete="off">
-      <select id="studyLevelSelect" class="study-level-select" title="Writing register">
-        <option value="foundations">Foundational</option>
-        <option value="journeyman">Standard</option>
-        <option value="scholar">Advanced</option>
-      </select>
+      <div class="study-level-field">
+        <label class="form-label" for="studyLevelSelect">Study Level</label>
+        <select id="studyLevelSelect" class="study-level-select" title="Writing register">
+          <option value="foundations">Foundational</option>
+          <option value="journeyman">Standard</option>
+          <option value="scholar">Advanced</option>
+        </select>
+      </div>
       <button id="generateBtn" class="btn-primary">Generate Guide</button>
       <button id="appointedStudyBtn" class="btn-warm">Appointed Study</button>
     </div>
