@@ -171,7 +171,7 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
     activeSection: 'admin',
     title:         'Admin Panel',
     content,
-    scripts: `<script src="/js/admin.js?v=10"></script>
+    scripts: `<script src="/js/admin.js?v=11"></script>
 <script>
 (function () {
   var form     = document.getElementById('directInviteForm');

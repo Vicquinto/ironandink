@@ -641,17 +641,30 @@
       var isAdminRow  = m.role === 'Admin';
       var canModerate = !isSelf && !isAdminRow;
 
-      var statusBadge = m.isActive
-        ? '<span class="article-status-badge ' +
-            (m.accountStatus === 'Active' ? 'status-published' : 'status-pending') + '">' +
-            esc(m.accountStatus) + '</span>'
-        : '<span class="article-status-badge" style="background:rgba(176,48,48,0.15); color:#b03030; border:1px solid rgba(176,48,48,0.4);">Suspended</span>';
+      // High-contrast badge colors (white text on solid fill). Scoped to the
+      // Members roster via inline styles so other tabs' badges are untouched.
+      // Color meaning preserved: green=active, amber=pending, red=suspended.
+      var badgeStyle;
+      if (!m.isActive) {
+        badgeStyle = 'background:#b03030; color:#fff; border:1px solid #8a2525;';        // red
+      } else if (m.accountStatus === 'Active') {
+        badgeStyle = 'background:#2f7d34; color:#fff; border:1px solid #246128;';        // green
+      } else {
+        badgeStyle = 'background:#9a6a1f; color:#fff; border:1px solid #7d551a;';        // amber
+      }
+      var badgeLabel  = m.isActive ? m.accountStatus : 'Suspended';
+      var statusBadge = '<span class="article-status-badge" style="' + badgeStyle + '">' +
+        esc(badgeLabel) + '</span>';
 
+      // Suspend = solid red, Reinstate = solid green; both white text for legibility.
+      var btnStyle = m.isActive
+        ? 'background:#b03030; color:#fff; border:1px solid #8a2525;'
+        : 'background:#2f7d34; color:#fff; border:1px solid #246128;';
       var actionRow = canModerate
         ? '<div style="display:flex; gap:10px; margin-top:12px;">' +
-            '<button class="' + (m.isActive ? 'btn-reject' : 'btn-primary') + ' member-moderate-btn" ' +
+            '<button class="btn-primary member-moderate-btn" ' +
               'data-id="' + esc(m.id) + '" data-action="' + (m.isActive ? 'suspend' : 'reinstate') + '" ' +
-              'style="font-size:0.82rem; padding:6px 14px;">' +
+              'style="font-size:0.82rem; padding:6px 14px; ' + btnStyle + '">' +
               (m.isActive ? 'Suspend' : 'Reinstate') +
             '</button>' +
           '</div>'
