@@ -101,8 +101,12 @@ router.get('/community', requireAuth, (req, res) => {
         <p class="page-subtitle">Share a request and pray for one another.</p>
       </div>
       <div class="prayer-compose">
-        <textarea id="prayerInput" class="comment-textarea" rows="3"
+        <textarea id="prayerInput" class="comment-textarea prayer-compose-input" rows="6"
                   placeholder="Share a prayer request&#8230;"></textarea>
+        <label class="prayer-anon-row">
+          <input type="checkbox" id="prayerAnon">
+          <span>Post anonymously (your name will be hidden)</span>
+        </label>
         <button class="btn-primary" id="postPrayerBtn" style="margin-top:8px;">Post Request</button>
       </div>
       <div id="prayerLoading" class="study-loading" style="display:none;">
@@ -123,7 +127,7 @@ router.get('/community', requireAuth, (req, res) => {
         window.IS_ADMIN = ${isAdmin};
         window.CURRENT_USER_ID = ${JSON.stringify(req.session.userId)};
       </script>
-      <script src="/js/community.js?v=2"></script>`,
+      <script src="/js/community.js?v=3"></script>`,
   }));
 });
 
@@ -240,29 +244,45 @@ router.delete('/api/community/comments/:id', requireAuth, (req, res) => {
 router.get('/api/community/prayers', requireAuth, (req, res) => {
   const praying  = readJSON(PRAYING_PATH);
   const comments = readJSON(PCOMMENTS_PATH);
+  const isAdmin  = getIsAdmin(req);
+  // Build each row explicitly (no `...p` spread) so the real submitter name and
+  // userId never leak to other members for anonymous posts — anonymity is
+  // enforced in the RESPONSE, not just hidden with CSS on the client.
   const prayers  = readJSON(PRAYERS_PATH)
-    .map(p => ({
-      ...p,
-      prayingCount: praying.filter(x => x.prayerId === p.id).length,
-      userPraying:  praying.some(x => x.prayerId === p.id && x.userId === req.session.userId),
-      commentCount: comments.filter(x => x.prayerId === p.id).length,
-      isOwner:      p.userId === req.session.userId,
-    }))
+    .map(p => {
+      const isOwner = p.userId === req.session.userId;
+      const reveal  = !p.anonymous || isOwner || isAdmin;  // owner/admin see real identity
+      return {
+        id:           p.id,
+        text:         p.text,
+        answered:     !!p.answered,
+        answeredAt:   p.answeredAt || null,
+        createdAt:    p.createdAt,
+        anonymous:    !!p.anonymous,
+        // Real name withheld from non-owner/non-admin viewers of anonymous posts.
+        authorName:   reveal ? (p.authorName || 'Unknown') : 'A brother or sister in Christ',
+        prayingCount: praying.filter(x => x.prayerId === p.id).length,
+        userPraying:  praying.some(x => x.prayerId === p.id && x.userId === req.session.userId),
+        commentCount: comments.filter(x => x.prayerId === p.id).length,
+        isOwner,  // computed server-side from session — still true for the owner's own anonymous posts
+      };
+    })
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   res.json({ success: true, prayers });
 });
 
 // ─── POST /api/community/prayers — new request ────────────────────────────────
 router.post('/api/community/prayers', requireAuth, (req, res) => {
-  const { text } = req.body;
+  const { text, anonymous } = req.body;
   if (!text || !text.trim()) {
     return res.status(400).json({ success: false, error: 'Prayer request text is required.' });
   }
   const prayer = {
     id:         randomUUID(),
-    userId:     req.session.userId,                       // submitter id (from session)
-    authorName: req.session.user.fullName || 'Unknown',   // submitter name (from session, not typed)
+    userId:     req.session.userId,                       // submitter id (always stored, even if anonymous)
+    authorName: req.session.user.fullName || 'Unknown',   // real name (always stored; withheld from others if anonymous)
     text:       text.trim(),
+    anonymous:  !!anonymous,                              // only affects what OTHER members see
     answered:   false,
     createdAt:  new Date().toISOString(),
   };

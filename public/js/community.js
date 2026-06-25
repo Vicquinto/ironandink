@@ -329,6 +329,7 @@
   // Mirrors the article feed + Amen + comments patterns above, scoped to prayers.
   var prayerBoard   = document.getElementById('prayerBoard');
   var prayerInput   = document.getElementById('prayerInput');
+  var prayerAnon    = document.getElementById('prayerAnon');
   var postPrayerBtn = document.getElementById('postPrayerBtn');
   var prayerList    = document.getElementById('prayerList');
   var prayerEmpty   = document.getElementById('prayerEmpty');
@@ -385,6 +386,12 @@
 
   function prayerCard(p) {
     var canManage = p.isOwner || IS_ADMIN;
+    // The server already swaps authorName to "A brother or sister in Christ" for
+    // other members. When the owner/admin sees the real name, flag that it's
+    // hidden from everyone else.
+    var anonTag = (p.anonymous && canManage)
+      ? ' <span class="prayer-anon-tag">anonymous</span>'
+      : '';
     var answeredBadge = p.answered
       ? '<span class="prayer-answered-badge">&#128591; Answered &middot; Praise</span>'
       : '';
@@ -396,7 +403,7 @@
       : '';
     return '<div class="community-card prayer-card' + (p.answered ? ' answered' : '') + '" data-id="' + esc(p.id) + '">' +
       '<div class="community-card-meta">' +
-        '<span class="community-card-author">' + esc(p.authorName || '') + '</span>' +
+        '<span class="community-card-author">' + esc(p.authorName || '') + '</span>' + anonTag +
         '<span class="article-card-date">' + fmtDate(p.createdAt) + '</span>' +
         answeredBadge +
       '</div>' +
@@ -574,11 +581,12 @@
         var res  = await fetch('/api/community/prayers', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ text: text }),
+          body:    JSON.stringify({ text: text, anonymous: !!(prayerAnon && prayerAnon.checked) }),
         });
         var data = await res.json();
         if (data.success) {
           if (prayerInput) prayerInput.value = '';
+          if (prayerAnon)  prayerAnon.checked = false;
           loadPrayers();
         } else {
           showToast('Could not post request: ' + (data.error || ''), true);

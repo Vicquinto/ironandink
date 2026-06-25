@@ -2492,6 +2492,40 @@ body {
 /* and the .comment-* classes; only the prayer-specific bits live here.       */
 .prayer-compose { margin-bottom: 8px; }
 
+/* Generous, full-width writing area for composing a request. */
+.prayer-compose-input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 150px;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  padding: 14px 16px;
+}
+
+.prayer-anon-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: var(--warm-brown);
+  cursor: pointer;
+}
+.prayer-anon-row input { cursor: pointer; }
+
+.prayer-anon-tag {
+  font-family: 'Cinzel', serif;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--warm-brown);
+  background: rgba(160,132,92,0.14);
+  border: 1px solid rgba(160,132,92,0.3);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
 .prayer-text {
   font-family: Georgia, serif;
   font-size: 1rem;
