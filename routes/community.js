@@ -10,6 +10,14 @@ const USERS_PATH    = path.join(__dirname, '../data/users.json');
 const AMENS_PATH    = path.join(__dirname, '../data/community.json');
 const COMMENTS_PATH = path.join(__dirname, '../data/comments.json');
 
+// Prayer board stores — mirror the article amens/comments split exactly:
+//   PRAYERS_PATH    = the requests           (cf. ARTICLES_PATH)
+//   PRAYING_PATH    = the "praying" toggles  (cf. AMENS_PATH)
+//   PCOMMENTS_PATH  = the prayer comments    (cf. COMMENTS_PATH)
+const PRAYERS_PATH   = path.join(__dirname, '../data/prayers.json');
+const PRAYING_PATH   = path.join(__dirname, '../data/prayer-praying.json');
+const PCOMMENTS_PATH = path.join(__dirname, '../data/prayer-comments.json');
+
 function readJSON(p) {
   try {
     if (!fs.existsSync(p)) return [];
@@ -34,6 +42,11 @@ router.get('/community', requireAuth, (req, res) => {
   const isAdmin = getIsAdmin(req);
 
   const content = `
+    <div class="believe-tabs community-tabs">
+      <button class="believe-tab community-tab active" data-ctab="articles">Articles</button>
+      <button class="believe-tab community-tab" data-ctab="prayers">Prayer Requests</button>
+    </div>
+
     <div id="communityFeed">
       <div class="page-header">
         <h2 class="page-title">Community</h2>
@@ -80,6 +93,24 @@ router.get('/community', requireAuth, (req, res) => {
           <div id="commentList" class="comment-list"></div>
         </div>
       </div>
+    </div>
+
+    <div id="prayerBoard" style="display:none;">
+      <div class="page-header">
+        <h2 class="page-title">Prayer Requests</h2>
+        <p class="page-subtitle">Share a request and pray for one another.</p>
+      </div>
+      <div class="prayer-compose">
+        <textarea id="prayerInput" class="comment-textarea" rows="3"
+                  placeholder="Share a prayer request&#8230;"></textarea>
+        <button class="btn-primary" id="postPrayerBtn" style="margin-top:8px;">Post Request</button>
+      </div>
+      <div id="prayerLoading" class="study-loading" style="display:none;">
+        <div class="study-spinner"></div>
+        <p class="loading-text">Loading&#8230;</p>
+      </div>
+      <div id="prayerList" class="community-feed-list" style="margin-top:24px;"></div>
+      <p id="prayerEmpty" class="writing-empty" style="display:none;">No prayer requests yet. Be the first to share.</p>
     </div>`;
 
   res.send(renderLayout({
@@ -92,7 +123,7 @@ router.get('/community', requireAuth, (req, res) => {
         window.IS_ADMIN = ${isAdmin};
         window.CURRENT_USER_ID = ${JSON.stringify(req.session.userId)};
       </script>
-      <script src="/js/community.js"></script>`,
+      <script src="/js/community.js?v=2"></script>`,
   }));
 });
 
@@ -197,6 +228,147 @@ router.delete('/api/community/comments/:id', requireAuth, (req, res) => {
   }
   comments.splice(idx, 1);
   writeJSON(COMMENTS_PATH, comments);
+  res.json({ success: true });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// PRAYER REQUEST BOARD
+// Mirrors the article feed / amens / comments machinery above, scoped to prayers.
+// ════════════════════════════════════════════════════════════════════════════
+
+// ─── GET /api/community/prayers — feed (newest first) ─────────────────────────
+router.get('/api/community/prayers', requireAuth, (req, res) => {
+  const praying  = readJSON(PRAYING_PATH);
+  const comments = readJSON(PCOMMENTS_PATH);
+  const prayers  = readJSON(PRAYERS_PATH)
+    .map(p => ({
+      ...p,
+      prayingCount: praying.filter(x => x.prayerId === p.id).length,
+      userPraying:  praying.some(x => x.prayerId === p.id && x.userId === req.session.userId),
+      commentCount: comments.filter(x => x.prayerId === p.id).length,
+      isOwner:      p.userId === req.session.userId,
+    }))
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  res.json({ success: true, prayers });
+});
+
+// ─── POST /api/community/prayers — new request ────────────────────────────────
+router.post('/api/community/prayers', requireAuth, (req, res) => {
+  const { text } = req.body;
+  if (!text || !text.trim()) {
+    return res.status(400).json({ success: false, error: 'Prayer request text is required.' });
+  }
+  const prayer = {
+    id:         randomUUID(),
+    userId:     req.session.userId,                       // submitter id (from session)
+    authorName: req.session.user.fullName || 'Unknown',   // submitter name (from session, not typed)
+    text:       text.trim(),
+    answered:   false,
+    createdAt:  new Date().toISOString(),
+  };
+  const prayers = readJSON(PRAYERS_PATH);
+  prayers.push(prayer);
+  writeJSON(PRAYERS_PATH, prayers);
+  res.json({ success: true, prayer });
+});
+
+// ─── POST /api/community/prayers/:id/praying — toggle (mirrors amens) ──────────
+router.post('/api/community/prayers/:id/praying', requireAuth, (req, res) => {
+  if (!readJSON(PRAYERS_PATH).find(p => p.id === req.params.id)) {
+    return res.status(404).json({ success: false, error: 'Prayer request not found.' });
+  }
+  const praying = readJSON(PRAYING_PATH);
+  const idx     = praying.findIndex(x => x.prayerId === req.params.id && x.userId === req.session.userId);
+  let userPraying;
+  if (idx !== -1) {
+    praying.splice(idx, 1);
+    userPraying = false;
+  } else {
+    praying.push({ prayerId: req.params.id, userId: req.session.userId, createdAt: new Date().toISOString() });
+    userPraying = true;
+  }
+  writeJSON(PRAYING_PATH, praying);
+  const count = praying.filter(x => x.prayerId === req.params.id).length;
+  res.json({ success: true, count, userPraying });
+});
+
+// ─── POST /api/community/prayers/:id/answered — original poster or admin only ──
+router.post('/api/community/prayers/:id/answered', requireAuth, (req, res) => {
+  const prayers = readJSON(PRAYERS_PATH);
+  const prayer  = prayers.find(p => p.id === req.params.id);
+  if (!prayer) return res.status(404).json({ success: false, error: 'Prayer request not found.' });
+
+  // Ownership enforced on the BACKEND: only the submitter or an admin may resolve.
+  if (prayer.userId !== req.session.userId && !getIsAdmin(req)) {
+    return res.status(403).json({ success: false, error: 'Not authorized.' });
+  }
+  prayer.answered   = true;
+  prayer.answeredAt = new Date().toISOString();
+  writeJSON(PRAYERS_PATH, prayers);
+  res.json({ success: true, prayer });
+});
+
+// ─── DELETE /api/community/prayers/:id — original poster or admin only ─────────
+router.delete('/api/community/prayers/:id', requireAuth, (req, res) => {
+  const prayers = readJSON(PRAYERS_PATH);
+  const idx     = prayers.findIndex(p => p.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ success: false, error: 'Prayer request not found.' });
+
+  // Ownership enforced on the BACKEND: only the submitter or an admin may delete.
+  if (prayers[idx].userId !== req.session.userId && !getIsAdmin(req)) {
+    return res.status(403).json({ success: false, error: 'Not authorized.' });
+  }
+  prayers.splice(idx, 1);
+  writeJSON(PRAYERS_PATH, prayers);
+
+  // Cascade: drop this request's praying toggles and comments too.
+  writeJSON(PRAYING_PATH,   readJSON(PRAYING_PATH).filter(x => x.prayerId !== req.params.id));
+  writeJSON(PCOMMENTS_PATH, readJSON(PCOMMENTS_PATH).filter(x => x.prayerId !== req.params.id));
+  res.json({ success: true });
+});
+
+// ─── GET /api/community/prayer-comments/:prayerId ─────────────────────────────
+router.get('/api/community/prayer-comments/:prayerId', requireAuth, (req, res) => {
+  const comments = readJSON(PCOMMENTS_PATH)
+    .filter(c => c.prayerId === req.params.prayerId)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  res.json({ success: true, comments });
+});
+
+// ─── POST /api/community/prayer-comments ──────────────────────────────────────
+router.post('/api/community/prayer-comments', requireAuth, (req, res) => {
+  const { prayerId, content } = req.body;
+  if (!prayerId || !content || !content.trim()) {
+    return res.status(400).json({ success: false, error: 'Prayer ID and content are required.' });
+  }
+  if (!readJSON(PRAYERS_PATH).find(p => p.id === prayerId)) {
+    return res.status(404).json({ success: false, error: 'Prayer request not found.' });
+  }
+  const comment = {
+    id:         randomUUID(),
+    prayerId,
+    userId:     req.session.userId,
+    authorName: req.session.user.fullName || 'Unknown',
+    content:    content.trim(),
+    createdAt:  new Date().toISOString(),
+  };
+  const comments = readJSON(PCOMMENTS_PATH);
+  comments.push(comment);
+  writeJSON(PCOMMENTS_PATH, comments);
+  res.json({ success: true, comment });
+});
+
+// ─── DELETE /api/community/prayer-comments/:id — author or admin only ─────────
+router.delete('/api/community/prayer-comments/:id', requireAuth, (req, res) => {
+  const comments = readJSON(PCOMMENTS_PATH);
+  const idx      = comments.findIndex(c => c.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ success: false, error: 'Comment not found.' });
+
+  if (comments[idx].userId !== req.session.userId && !getIsAdmin(req)) {
+    return res.status(403).json({ success: false, error: 'Not authorized.' });
+  }
+  comments.splice(idx, 1);
+  writeJSON(PCOMMENTS_PATH, comments);
   res.json({ success: true });
 });
 

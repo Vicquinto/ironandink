@@ -325,5 +325,271 @@
     cFontInc.addEventListener('click',   function () { applyCommunityFontSize(rfontSize + RFONT_STEP); });
   }
 
+  // ══ PRAYER REQUEST BOARD ════════════════════════════════════════════════════
+  // Mirrors the article feed + Amen + comments patterns above, scoped to prayers.
+  var prayerBoard   = document.getElementById('prayerBoard');
+  var prayerInput   = document.getElementById('prayerInput');
+  var postPrayerBtn = document.getElementById('postPrayerBtn');
+  var prayerList    = document.getElementById('prayerList');
+  var prayerEmpty   = document.getElementById('prayerEmpty');
+  var prayerLoading = document.getElementById('prayerLoading');
+
+  // ── Tab switching (Articles ↔ Prayer Requests) ─────────────────────────────
+  var communityTabs = document.querySelectorAll('.community-tab');
+  function switchCommunityTab(target) {
+    communityTabs.forEach(function (t) {
+      t.classList.toggle('active', t.getAttribute('data-ctab') === target);
+    });
+    if (target === 'prayers') {
+      if (communityFeed)    communityFeed.style.display    = 'none';
+      if (communityReading) communityReading.style.display = 'none';
+      if (prayerBoard)      prayerBoard.style.display      = 'block';
+      loadPrayers();
+    } else {
+      if (prayerBoard)      prayerBoard.style.display      = 'none';
+      if (communityReading) communityReading.style.display = 'none';
+      if (communityFeed)    communityFeed.style.display    = 'block';
+    }
+  }
+  communityTabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      switchCommunityTab(tab.getAttribute('data-ctab'));
+    });
+  });
+
+  // ── Load feed ──────────────────────────────────────────────────────────────
+  async function loadPrayers() {
+    if (prayerLoading) prayerLoading.style.display = 'flex';
+    try {
+      var res  = await fetch('/api/community/prayers');
+      var data = await res.json();
+      renderPrayers(data.prayers || []);
+    } catch (err) {
+      if (prayerList) prayerList.innerHTML = '<p class="writing-empty">Could not load prayer requests.</p>';
+    } finally {
+      if (prayerLoading) prayerLoading.style.display = 'none';
+    }
+  }
+
+  function renderPrayers(prayers) {
+    if (!prayerList) return;
+    if (!prayers.length) {
+      prayerList.innerHTML = '';
+      if (prayerEmpty) prayerEmpty.style.display = 'block';
+      return;
+    }
+    if (prayerEmpty) prayerEmpty.style.display = 'none';
+    prayerList.innerHTML = prayers.map(prayerCard).join('');
+    attachPrayerHandlers();
+  }
+
+  function prayerCard(p) {
+    var canManage = p.isOwner || IS_ADMIN;
+    var answeredBadge = p.answered
+      ? '<span class="prayer-answered-badge">&#128591; Answered &middot; Praise</span>'
+      : '';
+    var answerBtn = (!p.answered && canManage)
+      ? '<button class="prayer-answered-btn" data-id="' + esc(p.id) + '">Mark Answered</button>'
+      : '';
+    var deleteBtn = canManage
+      ? '<button class="prayer-delete-btn" data-id="' + esc(p.id) + '" title="Delete">&#10005;</button>'
+      : '';
+    return '<div class="community-card prayer-card' + (p.answered ? ' answered' : '') + '" data-id="' + esc(p.id) + '">' +
+      '<div class="community-card-meta">' +
+        '<span class="community-card-author">' + esc(p.authorName || '') + '</span>' +
+        '<span class="article-card-date">' + fmtDate(p.createdAt) + '</span>' +
+        answeredBadge +
+      '</div>' +
+      '<p class="prayer-text">' + esc(p.text) + '</p>' +
+      '<div class="community-card-footer">' +
+        '<button class="btn-amen prayer-praying-btn' + (p.userPraying ? ' amened' : '') + '" data-id="' + esc(p.id) + '">' +
+          '&#128591; Praying &nbsp;<span class="prayer-praying-count">' + (p.prayingCount || 0) + '</span>' +
+        '</button>' +
+        '<button class="btn-warm prayer-comments-toggle" data-id="' + esc(p.id) + '" style="font-size:0.82rem; padding:6px 14px;">&#128172; ' + (p.commentCount || 0) + '</button>' +
+        answerBtn +
+        deleteBtn +
+      '</div>' +
+      '<div class="prayer-comments" id="prayer-comments-' + esc(p.id) + '" style="display:none;">' +
+        '<div class="comment-input-row">' +
+          '<textarea class="comment-textarea prayer-comment-input" rows="2" placeholder="Add encouragement or Scripture&#8230;"></textarea>' +
+          '<button class="btn-primary prayer-comment-post" data-id="' + esc(p.id) + '" style="margin-top:8px; font-size:0.82rem;">Post Comment</button>' +
+        '</div>' +
+        '<div class="comment-list prayer-comment-list"></div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function attachPrayerHandlers() {
+    // Praying toggle — mirrors the Amen toggle (optimistic update + revert).
+    prayerList.querySelectorAll('.prayer-praying-btn').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        var id    = btn.dataset.id;
+        var span  = btn.querySelector('.prayer-praying-count');
+        var was   = btn.classList.contains('amened');
+        var count = parseInt(span.textContent, 10) || 0;
+        btn.classList.toggle('amened', !was);
+        span.textContent = was ? count - 1 : count + 1;
+        try {
+          var res  = await fetch('/api/community/prayers/' + encodeURIComponent(id) + '/praying', { method: 'POST' });
+          var data = await res.json();
+          if (data.success) {
+            btn.classList.toggle('amened', data.userPraying);
+            span.textContent = data.count;
+          } else {
+            btn.classList.toggle('amened', was);
+            span.textContent = count;
+          }
+        } catch (err) {
+          btn.classList.toggle('amened', was);
+          span.textContent = count;
+        }
+      });
+    });
+
+    // Comments expand/collapse.
+    prayerList.querySelectorAll('.prayer-comments-toggle').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var box = document.getElementById('prayer-comments-' + btn.dataset.id);
+        if (!box) return;
+        var open = box.style.display !== 'none';
+        box.style.display = open ? 'none' : 'block';
+        if (!open) loadPrayerComments(btn.dataset.id, box.querySelector('.prayer-comment-list'));
+      });
+    });
+
+    // Mark answered (owner/admin; backend re-checks ownership).
+    prayerList.querySelectorAll('.prayer-answered-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        showConfirm('Mark this prayer request as answered?', 'Mark Answered', async function () {
+          try {
+            var res  = await fetch('/api/community/prayers/' + encodeURIComponent(btn.dataset.id) + '/answered', { method: 'POST' });
+            var data = await res.json();
+            if (data.success) loadPrayers();
+            else showToast('Could not update: ' + (data.error || ''), true);
+          } catch (err) {
+            showToast('Error: ' + err.message, true);
+          }
+        });
+      });
+    });
+
+    // Delete request (owner/admin; backend re-checks ownership).
+    prayerList.querySelectorAll('.prayer-delete-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        showConfirm('Delete this prayer request?', 'Delete', async function () {
+          try {
+            var res  = await fetch('/api/community/prayers/' + encodeURIComponent(btn.dataset.id), { method: 'DELETE' });
+            var data = await res.json();
+            if (data.success) loadPrayers();
+            else showToast('Delete failed: ' + (data.error || ''), true);
+          } catch (err) {
+            showToast('Error: ' + err.message, true);
+          }
+        });
+      });
+    });
+
+    // Post a comment — mirrors the article comment post.
+    prayerList.querySelectorAll('.prayer-comment-post').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        var id      = btn.dataset.id;
+        var box     = document.getElementById('prayer-comments-' + id);
+        var input   = box ? box.querySelector('.prayer-comment-input') : null;
+        var content = input ? input.value.trim() : '';
+        if (!content) return;
+        btn.disabled = true;
+        try {
+          var res  = await fetch('/api/community/prayer-comments', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ prayerId: id, content: content }),
+          });
+          var data = await res.json();
+          if (data.success) {
+            if (input) input.value = '';
+            loadPrayerComments(id, box.querySelector('.prayer-comment-list'));
+          } else {
+            showToast('Could not post comment: ' + (data.error || ''), true);
+          }
+        } catch (err) {
+          showToast('Error: ' + err.message, true);
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    });
+  }
+
+  async function loadPrayerComments(prayerId, listEl) {
+    if (!listEl) return;
+    try {
+      var res  = await fetch('/api/community/prayer-comments/' + encodeURIComponent(prayerId));
+      var data = await res.json();
+      renderPrayerComments(prayerId, data.comments || [], listEl);
+    } catch (err) {
+      listEl.innerHTML = '<p class="writing-empty">Could not load comments.</p>';
+    }
+  }
+
+  function renderPrayerComments(prayerId, comments, listEl) {
+    if (!comments.length) {
+      listEl.innerHTML = '<p class="writing-empty" style="margin-top:12px;">No comments yet. Be the first.</p>';
+      return;
+    }
+    listEl.innerHTML = comments.map(function (c) {
+      var canDelete = IS_ADMIN || c.userId === CURRENT_USER_ID;
+      return '<div class="comment-item" data-id="' + esc(c.id) + '">' +
+        '<div class="comment-header">' +
+          '<span class="comment-author">' + esc(c.authorName || '') + '</span>' +
+          '<span class="comment-date">' + fmtDate(c.createdAt) + '</span>' +
+          (canDelete ? '<button class="prayer-comment-delete-btn" data-id="' + esc(c.id) + '" title="Delete">&#10005;</button>' : '') +
+        '</div>' +
+        '<p class="comment-body">' + esc(c.content) + '</p>' +
+      '</div>';
+    }).join('');
+
+    listEl.querySelectorAll('.prayer-comment-delete-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        showConfirm('Delete this comment?', 'Delete', async function () {
+          try {
+            var res  = await fetch('/api/community/prayer-comments/' + encodeURIComponent(btn.dataset.id), { method: 'DELETE' });
+            var data = await res.json();
+            if (data.success) loadPrayerComments(prayerId, listEl);
+            else showToast('Delete failed: ' + (data.error || ''), true);
+          } catch (err) {
+            showToast('Error: ' + err.message, true);
+          }
+        });
+      });
+    });
+  }
+
+  // ── Post a new prayer request ──────────────────────────────────────────────
+  if (postPrayerBtn) {
+    postPrayerBtn.addEventListener('click', async function () {
+      var text = prayerInput ? prayerInput.value.trim() : '';
+      if (!text) return;
+      postPrayerBtn.disabled = true;
+      try {
+        var res  = await fetch('/api/community/prayers', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ text: text }),
+        });
+        var data = await res.json();
+        if (data.success) {
+          if (prayerInput) prayerInput.value = '';
+          loadPrayers();
+        } else {
+          showToast('Could not post request: ' + (data.error || ''), true);
+        }
+      } catch (err) {
+        showToast('Error: ' + err.message, true);
+      } finally {
+        postPrayerBtn.disabled = false;
+      }
+    });
+  }
+
   loadFeed();
 })();

@@ -2487,6 +2487,69 @@ body {
   color: var(--accent);
 }
 
+/* ─── PRAYER REQUEST BOARD ──────────────────────────────────────────────── */
+/* Reuses .community-card, .community-card-footer, .btn-amen, .btn-warm,      */
+/* and the .comment-* classes; only the prayer-specific bits live here.       */
+.prayer-compose { margin-bottom: 8px; }
+
+.prayer-text {
+  font-family: Georgia, serif;
+  font-size: 1rem;
+  color: var(--dark-cream);
+  line-height: 1.6;
+  margin-bottom: 14px;
+  white-space: pre-wrap;
+}
+
+.prayer-card.answered {
+  border-color: rgba(92,26,40,0.35);
+  background: rgba(160,132,92,0.06);
+}
+
+.prayer-answered-badge {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(92,26,40,0.1);
+  border: 1px solid rgba(92,26,40,0.3);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.prayer-answered-btn {
+  background: transparent;
+  border: 1px solid rgba(160,132,92,0.4);
+  color: var(--warm-brown);
+  font-family: Georgia, serif;
+  font-size: 0.82rem;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.prayer-answered-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.prayer-delete-btn {
+  background: none;
+  border: none;
+  color: var(--warm-brown);
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-left: auto;
+  opacity: 0.6;
+  transition: opacity 0.15s, color 0.15s;
+}
+.prayer-delete-btn:hover { opacity: 1; color: var(--accent); }
+
+.prayer-comments {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(160,132,92,0.15);
+}
+
 /* Comments */
 .comments-section {
   margin-top: 28px;
