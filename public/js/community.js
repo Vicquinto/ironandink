@@ -328,9 +328,16 @@
   // ══ PRAYER REQUEST BOARD ════════════════════════════════════════════════════
   // Mirrors the article feed + Amen + comments patterns above, scoped to prayers.
   var prayerBoard   = document.getElementById('prayerBoard');
-  var prayerInput   = document.getElementById('prayerInput');
-  var prayerAnon    = document.getElementById('prayerAnon');
-  var postPrayerBtn = document.getElementById('postPrayerBtn');
+  var prayerInput    = document.getElementById('prayerInput');
+  var prayerAnon     = document.getElementById('prayerAnon');
+  var prayerAnonNote = document.getElementById('prayerAnonNote');
+  var postPrayerBtn  = document.getElementById('postPrayerBtn');
+
+  // Reveal the reinforcing privacy line exactly when "Post anonymously" is checked.
+  function syncAnonNote() {
+    if (prayerAnonNote) prayerAnonNote.style.display = (prayerAnon && prayerAnon.checked) ? 'block' : 'none';
+  }
+  if (prayerAnon) prayerAnon.addEventListener('change', syncAnonNote);
   var prayerList    = document.getElementById('prayerList');
   var prayerEmpty   = document.getElementById('prayerEmpty');
   var prayerLoading = document.getElementById('prayerLoading');
@@ -587,6 +594,7 @@
         if (data.success) {
           if (prayerInput) prayerInput.value = '';
           if (prayerAnon)  prayerAnon.checked = false;
+          syncAnonNote();
           loadPrayers();
         } else {
           showToast('Could not post request: ' + (data.error || ''), true);

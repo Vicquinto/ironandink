@@ -107,6 +107,15 @@ router.get('/community', requireAuth, (req, res) => {
           <input type="checkbox" id="prayerAnon">
           <span>Post anonymously (your name will be hidden)</span>
         </label>
+        <p id="prayerAnonNote" class="prayer-anon-note" style="display:none;">
+          Hidden from other members &mdash; but the administrators can still see who posted, for your safety and care.
+        </p>
+        <p class="prayer-privacy-note">
+          Your prayer requests are shared with the Iron &amp; Ink community. You may post anonymously &mdash;
+          your name will be hidden from other members. Please know that the administrators can still see who
+          posted, only so we can care for and protect our members. Share what&rsquo;s on your heart; we&rsquo;ll
+          lift it up together.
+        </p>
         <button class="btn-primary" id="postPrayerBtn" style="margin-top:8px;">Post Request</button>
       </div>
       <div id="prayerLoading" class="study-loading" style="display:none;">
@@ -127,7 +136,7 @@ router.get('/community', requireAuth, (req, res) => {
         window.IS_ADMIN = ${isAdmin};
         window.CURRENT_USER_ID = ${JSON.stringify(req.session.userId)};
       </script>
-      <script src="/js/community.js?v=3"></script>`,
+      <script src="/js/community.js?v=4"></script>`,
   }));
 });
 

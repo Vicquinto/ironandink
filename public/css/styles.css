@@ -2513,6 +2513,29 @@ body {
 }
 .prayer-anon-row input { cursor: pointer; }
 
+/* Always-visible, gentle privacy note — pastoral, not legal. */
+.prayer-privacy-note {
+  margin-top: 12px;
+  max-width: 640px;
+  font-size: 0.82rem;
+  line-height: 1.65;
+  font-style: italic;
+  color: var(--warm-brown);
+}
+
+/* Reinforcing line shown the moment "Post anonymously" is checked. */
+.prayer-anon-note {
+  margin-top: 8px;
+  max-width: 640px;
+  padding: 8px 12px;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--accent);
+  background: rgba(92,26,40,0.06);
+  border-left: 3px solid var(--accent);
+  border-radius: 3px;
+}
+
 .prayer-anon-tag {
   font-family: 'Cinzel', serif;
   font-size: 0.62rem;
