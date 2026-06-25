@@ -723,6 +723,55 @@
     if (top > max) upEl.style.top = Math.max(8, max) + 'px';
   }
 
+  // ── Shared study-context resolver ───────────────────────────────────────────
+  // Determines the active study container and its display title. Used by the
+  // selection popup (pass the selection's anchor node — the container must
+  // contain it) and by the keyboard-summoned Ask AI panel (pass null — the
+  // first currently-visible container wins). Returns null when none is active.
+  function resolveStudyContext(anchorNode) {
+    // Container "holds" the context if it contains the selection anchor, or —
+    // when there is no selection — if it is currently visible on the page.
+    function holds(el, visible) {
+      if (!el) return false;
+      return anchorNode ? el.contains(anchorNode) : visible;
+    }
+    function titleText(id, fallback) {
+      var t = document.getElementById(id);
+      return t ? t.textContent : (fallback || '');
+    }
+
+    var modal     = document.getElementById('guideModal');
+    var modalBody = document.getElementById('modalBody');
+    if (modal && modal.style.display !== 'none' && holds(modalBody, true)) {
+      return { topic: titleText('modalTitle'), inScripture: false };
+    }
+
+    var roomGuideArea = document.getElementById('roomGuideArea');
+    if (roomGuideArea && roomGuideArea.style.display !== 'none' &&
+        holds(roomGuideArea, true)) {
+      return { topic: titleText('roomGuideTitle'), inScripture: false };
+    }
+
+    var scriptureBody = document.getElementById('scriptureBody');
+    if (holds(scriptureBody, true)) {
+      return { topic: titleText('scriptureHeading', 'Scripture'), inScripture: true };
+    }
+
+    var libGuideArea = document.getElementById('libGuideArea');
+    if (libGuideArea && libGuideArea.style.display !== 'none' &&
+        holds(libGuideArea, true)) {
+      return { topic: titleText('libGuideTitle'), inScripture: false };
+    }
+
+    var guideArea = document.getElementById('guideArea');
+    if (guideArea && guideArea.style.display !== 'none' &&
+        holds(guideArea, true)) {
+      return { topic: titleText('guideTitle'), inScripture: false };
+    }
+
+    return null;
+  }
+
   // ── Selection detection ────────────────────────────────────────────────────
   document.addEventListener('mouseup', function (e) {
     if (e.target.closest && (
@@ -768,51 +817,13 @@
       if (!anchorNode) return;
     }
 
-    // Library modal context
-    var modalBody = document.getElementById('modalBody');
-    var modal     = document.getElementById('guideModal');
-    var inModal   = modal && modal.style.display !== 'none' &&
-                    modalBody && modalBody.contains(anchorNode);
+    // Resolve which study container the selection lives in (and its title)
+    var ctx = resolveStudyContext(anchorNode);
+    if (!ctx) return;
 
-    // Study page context
-    var guideArea = document.getElementById('guideArea');
-    var inGuide   = guideArea && guideArea.style.display !== 'none' &&
-                    guideArea.contains(anchorNode);
-
-    // Live room context
-    var roomGuideArea = document.getElementById('roomGuideArea');
-    var inRoom        = roomGuideArea && roomGuideArea.style.display !== 'none' &&
-                        roomGuideArea.contains(anchorNode);
-
-    // Scripture reader context
-    var scriptureBody = document.getElementById('scriptureBody');
-    var inScripture   = !!scriptureBody && scriptureBody.contains(anchorNode);
-
-    // Library inline context
-    var libGuideArea = document.getElementById('libGuideArea');
-    var inLib        = libGuideArea && libGuideArea.style.display !== 'none' &&
-                       libGuideArea.contains(anchorNode);
-
-    if (!inModal && !inGuide && !inRoom && !inScripture && !inLib) return;
-
-    _inScripture   = inScripture;
+    _inScripture   = ctx.inScripture;
     upSelectedText = selText;
-    if (inModal) {
-      var titleEl = document.getElementById('modalTitle');
-      icmTopic = titleEl ? titleEl.textContent : '';
-    } else if (inRoom) {
-      var titleEl = document.getElementById('roomGuideTitle');
-      icmTopic = titleEl ? titleEl.textContent : '';
-    } else if (inScripture) {
-      var titleEl = document.getElementById('scriptureHeading');
-      icmTopic = titleEl ? titleEl.textContent : 'Scripture';
-    } else if (inLib) {
-      var titleEl = document.getElementById('libGuideTitle');
-      icmTopic = titleEl ? titleEl.textContent : '';
-    } else {
-      var titleEl = document.getElementById('guideTitle');
-      icmTopic = titleEl ? titleEl.textContent : '';
-    }
+    icmTopic       = ctx.topic;
     showUp(selText, rect);
     // Suppress any legacy dictionary tooltip that may fire after its 400 ms debounce
     setTimeout(function () {
@@ -832,26 +843,31 @@
   // Prevent scrollbar/scroll clicks inside popup from bubbling to the dismiss handler
   upEl.addEventListener('mousedown', function (e) { e.stopPropagation(); });
 
-  // ── Draggable header ────────────────────────────────────────────────────────
-  var _dragOff = null;
-  upEl.querySelector('.up-header').addEventListener('mousedown', function (e) {
-    if (e.target.closest('.up-close')) return;
-    var r = upEl.getBoundingClientRect();
-    _dragOff = { x: e.clientX - r.left, y: e.clientY - r.top };
-    document.body.style.userSelect = 'none';
-  });
-  document.addEventListener('mousemove', function (e) {
-    if (!_dragOff) return;
-    var vw = window.innerWidth, vh = window.innerHeight;
-    var pw = upEl.offsetWidth,  ph = upEl.offsetHeight;
-    upEl.style.left = Math.min(Math.max(0, e.clientX - _dragOff.x), vw - pw) + 'px';
-    upEl.style.top  = Math.min(Math.max(0, e.clientY - _dragOff.y), vh - ph) + 'px';
-  });
-  document.addEventListener('mouseup', function () {
-    if (!_dragOff) return;
-    _dragOff = null;
-    document.body.style.userSelect = '';
-  });
+  // ── Draggable header (shared helper — also used by #askAiPanel) ─────────────
+  // Drags `el` by its `handle`, clamped to the viewport. Clicks on buttons in
+  // the handle (e.g. the close ×) are ignored so they fire normally.
+  function makeDraggable(el, handle) {
+    var off = null;
+    handle.addEventListener('mousedown', function (e) {
+      if (e.target.closest('button')) return;
+      var r = el.getBoundingClientRect();
+      off = { x: e.clientX - r.left, y: e.clientY - r.top };
+      document.body.style.userSelect = 'none';
+    });
+    document.addEventListener('mousemove', function (e) {
+      if (!off) return;
+      var vw = window.innerWidth, vh = window.innerHeight;
+      var pw = el.offsetWidth,  ph = el.offsetHeight;
+      el.style.left = Math.min(Math.max(0, e.clientX - off.x), vw - pw) + 'px';
+      el.style.top  = Math.min(Math.max(0, e.clientY - off.y), vh - ph) + 'px';
+    });
+    document.addEventListener('mouseup', function () {
+      if (!off) return;
+      off = null;
+      document.body.style.userSelect = '';
+    });
+  }
+  makeDraggable(upEl, upEl.querySelector('.up-header'));
 
   // ── Popup interactions ─────────────────────────────────────────────────────
   upEl.querySelector('.up-close').addEventListener('click', function () {
@@ -1205,6 +1221,146 @@
   if (document.getElementById('spsList')) {
     renderPinSidebar(loadPins());
   }
+
+  // ── Standalone "Ask AI" floating panel (Ctrl+Alt+T) ─────────────────────────
+  // A single-purpose, draggable panel for asking study questions without a
+  // selection. Reuses the existing /api/library/ask endpoint with conversation
+  // history, the shared makeDraggable helper, resolveStudyContext for context,
+  // and renderMarkdown for answers — so its voice/formatting match the tooltip.
+  var aapEl      = null;
+  var aapTopic   = '';
+  var aapHistory = [];
+
+  function buildAskPanel() {
+    var el = document.createElement('div');
+    el.id        = 'askAiPanel';
+    el.className = 'ask-ai-panel';
+    el.style.display = 'none';
+    el.innerHTML =
+      '<div class="aap-header">' +
+        '<span class="aap-title">Ask AI</span>' +
+        '<kbd class="aap-hint">Ctrl+Alt+T</kbd>' +
+        '<button class="aap-close" title="Close" aria-label="Close">×</button>' +
+      '</div>' +
+      '<div class="aap-thread"></div>' +
+      '<div class="aap-input-row">' +
+        '<textarea class="aap-input" rows="2" placeholder="Ask a question about this study…"></textarea>' +
+        '<button class="aap-ask-btn">Ask</button>' +
+      '</div>';
+    document.body.appendChild(el);
+
+    el.querySelector('.aap-close').addEventListener('click', closeAskPanel);
+    el.querySelector('.aap-ask-btn').addEventListener('click', aapAsk);
+    el.querySelector('.aap-input').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); aapAsk(); }
+    });
+    // Don't let clicks inside the panel reach the popup's outside-dismiss handler
+    el.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+    makeDraggable(el, el.querySelector('.aap-header'));
+    return el;
+  }
+
+  function openAskPanel() {
+    if (!aapEl) aapEl = buildAskPanel();
+
+    // Fresh session each summon: reset history, context, thread and input
+    aapHistory = [];
+    var ctx    = resolveStudyContext(null);
+    aapTopic   = ctx ? ctx.topic : '';
+    aapEl.querySelector('.aap-thread').innerHTML = '';
+    aapEl.querySelector('.aap-input').value      = '';
+
+    // Center on screen (no selection to anchor to), then draggable thereafter
+    aapEl.style.visibility = 'hidden';
+    aapEl.style.display    = 'flex';
+    var pw = aapEl.offsetWidth, ph = aapEl.offsetHeight;
+    aapEl.style.left = Math.max(8, (window.innerWidth  - pw) / 2) + 'px';
+    aapEl.style.top  = Math.max(8, (window.innerHeight - ph) / 2) + 'px';
+    aapEl.style.visibility = '';
+
+    setTimeout(function () { aapEl.querySelector('.aap-input').focus(); }, 40);
+  }
+
+  function closeAskPanel() {
+    if (aapEl) aapEl.style.display = 'none';
+  }
+
+  function toggleAskPanel() {
+    if (aapEl && aapEl.style.display !== 'none') closeAskPanel();
+    else openAskPanel();
+  }
+
+  function aapAppendMsg(role, bodyHtml) {
+    var thread = aapEl.querySelector('.aap-thread');
+    var msg    = document.createElement('div');
+    msg.className = 'aap-msg aap-msg-' + role;
+    msg.innerHTML =
+      '<div class="aap-msg-label">' + (role === 'user' ? 'You' : 'Iron & Ink') + '</div>' +
+      '<div class="aap-msg-body">' + bodyHtml + '</div>';
+    thread.appendChild(msg);
+    thread.scrollTop = thread.scrollHeight;
+    return msg;
+  }
+
+  function aapAsk() {
+    var input = aapEl.querySelector('.aap-input');
+    var btn   = aapEl.querySelector('.aap-ask-btn');
+    var q     = input.value.trim();
+    if (!q) { input.focus(); return; }
+
+    input.value  = '';
+    btn.disabled = true;
+
+    // First turn carries the inherited study context; later turns rely on the
+    // accumulated history so the AI remembers the conversation.
+    var content = (aapHistory.length === 0 && aapTopic)
+      ? 'I am reading a study on "' + aapTopic + '". ' + q
+      : q;
+
+    aapAppendMsg('user', esc(q).replace(/\n/g, '<br>'));
+    aapHistory.push({ role: 'user', content: content });
+
+    var pending = aapAppendMsg('assistant', '<span class="up-loading">Thinking…</span>');
+    var body    = pending.querySelector('.aap-msg-body');
+
+    fetch('/api/library/ask', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ history: aapHistory }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.success) {
+          body.innerHTML = renderMarkdown(data.answer);
+          aapHistory.push({ role: 'assistant', content: data.answer });
+        } else {
+          body.innerHTML = '<span style="color:#e08080;font-style:italic;">Error: ' +
+            esc(data.error || 'Failed.') + '</span>';
+          aapHistory.pop();  // drop the unanswered user turn
+        }
+      })
+      .catch(function (err) {
+        body.innerHTML = '<span style="color:#e08080;font-style:italic;">Error: ' +
+          esc(err.message) + '</span>';
+        aapHistory.pop();
+      })
+      .then(function () {
+        btn.disabled = false;
+        input.focus();
+        var thread = aapEl.querySelector('.aap-thread');
+        thread.scrollTop = thread.scrollHeight;
+      });
+  }
+
+  // Ctrl+Alt+T summons / toggles the panel — mirrors the dm-badge.js pattern
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey && e.altKey && (e.key === 't' || e.key === 'T')) {
+      var tag = document.activeElement ? document.activeElement.tagName : '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      e.preventDefault();
+      toggleAskPanel();
+    }
+  });
 
   loadStudies();
 })();
