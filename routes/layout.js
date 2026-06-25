@@ -94,7 +94,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   <title>${title} — Iron &amp; Ink</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/shepherd.css">
-  <link rel="stylesheet" href="/css/styles.css?v=32">
+  <link rel="stylesheet" href="/css/styles.css?v=33">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
@@ -120,7 +120,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
         </a>` : ''}
         <a href="/what-we-believe" class="nav-item believe-link${activeSection === 'believe' ? ' active' : ''}">
           <span class="nav-icon">&#10013;</span>
-          <span class="nav-label">What We Believe</span>
+          <span class="nav-label">About</span>
         </a>
         <a href="/copyright" class="nav-item copyright-link">
           <span class="nav-icon">&#169;</span>
