@@ -3159,6 +3159,8 @@ body {
 .nav-item.admin-link.active { color: #E8D9B8; }
 .nav-item.copyright-link { color: #A0845C; }
 .nav-item.copyright-link:hover { color: #E8D9B8; }
+.nav-item.believe-link { color: #A0845C; }
+.nav-item.believe-link:hover { color: #E8D9B8; }
 
 /* ─── PRINT AREA (hidden in normal view) ───────────────────────────── */
 #printArea { display: none; }
