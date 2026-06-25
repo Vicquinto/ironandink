@@ -43,8 +43,7 @@ function buildContent() {
 
     <!-- ── About ── -->
     <div id="believe-about" class="believe-panel">
-      <div class="copy-site-name">Iron &amp; Ink</div>
-      <h1 class="copy-page-title">What We Believe</h1>
+      <h1 class="copy-page-title">About Iron &amp; Ink</h1>
       <p class="copy-body">
         Iron &amp; Ink Theology exists to give Reformed believers a faithful place to
         study Scripture, sharpen one another in sound doctrine, and grow together in
@@ -217,7 +216,7 @@ router.get('/what-we-believe', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>What We Believe &mdash; Iron &amp; Ink</title>
+  <title>About &mdash; Iron &amp; Ink</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
