@@ -32,6 +32,10 @@
   var memberList  = document.getElementById('memberList');
   var memberEmpty = document.getElementById('memberEmpty');
 
+  var adminTabFeedback = document.getElementById('adminTabFeedback');
+  var feedbackList     = document.getElementById('feedbackList');
+  var feedbackEmpty    = document.getElementById('feedbackEmpty');
+
   var inviteRequestList  = document.getElementById('inviteRequestList');
   var inviteRequestEmpty = document.getElementById('inviteRequestEmpty');
   var sentInviteList     = document.getElementById('sentInviteList');
@@ -100,9 +104,11 @@
       adminTabInvitations.style.display = which === 'invitations' ? 'block' : 'none';
       if (adminTabRooms) adminTabRooms.style.display = which === 'rooms' ? 'block' : 'none';
       if (adminTabMembers) adminTabMembers.style.display = which === 'members' ? 'block' : 'none';
+      if (adminTabFeedback) adminTabFeedback.style.display = which === 'feedback' ? 'block' : 'none';
       if (which === 'invitations') { loadInviteRequests(); loadSentInvites(); }
       if (which === 'rooms') { loadAdminRooms(); }
       if (which === 'members') { loadMembers(); }
+      if (which === 'feedback') { loadFeedback(); }
     });
   });
 
@@ -710,6 +716,48 @@
         });
       });
     });
+  }
+
+  // ── Feedback (read-only) ──────────────────────────────────────────────────
+  async function loadFeedback() {
+    if (!feedbackList) return;
+    feedbackList.innerHTML = '<p class="writing-empty">Loading…</p>';
+    try {
+      var res  = await fetch('/api/admin/feedback');
+      var data = await res.json();
+      renderFeedback(data.feedback || []);
+    } catch (err) {
+      feedbackList.innerHTML = '<p class="writing-empty">Could not load feedback.</p>';
+    }
+  }
+
+  function renderFeedback(items) {
+    if (!items.length) {
+      if (feedbackEmpty) feedbackEmpty.style.display = 'block';
+      if (feedbackList)  feedbackList.innerHTML = '';
+      return;
+    }
+    if (feedbackEmpty) feedbackEmpty.style.display = 'none';
+
+    feedbackList.innerHTML = items.map(function (f) {
+      return '<div class="article-card">' +
+        '<div class="article-card-header">' +
+          '<span class="article-card-title">' + esc(f.fullName || 'Unknown') + '</span>' +
+        '</div>' +
+        '<div class="article-card-meta">' +
+          '<span class="article-card-date">' + fmtDateTime(f.submittedAt) + '</span>' +
+        '</div>' +
+        '<p style="font-size:0.9rem; color:var(--dark-cream); margin-top:10px; line-height:1.6; white-space:pre-wrap;">' +
+          esc(f.text || '') +
+        '</p>' +
+      '</div>';
+    }).join('');
+  }
+
+  function fmtDateTime(iso) {
+    var d = new Date(iso);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) +
+      ' · ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
   }
 
   loadPending();

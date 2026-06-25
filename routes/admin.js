@@ -38,6 +38,7 @@ const COMMENTS_PATH        = path.join(__dirname, '../data/comments.json');
 const INVITES_PATH         = path.join(__dirname, '../data/invites.json');
 const INVITE_REQUESTS_PATH = path.join(__dirname, '../data/invite_requests.json');
 const ROOMS_PATH           = path.join(__dirname, '../data/rooms.json');
+const FEEDBACK_PATH        = path.join(__dirname, '../data/feedback.json');
 
 function requireAdmin(req, res, next) {
   if (!req.session.userId) return res.redirect('/');
@@ -79,6 +80,7 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
         <button class="admin-tab" data-tab="invitations">Invitations</button>
         <button class="admin-tab" data-tab="rooms">Live Rooms</button>
         <button class="admin-tab" data-tab="members">Members</button>
+        <button class="admin-tab" data-tab="feedback">Feedback</button>
       </div>
 
       <div id="adminTabPending" class="admin-tab-content">
@@ -99,6 +101,11 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
       <div id="adminTabMembers" class="admin-tab-content" style="display:none;">
         <div id="memberList" class="article-list-container"></div>
         <p id="memberEmpty" class="writing-empty" style="display:none;">No members.</p>
+      </div>
+
+      <div id="adminTabFeedback" class="admin-tab-content" style="display:none;">
+        <div id="feedbackList" class="article-list-container"></div>
+        <p id="feedbackEmpty" class="writing-empty" style="display:none;">No feedback submissions yet.</p>
       </div>
 
       <div id="adminTabInvitations" class="admin-tab-content" style="display:none;">
@@ -171,7 +178,7 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
     activeSection: 'admin',
     title:         'Admin Panel',
     content,
-    scripts: `<script src="/js/admin.js?v=11"></script>
+    scripts: `<script src="/js/admin.js?v=12"></script>
 <script>
 (function () {
   var form     = document.getElementById('directInviteForm');
@@ -491,6 +498,15 @@ router.post('/api/admin/members/:id/reinstate', requireAuth, requireAdmin, (req,
   users[idx].isActive = true;
   writeJSON(USERS_PATH, users);
   res.json({ success: true });
+});
+
+// ─── GET /api/admin/feedback ─────────────────────────────────────────────────
+// Read-only list of member-submitted suggestions/feedback, newest first.
+router.get('/api/admin/feedback', requireAuth, requireAdmin, (req, res) => {
+  const feedback = readJSON(FEEDBACK_PATH)
+    .slice()
+    .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+  res.json({ success: true, feedback });
 });
 
 module.exports = router;
