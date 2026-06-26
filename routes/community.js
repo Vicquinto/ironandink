@@ -136,7 +136,7 @@ router.get('/community', requireAuth, (req, res) => {
         window.IS_ADMIN = ${isAdmin};
         window.CURRENT_USER_ID = ${JSON.stringify(req.session.userId)};
       </script>
-      <script src="/js/community.js?v=5"></script>`,
+      <script src="/js/community.js?v=6"></script>`,
   }));
 });
 

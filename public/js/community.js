@@ -521,8 +521,17 @@
           var data = await res.json();
           if (data.success) {
             if (input) input.value = '';
-            loadPrayerComments(id, box.querySelector('.prayer-comment-list'));
-            loadPrayers();  // refresh the 💬 comment-count badge (count comes from the feed payload)
+            // Refresh the comment list in place (keeps the section OPEN and shows
+            // the new comment), then update just this card's count badge from the
+            // refreshed list length — do NOT re-render the whole feed (that
+            // collapses the section the user just posted in).
+            await loadPrayerComments(id, box.querySelector('.prayer-comment-list'));
+            var card  = box.closest('.prayer-card');
+            var badge = card ? card.querySelector('.prayer-comments-toggle') : null;
+            if (badge) {
+              var count = box.querySelectorAll('.prayer-comment-list .comment-item').length;
+              badge.textContent = String.fromCodePoint(128172) + ' ' + count;
+            }
           } else {
             showToast('Could not post comment: ' + (data.error || ''), true);
           }
