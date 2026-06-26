@@ -369,7 +369,7 @@
   async function loadPrayers() {
     if (prayerLoading) prayerLoading.style.display = 'flex';
     try {
-      var res  = await fetch('/api/community/prayers');
+      var res  = await fetch('/api/community/prayers?_=' + Date.now(), { cache: 'no-store' });
       var data = await res.json();
       renderPrayers(data.prayers || []);
     } catch (err) {
@@ -522,6 +522,7 @@
           if (data.success) {
             if (input) input.value = '';
             loadPrayerComments(id, box.querySelector('.prayer-comment-list'));
+            loadPrayers();  // refresh the 💬 comment-count badge (count comes from the feed payload)
           } else {
             showToast('Could not post comment: ' + (data.error || ''), true);
           }
@@ -537,7 +538,7 @@
   async function loadPrayerComments(prayerId, listEl) {
     if (!listEl) return;
     try {
-      var res  = await fetch('/api/community/prayer-comments/' + encodeURIComponent(prayerId));
+      var res  = await fetch('/api/community/prayer-comments/' + encodeURIComponent(prayerId) + '?_=' + Date.now(), { cache: 'no-store' });
       var data = await res.json();
       renderPrayerComments(prayerId, data.comments || [], listEl);
     } catch (err) {

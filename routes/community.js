@@ -136,7 +136,7 @@ router.get('/community', requireAuth, (req, res) => {
         window.IS_ADMIN = ${isAdmin};
         window.CURRENT_USER_ID = ${JSON.stringify(req.session.userId)};
       </script>
-      <script src="/js/community.js?v=4"></script>`,
+      <script src="/js/community.js?v=5"></script>`,
   }));
 });
 
@@ -277,6 +277,7 @@ router.get('/api/community/prayers', requireAuth, (req, res) => {
       };
     })
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  res.set('Cache-Control', 'no-store');
   res.json({ success: true, prayers });
 });
 
@@ -361,6 +362,7 @@ router.get('/api/community/prayer-comments/:prayerId', requireAuth, (req, res) =
   const comments = readJSON(PCOMMENTS_PATH)
     .filter(c => c.prayerId === req.params.prayerId)
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  res.set('Cache-Control', 'no-store');
   res.json({ success: true, comments });
 });
 
