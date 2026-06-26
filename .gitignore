@@ -8,3 +8,6 @@ data/invite_requests.json
 data/studies.json
 data/dialogues.json
 data/devotional.json
+data/prayers.json
+data/prayer-praying.json
+data/prayer-comments.json
