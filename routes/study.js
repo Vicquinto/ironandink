@@ -459,6 +459,38 @@ window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user
   }));
 });
 
+// Detect an Anthropic platform content-filter block (HTTP 400). Robust against
+// slight rephrasings of the English message: matches either a broadened,
+// case-insensitive text signal OR the typed SDK error (BadRequestError /
+// invalid_request_error). NOT a local blocklist — this only classifies errors
+// the API itself returned.
+function isContentFilterError(err) {
+  if (!err || err.status !== 400) return false;
+
+  // Text signal — checked across the SDK message and the structured body,
+  // lowercased and broadened so a reworded message still matches.
+  const text = [
+    err.message,
+    err.error && err.error.error && err.error.error.message,
+    err.error && err.error.message,
+  ].filter(Boolean).join(' ').toLowerCase();
+  const messageMatch =
+    text.includes('content filtering policy') ||  // original exact phrase
+    text.includes('content filter') ||
+    text.includes('blocked by content');
+
+  // Typed signal — a content-filter block surfaces as a 400 BadRequestError /
+  // invalid_request_error. Less fragile than the text match if Anthropic
+  // rephrases the message.
+  const typedMatch =
+    (typeof Anthropic.BadRequestError === 'function' && err instanceof Anthropic.BadRequestError) ||
+    (err.error && err.error.error && err.error.error.type === 'invalid_request_error') ||
+    (err.error && err.error.type === 'invalid_request_error') ||
+    err.type === 'invalid_request_error';
+
+  return messageMatch || typedMatch;
+}
+
 // ─── POST /api/study/generate ────────────────────────────────────────────────
 router.post('/api/study/generate', requireAuth, async (req, res) => {
   const { topic, studyLevel, length } = req.body;
@@ -478,36 +510,50 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
   const studyLevelInstruction = STUDY_LEVEL_INSTRUCTIONS[resolvedStudyLevel] || STUDY_LEVEL_INSTRUCTIONS.journeyman;
   const systemPrompt = studyLevelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_STUDY_PROMPT;
 
-  try {
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-    const message = await client.messages.create({
-      model:      'claude-sonnet-4-6',
-      max_tokens: 6000,
-      system:     systemPrompt,
-      messages: [{
-        role:    'user',
-        content: `Generate a Reformed theological study guide on the following topic from a biblical and confessional perspective: ${topic.trim()}\n\nBible translation preference: ${translation}`,
-      }],
-    });
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const userMessage = `Generate a Reformed theological study guide on the following topic from a biblical and confessional perspective: ${topic.trim()}\n\nBible translation preference: ${translation}`;
 
-    const content = message.content[0].text;
-    res.json({ success: true, content, topic: topic.trim(), translation, studyLength, studyLevel: resolvedStudyLevel });
-  } catch (err) {
-    console.error('Study generation error — status:', err.status);
-    console.error('Study generation error — message:', err.message);
-    console.error('Study generation error — full:', err);
+  // The content filter blocks the specific generated OUTPUT, which differs on
+  // every call — so a fresh regeneration usually passes. Retry up to 3 times
+  // total on a content-filter block before giving up.
+  const MAX_ATTEMPTS = 3;
 
-    const isContentFilter = err.status === 400 &&
-      err.message && err.message.includes('content filtering policy');
-
-    if (isContentFilter) {
-      return res.status(400).json({
-        success: false,
-        error: 'This topic could not be generated due to content filtering. Try rephrasing — for example, "The origin of evil and angelic rebellion" instead of "when did satan fall".',
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const message = await client.messages.create({
+        model:      'claude-sonnet-4-6',
+        max_tokens: 6000,
+        system:     systemPrompt,
+        messages: [{ role: 'user', content: userMessage }],
       });
-    }
 
-    res.status(500).json({ success: false, error: 'Generation failed. Please try again.' });
+      const content = message.content[0].text;
+      return res.json({ success: true, content, topic: topic.trim(), translation, studyLength, studyLevel: resolvedStudyLevel });
+    } catch (err) {
+      if (isContentFilterError(err)) {
+        const requestId = err.request_id || err.requestID ||
+          (err.headers && (err.headers['request-id'] || err.headers['x-request-id'])) || 'unknown';
+        console.log(`Study generation — content-filter block on attempt ${attempt}/${MAX_ATTEMPTS} (request_id: ${requestId})`);
+
+        if (attempt < MAX_ATTEMPTS) {
+          console.log(`Study generation — retrying with a fresh generation (attempt ${attempt + 1}/${MAX_ATTEMPTS})`);
+          continue; // fresh API call; the output differs, so a retry has a good chance of passing
+        }
+
+        // All attempts were blocked by the content filter — give up with an honest message.
+        console.log('Study generation — all attempts blocked by content filter; returning friendly message.');
+        return res.status(400).json({
+          success: false,
+          error: "We couldn't generate a study on this topic right now. This occasionally happens with weighty subjects. Please try again, or try rephrasing the topic slightly.",
+        });
+      }
+
+      // Any other error — preserve existing behavior (generic 500), no retry.
+      console.error('Study generation error — status:', err.status);
+      console.error('Study generation error — message:', err.message);
+      console.error('Study generation error — full:', err);
+      return res.status(500).json({ success: false, error: 'Generation failed. Please try again.' });
+    }
   }
 });
 
