@@ -136,7 +136,7 @@ router.get('/community', requireAuth, (req, res) => {
         window.IS_ADMIN = ${isAdmin};
         window.CURRENT_USER_ID = ${JSON.stringify(req.session.userId)};
       </script>
-      <script src="/js/community.js?v=7"></script>`,
+      <script src="/js/community.js?v=8"></script>`,
   }));
 });
 
@@ -304,8 +304,14 @@ router.post('/api/community/prayers', requireAuth, (req, res) => {
 
 // ─── POST /api/community/prayers/:id/praying — toggle (mirrors amens) ──────────
 router.post('/api/community/prayers/:id/praying', requireAuth, (req, res) => {
-  if (!readJSON(PRAYERS_PATH).find(p => p.id === req.params.id)) {
+  const prayer = readJSON(PRAYERS_PATH).find(p => p.id === req.params.id);
+  if (!prayer) {
     return res.status(404).json({ success: false, error: 'Prayer request not found.' });
+  }
+  // Praying is frozen once a request is answered — enforce server-side so it's
+  // blocked even if the UI is bypassed. Comments stay open on answered requests.
+  if (prayer.answered) {
+    return res.status(403).json({ success: false, error: 'This prayer request has been answered; praying is closed.' });
   }
   const praying = readJSON(PRAYING_PATH);
   const idx     = praying.findIndex(x => x.prayerId === req.params.id && x.userId === req.session.userId);

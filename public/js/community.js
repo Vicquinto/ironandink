@@ -425,6 +425,19 @@
     var deleteBtn = canManage
       ? '<button class="prayer-delete-btn" data-id="' + esc(p.id) + '" title="Delete">&#10005;</button>'
       : '';
+    // Answered requests: freeze the praying toggle into a static, non-interactive
+    // label that still honors everyone who prayed ("🙏 X prayed"). It deliberately
+    // has NO .prayer-praying-btn class, so the toggle click handler never binds,
+    // and is a disabled <button> so it cannot be clicked. Comments stay fully open
+    // on answered requests (the comments block below is unconditional) so the
+    // community can post praise. Unanswered requests keep the live toggle.
+    var prayingControl = p.answered
+      ? '<button class="btn-amen prayer-praying-static" disabled aria-disabled="true" title="This request has been answered — praying is closed.">' +
+          '&#128591; ' + (p.prayingCount || 0) + ' prayed' +
+        '</button>'
+      : '<button class="btn-amen prayer-praying-btn' + (p.userPraying ? ' amened' : '') + '" data-id="' + esc(p.id) + '">' +
+          '&#128591; Praying &nbsp;<span class="prayer-praying-count">' + (p.prayingCount || 0) + '</span>' +
+        '</button>';
     return '<div class="community-card prayer-card' + (p.answered ? ' answered' : '') + '" data-id="' + esc(p.id) + '">' +
       '<div class="community-card-meta">' +
         '<span class="community-card-author">' + esc(p.authorName || '') + '</span>' + anonTag +
@@ -433,9 +446,7 @@
       '</div>' +
       '<p class="prayer-text">' + esc(p.text) + '</p>' +
       '<div class="community-card-footer">' +
-        '<button class="btn-amen prayer-praying-btn' + (p.userPraying ? ' amened' : '') + '" data-id="' + esc(p.id) + '">' +
-          '&#128591; Praying &nbsp;<span class="prayer-praying-count">' + (p.prayingCount || 0) + '</span>' +
-        '</button>' +
+        prayingControl +
         '<button class="btn-warm prayer-comments-toggle" data-id="' + esc(p.id) + '" style="font-size:0.82rem; padding:6px 14px;">&#128172; ' + (p.commentCount || 0) + '</button>' +
         answerBtn +
         deleteBtn +
