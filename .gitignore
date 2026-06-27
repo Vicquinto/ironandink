@@ -11,3 +11,12 @@ data/devotional.json
 data/prayers.json
 data/prayer-praying.json
 data/prayer-comments.json
+data/articles.json
+data/comments.json
+data/community.json
+data/feedback.json
+data/messages.json
+data/reading_tracker.json
+data/selah.json
+data/presence.json
+data/password_resets.json
