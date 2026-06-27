@@ -365,6 +365,23 @@
     });
   });
 
+  // ── Refresh the prayer feed when the user returns attention to the page ─────
+  // Counts in the feed are a snapshot from the last load; nothing pushes other
+  // accounts' new comments / praying toggles to an already-open feed. Re-fetch
+  // on focus / tab-visible so the badges come current — but ONLY when the Prayer
+  // Requests tab is actually the active view (never disturb the Articles tab).
+  function isPrayerTabActive() {
+    if (prayerBoard && prayerBoard.style.display === 'block') return true;
+    var active = document.querySelector('.community-tab.active');
+    return !!(active && active.getAttribute('data-ctab') === 'prayers');
+  }
+  window.addEventListener('focus', function () {
+    try { if (isPrayerTabActive()) loadPrayers(); } catch (e) {}
+  });
+  document.addEventListener('visibilitychange', function () {
+    try { if (document.visibilityState === 'visible' && isPrayerTabActive()) loadPrayers(); } catch (e) {}
+  });
+
   // ── Load feed ──────────────────────────────────────────────────────────────
   async function loadPrayers() {
     if (prayerLoading) prayerLoading.style.display = 'flex';
@@ -549,7 +566,15 @@
     try {
       var res  = await fetch('/api/community/prayer-comments/' + encodeURIComponent(prayerId) + '?_=' + Date.now(), { cache: 'no-store' });
       var data = await res.json();
-      renderPrayerComments(prayerId, data.comments || [], listEl);
+      var fetched = data.comments || [];
+      renderPrayerComments(prayerId, fetched, listEl);
+      // Self-correct this card's comment-count badge to the freshly fetched
+      // count, so opening a request brings its badge current even if another
+      // account commented after this viewer last loaded the feed. (Mirrors the
+      // in-place badge update done after posting a comment.)
+      var card  = listEl.closest('.prayer-card');
+      var badge = card ? card.querySelector('.prayer-comments-toggle') : null;
+      if (badge) badge.textContent = String.fromCodePoint(128172) + ' ' + fetched.length;
     } catch (err) {
       listEl.innerHTML = '<p class="writing-empty">Could not load comments.</p>';
     }
