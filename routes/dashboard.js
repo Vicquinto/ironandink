@@ -323,18 +323,18 @@ router.get('/dashboard', requireAuth, (req, res) => {
     </div>
 
     <div class="stat-cards">
-      <div class="stat-card">
-        <div class="stat-label">Studies Completed</div>
+      <a class="stat-card" href="/library">
+        <div class="stat-label">Studies Saved</div>
         <div class="stat-value">${studyCount}</div>
-      </div>
-      <div class="stat-card">
+      </a>
+      <a class="stat-card" href="/dialogue">
         <div class="stat-label">Dialogue Sessions</div>
         <div class="stat-value">${dialogueCount}</div>
-      </div>
-      <div class="stat-card">
+      </a>
+      <a class="stat-card" href="/writing">
         <div class="stat-label">Articles Written</div>
         <div class="stat-value">${articlesCount}</div>
-      </div>
+      </a>
     </div>
 
     <div class="dash-dedication">

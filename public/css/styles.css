@@ -387,10 +387,26 @@ body {
 }
 
 .stat-card {
+  display: block;
   background: #E8D9B8;
   border: 1px solid #A0845C;
   border-radius: 6px;
   padding: 22px 26px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  border-color: #B38C33;
+  box-shadow: 0 4px 14px rgba(92, 26, 40, 0.12);
+}
+
+.stat-card:focus-visible {
+  outline: 2px solid #B38C33;
+  outline-offset: 2px;
 }
 
 .stat-label {
