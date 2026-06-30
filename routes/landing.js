@@ -36,23 +36,12 @@ router.get('/', (req, res) => {
       background: var(--bg);
     }
 
-    .hero-title {
-      font-family: 'Cinzel', serif;
-      font-size: clamp(3rem, 7vw, 5.5rem);
-      font-weight: 700;
-      color: var(--accent);
-      letter-spacing: 0.06em;
-      line-height: 1.1;
-      margin-bottom: 18px;
-    }
-
-    .hero-verse {
-      font-family: 'EB Garamond', Georgia, serif;
-      font-size: 1.1rem;
-      color: var(--warm-brown);
-      font-style: italic;
-      margin-bottom: 32px;
-      letter-spacing: 0.03em;
+    .hero-brand {
+      display: block;
+      width: 100%;
+      max-width: 640px;
+      height: auto;
+      margin: 0 auto 32px;
     }
 
     .hero-description {
@@ -184,8 +173,7 @@ router.get('/', (req, res) => {
 <body>
   <div class="landing-wrap">
     <section class="hero">
-      <h1 class="hero-title">Iron &amp; Ink</h1>
-      <p class="hero-verse">Iron sharpens iron &mdash; Proverbs 27:17</p>
+      <img src="/images/brand.jpg" alt="Iron & Ink — Iron sharpens iron, Proverbs 27:17" class="hero-brand">
       <p class="hero-description">
         A theological study and writing platform for serious Reformed students.
         Study doctrine. Wrestle with objections. Write in your own voice.

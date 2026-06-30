@@ -129,10 +129,12 @@ function loginStyles() {
       }
       .login-container { width: 100%; max-width: 420px; padding: 20px; }
       .login-header { text-align: center; margin-bottom: 36px; }
-      .login-title {
-        font-family: 'Cinzel', serif;
-        font-size: 2.6rem; color: #5C1A28;
-        letter-spacing: 0.08em; font-weight: 700; margin-bottom: 10px;
+      .login-brand {
+        display: block;
+        width: 100%;
+        max-width: 360px;
+        height: auto;
+        margin: 0 auto 24px;
       }
       .login-tagline { font-size: 0.9rem; color: #A0845C; font-style: italic; }
       .login-card {
@@ -194,8 +196,7 @@ function renderLoginPage({ error, notice }) {
 <body>
   <div class="login-container">
     <div class="login-header">
-      <h1 class="login-title">Iron &amp; Ink</h1>
-      <p class="login-tagline">Iron sharpens iron — Proverbs 27:17</p>
+      <img src="/images/brand.jpg" alt="Iron & Ink — Iron sharpens iron, Proverbs 27:17" class="login-brand">
     </div>
     <div class="login-card">
       ${notice ? `<div style="background:rgba(80,140,80,0.12);border:1px solid rgba(80,140,80,0.3);color:#a0d0a0;padding:10px 14px;border-radius:4px;font-size:0.85rem;margin-bottom:16px;">${notice}</div>` : ''}
@@ -260,7 +261,7 @@ function renderSetupPage({ error }) {
 <body>
   <div class="login-container">
     <div class="login-header">
-      <h1 class="login-title">Iron &amp; Ink</h1>
+      <img src="/images/brand.jpg" alt="Iron & Ink — Iron sharpens iron, Proverbs 27:17" class="login-brand">
       <p class="login-tagline">Welcome — set your password to begin</p>
     </div>
     <div class="login-card">
