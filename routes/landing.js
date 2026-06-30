@@ -103,28 +103,16 @@ router.get('/', (req, res) => {
       padding: 76px 24px;
     }
 
-    /* Aged-parchment page panel resting on the leather, with a subtle deckled
-       (torn handmade-paper) edge. clip-path clips box-shadow, so the lift is
-       done with filter: drop-shadow, which follows the clipped silhouette. */
+    /* Aged-parchment page panel resting on the leather */
     .features-inner {
       max-width: 620px;
       margin: 0 auto;
       padding: 56px 48px;
       background-color: #E4D5B7;
       background-image: linear-gradient(135deg, rgba(255,250,235,0.45), rgba(120,90,50,0.07));
-      filter: drop-shadow(0 8px 24px rgba(0,0,0,0.4));
-      -webkit-clip-path: polygon(
-        0.6% 1.0%, 8% 0.3%, 16% 1.2%, 25% 0.4%, 34% 1.0%, 43% 0.2%, 52% 1.1%, 61% 0.4%, 70% 1.0%, 79% 0.3%, 88% 1.1%, 96% 0.4%, 100% 1.0%,
-        99.3% 8%, 100% 18%, 99.2% 28%, 99.8% 38%, 99.1% 48%, 99.7% 58%, 99.2% 68%, 99.8% 78%, 99.2% 88%, 99.7% 96%, 99.4% 99.0%,
-        92% 99.3%, 84% 100%, 76% 99.2%, 68% 99.8%, 60% 99.2%, 52% 99.9%, 44% 99.3%, 36% 99.8%, 28% 99.2%, 20% 99.9%, 12% 99.3%, 4% 99.8%, 0.6% 99.0%,
-        0.8% 92%, 0% 82%, 0.8% 72%, 0.2% 62%, 0.9% 52%, 0.3% 42%, 0.8% 32%, 0.2% 22%, 0.8% 12%, 0.3% 4%
-      );
-      clip-path: polygon(
-        0.6% 1.0%, 8% 0.3%, 16% 1.2%, 25% 0.4%, 34% 1.0%, 43% 0.2%, 52% 1.1%, 61% 0.4%, 70% 1.0%, 79% 0.3%, 88% 1.1%, 96% 0.4%, 100% 1.0%,
-        99.3% 8%, 100% 18%, 99.2% 28%, 99.8% 38%, 99.1% 48%, 99.7% 58%, 99.2% 68%, 99.8% 78%, 99.2% 88%, 99.7% 96%, 99.4% 99.0%,
-        92% 99.3%, 84% 100%, 76% 99.2%, 68% 99.8%, 60% 99.2%, 52% 99.9%, 44% 99.3%, 36% 99.8%, 28% 99.2%, 20% 99.9%, 12% 99.3%, 4% 99.8%, 0.6% 99.0%,
-        0.8% 92%, 0% 82%, 0.8% 72%, 0.2% 62%, 0.9% 52%, 0.3% 42%, 0.8% 32%, 0.2% 22%, 0.8% 12%, 0.3% 4%
-      );
+      border: 1px solid rgba(120,90,50,0.28);
+      border-radius: 3px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.35);
     }
 
     .feature-entry {
