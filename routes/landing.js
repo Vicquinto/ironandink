@@ -78,21 +78,22 @@ router.get('/', (req, res) => {
 
     .btn-hero-secondary {
       background: transparent;
-      color: var(--dark-cream);
+      color: var(--accent);
       font-family: 'EB Garamond', Georgia, serif;
       font-size: 1.05rem;
-      border: 1px solid rgba(235,217,198,0.4);
+      font-weight: 600;
+      border: 1px solid var(--accent);
       padding: 14px 36px;
       border-radius: 4px;
       cursor: pointer;
       text-decoration: none;
       letter-spacing: 0.04em;
-      transition: border-color 0.15s, color 0.15s;
+      transition: background 0.15s, color 0.15s;
     }
 
     .btn-hero-secondary:hover {
-      border-color: var(--dark-cream);
-      color: var(--text);
+      background: var(--accent);
+      color: #E8D9B8;
     }
 
     /* ── Feature cards ── */
@@ -112,18 +113,18 @@ router.get('/', (req, res) => {
 
     .feature-card {
       position: relative;
-      background-color: #FAFAF7;
+      background-color: #E4D5B7;
       background-image: repeating-linear-gradient(
         to bottom,
         transparent 0,
         transparent 27px,
-        #E8EDF2 27px,
-        #E8EDF2 28px
+        rgba(107,66,38,0.10) 27px,
+        rgba(107,66,38,0.10) 28px
       );
       border: none;
       border-radius: 3px;
       padding: 32px 28px 32px 52px;
-      box-shadow: 2px 4px 12px rgba(0,0,0,0.18);
+      box-shadow: 2px 4px 12px rgba(0,0,0,0.22);
       overflow: hidden;
     }
 
@@ -133,8 +134,8 @@ router.get('/', (req, res) => {
       top: 0;
       bottom: 0;
       left: 32px;
-      width: 2px;
-      background: #C9444A;
+      width: 1px;
+      background: rgba(92,26,40,0.4);
     }
 
     .feature-icon {
