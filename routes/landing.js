@@ -96,67 +96,76 @@ router.get('/', (req, res) => {
       color: #E8D9B8;
     }
 
-    /* ── Feature cards ── */
+    /* ── Features — illuminated manuscript ── */
     .features {
       background: #5A3834 url('/images/landing-leather.svg') center center / cover no-repeat;
       border-top: 1px solid rgba(179,140,51,0.15);
-      padding: 64px 24px;
+      padding: 76px 24px;
     }
 
     .features-inner {
-      max-width: 960px;
+      max-width: 600px;
       margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 28px;
     }
 
-    .feature-card {
-      position: relative;
-      background-color: #E4D5B7;
-      background-image: repeating-linear-gradient(
-        to bottom,
-        transparent 0,
-        transparent 27px,
-        rgba(107,66,38,0.10) 27px,
-        rgba(107,66,38,0.10) 28px
-      );
-      border: none;
-      border-radius: 3px;
-      padding: 32px 28px 32px 52px;
-      box-shadow: 2px 4px 12px rgba(0,0,0,0.22);
-      overflow: hidden;
-    }
-
-    .feature-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 32px;
-      width: 1px;
-      background: rgba(92,26,40,0.4);
+    .feature-entry {
+      text-align: center;
+      padding: 4px 0;
     }
 
     .feature-icon {
-      font-size: 1.6rem;
-      margin-bottom: 14px;
-      color: var(--accent);
+      font-size: 1.7rem;
+      margin-bottom: 12px;
+      color: #B38C33;
     }
 
     .feature-title {
-      font-family: 'EB Garamond', Georgia, serif;
-      font-size: 1.25rem;
+      font-family: 'Cinzel', serif;
+      font-size: 1.4rem;
       font-weight: 600;
-      color: var(--dark-cream);
-      margin-bottom: 12px;
-      letter-spacing: 0.03em;
+      color: #B38C33;
+      margin-bottom: 14px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
     }
 
     .feature-desc {
-      font-size: 0.95rem;
-      color: var(--warm-brown);
-      line-height: 1.7;
+      font-size: 1rem;
+      color: #E4D5B7;
+      line-height: 1.8;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* Ornamental gold divider — hairline rules flanking a small diamond */
+    .feature-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      max-width: 340px;
+      margin: 40px auto;
+    }
+
+    .feature-divider::before,
+    .feature-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+    }
+
+    .feature-divider::before {
+      background: linear-gradient(to right, transparent, rgba(179,140,51,0.6));
+    }
+
+    .feature-divider::after {
+      background: linear-gradient(to left, transparent, rgba(179,140,51,0.6));
+    }
+
+    .feature-divider span {
+      color: #B38C33;
+      font-size: 0.7rem;
+      line-height: 1;
     }
 
     /* ── Footer ── */
@@ -187,7 +196,7 @@ router.get('/', (req, res) => {
 
     <section class="features">
       <div class="features-inner">
-        <div class="feature-card">
+        <div class="feature-entry">
           <div class="feature-icon">&#10016;</div>
           <div class="feature-title">Study</div>
           <p class="feature-desc">
@@ -195,7 +204,8 @@ router.get('/', (req, res) => {
             Scripture, confession, history, and guiding questions — all in one place.
           </p>
         </div>
-        <div class="feature-card">
+        <div class="feature-divider"><span>&#10070;</span></div>
+        <div class="feature-entry">
           <div class="feature-icon">&#9993;</div>
           <div class="feature-title">Dialogue</div>
           <p class="feature-desc">
@@ -203,7 +213,8 @@ router.get('/', (req, res) => {
             Defend the Reformed position against the strongest objections from other traditions.
           </p>
         </div>
-        <div class="feature-card">
+        <div class="feature-divider"><span>&#10070;</span></div>
+        <div class="feature-entry">
           <div class="feature-icon">&#9998;</div>
           <div class="feature-title">Writing</div>
           <p class="feature-desc">
