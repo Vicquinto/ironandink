@@ -28,7 +28,7 @@ function publicStyles() {
       body { display:flex; align-items:center; justify-content:center; min-height:100vh; }
       .pub-container { width:100%; max-width:480px; padding:24px; }
       .pub-header { text-align:center; margin-bottom:32px; }
-      .pub-title { font-size:2.2rem; color:var(--accent); font-weight:400; letter-spacing:0.06em; }
+      .pub-brand { display:block; width:100%; max-width:340px; height:auto; margin:0 auto 16px; }
       .pub-subtitle { font-size:0.88rem; color:var(--warm-brown); font-style:italic; margin-top:8px; }
       .pub-card {
         background:var(--card-bg); border:1px solid rgba(179,140,51,0.25);
@@ -138,7 +138,7 @@ router.get('/invite-request', (req, res) => {
 <body>
   <div class="pub-container">
     <div class="pub-header">
-      <h1 class="pub-title">Iron &amp; Ink</h1>
+      <img src="/images/brand.jpg" alt="Iron & Ink — Iron sharpens iron, Proverbs 27:17" class="pub-brand">
       <p class="pub-subtitle">Request an Invitation</p>
     </div>
     <div class="pub-card">
@@ -490,7 +490,7 @@ router.get('/register', (req, res) => {
 <body>
   <div class="pub-container">
     <div class="pub-header">
-      <h1 class="pub-title">Iron &amp; Ink</h1>
+      <img src="/images/brand.jpg" alt="Iron & Ink — Iron sharpens iron, Proverbs 27:17" class="pub-brand">
     </div>
     <div class="pub-card">
       <p style="color:var(--dark-cream); line-height:1.7; text-align:center;">
@@ -516,7 +516,7 @@ router.get('/register', (req, res) => {
 <body>
   <div class="pub-container">
     <div class="pub-header">
-      <h1 class="pub-title">Iron &amp; Ink</h1>
+      <img src="/images/brand.jpg" alt="Iron & Ink — Iron sharpens iron, Proverbs 27:17" class="pub-brand">
       <p class="pub-subtitle">Create your account</p>
     </div>
     <div class="pub-card">
