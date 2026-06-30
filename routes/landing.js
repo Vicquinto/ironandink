@@ -103,9 +103,16 @@ router.get('/', (req, res) => {
       padding: 76px 24px;
     }
 
+    /* Aged-parchment page panel resting on the leather */
     .features-inner {
-      max-width: 600px;
+      max-width: 620px;
       margin: 0 auto;
+      padding: 56px 48px;
+      background-color: #E4D5B7;
+      background-image: linear-gradient(135deg, rgba(255,250,235,0.45), rgba(120,90,50,0.07));
+      border: 1px solid rgba(120,90,50,0.28);
+      border-radius: 3px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.35);
     }
 
     .feature-entry {
@@ -113,17 +120,11 @@ router.get('/', (req, res) => {
       padding: 4px 0;
     }
 
-    .feature-icon {
-      font-size: 1.7rem;
-      margin-bottom: 12px;
-      color: #B38C33;
-    }
-
     .feature-title {
       font-family: 'Cinzel', serif;
       font-size: 1.4rem;
       font-weight: 600;
-      color: #B38C33;
+      color: #8A6D28;
       margin-bottom: 14px;
       letter-spacing: 0.14em;
       text-transform: uppercase;
@@ -131,9 +132,9 @@ router.get('/', (req, res) => {
 
     .feature-desc {
       font-size: 1rem;
-      color: #E4D5B7;
+      color: var(--dark-cream);
       line-height: 1.8;
-      max-width: 500px;
+      max-width: 480px;
       margin: 0 auto;
     }
 
@@ -143,8 +144,8 @@ router.get('/', (req, res) => {
       align-items: center;
       justify-content: center;
       gap: 18px;
-      max-width: 340px;
-      margin: 40px auto;
+      max-width: 320px;
+      margin: 36px auto;
     }
 
     .feature-divider::before,
@@ -155,15 +156,15 @@ router.get('/', (req, res) => {
     }
 
     .feature-divider::before {
-      background: linear-gradient(to right, transparent, rgba(179,140,51,0.6));
+      background: linear-gradient(to right, transparent, rgba(138,109,40,0.7));
     }
 
     .feature-divider::after {
-      background: linear-gradient(to left, transparent, rgba(179,140,51,0.6));
+      background: linear-gradient(to left, transparent, rgba(138,109,40,0.7));
     }
 
     .feature-divider span {
-      color: #B38C33;
+      color: #8A6D28;
       font-size: 0.7rem;
       line-height: 1;
     }
@@ -197,7 +198,6 @@ router.get('/', (req, res) => {
     <section class="features">
       <div class="features-inner">
         <div class="feature-entry">
-          <div class="feature-icon">&#10016;</div>
           <div class="feature-title">Study</div>
           <p class="feature-desc">
             Generate a structured Reformed study guide on any theological topic.
@@ -206,7 +206,6 @@ router.get('/', (req, res) => {
         </div>
         <div class="feature-divider"><span>&#10070;</span></div>
         <div class="feature-entry">
-          <div class="feature-icon">&#9993;</div>
           <div class="feature-title">Dialogue</div>
           <p class="feature-desc">
             Go head-to-head with an adversarial theological trainer.
@@ -215,7 +214,6 @@ router.get('/', (req, res) => {
         </div>
         <div class="feature-divider"><span>&#10070;</span></div>
         <div class="feature-entry">
-          <div class="feature-icon">&#9998;</div>
           <div class="feature-title">Writing</div>
           <p class="feature-desc">
             Write a theological article, sermon, or letter in your own voice.
