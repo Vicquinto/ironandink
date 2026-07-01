@@ -27,46 +27,65 @@ router.get('/help', requireAuth, (req, res) => {
         <h1 class="copy-page-title">Getting Started</h1>
 
         <div class="copy-section-heading">Welcome</div>
-        <p class="copy-body">A quick orientation before you begin.</p>
+        <p class="copy-body">Welcome to Iron &amp; Ink &mdash; a quick orientation before you begin.</p>
 
         <hr class="copy-rule">
 
-        <div class="copy-section-heading">Features</div>
+        <div class="copy-section-heading">The Features</div>
         <ul class="welcome-feature-list" style="margin-top:16px;">
           <li class="welcome-feature-item">
             <span class="welcome-feature-name">Study</span>
-            <span class="welcome-feature-desc">Generate a full Reformed study guide on any theological topic, passage, or question.</span>
+            <span class="welcome-feature-desc">Generate a structured, confessionally Reformed study guide on any theological topic, passage, or question, at your chosen reading level.</span>
           </li>
           <li class="welcome-feature-item">
             <span class="welcome-feature-name">Dialogue</span>
-            <span class="welcome-feature-desc">Sharpen your understanding by defending the Reformed position against an AI trained to raise the strongest objections.</span>
+            <span class="welcome-feature-desc">Sharpen your understanding by defending the Reformed position against an AI trained to raise the strongest objections from other traditions.</span>
           </li>
           <li class="welcome-feature-item">
             <span class="welcome-feature-name">Writing</span>
-            <span class="welcome-feature-desc">Compose articles, sermons, or letters in your own voice, scaffolded by guiding questions.</span>
+            <span class="welcome-feature-desc">Compose an article, sermon, or letter in your own voice, guided by a few questions. When you&#39;re finished, you can submit it for review, and once approved it&#39;s published to the community.</span>
           </li>
           <li class="welcome-feature-item">
             <span class="welcome-feature-name">Library</span>
-            <span class="welcome-feature-desc">Everything you save lives here: studies, tagged and searchable, ready to revisit.</span>
+            <span class="welcome-feature-desc">Everything you save lives here: your studies, ready to revisit anytime.</span>
           </li>
           <li class="welcome-feature-item">
             <span class="welcome-feature-name">Scripture</span>
-            <span class="welcome-feature-desc">Read the Bible directly, track your reading, and look up any verse.</span>
+            <span class="welcome-feature-desc">Read the Bible directly, track your reading progress, and look up any verse.</span>
+          </li>
+          <li class="welcome-feature-item">
+            <span class="welcome-feature-name">Devotional</span>
+            <span class="welcome-feature-desc">A fresh daily devotional &mdash; Scripture, exposition, application, and prayer &mdash; with an archive of past days to browse.</span>
+          </li>
+          <li class="welcome-feature-item">
+            <span class="welcome-feature-name">Prayer Requests</span>
+            <span class="welcome-feature-desc">Share requests with the community and pray for one another. You may post anonymously if you wish, and mark a prayer answered when the Lord provides.</span>
           </li>
           <li class="welcome-feature-item">
             <span class="welcome-feature-name">Selah</span>
-            <span class="welcome-feature-desc">Your private journal for prayer and reflection before the Lord.</span>
+            <span class="welcome-feature-desc">Your private space for prayer, meditation, and journaling before the Lord.</span>
+          </li>
+          <li class="welcome-feature-item">
+            <span class="welcome-feature-name">Messaging</span>
+            <span class="welcome-feature-desc">Quietly encourage and correspond with other members one-on-one.</span>
           </li>
           <li class="welcome-feature-item">
             <span class="welcome-feature-name">Live Rooms</span>
-            <span class="welcome-feature-desc">Study together with others in real time, host or join a room, and discuss as you go.</span>
+            <span class="welcome-feature-desc">Study together in real time. Host or join a room, and discuss as you go.</span>
           </li>
         </ul>
 
         <hr class="copy-rule">
 
-        <div class="welcome-highlight-note">
-          <strong>One feature works everywhere:</strong> Highlight any word or phrase of text on the page, and a small toolbar will appear &mdash; letting you define it, ask a question about it, or look up a related verse, right where you&#39;re reading.
+        <div class="copy-section-heading">A Few Things Worth Knowing</div>
+        <div class="welcome-highlight-note" style="margin-top:16px;">
+          <strong>The highlight tooltip.</strong> Highlight any word or phrase of text on the page, and a small toolbar appears &mdash; letting you define it, ask a question about it, or look up a related verse, right where you&#39;re reading. You can also pin an answer to keep it handy as you study, or share it into a Live Room&#39;s chat. Press <strong>Ctrl + Alt + T</strong> to bring it up anytime.
+        </div>
+        <div class="welcome-highlight-note" style="margin-top:12px;">
+          <strong>Your inbox, anywhere.</strong> Press <strong>Ctrl + Alt + M</strong> to open a floating mini-inbox from any page, so you can read and reply to messages without leaving what you&#39;re doing.
+        </div>
+        <div class="welcome-highlight-note" style="margin-top:12px;">
+          <strong>Mark My Spot.</strong> While reading Scripture, click a verse number to save your place &mdash; your last marked spot is always waiting when you return.
         </div>
 
         <hr class="copy-rule">
