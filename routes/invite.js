@@ -3,12 +3,44 @@ const bcrypt   = require('bcrypt');
 const fs       = require('fs');
 const path     = require('path');
 const { randomUUID } = require('crypto');
+const sgMail   = require('@sendgrid/mail');
 
 const router = express.Router();
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
+
+// Where new-invite-request notifications go. Overridable via env; single source
+// of truth so the address is changed in exactly one place.
+const ADMIN_NOTIFY_EMAIL = process.env.ADMIN_NOTIFY_EMAIL || 'carlo@risingstarweb.com';
 
 const USERS_PATH           = path.join(__dirname, '../data/users.json');
 const INVITES_PATH         = path.join(__dirname, '../data/invites.json');
 const INVITE_REQUESTS_PATH = path.join(__dirname, '../data/invite_requests.json');
+
+// Best-effort admin notification when a new invite request lands. Reuses the
+// same SendGrid setup as the invite/registration emails. Fully self-contained
+// and swallows its own errors so a send failure can never break submission.
+async function sendInviteRequestNotification(reqName, reqEmail) {
+  if (!process.env.SENDGRID_API_KEY) {
+    console.warn('[inviteRequestNotify] SENDGRID_API_KEY not set — skipping email');
+    return;
+  }
+  try {
+    await sgMail.send({
+      to:   ADMIN_NOTIFY_EMAIL,
+      from: { email: process.env.SENDGRID_FROM_EMAIL, name: 'Iron & Ink' },
+      subject: 'New Iron & Ink invitation request',
+      text: `A new invitation request has come in.\n\nName: ${reqName}\nEmail: ${reqEmail}\n\nReview it in the Admin panel.\n\nSoli Deo Gloria,\nIron & Ink`,
+      html: `<p>A new invitation request has come in.</p>
+<p><strong>Name:</strong> ${reqName}<br><strong>Email:</strong> ${reqEmail}</p>
+<p>Review it in the Admin panel.</p>
+<p><em>Soli Deo Gloria,</em><br>Iron &amp; Ink</p>`,
+    });
+    console.log('[inviteRequestNotify] sent to', ADMIN_NOTIFY_EMAIL);
+  } catch (err) {
+    console.error('[inviteRequestNotify] failed:', err.message);
+  }
+}
 
 function readJSON(p) {
   try {
@@ -466,6 +498,12 @@ router.post('/api/invite-request', (req, res) => {
     console.error('[invite-request] writeJSON failed:', err);
     return res.status(500).json({ success: false, error: 'Failed to save request: ' + err.message });
   }
+
+  // Best-effort: notify the admin by email. Fire-and-forget with its own catch
+  // so a SendGrid outage never delays or fails the saved request / confirmation.
+  sendInviteRequestNotification(record.name, record.email)
+    .catch(err => console.error('[inviteRequestNotify] unexpected:', err.message));
+
   res.json({ success: true });
 });
 

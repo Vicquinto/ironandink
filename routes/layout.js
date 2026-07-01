@@ -2,6 +2,7 @@ const fs   = require('fs');
 const path = require('path');
 const USERS_PATH_L    = path.join(__dirname, '../data/users.json');
 const MESSAGES_PATH_L = path.join(__dirname, '../data/messages.json');
+const INVITE_REQUESTS_PATH_L = path.join(__dirname, '../data/invite_requests.json');
 
 function requireAuth(req, res, next) {
   if (!req.session.userId) return res.redirect('/');
@@ -52,6 +53,17 @@ function getDmUnreadCount(userId) {
   } catch { return 0; }
 }
 
+// Count invite requests still awaiting admin approval (status === 'pending').
+// Mirrors getDmUnreadCount: read-only, fails closed to 0 on any error so a bad
+// file never blocks page rendering.
+function getPendingInviteCount() {
+  try {
+    if (!fs.existsSync(INVITE_REQUESTS_PATH_L)) return 0;
+    const data = JSON.parse(fs.readFileSync(INVITE_REQUESTS_PATH_L, 'utf8'));
+    return (Array.isArray(data) ? data : []).filter(r => r.status === 'pending').length;
+  } catch { return 0; }
+}
+
 function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   const navItems = [
     { id: 'dashboard',   label: 'Dashboard',   href: '/dashboard',   icon: '&#9685;' },
@@ -73,6 +85,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   const toursSeen   = getToursSeen(req);
   const userId      = req.session ? req.session.userId : '';
   const dmUnread    = getDmUnreadCount(userId);
+  const pendingInvites = isAdmin ? getPendingInviteCount() : 0;
 
   const navHTML = navItems.map(item => {
     const isMessages = item.id === 'messages';
@@ -115,7 +128,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
       </div>
       <div class="sidebar-footer">
         ${isAdmin ? `<a href="/admin" class="nav-item admin-link${activeSection === 'admin' ? ' active' : ''}">
-          <span class="nav-icon">&#9873;</span>
+          <span class="nav-icon" style="position:relative;">&#9873;${pendingInvites > 0 ? `<span class="sidebar-dm-badge">${pendingInvites > 99 ? '99+' : pendingInvites}</span>` : ''}</span>
           <span class="nav-label">Admin</span>
         </a>` : ''}
         <a href="/what-we-believe" class="nav-item believe-link${activeSection === 'believe' ? ' active' : ''}">
