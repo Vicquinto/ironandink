@@ -187,7 +187,15 @@ function getDevotionalArchive() {
   }
 }
 
-async function getDailyDevotional(req) {
+// Request-independent core. Ensures today's devotional exists in data/devotional.json,
+// generating + saving it via the Anthropic API only if it is missing. Safe to call from
+// a page visit (getDailyDevotional) or the scheduled cron job in server.js.
+// `prompts` is the app.locals.prompts object (holds IRON_INK_CORE_PROMPT).
+// Returns { date, content, generated }:
+//   - content:   today's devotional markdown, or null if generation failed
+//   - generated: true if a NEW devotion was created this call, false if one already existed
+// Idempotent: if today's entry already exists it returns it without an API call.
+async function ensureTodaysDevotional(prompts) {
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Denver' });
 
   let recentPassages = [];
@@ -207,12 +215,12 @@ async function getDailyDevotional(req) {
         recentPassages = Array.isArray(raw.recentPassages)  ? raw.recentPassages  : [];
       }
       if (entries.length > 0 && entries[0].date === today && entries[0].content) {
-        return entries[0].content;
+        return { date: today, content: entries[0].content, generated: false };
       }
     }
   } catch {}
 
-  const { IRON_INK_CORE_PROMPT } = req.app.locals.prompts;
+  const { IRON_INK_CORE_PROMPT } = prompts;
   // The core prompt's "WHAT YOU ARE NOT" section includes "You are not a devotional generator"
   // which directly contradicts this task. Strip that line before appending the task context.
   const devotionalCore = IRON_INK_CORE_PROMPT
@@ -281,11 +289,18 @@ Tone: warm but serious. Reformed and confessional.`;
       console.error('[devotional]   path   :', writeErr.path);
       console.error('[devotional]   stack  :', writeErr.stack);
     }
-    return content;
+    return { date: today, content, generated: true };
   } catch (err) {
     console.error('Devotional generation error:', err.message);
-    return null;
+    return { date: today, content: null, generated: false };
   }
+}
+
+// On-demand path (GET /devotional). Behavior unchanged for a visiting user:
+// returns today's devotional markdown string, or null on failure.
+async function getDailyDevotional(req) {
+  const result = await ensureTodaysDevotional(req.app.locals.prompts);
+  return result.content;
 }
 
 router.get('/dashboard', requireAuth, (req, res) => {
@@ -361,4 +376,4 @@ router.get('/dashboard', requireAuth, (req, res) => {
   res.send(renderLayout({ req, activeSection: 'dashboard', title: 'Dashboard', content, scripts }));
 });
 
-module.exports = { router, getDailyDevotional, getDevotionalArchive };
+module.exports = { router, getDailyDevotional, getDevotionalArchive, ensureTodaysDevotional };

@@ -5,6 +5,7 @@ const FileStore  = require('session-file-store')(session);
 const path       = require('path');
 const fs         = require('fs');
 const rateLimit  = require('express-rate-limit');
+const cron       = require('node-cron');
 
 fs.mkdirSync(path.join(__dirname, 'sessions'), { recursive: true });
 
@@ -12,7 +13,7 @@ const authRoutes          = require('./routes/auth');
 const landingRoutes       = require('./routes/landing');
 const inviteRoutes        = require('./routes/invite');
 const passwordResetRoutes = require('./routes/password-reset');
-const { router: dashboardRoutes } = require('./routes/dashboard');
+const { router: dashboardRoutes, ensureTodaysDevotional } = require('./routes/dashboard');
 const devotionalRoutes    = require('./routes/devotional');
 const settingsRoutes      = require('./routes/settings');
 const studyRoutes         = require('./routes/study');
@@ -200,6 +201,29 @@ placeholders.forEach(({ path: p, id, label, icon, blurb }) => {
     res.send(renderLayout({ req, activeSection: id, title: label, content }));
   });
 });
+
+// ─── Scheduled Daily Devotional ─────────────────────────────────────────────
+// Generate + save the day's devotional automatically each morning so the archive
+// has no gaps on days nobody opens the Devotional tab. Runs in-process under PM2.
+// ensureTodaysDevotional() is idempotent — if today's entry already exists it
+// no-ops (no duplicate, no wasted API call). Fires at 04:00 America/Denver so the
+// devotion is ready before members visit. Does NOT backfill past days.
+cron.schedule('0 4 * * *', async () => {
+  try {
+    const { date, content, generated } = await ensureTodaysDevotional(app.locals.prompts);
+    if (generated && content) {
+      console.log('[devotional-cron] generated ' + date);
+    } else if (content) {
+      console.log('[devotional-cron] already present for ' + date);
+    } else {
+      console.warn('[devotional-cron] generation FAILED for ' + date + ' — will retry tomorrow');
+    }
+  } catch (err) {
+    // Never let a generation hiccup (e.g. an Anthropic API error) crash the cron or the server.
+    console.error('[devotional-cron] unexpected error:', err && err.message ? err.message : err);
+  }
+}, { timezone: 'America/Denver' });
+console.log('[devotional-cron] scheduled daily at 04:00 America/Denver');
 
 // ─── Start ────────────────────────────────────────────────────────────────
 const http = require('http');
