@@ -9,7 +9,10 @@ import { TOURS } from '/js/tours.js';
 const PAGE       = window.__currentPage;
 const TOURS_SEEN = window.__toursSeen || {};
 
-if (TOURS[PAGE] && TOURS_SEEN[PAGE] === false) {
+// Show the tour UNLESS this page has been explicitly marked seen (=== true).
+// A missing/undefined flag means "not seen yet" -> show it, so any code path
+// that forgets to initialize toursSeen can't silently suppress the tour.
+if (TOURS[PAGE] && TOURS_SEEN[PAGE] !== true) {
   // Delay so page-specific scripts finish rendering dynamic content.
   setTimeout(startTour, 800);
 }
