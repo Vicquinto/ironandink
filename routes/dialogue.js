@@ -149,7 +149,12 @@ router.get('/dialogue', requireAuth, (req, res) => {
           <p class="loading-text">Analyzing your session&#8230;</p>
         </div>
         <div id="gapResults" style="display:none;">
+          <div class="gap-summary-box gap-strengths-box">
+            <p class="gap-part-label">What you did well</p>
+            <p id="gapStrengthsText"></p>
+          </div>
           <div class="gap-summary-box">
+            <p class="gap-part-label">Where to sharpen</p>
             <p id="gapSummaryText"></p>
           </div>
           <p class="gap-study-next-label">The adversary pressed hardest on: <em id="gapStudyNextText"></em></p>
@@ -170,7 +175,7 @@ router.get('/dialogue', requireAuth, (req, res) => {
     activeSection: 'dialogue',
     title: 'Dialogue',
     content,
-    scripts: '<script src="/js/dialogue.js"></script>',
+    scripts: '<script src="/js/dialogue.js?v=2"></script>',
   }));
 });
 
@@ -300,7 +305,7 @@ router.post('/api/dialogue/gaps', requireAuth, async (req, res) => {
     ? transcript.map(m => (m.role === 'assistant' ? 'Adversary' : 'Student') + ': ' + m.content).join('\n\n')
     : String(transcript || '');
 
-  const userPrompt = `You have just completed an adversarial dialogue session on "${topic}" from the ${adversarialPosition} position. Here is the full transcript:\n\n${transcriptText}\n\nIn 2-3 sentences, identify where the student's answers were weakest or where a challenge went unanswered. Then state in 5 words or fewer the single most important topic the student should study next to strengthen their position. Return your response in this exact JSON format: { "summary": "2-3 sentence gap analysis", "studyNext": "topic in 5 words or fewer" }`;
+  const userPrompt = `You have just completed an adversarial dialogue session on "${topic}" from the ${adversarialPosition} position. Here is the full transcript:\n\n${transcriptText}\n\nGive the student warm, honest, pastoral feedback in three parts:\n\n1. STRENGTHS — In 1-2 sentences, affirm specifically what the student argued well, defended soundly, or handled rightly. Be genuine and concrete, never flattery. If the student genuinely struggled throughout, stay honest but still find something real to encourage (for example their willingness to engage a hard objection) rather than inventing praise.\n\n2. GROWTH — In 1-2 sentences, identify where the student's answers were weakest or where a challenge went unanswered.\n\n3. NEXT TOPIC — In 5 words or fewer, the single most important topic the student should study next to strengthen their position.\n\nReturn your response in this exact JSON format: { "strengths": "1-2 sentences", "growth": "1-2 sentences", "nextTopic": "topic in 5 words or fewer" }`;
 
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -317,7 +322,14 @@ router.post('/api/dialogue/gaps', requireAuth, async (req, res) => {
     if (!jsonMatch) throw new Error('No JSON in response');
     const parsed = JSON.parse(jsonMatch[0]);
 
-    res.json({ success: true, summary: parsed.summary, studyNext: parsed.studyNext });
+    // Accept the new three-part shape, and fall back to the old key names
+    // (summary/studyNext) so a stale or partial response still renders.
+    res.json({
+      success:   true,
+      strengths: parsed.strengths || '',
+      growth:    parsed.growth    || parsed.summary   || '',
+      nextTopic: parsed.nextTopic || parsed.studyNext || '',
+    });
   } catch (err) {
     console.error('[Dialogue/gaps]', err.message);
     res.json({ success: false, error: err.message });

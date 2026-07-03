@@ -32,6 +32,7 @@
   var endSessionConfirm   = document.getElementById('endSessionConfirm');
   var gapLoading          = document.getElementById('gapLoading');
   var gapResults          = document.getElementById('gapResults');
+  var gapStrengthsText    = document.getElementById('gapStrengthsText');
   var gapSummaryText      = document.getElementById('gapSummaryText');
   var gapStudyNextText    = document.getElementById('gapStudyNextText');
 
@@ -295,11 +296,40 @@
       });
       var data = await res.json();
 
-      if (data.success && data.summary && data.studyNext) {
-        gapStudyNextValue = data.studyNext;
-        if (gapSummaryText)   gapSummaryText.textContent   = data.summary;
-        if (gapStudyNextText) gapStudyNextText.textContent  = data.studyNext;
-        if (gapResults)       gapResults.style.display      = 'block';
+      if (data.success) {
+        // Accept the new three-part shape; fall back to the old key names so a
+        // stale/partial response still renders. Each part degrades on its own.
+        var strengths = (data.strengths || '').trim();
+        var growth    = (data.growth || data.summary || '').trim();
+        var nextTopic = (data.nextTopic || data.studyNext || '').trim();
+
+        gapStudyNextValue = nextTopic;
+
+        // 1. Strengths (affirm first) — hide its box if empty
+        if (gapStrengthsText) {
+          gapStrengthsText.textContent = strengths;
+          var sBox = gapStrengthsText.closest('.gap-strengths-box');
+          if (sBox) sBox.style.display = strengths ? '' : 'none';
+        }
+
+        // 2. Growth (where to sharpen) — hide its box if empty
+        if (gapSummaryText) {
+          gapSummaryText.textContent = growth;
+          var gBox = gapSummaryText.closest('.gap-summary-box');
+          if (gBox) gBox.style.display = growth ? '' : 'none';
+        }
+
+        // 3. Next topic — hide the line if empty (studyNextBtn still works)
+        if (gapStudyNextText) {
+          gapStudyNextText.textContent = nextTopic;
+          var nLabel = gapStudyNextText.closest('.gap-study-next-label');
+          if (nLabel) nLabel.style.display = nextTopic ? '' : 'none';
+        }
+
+        // Reveal the panel if we got anything usable at all
+        if (gapResults && (strengths || growth || nextTopic)) {
+          gapResults.style.display = 'block';
+        }
       }
     } catch (err) {
       // Gap analysis failed — still show buttons

@@ -1717,6 +1717,25 @@ body {
   line-height: 1.5;
 }
 
+/* Small heading above each feedback part (Strengths / Growth) */
+.gap-part-label {
+  font-style: normal;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dark-cream);
+  margin-bottom: 6px;
+  text-align: left;
+}
+
+/* Strengths callout — same shape as the growth box, warmer/affirming tint.
+   Applied alongside .gap-summary-box so it inherits padding/italic/etc. */
+.gap-strengths-box {
+  background: rgba(122,143,106,0.12);
+  border: 1px solid rgba(122,143,106,0.30);
+}
+
 .btn-discard {
   background: transparent;
   border: 1px solid #5C1A28;
