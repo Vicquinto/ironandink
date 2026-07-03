@@ -402,6 +402,29 @@
     }, 2800);
   }
 
+  // ── Reset my tours (testing utility) ──────────────────────────────────────
+  var resetMyToursBtn = document.getElementById('resetMyToursBtn');
+  if (resetMyToursBtn) {
+    resetMyToursBtn.addEventListener('click', async function () {
+      resetMyToursBtn.disabled    = true;
+      var original                = resetMyToursBtn.textContent;
+      resetMyToursBtn.textContent = 'Resetting…';
+      try {
+        var r    = await fetch('/api/admin/reset-my-tours', { method: 'POST' });
+        var data = await r.json();
+        if (data.success) {
+          showToast("Tours reset — they'll show again as you visit each page.");
+        } else {
+          showToast('Reset failed: ' + (data.error || 'Unknown error.'), true);
+        }
+      } catch (err) {
+        showToast('Error: ' + err.message, true);
+      }
+      resetMyToursBtn.disabled    = false;
+      resetMyToursBtn.textContent = original;
+    });
+  }
+
   // ── Copy invite link ──────────────────────────────────────────────────────
   if (copyInviteLinkBtn) {
     copyInviteLinkBtn.addEventListener('click', function () {

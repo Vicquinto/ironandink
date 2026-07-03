@@ -99,6 +99,11 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
       </div>
 
       <div id="adminTabMembers" class="admin-tab-content" style="display:none;">
+        <div class="admin-testing-utils" style="background:var(--card-bg); border:1px solid rgba(160,132,92,0.25); border-radius:6px; padding:16px 20px; margin-bottom:24px;">
+          <h3 class="community-section-label" style="margin-bottom:8px;">Testing Utilities</h3>
+          <p style="font-size:0.82rem; color:var(--dark-cream); margin-bottom:12px; line-height:1.5;">Reset your own guided tours so the onboarding pop-ups show again as you visit each page. Only affects your account.</p>
+          <button class="btn-warm" id="resetMyToursBtn" style="font-size:0.82rem; padding:6px 16px;">Reset my tours</button>
+        </div>
         <div id="memberList" class="article-list-container"></div>
         <p id="memberEmpty" class="writing-empty" style="display:none;">No members.</p>
       </div>
@@ -178,7 +183,7 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
     activeSection: 'admin',
     title:         'Admin Panel',
     content,
-    scripts: `<script src="/js/admin.js?v=12"></script>
+    scripts: `<script src="/js/admin.js?v=13"></script>
 <script>
 (function () {
   var form     = document.getElementById('directInviteForm');
@@ -498,6 +503,34 @@ router.post('/api/admin/members/:id/reinstate', requireAuth, requireAdmin, (req,
   users[idx].isActive = true;
   writeJSON(USERS_PATH, users);
   res.json({ success: true });
+});
+
+// ─── POST /api/admin/reset-my-tours ──────────────────────────────────────────
+// Testing utility: resets ONLY the currently-logged-in admin's toursSeen flags
+// back to all-false, so every guided tour fires again on their next visit.
+// Touches nothing but this one user's toursSeen. Valid pages come from help.js's
+// VALID_TOUR_PAGES so the list stays in sync (required lazily; require() is
+// cached, and this avoids any module load-order fragility).
+router.post('/api/admin/reset-my-tours', requireAuth, requireAdmin, (req, res) => {
+  try {
+    const { VALID_TOUR_PAGES } = require('./help');
+    const pages = Array.isArray(VALID_TOUR_PAGES) ? VALID_TOUR_PAGES : [];
+
+    const users = readJSON(USERS_PATH);
+    const idx   = users.findIndex(u => u.id === req.session.userId);
+    if (idx === -1) return res.status(404).json({ success: false, error: 'User not found.' });
+
+    // Rebuild toursSeen as all-false for every valid tour page — this user only.
+    const toursSeen = {};
+    pages.forEach(p => { toursSeen[p] = false; });
+    users[idx].toursSeen = toursSeen;
+
+    writeJSON(USERS_PATH, users);
+    res.json({ success: true, pages });
+  } catch (err) {
+    console.error('[reset-my-tours]', err.message);
+    res.status(500).json({ success: false, error: 'Could not reset tours.' });
+  }
 });
 
 // ─── GET /api/admin/feedback ─────────────────────────────────────────────────

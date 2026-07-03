@@ -195,3 +195,6 @@ router.post('/api/feedback', requireAuth, (req, res) => {
 });
 
 module.exports = router;
+// Single source of truth for which pages have guided tours. Other routes
+// (e.g. admin's "reset my tours") import this so the list stays in sync.
+module.exports.VALID_TOUR_PAGES = VALID_TOUR_PAGES;
