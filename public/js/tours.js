@@ -132,7 +132,7 @@ export const TOURS = {
       id:       'dialogue-review',
       attachTo: null,
       title:    'Review & Grow',
-      text:     'When you finish a session, you’ll get a short, honest review — where your answers were weakest or a challenge went unanswered — plus the single most important topic to study next, ready to open with one click. It turns each dialogue into a step forward.',
+      text:     'When you finish a session, you’ll get a warm, honest review — what you argued well, where to sharpen, and the single most important topic to study next, ready to open with one click. It turns each dialogue into a step forward.',
       buttons:  ['back', 'finish'],
     },
   ],
