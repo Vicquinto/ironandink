@@ -45,11 +45,9 @@
           '</div>'
         : '';
 
-      var tagsValue = s.tags ? s.tags.join(', ') : '';
-      var editStarsHtml = [1, 2, 3, 4, 5].map(function (n) {
-        var cls = n <= (s.rating || 0) ? ' edit-star-active' : '';
-        return '<span class="edit-star' + cls + '" data-val="' + n + '">&#9733;</span>';
-      }).join('');
+      var sharedBadge = s.shared === true
+        ? '<span class="study-card-shared" title="Shared to Community">&#128101; Shared</span>'
+        : '';
 
       return '<div class="study-card" data-id="' + esc(s.id) + '" tabindex="0" role="button">' +
           '<div class="study-card-header">' +
@@ -63,52 +61,34 @@
             '<span class="study-card-date">' + formatDate(s.savedAt) + '</span>' +
             '<span class="study-card-translation">' + esc(s.translation || 'LSB') + '</span>' +
             studyLevelBadge(s.studyLevel) +
+            sharedBadge +
           '</div>' +
           tagsHtml +
           starsHtml +
-          '<div class="card-edit-panel" style="display:none;">' +
-            '<div class="card-edit-row">' +
-              '<label class="card-edit-label">Title</label>' +
-              '<input type="text" class="form-input card-edit-title" value="' + esc(s.topic) + '">' +
-            '</div>' +
-            '<div class="card-edit-row">' +
-              '<label class="card-edit-label">Tags <span class="card-edit-hint">(comma-separated)</span></label>' +
-              '<input type="text" class="form-input card-edit-tags" value="' + esc(tagsValue) + '" placeholder="e.g. soteriology, TULIP">' +
-            '</div>' +
-            '<div class="card-edit-row">' +
-              '<label class="card-edit-label">Rating</label>' +
-              '<div class="edit-star-row">' + editStarsHtml + '</div>' +
-            '</div>' +
-            '<div class="card-edit-actions">' +
-              '<button class="card-edit-save">Save Changes</button>' +
-              '<button class="card-edit-cancel">Cancel</button>' +
-            '</div>' +
-          '</div>' +
         '</div>';
     }).join('');
 
-    // Wire up each card
+    // Wire up each card. The edit UI is now a single floating popup (built once,
+    // see buildEditPopup) rather than an inline per-card panel — so an open editor
+    // no longer stretches its rowmates in the grid.
     grid.querySelectorAll('.study-card').forEach(function (card) {
-      var id        = card.dataset.id;
-      var editPanel = card.querySelector('.card-edit-panel');
-      var study     = allStudies.find(function (s) { return s.id === id; }) || {};
-      var editRating = study.rating || 0;
+      var id    = card.dataset.id;
+      var study = allStudies.find(function (s) { return s.id === id; }) || {};
 
-      // Card click → render study inline (skip if clicking inside edit area or action buttons)
+      // Card click → render study inline (skip if clicking the action buttons)
       card.addEventListener('click', function (e) {
-        if (e.target.closest('.card-edit-panel') ||
-            e.target.classList.contains('card-edit-btn') ||
+        if (e.target.classList.contains('card-edit-btn') ||
             e.target.classList.contains('card-delete-btn')) return;
         if (study) showStudyInline(study);
       });
       card.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' && editPanel.style.display === 'none') card.click();
+        if (e.key === 'Enter') card.click();
       });
 
-      // Edit button — toggle panel
+      // Edit button — open the floating popup anchored to this card
       card.querySelector('.card-edit-btn').addEventListener('click', function (e) {
         e.stopPropagation();
-        editPanel.style.display = editPanel.style.display === 'none' ? 'block' : 'none';
+        openEditPopup(study, card);
       });
 
       // Delete button
@@ -118,56 +98,150 @@
           await deleteStudy(id);
         });
       });
-
-      // Edit panel star rating
-      function highlightEditStars(n) {
-        editPanel.querySelectorAll('.edit-star').forEach(function (star) {
-          star.classList.toggle('edit-star-active', parseInt(star.dataset.val) <= n);
-        });
-      }
-      editPanel.querySelectorAll('.edit-star').forEach(function (star) {
-        star.addEventListener('mouseover', function () { highlightEditStars(parseInt(star.dataset.val)); });
-        star.addEventListener('mouseout',  function () { highlightEditStars(editRating); });
-        star.addEventListener('click', function (e) {
-          e.stopPropagation();
-          editRating = parseInt(star.dataset.val);
-          highlightEditStars(editRating);
-        });
-      });
-
-      // Save Changes
-      editPanel.querySelector('.card-edit-save').addEventListener('click', async function (e) {
-        e.stopPropagation();
-        var newTopic = editPanel.querySelector('.card-edit-title').value.trim();
-        var newTags  = editPanel.querySelector('.card-edit-tags').value;
-        if (!newTopic) { editPanel.querySelector('.card-edit-title').focus(); return; }
-        try {
-          var res  = await fetch('/api/library/' + encodeURIComponent(id), {
-            method:  'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ topic: newTopic, tags: newTags, rating: editRating }),
-          });
-          var data = await res.json();
-          if (data.success) {
-            var idx = allStudies.findIndex(function (s) { return s.id === id; });
-            if (idx !== -1) { allStudies[idx] = data.study; study = data.study; }
-            applyFilters();
-            showToast('Study updated.');
-          } else {
-            showToast('Error: ' + (data.error || 'Update failed.'), true);
-          }
-        } catch (err) {
-          showToast('Error: ' + err.message, true);
-        }
-      });
-
-      // Cancel
-      editPanel.querySelector('.card-edit-cancel').addEventListener('click', function (e) {
-        e.stopPropagation();
-        editPanel.style.display = 'none';
-      });
     });
   }
+
+  // ── Floating edit popup (single instance, reused for every card) ────────────
+  // Replaces the old inline .card-edit-panel. Fixed-positioned overlay so opening
+  // the editor never changes card heights / stretches neighbors in the grid.
+  var editPopup        = null;
+  var editPopupStudyId = null;
+  var editPopupRating  = 0;
+
+  function buildEditPopup() {
+    var el = document.createElement('div');
+    el.id        = 'cardEditPopup';
+    el.className = 'card-edit-popup';
+    el.style.display = 'none';
+    var starsHtml = [1, 2, 3, 4, 5].map(function (n) {
+      return '<span class="edit-star" data-val="' + n + '">&#9733;</span>';
+    }).join('');
+    el.innerHTML =
+      '<div class="card-edit-popup-inner">' +
+        '<div class="card-edit-popup-header">' +
+          '<span class="card-edit-popup-title">Edit Study</span>' +
+          '<button class="card-edit-popup-close" title="Close">&times;</button>' +
+        '</div>' +
+        '<div class="card-edit-row">' +
+          '<label class="card-edit-label">Title</label>' +
+          '<input type="text" class="form-input card-edit-title">' +
+        '</div>' +
+        '<div class="card-edit-row">' +
+          '<label class="card-edit-label">Tags <span class="card-edit-hint">(comma-separated)</span></label>' +
+          '<input type="text" class="form-input card-edit-tags" placeholder="e.g. soteriology, TULIP">' +
+        '</div>' +
+        '<div class="card-edit-row">' +
+          '<label class="card-edit-label">Rating</label>' +
+          '<div class="edit-star-row">' + starsHtml + '</div>' +
+        '</div>' +
+        '<div class="card-edit-row">' +
+          '<label class="share-toggle-row">' +
+            '<input type="checkbox" class="card-edit-share">' +
+            '<span class="share-toggle-label">Share to Community</span>' +
+          '</label>' +
+        '</div>' +
+        '<div class="card-edit-actions">' +
+          '<button class="card-edit-save">Save Changes</button>' +
+          '<button class="card-edit-cancel">Cancel</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(el);
+
+    function highlightStars(n) {
+      el.querySelectorAll('.edit-star').forEach(function (star) {
+        star.classList.toggle('edit-star-active', parseInt(star.dataset.val) <= n);
+      });
+    }
+    el.querySelectorAll('.edit-star').forEach(function (star) {
+      star.addEventListener('mouseover', function () { highlightStars(parseInt(star.dataset.val)); });
+      star.addEventListener('mouseout',  function () { highlightStars(editPopupRating); });
+      star.addEventListener('click', function () {
+        editPopupRating = parseInt(star.dataset.val);
+        highlightStars(editPopupRating);
+      });
+    });
+
+    el.querySelector('.card-edit-cancel').addEventListener('click', closeEditPopup);
+    el.querySelector('.card-edit-popup-close').addEventListener('click', closeEditPopup);
+    // Keep clicks inside the popup from bubbling to the outside-dismiss handler
+    el.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+
+    el.querySelector('.card-edit-save').addEventListener('click', async function () {
+      var id = editPopupStudyId;
+      if (!id) return;
+      var newTopic  = el.querySelector('.card-edit-title').value.trim();
+      var newTags   = el.querySelector('.card-edit-tags').value;
+      var newShared = el.querySelector('.card-edit-share').checked;
+      if (!newTopic) { el.querySelector('.card-edit-title').focus(); return; }
+      try {
+        var res  = await fetch('/api/library/' + encodeURIComponent(id), {
+          method:  'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ topic: newTopic, tags: newTags, rating: editPopupRating, shared: newShared }),
+        });
+        var data = await res.json();
+        if (data.success) {
+          var idx = allStudies.findIndex(function (s) { return s.id === id; });
+          if (idx !== -1) allStudies[idx] = data.study;
+          closeEditPopup();
+          applyFilters();
+          showToast(newShared ? 'Study updated and shared to Community.' : 'Study updated.');
+        } else {
+          showToast('Error: ' + (data.error || 'Update failed.'), true);
+        }
+      } catch (err) {
+        showToast('Error: ' + err.message, true);
+      }
+    });
+
+    return el;
+  }
+
+  function openEditPopup(study, anchorEl) {
+    if (!editPopup) editPopup = buildEditPopup();
+    editPopupStudyId = study.id;
+    editPopupRating  = study.rating || 0;
+    editPopup.querySelector('.card-edit-title').value   = study.topic || '';
+    editPopup.querySelector('.card-edit-tags').value    = (study.tags || []).join(', ');
+    editPopup.querySelector('.card-edit-share').checked = study.shared === true;
+    editPopup.querySelectorAll('.edit-star').forEach(function (star) {
+      star.classList.toggle('edit-star-active', parseInt(star.dataset.val) <= editPopupRating);
+    });
+
+    // Position: fixed overlay near the card, clamped to the viewport.
+    editPopup.style.visibility = 'hidden';
+    editPopup.style.display    = 'block';
+    var pw   = editPopup.offsetWidth;
+    var ph   = editPopup.offsetHeight;
+    var rect = anchorEl.getBoundingClientRect();
+    var vw   = window.innerWidth, vh = window.innerHeight;
+    var left = Math.min(Math.max(8, rect.left), vw - pw - 8);
+    var top  = rect.top;
+    if (top + ph > vh - 8) top = Math.max(8, vh - ph - 8);
+    editPopup.style.left       = left + 'px';
+    editPopup.style.top        = top + 'px';
+    editPopup.style.visibility = '';
+    setTimeout(function () { editPopup.querySelector('.card-edit-title').focus(); }, 40);
+  }
+
+  function closeEditPopup() {
+    if (editPopup) editPopup.style.display = 'none';
+    editPopupStudyId = null;
+  }
+
+  // Dismiss the edit popup on outside click or Esc
+  document.addEventListener('mousedown', function (e) {
+    if (editPopup && editPopup.style.display !== 'none' &&
+        !e.target.closest('#cardEditPopup') &&
+        !e.target.classList.contains('card-edit-btn')) {
+      closeEditPopup();
+    }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && editPopup && editPopup.style.display !== 'none') {
+      closeEditPopup();
+    }
+  });
 
   // ── Inline study view (replaces card grid, matches Study page) ──────────────
   var libGuideArea  = document.getElementById('libGuideArea');

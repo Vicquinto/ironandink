@@ -6,6 +6,7 @@ const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
 
 const router        = express.Router();
 const ARTICLES_PATH = path.join(__dirname, '../data/articles.json');
+const STUDIES_PATH  = path.join(__dirname, '../data/studies.json');
 const USERS_PATH    = path.join(__dirname, '../data/users.json');
 const AMENS_PATH    = path.join(__dirname, '../data/community.json');
 const COMMENTS_PATH = path.join(__dirname, '../data/comments.json');
@@ -44,6 +45,7 @@ router.get('/community', requireAuth, (req, res) => {
   const content = `
     <div class="believe-tabs community-tabs">
       <button class="believe-tab community-tab active" data-ctab="articles">Articles</button>
+      <button class="believe-tab community-tab" data-ctab="studies">Studies</button>
       <button class="believe-tab community-tab" data-ctab="prayers">Prayer Requests</button>
     </div>
 
@@ -95,6 +97,19 @@ router.get('/community', requireAuth, (req, res) => {
       </div>
     </div>
 
+    <div id="studiesBoard" style="display:none;">
+      <div class="page-header">
+        <h2 class="page-title">Community Studies</h2>
+        <p class="page-subtitle">Study guides shared by the Iron &amp; Ink community.</p>
+      </div>
+      <div id="studiesLoading" class="study-loading" style="display:none;">
+        <div class="study-spinner"></div>
+        <p class="loading-text">Loading&#8230;</p>
+      </div>
+      <div id="studiesList" class="community-feed-list"></div>
+      <p id="studiesEmpty" class="writing-empty" style="display:none;">No studies have been shared yet.</p>
+    </div>
+
     <div id="prayerBoard" style="display:none;">
       <div class="page-header">
         <h2 class="page-title">Prayer Requests</h2>
@@ -136,7 +151,7 @@ router.get('/community', requireAuth, (req, res) => {
         window.IS_ADMIN = ${isAdmin};
         window.CURRENT_USER_ID = ${JSON.stringify(req.session.userId)};
       </script>
-      <script src="/js/community.js?v=8"></script>`,
+      <script src="/js/community.js?v=9"></script>`,
   }));
 });
 
@@ -158,6 +173,29 @@ router.get('/api/community/articles', requireAuth, (req, res) => {
       return new Date(b.publishedAt || b.updatedAt) - new Date(a.publishedAt || a.updatedAt);
     });
   res.json({ success: true, articles });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// SHARED STUDIES  (direct-publish — no admin approval gate)
+// A study becomes community-visible the moment its owner sets shared === true.
+// ════════════════════════════════════════════════════════════════════════════
+
+// ─── GET /api/community/studies — feed of shared studies (newest-shared first) ─
+router.get('/api/community/studies', requireAuth, (req, res) => {
+  const studies = readJSON(STUDIES_PATH)
+    .filter(s => s.shared === true)          // missing flag === not shared
+    .map(s => ({
+      id:          s.id,
+      topic:       s.topic,                  // studies use `topic`, not `title`
+      content:     s.content,
+      translation: s.translation || 'LSB',
+      studyLevel:  s.studyLevel || null,
+      tags:        s.tags || [],
+      authorName:  getAuthorName(s.userId),
+      sharedAt:    s.sharedAt || s.savedAt || s.createdAt || null,
+    }))
+    .sort((a, b) => new Date(b.sharedAt || 0) - new Date(a.sharedAt || 0));
+  res.json({ success: true, studies });
 });
 
 // ─── GET /api/community/articles/:id ─────────────────────────────────────────

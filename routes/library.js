@@ -96,7 +96,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/library.js?v=24"></script>',
+    scripts: '<script src="/js/library.js?v=25"></script>',
   }));
 });
 
@@ -109,7 +109,7 @@ router.get('/api/library', requireAuth, (req, res) => {
 
 // ─── POST /api/library/save ──────────────────────────────────────────────────
 router.post('/api/library/save', requireAuth, (req, res) => {
-  const { topic, content, translation, tags, rating, studyLength, studyLevel, createdAt } = req.body;
+  const { topic, content, translation, tags, rating, studyLength, studyLevel, createdAt, shared } = req.body;
   if (!topic || !content) {
     return res.status(400).json({ success: false, error: 'Topic and content are required.' });
   }
@@ -120,6 +120,8 @@ router.post('/api/library/save', requireAuth, (req, res) => {
 
   const userSettings = req.session.user && req.session.user.settings;
   const validLevels  = ['foundations', 'journeyman', 'scholar'];
+  const now          = new Date().toISOString();
+  const isShared     = shared === true;
   const study = {
     id:          randomUUID(),
     userId:      req.session.userId,
@@ -132,8 +134,10 @@ router.post('/api/library/save', requireAuth, (req, res) => {
       ? studyLevel
       : ((userSettings && userSettings.studyLevel) || 'journeyman'),
     studyLength: ['Short', 'Standard', 'Deep'].includes(studyLength) ? studyLength : 'Short',
-    createdAt:   createdAt || new Date().toISOString(),
-    savedAt:     new Date().toISOString(),
+    shared:      isShared,                    // community-sharing flag (default false)
+    sharedAt:    isShared ? now : null,       // stamp when first shared, for feed sort
+    createdAt:   createdAt || now,
+    savedAt:     now,
   };
 
   const studies = readStudies();
@@ -145,7 +149,7 @@ router.post('/api/library/save', requireAuth, (req, res) => {
 
 // ─── PUT /api/library/:id ────────────────────────────────────────────────────
 router.put('/api/library/:id', requireAuth, (req, res) => {
-  const { topic, tags, rating } = req.body;
+  const { topic, tags, rating, shared } = req.body;
   const studies = readStudies();
   const idx = studies.findIndex(
     s => s.id === req.params.id && s.userId === req.session.userId
@@ -158,6 +162,15 @@ router.put('/api/library/:id', requireAuth, (req, res) => {
   }
   if (rating !== undefined) {
     studies[idx].rating = Math.min(5, Math.max(0, parseInt(rating) || 0));
+  }
+  if (shared !== undefined) {
+    const nextShared = shared === true;
+    // Stamp sharedAt only on the private → shared transition so the community
+    // feed can sort by "when shared". Leave the original stamp if already shared.
+    if (nextShared && studies[idx].shared !== true) {
+      studies[idx].sharedAt = new Date().toISOString();
+    }
+    studies[idx].shared = nextShared;
   }
   writeStudies(studies);
   res.json({ success: true, study: studies[idx] });

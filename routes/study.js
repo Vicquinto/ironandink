@@ -200,6 +200,13 @@ router.get('/study', requireAuth, (req, res) => {
           <span class="star" data-val="5">&#9733;</span>
         </div>
       </div>
+      <div class="form-group">
+        <label class="share-toggle-row">
+          <input type="checkbox" id="saveShareInput">
+          <span class="share-toggle-label">Share to Community</span>
+        </label>
+        <p class="share-toggle-note">Publishes this study to the Community Studies feed under your name. You can un-share it later from your Library.</p>
+      </div>
       <div class="save-panel-btns">
         <button class="btn-primary" id="confirmSaveBtn">Save</button>
         <button class="btn-warm" id="cancelSaveBtn">Cancel</button>
@@ -217,7 +224,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study.js"></script><script src="/js/library.js?v=24"></script>
+    scripts: `<script src="/js/study.js"></script><script src="/js/library.js?v=25"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};

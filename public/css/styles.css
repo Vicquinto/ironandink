@@ -1155,6 +1155,74 @@ body {
 .edit-star.edit-star-active { color: var(--accent); }
 .edit-star:hover { color: var(--accent); }
 
+/* ─── Floating edit popup (replaces the old inline card-edit-panel) ─────────── */
+.card-edit-popup {
+  position: fixed;
+  z-index: 900;
+  width: 340px;
+  max-width: calc(100vw - 16px);
+  background: var(--card-bg, #fbf6ea);
+  border: 1px solid rgba(160,132,92,0.35);
+  border-radius: 8px;
+  box-shadow: 0 12px 40px rgba(40,26,12,0.28);
+}
+.card-edit-popup-inner { padding: 16px 18px; }
+.card-edit-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.card-edit-popup-title {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 1.05rem;
+  color: var(--warm-brown);
+  letter-spacing: 0.03em;
+}
+.card-edit-popup-close {
+  background: transparent;
+  border: none;
+  color: var(--warm-brown);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+}
+.card-edit-popup-close:hover { color: var(--dark-cream); }
+
+/* ─── "Share to Community" toggle (save panel + edit popup) ─────────────────── */
+.share-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-family: 'EB Garamond', Georgia, serif;
+}
+.share-toggle-row input[type="checkbox"] { cursor: pointer; width: 16px; height: 16px; accent-color: var(--accent); }
+.share-toggle-label {
+  font-size: 0.92rem;
+  color: var(--warm-brown);
+  letter-spacing: 0.02em;
+}
+.share-toggle-note {
+  font-size: 0.75rem;
+  color: var(--warm-brown);
+  opacity: 0.8;
+  line-height: 1.45;
+  margin: 6px 0 0 24px;
+}
+
+/* Shared indicator on a Library study card */
+.study-card-shared {
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: #5C1A28;
+  background: rgba(92,26,40,0.10);
+  border-radius: 3px;
+  padding: 1px 7px;
+  white-space: nowrap;
+}
+
 .study-card-meta {
   display: flex;
   gap: 10px;

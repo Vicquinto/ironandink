@@ -32,6 +32,7 @@ async function sendInviteEmail(toEmail, toName, inviteUrl) {
 
 const router               = express.Router();
 const ARTICLES_PATH        = path.join(__dirname, '../data/articles.json');
+const STUDIES_PATH         = path.join(__dirname, '../data/studies.json');
 const USERS_PATH           = path.join(__dirname, '../data/users.json');
 const AMENS_PATH           = path.join(__dirname, '../data/community.json');
 const COMMENTS_PATH        = path.join(__dirname, '../data/comments.json');
@@ -328,6 +329,19 @@ router.patch('/api/admin/:id/unpublish', requireAuth, requireAdmin, (req, res) =
   articles[idx].updatedAt   = new Date().toISOString();
   writeJSON(ARTICLES_PATH, articles);
   res.json({ success: true, article: articles[idx] });
+});
+
+// ─── PATCH /api/admin/studies/:id/unshare — admin backstop ───────────────────
+// Removes a study from the Community feed by setting shared === false. This does
+// NOT delete the study — it returns to being private in the owner's Library.
+router.patch('/api/admin/studies/:id/unshare', requireAuth, requireAdmin, (req, res) => {
+  const studies = readJSON(STUDIES_PATH);
+  const idx     = studies.findIndex(s => s.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ success: false, error: 'Study not found.' });
+  studies[idx].shared   = false;
+  studies[idx].sharedAt = null;
+  writeJSON(STUDIES_PATH, studies);
+  res.json({ success: true });
 });
 
 // ─── POST /api/admin/invite/send ─────────────────────────────────────────────

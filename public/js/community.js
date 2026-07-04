@@ -27,12 +27,18 @@
 
   var currentArticleId  = null;
   var currentUserAmened = false;
+  var readerReturnTo    = 'articles';  // where the inline reader's Back button returns
 
   // ── Back button ───────────────────────────────────────────────────────────
   if (communityBackBtn) {
     communityBackBtn.addEventListener('click', function () {
       communityReading.style.display = 'none';
-      communityFeed.style.display    = 'block';
+      if (readerReturnTo === 'studies') {
+        var sb = document.getElementById('studiesBoard');
+        if (sb) sb.style.display = 'block';
+      } else {
+        communityFeed.style.display = 'block';
+      }
     });
   }
 
@@ -133,6 +139,8 @@
       if (commentInput)   commentInput.value   = '';
       if (commentList)    commentList.innerHTML = '';
 
+      readerReturnTo = 'articles';
+      setReaderArticleSections(true); // ensure amen + comments visible for articles
       communityFeed.style.display    = 'none';
       communityReading.style.display = 'block';
 
@@ -344,6 +352,7 @@
 
   // ── Tab switching (Articles ↔ Prayer Requests) ─────────────────────────────
   var communityTabs = document.querySelectorAll('.community-tab');
+  var studiesBoard  = document.getElementById('studiesBoard');
   function switchCommunityTab(target) {
     communityTabs.forEach(function (t) {
       t.classList.toggle('active', t.getAttribute('data-ctab') === target);
@@ -351,10 +360,18 @@
     if (target === 'prayers') {
       if (communityFeed)    communityFeed.style.display    = 'none';
       if (communityReading) communityReading.style.display = 'none';
+      if (studiesBoard)     studiesBoard.style.display     = 'none';
       if (prayerBoard)      prayerBoard.style.display      = 'block';
       loadPrayers();
+    } else if (target === 'studies') {
+      if (communityFeed)    communityFeed.style.display    = 'none';
+      if (communityReading) communityReading.style.display = 'none';
+      if (prayerBoard)      prayerBoard.style.display      = 'none';
+      if (studiesBoard)     studiesBoard.style.display     = 'block';
+      loadSharedStudies();
     } else {
       if (prayerBoard)      prayerBoard.style.display      = 'none';
+      if (studiesBoard)     studiesBoard.style.display     = 'none';
       if (communityReading) communityReading.style.display = 'none';
       if (communityFeed)    communityFeed.style.display    = 'block';
     }
@@ -364,6 +381,121 @@
       switchCommunityTab(tab.getAttribute('data-ctab'));
     });
   });
+
+  // ══ SHARED STUDIES ══════════════════════════════════════════════════════════
+  // Direct-publish community studies. Reuses the article inline reader
+  // (#communityReading); studies have no Amen / comments, so those sections are
+  // hidden while a study is open and restored when an article is opened.
+  var studiesList    = document.getElementById('studiesList');
+  var studiesEmpty   = document.getElementById('studiesEmpty');
+  var studiesLoading = document.getElementById('studiesLoading');
+  var loadedStudies  = [];
+
+  var readerAmenSection    = communityReading ? communityReading.querySelector('.amen-section') : null;
+  var readerCommentSection = communityReading ? communityReading.querySelector('.comments-section') : null;
+  function setReaderArticleSections(show) {
+    if (readerAmenSection)    readerAmenSection.style.display    = show ? '' : 'none';
+    if (readerCommentSection) readerCommentSection.style.display = show ? '' : 'none';
+  }
+
+  async function loadSharedStudies() {
+    if (studiesLoading) studiesLoading.style.display = 'flex';
+    try {
+      var res  = await fetch('/api/community/studies');
+      var data = await res.json();
+      loadedStudies = (data && data.studies) || [];
+      renderStudies(loadedStudies);
+    } catch (err) {
+      if (studiesList) studiesList.innerHTML = '<p class="writing-empty">Could not load studies.</p>';
+    } finally {
+      if (studiesLoading) studiesLoading.style.display = 'none';
+    }
+  }
+
+  function renderStudies(studies) {
+    if (!studies.length) {
+      if (studiesEmpty) studiesEmpty.style.display = 'block';
+      if (studiesList)  studiesList.innerHTML = '';
+      return;
+    }
+    if (studiesEmpty) studiesEmpty.style.display = 'none';
+    if (studiesList) {
+      studiesList.innerHTML = studies.map(studyCard).join('');
+      attachStudyHandlers(studiesList);
+    }
+  }
+
+  function studyCard(s) {
+    var words    = s.content ? s.content.trim().split(/\s+/).length : 0;
+    var adminBtn = IS_ADMIN
+      ? '<button class="btn-warm community-study-unshare" data-id="' + esc(s.id) + '" style="font-size:0.78rem; padding:5px 12px;">Remove from Community</button>'
+      : '';
+    return '<div class="community-card" data-id="' + esc(s.id) + '">' +
+      '<h3 class="community-card-title">' + esc(s.topic) + '</h3>' +
+      '<div class="community-card-meta">' +
+        studyLevelBadge(s.studyLevel) +
+        '<span class="study-card-translation">' + esc(s.translation || 'LSB') + '</span>' +
+        '<span class="community-card-author">' + esc(s.authorName || '') + '</span>' +
+        '<span class="article-card-date">' + fmtDate(s.sharedAt) + '</span>' +
+        '<span class="article-word-count">' + words + ' words</span>' +
+      '</div>' +
+      '<div class="community-card-footer">' +
+        '<button class="btn-warm community-study-read" style="font-size:0.82rem; padding:6px 14px;">Read</button>' +
+        adminBtn +
+      '</div>' +
+    '</div>';
+  }
+
+  function attachStudyHandlers(container) {
+    if (!container) return;
+    container.querySelectorAll('.community-study-read').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var card = btn.closest('.community-card');
+        if (card) openSharedStudy(card.dataset.id);
+      });
+    });
+    container.querySelectorAll('.community-study-unshare').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        unshareStudy(btn.dataset.id);
+      });
+    });
+  }
+
+  function openSharedStudy(id) {
+    var s = loadedStudies.find(function (x) { return x.id === id; });
+    if (!s) return;
+    communityReadTitle.textContent = s.topic;
+    communityReadMeta.textContent  = (s.authorName || '') + ' · ' + fmtDate(s.sharedAt);
+    communityReadBody.innerHTML    = renderReadingText(s.content || '');
+    if (communityReadBadges) {
+      communityReadBadges.innerHTML =
+        '<span class="study-card-translation">' + esc(s.translation || 'LSB') + '</span>' +
+        (s.studyLevel ? ' ' + studyLevelBadge(s.studyLevel) : '');
+    }
+    setReaderArticleSections(false);   // studies have no Amen / comments
+    readerReturnTo = 'studies';
+    if (studiesBoard)     studiesBoard.style.display     = 'none';
+    if (communityFeed)    communityFeed.style.display    = 'none';
+    if (prayerBoard)      prayerBoard.style.display      = 'none';
+    communityReading.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  async function unshareStudy(id) {
+    try {
+      var res  = await fetch('/api/admin/studies/' + encodeURIComponent(id) + '/unshare', { method: 'PATCH' });
+      var data = await res.json();
+      if (data.success) {
+        loadedStudies = loadedStudies.filter(function (x) { return x.id !== id; });
+        renderStudies(loadedStudies);
+        showToast('Study removed from Community.');
+      } else {
+        showToast('Error: ' + (data.error || 'Could not remove.'), true);
+      }
+    } catch (err) {
+      showToast('Error: ' + err.message, true);
+    }
+  }
 
   // ── Refresh the prayer feed when the user returns attention to the page ─────
   // Counts in the feed are a snapshot from the last load; nothing pushes other

@@ -22,6 +22,7 @@
   const savePanel       = document.getElementById('savePanel');
   const saveTopicInput  = document.getElementById('saveTopicInput');
   const saveTagsInput   = document.getElementById('saveTagsInput');
+  const saveShareInput  = document.getElementById('saveShareInput');
   const confirmSaveBtn  = document.getElementById('confirmSaveBtn');
   const cancelSaveBtn   = document.getElementById('cancelSaveBtn');
   const topicBrowser    = document.getElementById('topicBrowser');
@@ -269,6 +270,7 @@
     if (!currentGuide) return;
     saveTopicInput.value = currentGuide.topic;
     saveTagsInput.value  = '';
+    if (saveShareInput) saveShareInput.checked = false;
     selectedRating = 0;
     highlightStars(0);
     showState('save');
@@ -290,6 +292,7 @@
       rating:      selectedRating,
       studyLength: currentGuide.studyLength,
       studyLevel:  currentGuide.studyLevel,
+      shared:      !!(saveShareInput && saveShareInput.checked),
       createdAt:   new Date().toISOString(),
     };
 
@@ -306,7 +309,7 @@
         currentGuide = null;
         topicInput.value = '';
         showState('browser');
-        showToast('Saved to Library.');
+        showToast(body.shared ? 'Saved to Library and shared to Community.' : 'Saved to Library.');
       } else {
         showToast('Error: ' + (data.error || 'Save failed.'), true);
       }
