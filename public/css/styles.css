@@ -1053,6 +1053,7 @@ body {
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
   outline: none;
+  overflow: hidden; /* keep badges/tags from bleeding past the card border */
 }
 .study-card:hover,
 .study-card:focus {
@@ -1225,9 +1226,11 @@ body {
 
 .study-card-meta {
   display: flex;
-  gap: 10px;
+  flex-wrap: wrap; /* badges (date, LSB, level, Shared) wrap to a new line instead of overflowing */
+  gap: 8px 10px;
   align-items: center;
   margin-bottom: 10px;
+  min-width: 0;
 }
 
 .study-card-date {
@@ -2590,6 +2593,15 @@ body {
 
 .community-reading-card {
   max-width: 720px;
+}
+
+/* Shared STUDIES read wider than articles — approximating the Library's own
+   full-width study reader. #communityReading is shared between articles and
+   studies; the badges bar carries a .study-card-translation ONLY when a study is
+   open (articles show tier/form badges instead), so this scopes to studies and
+   leaves the 720px article column unchanged. */
+#communityReading:has(.study-card-translation) .community-reading-card {
+  max-width: none;
 }
 
 .community-read-meta-text {
