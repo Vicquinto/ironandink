@@ -33,7 +33,19 @@
 
   // ── Level selector — seed from server-saved preference, persist on change ─
   if (studyLevelSelect) {
-    studyLevelSelect.value = window.USER_STUDY_LEVEL || 'journeyman';
+    // Seed the select lazily: read window.USER_STUDY_LEVEL at the point of use,
+    // not at init. study.js can execute before the inline <script> that assigns
+    // window.USER_STUDY_LEVEL, so reading it at init would always fall back to
+    // 'journeyman'. Deferring to DOMContentLoaded (or running now if the document
+    // is already parsed) guarantees the global exists first — ordering-independent.
+    var seedStudyLevel = function () {
+      studyLevelSelect.value = window.USER_STUDY_LEVEL || 'journeyman';
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', seedStudyLevel);
+    } else {
+      seedStudyLevel();
+    }
     studyLevelSelect.addEventListener('change', function () {
       fetch('/api/settings/study-level', {
         method:  'POST',
@@ -137,15 +149,23 @@
   }
 
   // ── Patience loading screen — rotating Scripture verses ────────────────────
-  // Reuses the Verse-of-the-Day pool injected as window.STUDY_VERSES.
-  var versePool    = (window.STUDY_VERSES && window.STUDY_VERSES.length) ? window.STUDY_VERSES : [];
+  // Reuses the Verse-of-the-Day pool injected as window.STUDY_VERSES. NOTE: the
+  // verse pool is read LAZILY (inside the functions below), never cached at init —
+  // study.js can load before the inline <script> that assigns window.STUDY_VERSES,
+  // so caching it at init would freeze an empty array. Reading fresh makes the
+  // script-tag ordering irrelevant.
   var verseTextEl  = document.getElementById('studyVerseText');
   var verseRefEl   = document.getElementById('studyVerseRef');
   var verseRotator = document.getElementById('studyVerseRotator');
   var verseTimer   = null;
   var lastVerseIdx = -1;
 
+  function getVersePool() {
+    return (window.STUDY_VERSES && window.STUDY_VERSES.length) ? window.STUDY_VERSES : [];
+  }
+
   function paintVerse() {
+    var versePool = getVersePool(); // read fresh every call
     if (!versePool.length || !verseTextEl) return;
     var idx = Math.floor(Math.random() * versePool.length);
     // Avoid repeating the same verse twice in a row.
@@ -162,6 +182,7 @@
   }
 
   function startVerseRotation() {
+    var versePool = getVersePool(); // read fresh every call
     if (!versePool.length) return;
     stopVerseRotation();
     lastVerseIdx = -1;
