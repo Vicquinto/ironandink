@@ -136,33 +136,97 @@
     });
   }
 
-  // ── Guide generation ───────────────────────────────────────────────────────
+  // ── Guide generation (SSE streaming) ───────────────────────────────────────
   async function generateGuide(topic) {
     studyGenerated = false;
+    currentGuide   = null; // null while streaming so a mid-stream Save is a no-op
     showState('loading');
     loadingTopicName.textContent = topic;
 
     abortController = new AbortController();
 
+    var accumulated    = '';    // text streamed so far (source markdown)
+    var switchedToGuide = false; // have we flipped from loading → guide view yet
+    var finalData      = null;  // the { done, content, topic, ... } completion event
+    var streamError    = null;  // an { error } event from the server, if any
+
     try {
-      var res  = await fetch('/api/study/generate', {
+      var res = await fetch('/api/study/generate', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ topic, length: selectedLength, studyLevel: studyLevelSelect ? studyLevelSelect.value : '' }),
         signal:  abortController.signal,
       });
-      var data = await res.json();
 
-      if (!data.success) throw new Error(data.error || 'Generation failed.');
+      // A pre-stream failure (e.g. topic validation) still comes back as JSON.
+      var ctype = res.headers.get('Content-Type') || '';
+      if (ctype.indexOf('text/event-stream') === -1) {
+        var errData = {};
+        try { errData = await res.json(); } catch (e) {}
+        throw new Error(errData.error || 'Generation failed.');
+      }
 
-      currentGuide = { studyLength: selectedLength, ...data };
-      guideTitle.textContent   = data.topic;
-      guideBadge.textContent   = data.translation || 'LSB';
-      guideBody.innerHTML      = renderMarkdown(data.content);
+      // Read the SSE stream: events are "data: {...}\n\n" separated.
+      var reader  = res.body.getReader();
+      var decoder = new TextDecoder();
+      var buffer  = '';
+
+      while (true) {
+        var read = await reader.read();
+        if (read.done) break;
+        buffer += decoder.decode(read.value, { stream: true });
+
+        var parts = buffer.split('\n\n');
+        buffer = parts.pop(); // keep the trailing partial event
+
+        for (var i = 0; i < parts.length; i++) {
+          var frame = parts[i].trim();
+          if (frame.indexOf('data:') !== 0) continue;
+          var evt;
+          try { evt = JSON.parse(frame.slice(5).trim()); } catch (e) { continue; }
+
+          if (typeof evt.text === 'string') {
+            accumulated += evt.text;
+            if (!switchedToGuide) {
+              guideTitle.textContent = topic;
+              guideBadge.textContent = '';
+              showState('guide');
+              switchedToGuide = true;
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            guideBody.innerHTML = renderMarkdown(accumulated);
+          } else if (evt.retry !== undefined) {
+            // Content-filter retry: discard partial text, return to loading.
+            accumulated = '';
+            switchedToGuide = false;
+            guideBody.innerHTML = '';
+            showState('loading');
+          } else if (evt.error) {
+            streamError = evt.error;
+          } else if (evt.done) {
+            finalData = evt;
+          }
+        }
+      }
+
+      if (streamError) throw new Error(streamError);
+      if (!finalData)  throw new Error('Generation failed.');
+
+      // Finalize with the authoritative full content from the server.
+      currentGuide = {
+        studyLength: selectedLength,
+        content:     finalData.content,
+        topic:       finalData.topic,
+        translation: finalData.translation,
+        studyLevel:  finalData.studyLevel,
+      };
+      guideTitle.textContent = finalData.topic;
+      guideBadge.textContent = finalData.translation || 'LSB';
+      guideBody.innerHTML    = renderMarkdown(finalData.content);
       showState('guide');
       studyGenerated = true;
       // TEMP: admin word-count monitor for Study Length tuning — remove later
-      if (window.IS_ADMIN) { showAdminWordCount(data.content, 'studyAdminWc'); }
+      if (window.IS_ADMIN) { showAdminWordCount(finalData.content, 'studyAdminWc'); }
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
     } catch (err) {
