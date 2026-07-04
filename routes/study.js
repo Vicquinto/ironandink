@@ -510,6 +510,9 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
   const studyLevelInstruction = STUDY_LEVEL_INSTRUCTIONS[resolvedStudyLevel] || STUDY_LEVEL_INSTRUCTIONS.journeyman;
   const systemPrompt = studyLevelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_STUDY_PROMPT;
 
+  const reqStart = Date.now();
+  console.log(`[study-gen] START topic="${topic.trim()}" level="${resolvedStudyLevel}" time=${new Date().toISOString()}`);
+
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const userMessage = `Generate a Reformed theological study guide on the following topic from a biblical and confessional perspective: ${topic.trim()}\n\nBible translation preference: ${translation}`;
 
@@ -519,29 +522,36 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
   const MAX_ATTEMPTS = 3;
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    const attemptStart = Date.now();
     try {
+      console.log(`[study-gen] Calling Anthropic API — attempt ${attempt} time=${new Date().toISOString()}`);
       const message = await client.messages.create({
         model:      'claude-sonnet-4-6',
         max_tokens: 6000,
         system:     systemPrompt,
         messages: [{ role: 'user', content: userMessage }],
       });
+      console.log(`[study-gen] API call ${attempt} finished in ${Date.now() - attemptStart}ms — success`);
 
       const content = message.content[0].text;
+      console.log(`[study-gen] DONE total time=${Date.now() - reqStart}ms`);
       return res.json({ success: true, content, topic: topic.trim(), translation, studyLength, studyLevel: resolvedStudyLevel });
     } catch (err) {
       if (isContentFilterError(err)) {
+        console.log(`[study-gen] API call ${attempt} finished in ${Date.now() - attemptStart}ms — filtered`);
         const requestId = err.request_id || err.requestID ||
           (err.headers && (err.headers['request-id'] || err.headers['x-request-id'])) || 'unknown';
         console.log(`Study generation — content-filter block on attempt ${attempt}/${MAX_ATTEMPTS} (request_id: ${requestId})`);
 
         if (attempt < MAX_ATTEMPTS) {
+          console.log(`[study-gen] Content filter triggered retry ${attempt}/${MAX_ATTEMPTS}`);
           console.log(`Study generation — retrying with a fresh generation (attempt ${attempt + 1}/${MAX_ATTEMPTS})`);
           continue; // fresh API call; the output differs, so a retry has a good chance of passing
         }
 
         // All attempts were blocked by the content filter — give up with an honest message.
         console.log('Study generation — all attempts blocked by content filter; returning friendly message.');
+        console.log(`[study-gen] DONE total time=${Date.now() - reqStart}ms`);
         return res.status(400).json({
           success: false,
           error: "We couldn't generate a study on this topic right now. This occasionally happens with weighty subjects. Please try again, or try rephrasing the topic slightly.",
@@ -549,9 +559,11 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
       }
 
       // Any other error — preserve existing behavior (generic 500), no retry.
+      console.log(`[study-gen] API call ${attempt} finished in ${Date.now() - attemptStart}ms — failure`);
       console.error('Study generation error — status:', err.status);
       console.error('Study generation error — message:', err.message);
       console.error('Study generation error — full:', err);
+      console.log(`[study-gen] DONE total time=${Date.now() - reqStart}ms`);
       return res.status(500).json({ success: false, error: 'Generation failed. Please try again.' });
     }
   }
