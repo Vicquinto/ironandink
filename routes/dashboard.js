@@ -376,4 +376,4 @@ router.get('/dashboard', requireAuth, (req, res) => {
   res.send(renderLayout({ req, activeSection: 'dashboard', title: 'Dashboard', content, scripts }));
 });
 
-module.exports = { router, getDailyDevotional, getDevotionalArchive, ensureTodaysDevotional };
+module.exports = { router, getDailyDevotional, getDevotionalArchive, ensureTodaysDevotional, VERSES };

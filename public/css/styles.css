@@ -676,6 +676,46 @@ body {
   font-style: italic;
 }
 
+.study-patience-msg {
+  color: var(--warm-brown);
+  font-size: 0.9rem;
+  font-style: italic;
+  text-align: center;
+  max-width: 520px;
+  line-height: 1.5;
+  opacity: 0.85;
+  margin: 0;
+}
+
+.study-verse-rotator {
+  max-width: 620px;
+  text-align: center;
+  padding: 20px 24px;
+  border-top: 1px solid rgba(160,132,92,0.18);
+  border-bottom: 1px solid rgba(160,132,92,0.18);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.study-verse-rotator.is-visible { opacity: 1; }
+
+.study-verse-text {
+  color: var(--warm-brown, #6b5637);
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 1.15rem;
+  font-style: italic;
+  line-height: 1.6;
+  margin: 0 0 10px;
+}
+
+.study-verse-ref {
+  display: block;
+  color: var(--accent, #a0845c);
+  font-size: 0.8rem;
+  font-style: normal;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
 .btn-stop {
   background: transparent;
   color: #b85450;

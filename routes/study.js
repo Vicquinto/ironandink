@@ -1,6 +1,7 @@
 const express = require('express');
 const Anthropic = require('@anthropic-ai/sdk');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
+const { VERSES } = require('./dashboard'); // reuse the Verse-of-the-Day pool for the patience loading screen
 
 const router = express.Router();
 
@@ -150,8 +151,12 @@ router.get('/study', requireAuth, (req, res) => {
     </div>
 
     <div id="studyLoading" class="study-loading" style="display:none;">
-      <div class="study-spinner"></div>
       <p class="loading-text">Preparing your study on <strong id="loadingTopicName"></strong>&#8230;</p>
+      <p class="study-patience-msg">Please be patient &#8212; deep theological study takes time. Generation can take up to 2 minutes.</p>
+      <div class="study-verse-rotator" id="studyVerseRotator">
+        <blockquote class="study-verse-text" id="studyVerseText"></blockquote>
+        <cite class="study-verse-ref" id="studyVerseRef"></cite>
+      </div>
       <button id="stopGenerationBtn" class="btn-stop">Stop Generation</button>
     </div>
 
@@ -216,6 +221,7 @@ router.get('/study', requireAuth, (req, res) => {
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};
+window.STUDY_VERSES    = ${JSON.stringify(VERSES)};
 </script>
 <script>
 (function() {
@@ -516,31 +522,6 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const userMessage = `Generate a Reformed theological study guide on the following topic from a biblical and confessional perspective: ${topic.trim()}\n\nBible translation preference: ${translation}`;
 
-  // ── Server-Sent Events (SSE) setup ─────────────────────────────────────────
-  // The study now streams to the client so it builds on screen in real time.
-  res.setHeader('Content-Type',  'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection',    'keep-alive');
-  res.setHeader('X-Accel-Buffering', 'no'); // disable proxy buffering so chunks flush immediately
-  if (typeof res.flushHeaders === 'function') res.flushHeaders();
-
-  // If the client disconnects (e.g. the Stop button aborts the fetch), abort the
-  // upstream Anthropic stream so we don't keep generating into a dead socket.
-  // Use res 'close' guarded by writableEnded: req 'close' fires as soon as the
-  // request body is read (a false positive), whereas res 'close' before we've
-  // ended the response means the client really went away.
-  let clientGone = false;
-  const upstreamAbort = new AbortController();
-  res.on('close', () => {
-    if (!res.writableEnded) { clientGone = true; upstreamAbort.abort(); }
-  });
-
-  // Write one SSE event, guarding against a closed socket.
-  const sse = (obj) => {
-    if (clientGone || res.writableEnded) return;
-    res.write(`data: ${JSON.stringify(obj)}\n\n`);
-  };
-
   // The content filter blocks the specific generated OUTPUT, which differs on
   // every call — so a fresh regeneration usually passes. Retry up to 3 times
   // total on a content-filter block before giving up.
@@ -548,36 +529,20 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     const attemptStart = Date.now();
-    let fullText = '';
     try {
       console.log(`[study-gen] Calling Anthropic API — attempt ${attempt} time=${new Date().toISOString()}`);
-      console.log(`[study-gen] Streaming started — attempt ${attempt} time=${new Date().toISOString()}`);
-      const stream = await client.messages.create({
+      const message = await client.messages.create({
         model:      'claude-sonnet-4-6',
-        max_tokens: 6000,
+        max_tokens: 8000,
         system:     systemPrompt,
         messages: [{ role: 'user', content: userMessage }],
-        stream:     true,
-      }, { signal: upstreamAbort.signal });
-
-      // Forward each text delta to the client as it arrives.
-      for await (const event of stream) {
-        if (event.type === 'content_block_delta' &&
-            event.delta && event.delta.type === 'text_delta') {
-          const chunk = event.delta.text;
-          fullText += chunk;
-          sse({ text: chunk });
-        }
-      }
-
+      });
       console.log(`[study-gen] API call ${attempt} finished in ${Date.now() - attemptStart}ms — success`);
-      console.log(`[study-gen] Streaming completed — attempt ${attempt} in ${Date.now() - attemptStart}ms; total time=${Date.now() - reqStart}ms`);
+      console.log(`[study-gen] stop_reason: ${message.stop_reason}`);
 
-      // Final completion event carries the authoritative full content + metadata,
-      // mirroring the fields the old JSON response returned.
-      sse({ done: true, content: fullText, topic: topic.trim(), translation, studyLength, studyLevel: resolvedStudyLevel });
+      const content = message.content[0].text;
       console.log(`[study-gen] DONE total time=${Date.now() - reqStart}ms`);
-      return res.end();
+      return res.json({ success: true, content, topic: topic.trim(), translation, studyLength, studyLevel: resolvedStudyLevel });
     } catch (err) {
       if (isContentFilterError(err)) {
         console.log(`[study-gen] API call ${attempt} finished in ${Date.now() - attemptStart}ms — filtered`);
@@ -588,34 +553,25 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
         if (attempt < MAX_ATTEMPTS) {
           console.log(`[study-gen] Content filter triggered retry ${attempt}/${MAX_ATTEMPTS}`);
           console.log(`Study generation — retrying with a fresh generation (attempt ${attempt + 1}/${MAX_ATTEMPTS})`);
-          // Tell the client to discard any partial text already streamed — the
-          // retry produces a fresh, different study.
-          sse({ retry: attempt });
           continue; // fresh API call; the output differs, so a retry has a good chance of passing
         }
 
         // All attempts were blocked by the content filter — give up with an honest message.
         console.log('Study generation — all attempts blocked by content filter; returning friendly message.');
-        sse({ error: "We couldn't generate a study on this topic right now. This occasionally happens with weighty subjects. Please try again, or try rephrasing the topic slightly." });
         console.log(`[study-gen] DONE total time=${Date.now() - reqStart}ms`);
-        return res.end();
+        return res.status(400).json({
+          success: false,
+          error: "We couldn't generate a study on this topic right now. This occasionally happens with weighty subjects. Please try again, or try rephrasing the topic slightly.",
+        });
       }
 
-      // Client disconnected mid-stream (e.g. Stop button) — not a real failure.
-      if (clientGone || err.name === 'AbortError') {
-        console.log(`[study-gen] client disconnected mid-stream on attempt ${attempt}; aborting. time=${new Date().toISOString()}`);
-        console.log(`[study-gen] DONE total time=${Date.now() - reqStart}ms`);
-        return res.end();
-      }
-
-      // Any other error — same generic message as before, now over SSE.
+      // Any other error — preserve existing behavior (generic 500), no retry.
       console.log(`[study-gen] API call ${attempt} finished in ${Date.now() - attemptStart}ms — failure`);
       console.error('Study generation error — status:', err.status);
       console.error('Study generation error — message:', err.message);
       console.error('Study generation error — full:', err);
-      sse({ error: 'Generation failed. Please try again.' });
       console.log(`[study-gen] DONE total time=${Date.now() - reqStart}ms`);
-      return res.end();
+      return res.status(500).json({ success: false, error: 'Generation failed. Please try again.' });
     }
   }
 });

@@ -136,97 +136,71 @@
     });
   }
 
-  // ── Guide generation (SSE streaming) ───────────────────────────────────────
+  // ── Patience loading screen — rotating Scripture verses ────────────────────
+  // Reuses the Verse-of-the-Day pool injected as window.STUDY_VERSES.
+  var versePool    = (window.STUDY_VERSES && window.STUDY_VERSES.length) ? window.STUDY_VERSES : [];
+  var verseTextEl  = document.getElementById('studyVerseText');
+  var verseRefEl   = document.getElementById('studyVerseRef');
+  var verseRotator = document.getElementById('studyVerseRotator');
+  var verseTimer   = null;
+  var lastVerseIdx = -1;
+
+  function paintVerse() {
+    if (!versePool.length || !verseTextEl) return;
+    var idx = Math.floor(Math.random() * versePool.length);
+    // Avoid repeating the same verse twice in a row.
+    if (versePool.length > 1 && idx === lastVerseIdx) idx = (idx + 1) % versePool.length;
+    lastVerseIdx = idx;
+    var v = versePool[idx];
+    // Fade out, swap, fade back in for a gentle transition.
+    if (verseRotator) verseRotator.classList.remove('is-visible');
+    setTimeout(function () {
+      verseTextEl.textContent = '“' + v.text + '”';
+      if (verseRefEl) verseRefEl.textContent = v.ref + ' — Legacy Standard Bible';
+      if (verseRotator) verseRotator.classList.add('is-visible');
+    }, 200);
+  }
+
+  function startVerseRotation() {
+    if (!versePool.length) return;
+    stopVerseRotation();
+    lastVerseIdx = -1;
+    paintVerse();
+    // Rotate to a new verse every 9s (within the requested 8–10s window).
+    verseTimer = setInterval(paintVerse, 9000);
+  }
+
+  function stopVerseRotation() {
+    if (verseTimer) { clearInterval(verseTimer); verseTimer = null; }
+  }
+
+  // ── Guide generation ───────────────────────────────────────────────────────
   async function generateGuide(topic) {
     studyGenerated = false;
-    currentGuide   = null; // null while streaming so a mid-stream Save is a no-op
     showState('loading');
     loadingTopicName.textContent = topic;
 
     abortController = new AbortController();
 
-    var accumulated    = '';    // text streamed so far (source markdown)
-    var switchedToGuide = false; // have we flipped from loading → guide view yet
-    var finalData      = null;  // the { done, content, topic, ... } completion event
-    var streamError    = null;  // an { error } event from the server, if any
-
     try {
-      var res = await fetch('/api/study/generate', {
+      var res  = await fetch('/api/study/generate', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ topic, length: selectedLength, studyLevel: studyLevelSelect ? studyLevelSelect.value : '' }),
         signal:  abortController.signal,
       });
+      var data = await res.json();
 
-      // A pre-stream failure (e.g. topic validation) still comes back as JSON.
-      var ctype = res.headers.get('Content-Type') || '';
-      if (ctype.indexOf('text/event-stream') === -1) {
-        var errData = {};
-        try { errData = await res.json(); } catch (e) {}
-        throw new Error(errData.error || 'Generation failed.');
-      }
+      if (!data.success) throw new Error(data.error || 'Generation failed.');
 
-      // Read the SSE stream: events are "data: {...}\n\n" separated.
-      var reader  = res.body.getReader();
-      var decoder = new TextDecoder();
-      var buffer  = '';
-
-      while (true) {
-        var read = await reader.read();
-        if (read.done) break;
-        buffer += decoder.decode(read.value, { stream: true });
-
-        var parts = buffer.split('\n\n');
-        buffer = parts.pop(); // keep the trailing partial event
-
-        for (var i = 0; i < parts.length; i++) {
-          var frame = parts[i].trim();
-          if (frame.indexOf('data:') !== 0) continue;
-          var evt;
-          try { evt = JSON.parse(frame.slice(5).trim()); } catch (e) { continue; }
-
-          if (typeof evt.text === 'string') {
-            accumulated += evt.text;
-            if (!switchedToGuide) {
-              guideTitle.textContent = topic;
-              guideBadge.textContent = '';
-              showState('guide');
-              switchedToGuide = true;
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-            guideBody.innerHTML = renderMarkdown(accumulated);
-          } else if (evt.retry !== undefined) {
-            // Content-filter retry: discard partial text, return to loading.
-            accumulated = '';
-            switchedToGuide = false;
-            guideBody.innerHTML = '';
-            showState('loading');
-          } else if (evt.error) {
-            streamError = evt.error;
-          } else if (evt.done) {
-            finalData = evt;
-          }
-        }
-      }
-
-      if (streamError) throw new Error(streamError);
-      if (!finalData)  throw new Error('Generation failed.');
-
-      // Finalize with the authoritative full content from the server.
-      currentGuide = {
-        studyLength: selectedLength,
-        content:     finalData.content,
-        topic:       finalData.topic,
-        translation: finalData.translation,
-        studyLevel:  finalData.studyLevel,
-      };
-      guideTitle.textContent = finalData.topic;
-      guideBadge.textContent = finalData.translation || 'LSB';
-      guideBody.innerHTML    = renderMarkdown(finalData.content);
+      currentGuide = { studyLength: selectedLength, ...data };
+      guideTitle.textContent   = data.topic;
+      guideBadge.textContent   = data.translation || 'LSB';
+      guideBody.innerHTML      = renderMarkdown(data.content);
       showState('guide');
       studyGenerated = true;
       // TEMP: admin word-count monitor for Study Length tuning — remove later
-      if (window.IS_ADMIN) { showAdminWordCount(finalData.content, 'studyAdminWc'); }
+      if (window.IS_ADMIN) { showAdminWordCount(data.content, 'studyAdminWc'); }
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
     } catch (err) {
@@ -247,9 +221,11 @@
     guideArea.style.display    = 'none';
     savePanel.style.display    = 'none';
     topicBrowser.style.display = 'none';
+    stopVerseRotation(); // stop the loading-screen verse rotator on any state change
 
     if (state === 'loading') {
       studyLoading.style.display = 'flex';
+      startVerseRotation();
     } else if (state === 'guide') {
       guideArea.style.display    = 'block';
     } else if (state === 'save') {
