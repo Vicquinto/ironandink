@@ -91,7 +91,16 @@ const IRON_INK_EXPLORE_PROMPT   = `Generate an EXPLORE study for a large, rich s
 
 2. THE LANDSCAPE — A brief map of the major sub-areas within the subject: the main regions of the topic and how they relate to one another, so the reader can see how the whole is organized before choosing where to go deeper. Keep each sub-area to a short, clear description — this is a map, not the territory.
 
-3. FURTHER STUDIES — A plainly listed set of suggested next studies the reader can branch into. RULES FOR THIS LIST: Generate as many as the subject genuinely warrants — the count is driven by the actual structure of the subject, NOT a fixed number. Each suggestion must be DISTINCT and substantial enough to stand as its own full study. No overlapping or near-duplicate suggestions; no trivial sub-points; no padding to reach a number; and do not fragment the subject into so many pieces that the list becomes overwhelming. A rich subject may yield many suggestions; a focused subject only a few. Present them as a clearly labeled, plain list of suggested studies the reader can read and act on manually — these are NOT clickable links, just a readable list (a short phrase or title per item, optionally with one line on what that study would cover).
+3. FURTHER STUDIES — A plainly listed set of suggested next studies the reader can branch into. RULES FOR THIS LIST: Generate as many as the subject genuinely warrants — the count is driven by the actual structure of the subject, NOT a fixed number. Each suggestion must be DISTINCT and substantial enough to stand as its own full study. No overlapping or near-duplicate suggestions; no trivial sub-points; no padding to reach a number; and do not fragment the subject into so many pieces that the list becomes overwhelming. A rich subject may yield many suggestions; a focused subject only a few. These are NOT clickable links — they are a readable list the reader acts on manually.
+
+Begin this section, immediately after its heading and before the list, with a short how-to line telling the reader what to do with the suggestions, such as: "To pursue any of these, copy its study prompt below into the Study page and generate a new study."
+
+Then, for EACH suggested further study, present exactly these three parts, in this order:
+   - The branch TITLE (a short phrase or title for the study).
+   - A clearly labeled, copy-ready study prompt on its own line, in this exact form:
+        Study prompt: "The Eternal Generation of the Son"
+     The quoted phrase must be the exact text the reader should copy into the Study page. Make this line visually distinct and unmistakable so it is obvious what to grab. The phrase in quotes must be a CLEAN, SELF-CONTAINED topic or question — stated as the reader would type it into the study box — NOT a long sentence: just the study's subject (e.g. "The Two Natures of Christ" or "How can Christ be fully God and fully man?"), with no leading verbs like "Explore" or "Study", no trailing punctuation beyond a question mark where the subject is naturally a question.
+   - The DESCRIPTION paragraph explaining what that study would explore (one or two sentences).
 
 CORE GOVERNING PRINCIPLE:
 
