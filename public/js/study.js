@@ -6,6 +6,7 @@
   let abortController = null;
   let studyGenerated  = false;
   var selectedLength  = 'Short';
+  var selectedType    = 'doctrinal';
 
   // ── DOM refs ──────────────────────────────────────────────────────────────
   const topicInput       = document.getElementById('topicInput');
@@ -31,6 +32,8 @@
   const fontResetBtn      = document.getElementById('fontResetBtn');
   const fontIncBtn        = document.getElementById('fontIncBtn');
   const studyLevelSelect  = document.getElementById('studyLevelSelect');
+  const studyTypePicker   = document.getElementById('studyTypePicker');
+  const studyLevelField   = document.getElementById('studyLevelField');
 
   // ── Level selector — seed from server-saved preference, persist on change ─
   if (studyLevelSelect) {
@@ -54,6 +57,30 @@
         body:    JSON.stringify({ studyLevel: studyLevelSelect.value }),
       });
     });
+  }
+
+  // ── Study-type picker — Doctrinal (default) / Deep Dive / Historical ───────
+  // The Study Level (writing register) control is only meaningful for Doctrinal
+  // and Historical; Deep Dive is always deep, so its level field is hidden while
+  // Deep Dive is selected.
+  function updateLevelVisibility() {
+    if (!studyLevelField) return;
+    studyLevelField.style.display = (selectedType === 'deepdive') ? 'none' : '';
+  }
+  if (studyTypePicker) {
+    studyTypePicker.querySelectorAll('.study-type-option').forEach(function (opt) {
+      opt.addEventListener('click', function () {
+        studyTypePicker.querySelectorAll('.study-type-option').forEach(function (o) {
+          o.classList.remove('study-type-option--active');
+          o.setAttribute('aria-checked', 'false');
+        });
+        opt.classList.add('study-type-option--active');
+        opt.setAttribute('aria-checked', 'true');
+        selectedType = opt.dataset.type || 'doctrinal';
+        updateLevelVisibility();
+      });
+    });
+    updateLevelVisibility(); // reflect the default selection on load
   }
 
   // ── Font size control ─────────────────────────────────────────────────────
@@ -208,14 +235,14 @@
       var res  = await fetch('/api/study/generate', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ topic, length: selectedLength, studyLevel: studyLevelSelect ? studyLevelSelect.value : '' }),
+        body:    JSON.stringify({ topic, length: selectedLength, studyType: selectedType, studyLevel: studyLevelSelect ? studyLevelSelect.value : '' }),
         signal:  abortController.signal,
       });
       var data = await res.json();
 
       if (!data.success) throw new Error(data.error || 'Generation failed.');
 
-      currentGuide = { studyLength: selectedLength, ...data };
+      currentGuide = { studyLength: selectedLength, studyType: selectedType, ...data };
       guideTitle.textContent   = data.topic;
       guideBadge.textContent   = data.translation || 'LSB';
       guideBody.innerHTML      = renderMarkdown(data.content);
@@ -292,6 +319,7 @@
       rating:      selectedRating,
       studyLength: currentGuide.studyLength,
       studyLevel:  currentGuide.studyLevel,
+      studyType:   currentGuide.studyType,
       shared:      !!(saveShareInput && saveShareInput.checked),
       createdAt:   new Date().toISOString(),
     };

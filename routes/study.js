@@ -129,10 +129,25 @@ router.get('/study', requireAuth, (req, res) => {
       <p class="page-subtitle">Select a curated topic or enter your own to generate a study guide.</p>
     </div>
 
+    <div class="study-type-picker" id="studyTypePicker" role="radiogroup" aria-label="Study type">
+      <button class="study-type-option study-type-option--active" data-type="doctrinal" role="radio" aria-checked="true">
+        <span class="study-type-name">Doctrinal</span>
+        <span class="study-type-sub">Reformed doctrine, confessions &amp; historical voices</span>
+      </button>
+      <button class="study-type-option" data-type="deepdive" role="radio" aria-checked="false">
+        <span class="study-type-name">Deep Dive</span>
+        <span class="study-type-sub">Go deep on one specific question</span>
+      </button>
+      <button class="study-type-option" data-type="historical" role="radio" aria-checked="false">
+        <span class="study-type-name">Historical</span>
+        <span class="study-type-sub">Timeline, places, and what happened</span>
+      </button>
+    </div>
+
     <div class="study-search-bar">
       <input type="text" id="topicInput" class="form-input study-topic-input"
              placeholder="Study any topic..." autocomplete="off">
-      <div class="study-level-field">
+      <div class="study-level-field" id="studyLevelField">
         <label class="form-label" for="studyLevelSelect">Study Level</label>
         <select id="studyLevelSelect" class="study-level-select" title="Writing register">
           <option value="foundations">Foundational</option>
@@ -224,7 +239,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study.js"></script><script src="/js/library.js?v=25"></script>
+    scripts: `<script src="/js/study.js?v=2"></script><script src="/js/library.js?v=26"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};
@@ -506,7 +521,7 @@ function isContentFilterError(err) {
 
 // ─── POST /api/study/generate ────────────────────────────────────────────────
 router.post('/api/study/generate', requireAuth, async (req, res) => {
-  const { topic, studyLevel, length } = req.body;
+  const { topic, studyLevel, studyType, length } = req.body;
   if (!topic || !topic.trim()) {
     return res.status(400).json({ success: false, error: 'Topic is required.' });
   }
@@ -516,15 +531,36 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
   // Length tier system suspended — tiers kept in STUDY_LENGTH_CONFIG but bypassed for now
   const studyLength   = STUDY_LENGTH_CONFIG[length] ? length : 'Short';
 
-  const { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT } = req.app.locals.prompts;
+  const {
+    IRON_INK_CORE_PROMPT,
+    IRON_INK_STUDY_PROMPT,
+    IRON_INK_DEEPDIVE_PROMPT,
+    IRON_INK_HISTORICAL_PROMPT,
+  } = req.app.locals.prompts;
+
+  // Study-type → prompt map. Doctrinal is the default (unchanged legacy behavior).
+  const STUDY_TYPE_PROMPTS = {
+    doctrinal:  IRON_INK_STUDY_PROMPT,
+    deepdive:   IRON_INK_DEEPDIVE_PROMPT,
+    historical: IRON_INK_HISTORICAL_PROMPT,
+  };
+  const resolvedStudyType = STUDY_TYPE_PROMPTS[studyType] ? studyType : 'doctrinal';
+  const studyPrompt       = STUDY_TYPE_PROMPTS[resolvedStudyType];
+
   const resolvedStudyLevel = (studyLevel && STUDY_LEVEL_INSTRUCTIONS[studyLevel])
     ? studyLevel
     : ((userSettings && userSettings.studyLevel) || 'journeyman');
   const studyLevelInstruction = STUDY_LEVEL_INSTRUCTIONS[resolvedStudyLevel] || STUDY_LEVEL_INSTRUCTIONS.journeyman;
-  const systemPrompt = studyLevelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_STUDY_PROMPT;
+
+  // Depth rule: the writing register (studyLevel) applies to doctrinal & historical
+  // only. Deep Dive is always deep by nature, so it gets no level-register prefix —
+  // its system prompt is CORE + the Deep Dive prompt alone.
+  const systemPrompt = (resolvedStudyType === 'deepdive')
+    ? IRON_INK_CORE_PROMPT + '\n\n' + studyPrompt
+    : studyLevelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + studyPrompt;
 
   const reqStart = Date.now();
-  console.log(`[study-gen] START topic="${topic.trim()}" level="${resolvedStudyLevel}" time=${new Date().toISOString()}`);
+  console.log(`[study-gen] START topic="${topic.trim()}" type="${resolvedStudyType}" level="${resolvedStudyLevel}" time=${new Date().toISOString()}`);
 
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const userMessage = `Generate a Reformed theological study guide on the following topic from a biblical and confessional perspective: ${topic.trim()}\n\nBible translation preference: ${translation}`;
@@ -549,7 +585,7 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
 
       const content = message.content[0].text;
       console.log(`[study-gen] DONE total time=${Date.now() - reqStart}ms`);
-      return res.json({ success: true, content, topic: topic.trim(), translation, studyLength, studyLevel: resolvedStudyLevel });
+      return res.json({ success: true, content, topic: topic.trim(), translation, studyLength, studyLevel: resolvedStudyLevel, studyType: resolvedStudyType });
     } catch (err) {
       if (isContentFilterError(err)) {
         console.log(`[study-gen] API call ${attempt} finished in ${Date.now() - attemptStart}ms — filtered`);

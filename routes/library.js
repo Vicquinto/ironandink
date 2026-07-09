@@ -96,7 +96,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/library.js?v=25"></script>',
+    scripts: '<script src="/js/library.js?v=26"></script>',
   }));
 });
 
@@ -109,7 +109,7 @@ router.get('/api/library', requireAuth, (req, res) => {
 
 // ─── POST /api/library/save ──────────────────────────────────────────────────
 router.post('/api/library/save', requireAuth, (req, res) => {
-  const { topic, content, translation, tags, rating, studyLength, studyLevel, createdAt, shared } = req.body;
+  const { topic, content, translation, tags, rating, studyLength, studyLevel, studyType, createdAt, shared } = req.body;
   if (!topic || !content) {
     return res.status(400).json({ success: false, error: 'Topic and content are required.' });
   }
@@ -120,6 +120,7 @@ router.post('/api/library/save', requireAuth, (req, res) => {
 
   const userSettings = req.session.user && req.session.user.settings;
   const validLevels  = ['foundations', 'journeyman', 'scholar'];
+  const validTypes   = ['doctrinal', 'deepdive', 'historical'];
   const now          = new Date().toISOString();
   const isShared     = shared === true;
   const study = {
@@ -134,6 +135,7 @@ router.post('/api/library/save', requireAuth, (req, res) => {
       ? studyLevel
       : ((userSettings && userSettings.studyLevel) || 'journeyman'),
     studyLength: ['Short', 'Standard', 'Deep'].includes(studyLength) ? studyLength : 'Short',
+    studyType:   validTypes.includes(studyType) ? studyType : 'doctrinal',
     shared:      isShared,                    // community-sharing flag (default false)
     sharedAt:    isShared ? now : null,       // stamp when first shared, for feed sort
     createdAt:   createdAt || now,

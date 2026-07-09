@@ -285,6 +285,13 @@
     return '<span class="study-level-badge study-level-badge-' + esc(level) + '">' + label + '</span>';
   }
 
+  function studyTypeBadge(type) {
+    var t = type || 'doctrinal';
+    var labels = { doctrinal: 'DOCTRINAL', deepdive: 'DEEP DIVE', historical: 'HISTORICAL' };
+    var label  = labels[t] || 'DOCTRINAL';
+    return '<span class="study-type-badge study-type-badge-' + t + '">' + label + '</span>';
+  }
+
   function fmtDate(iso) {
     var d = new Date(iso);
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -433,6 +440,7 @@
     return '<div class="community-card" data-id="' + esc(s.id) + '">' +
       '<h3 class="community-card-title">' + esc(s.topic) + '</h3>' +
       '<div class="community-card-meta">' +
+        studyTypeBadge(s.studyType) +
         studyLevelBadge(s.studyLevel) +
         '<span class="study-card-translation">' + esc(s.translation || 'LSB') + '</span>' +
         '<span class="community-card-author">' + esc(s.authorName || '') + '</span>' +

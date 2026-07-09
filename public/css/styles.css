@@ -649,6 +649,49 @@ body {
   font-weight: 600;
 }
 
+/* ─── STUDY-TYPE PICKER ──────────────────────────────────────────────── */
+.study-type-picker {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.study-type-option {
+  flex: 1 1 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+  background: var(--card-bg, #f5ede0);
+  border: 1.5px solid rgba(160,132,92,0.45);
+  border-radius: 6px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  font-family: 'EB Garamond', Georgia, serif;
+}
+.study-type-option:hover {
+  border-color: var(--warm-brown);
+  background: rgba(160,132,92,0.10);
+}
+.study-type-option--active {
+  border-color: #5C1A28;
+  background: rgba(92,26,40,0.06);
+  box-shadow: 0 0 0 1px #5C1A28 inset;
+}
+.study-type-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text, #3A2A1E);
+  letter-spacing: 0.01em;
+}
+.study-type-option--active .study-type-name { color: #5C1A28; }
+.study-type-sub {
+  font-size: 0.8rem;
+  color: var(--warm-brown, #9a8060);
+  line-height: 1.3;
+}
+
 /* ─── LOADING STATE ─────────────────────────────────────────────────── */
 
 .study-loading {
@@ -2051,6 +2094,32 @@ body {
   background: rgba(160,132,92,0.22);
   color: var(--text);
   border: 1px solid rgba(160,132,92,0.5);
+}
+
+/* Study-type badge — same footprint as the level badge, distinct accent per type */
+.study-type-badge {
+  font-size: 0.68rem;
+  padding: 1px 7px;
+  border-radius: 3px;
+  letter-spacing: 0.07em;
+  font-weight: 600;
+  font-family: 'EB Garamond', Georgia, serif;
+  text-transform: uppercase;
+}
+.study-type-badge-doctrinal {
+  background: rgba(92,26,40,0.10);
+  color: #5C1A28;
+  border: 1px solid rgba(92,26,40,0.30);
+}
+.study-type-badge-deepdive {
+  background: rgba(46,74,92,0.12);
+  color: #2E4A5C;
+  border: 1px solid rgba(46,74,92,0.32);
+}
+.study-type-badge-historical {
+  background: rgba(120,86,44,0.12);
+  color: #78562C;
+  border: 1px solid rgba(120,86,44,0.34);
 }
 
 .tier-badge-main {

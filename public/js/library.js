@@ -60,6 +60,7 @@
           '<div class="study-card-meta">' +
             '<span class="study-card-date">' + formatDate(s.savedAt) + '</span>' +
             '<span class="study-card-translation">' + esc(s.translation || 'LSB') + '</span>' +
+            studyTypeBadge(s.studyType) +
             studyLevelBadge(s.studyLevel) +
             sharedBadge +
           '</div>' +
@@ -542,6 +543,13 @@
     var labels = { foundations: 'FOUNDATIONAL', journeyman: 'STANDARD', scholar: 'ADVANCED' };
     var label  = labels[l] || 'STANDARD';
     return '<span class="study-level-badge study-level-badge-' + l + '">' + label + '</span>';
+  }
+
+  function studyTypeBadge(type) {
+    var t = type || 'doctrinal';
+    var labels = { doctrinal: 'DOCTRINAL', deepdive: 'DEEP DIVE', historical: 'HISTORICAL' };
+    var label  = labels[t] || 'DOCTRINAL';
+    return '<span class="study-type-badge study-type-badge-' + t + '">' + label + '</span>';
   }
 
   function formatDate(iso) {
