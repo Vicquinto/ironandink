@@ -85,21 +85,19 @@ SCOPE GUIDANCE:
 For a topic too large to comprehensively cover in a single study (a major biblical figure spanning multiple books, a doctrine with many sub-questions), do not attempt encyclopedic coverage. Instead, select a smaller number of genuinely significant theological threads related to the topic and treat each one with real depth and resolution, rather than surveying many threads shallowly. Depth on fewer threads is always preferred over breadth across many.
 
 TONE: Write as the lecture itself, not as a syllabus for a lecture. The study resolves its own hard questions within the document — it does not name questions for the student to go think about.`;
-const IRON_INK_DEEPDIVE_PROMPT  = `Generate a focused DEEP DIVE study that answers ONE specific question with real depth. This is not a survey and not a general topic overview. Format as follows:
+const IRON_INK_EXPLORE_PROMPT   = `Generate an EXPLORE study for a large, rich subject — one too big to treat fully in a single study (e.g. "Who is Jesus Christ", "The Sovereignty of God", "The Book of Romans"). The purpose of an Explore study is to ORIENT the reader to the whole subject and then point them into further studies. It is NOT a comprehensive survey, and it is NOT a single-question deep dive. Format as follows, in this exact order:
 
-1. DIRECT ANSWER — Answer the specific question posed, clearly and without hedging, from a confessionally Reformed perspective. Lead with the answer itself, then substantiate it. Do not broaden the question into a general survey of the wider topic.
+1. ORIENTATION — A rich but deliberately NOT exhaustive introduction to the subject. Ground the reader in the big picture: why the subject matters, its center of gravity, and the shape of the whole from a confessionally Reformed vantage point. Give real substance and warmth here — but do NOT attempt to cover the entire subject comprehensively. Attempting exhaustive coverage is the specific failure mode this study type exists to avoid: it produces a bloated, shallow survey. Orient the reader; do not exhaust the subject.
 
-2. SUPPORTING SCRIPTURE — Print the full LSB text of the anchor passages that bear directly on the question (2–4 key verses). For secondary support, list references only. Every passage must actually address the specific question, not merely the broad subject around it.
+2. THE LANDSCAPE — A brief map of the major sub-areas within the subject: the main regions of the topic and how they relate to one another, so the reader can see how the whole is organized before choosing where to go deeper. Keep each sub-area to a short, clear description — this is a map, not the territory.
 
-3. BRIEF CONTEXT / NUANCE — Only the context and qualification the reader genuinely needs in order to hold the answer correctly: a key distinction, a common misunderstanding, a boundary condition, or a live intramural Reformed nuance. Keep this tight. Do not expand it into a full doctrinal treatment.
-
-4. WHERE TO GO NEXT — Suggest 2–4 specific, genuinely related threads the reader could branch into next — each a short phrase or question they could run as its own separate study. These are pointers for further study, not answers to be worked out here.
+3. FURTHER STUDIES — A plainly listed set of suggested next studies the reader can branch into. RULES FOR THIS LIST: Generate as many as the subject genuinely warrants — the count is driven by the actual structure of the subject, NOT a fixed number. Each suggestion must be DISTINCT and substantial enough to stand as its own full study. No overlapping or near-duplicate suggestions; no trivial sub-points; no padding to reach a number; and do not fragment the subject into so many pieces that the list becomes overwhelming. A rich subject may yield many suggestions; a focused subject only a few. Present them as a clearly labeled, plain list of suggested studies the reader can read and act on manually — these are NOT clickable links, just a readable list (a short phrase or title per item, optionally with one line on what that study would cover).
 
 CORE GOVERNING PRINCIPLE:
 
-Depth over breadth, always. The entire value of a Deep Dive is that it goes further on a single question than a general study would. Resist every temptation to broaden into a survey of the surrounding topic. If the question raises a hard sub-question, resolve it in-line with specific textual evidence and a reasoned conclusion — never hand unfinished work back to the reader with constructions like "consider…", "work through…", or "press into…". If a technical, theological, confessional, or original-language term is load-bearing for the answer, make it plain in-line the first time it appears, before building on it. Answering the one question thoroughly is the whole assignment. Keep all scripture quotations in the LSB unless the reader explicitly requests otherwise.
+Orientation over exhaustiveness. The entire value of an Explore study is that it hands the reader a trustworthy map of a subject too large for one study, then points the way onward — it does not try to be the whole journey. Resist every temptation to expand the Orientation or Landscape into a full survey; when you feel the pull to cover everything, convert that material into a Further Studies suggestion instead. Remain within the confessionally Reformed framework throughout, and make any load-bearing technical, theological, or original-language term plain in-line the first time it appears. Keep all scripture quotations in the LSB unless the reader explicitly requests otherwise.
 
-TONE: Write as a precise, direct answer to a serious question — the voice of a seasoned Reformed teacher who respects the reader enough to actually answer, go deep, and then stop.`;
+TONE: Write as a seasoned Reformed guide standing with the reader at the trailhead of a vast subject — warm, oriented, and clear about where the paths lead, without pretending to walk all of them here.`;
 const IRON_INK_HISTORICAL_PROMPT = `Generate a HISTORICAL / NARRATIVE study of the requested biblical event, journey, period, or figure. This study is narrative and factual — ordered by time or geography — not a doctrinal synthesis. Format as follows:
 
 1. TIMELINE / SEQUENCE — Lay out what happened in order, as a clear sequence of events. Order by time (or by geography where a journey is being traced). Keep it concrete and factual.
@@ -163,7 +161,7 @@ WHAT NEVER CHANGES:
 // ──────────────────────────────────────────────────────────────────────────
 
 // Expose prompts to all route handlers via req.app.locals.prompts
-app.locals.prompts = { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT, IRON_INK_DEEPDIVE_PROMPT, IRON_INK_HISTORICAL_PROMPT, IRON_INK_SCRIPTURE_PROMPT, IRON_INK_DIALOGUE_PROMPT, IRON_INK_WRITING_PROMPT };
+app.locals.prompts = { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT, IRON_INK_EXPLORE_PROMPT, IRON_INK_HISTORICAL_PROMPT, IRON_INK_SCRIPTURE_PROMPT, IRON_INK_DIALOGUE_PROMPT, IRON_INK_WRITING_PROMPT };
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -364,4 +362,4 @@ httpServer.listen(PORT, () => {
   if (process.send) process.send('ready');
 });
 
-module.exports = { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT, IRON_INK_DEEPDIVE_PROMPT, IRON_INK_HISTORICAL_PROMPT, IRON_INK_SCRIPTURE_PROMPT, IRON_INK_DIALOGUE_PROMPT, IRON_INK_WRITING_PROMPT };
+module.exports = { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT, IRON_INK_EXPLORE_PROMPT, IRON_INK_HISTORICAL_PROMPT, IRON_INK_SCRIPTURE_PROMPT, IRON_INK_DIALOGUE_PROMPT, IRON_INK_WRITING_PROMPT };

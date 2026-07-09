@@ -96,7 +96,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/library.js?v=27"></script>',
+    scripts: '<script src="/js/library.js?v=28"></script>',
   }));
 });
 
@@ -120,7 +120,7 @@ router.post('/api/library/save', requireAuth, (req, res) => {
 
   const userSettings = req.session.user && req.session.user.settings;
   const validLevels  = ['foundations', 'journeyman', 'scholar'];
-  const validTypes   = ['doctrinal', 'deepdive', 'historical', 'scripture'];
+  const validTypes   = ['doctrinal', 'explore', 'historical', 'scripture'];
   const now          = new Date().toISOString();
   const isShared     = shared === true;
   const study = {

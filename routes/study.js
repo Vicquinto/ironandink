@@ -134,9 +134,9 @@ router.get('/study', requireAuth, (req, res) => {
         <span class="study-type-name">Doctrinal</span>
         <span class="study-type-sub">Reformed doctrine, confessions &amp; historical voices</span>
       </button>
-      <button class="study-type-option" data-type="deepdive" role="radio" aria-checked="false">
-        <span class="study-type-name">Deep Dive</span>
-        <span class="study-type-sub">Go deep on one specific question</span>
+      <button class="study-type-option" data-type="explore" role="radio" aria-checked="false">
+        <span class="study-type-name">Explore</span>
+        <span class="study-type-sub">Big subject? Get oriented, then branch into further studies.</span>
       </button>
       <button class="study-type-option" data-type="historical" role="radio" aria-checked="false">
         <span class="study-type-name">Historical</span>
@@ -243,7 +243,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study.js?v=3"></script><script src="/js/library.js?v=27"></script>
+    scripts: `<script src="/js/study.js?v=4"></script><script src="/js/library.js?v=28"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};
@@ -538,7 +538,7 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
   const {
     IRON_INK_CORE_PROMPT,
     IRON_INK_STUDY_PROMPT,
-    IRON_INK_DEEPDIVE_PROMPT,
+    IRON_INK_EXPLORE_PROMPT,
     IRON_INK_HISTORICAL_PROMPT,
     IRON_INK_SCRIPTURE_PROMPT,
   } = req.app.locals.prompts;
@@ -546,7 +546,7 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
   // Study-type → prompt map. Doctrinal is the default (unchanged legacy behavior).
   const STUDY_TYPE_PROMPTS = {
     doctrinal:  IRON_INK_STUDY_PROMPT,
-    deepdive:   IRON_INK_DEEPDIVE_PROMPT,
+    explore:    IRON_INK_EXPLORE_PROMPT,
     historical: IRON_INK_HISTORICAL_PROMPT,
     scripture:  IRON_INK_SCRIPTURE_PROMPT,
   };
@@ -559,10 +559,10 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
   const studyLevelInstruction = STUDY_LEVEL_INSTRUCTIONS[resolvedStudyLevel] || STUDY_LEVEL_INSTRUCTIONS.journeyman;
 
   // Depth rule: the writing register (studyLevel) applies to every type EXCEPT
-  // deepdive (doctrinal, historical, and scripture all get the level prefix). Deep
-  // Dive is always deep by nature, so it alone gets no level-register prefix — its
-  // system prompt is CORE + the Deep Dive prompt alone.
-  const systemPrompt = (resolvedStudyType === 'deepdive')
+  // explore (doctrinal, historical, and scripture all get the level prefix). Explore
+  // has no depth dial by design, so it alone gets no level-register prefix — its
+  // system prompt is CORE + the Explore prompt alone.
+  const systemPrompt = (resolvedStudyType === 'explore')
     ? IRON_INK_CORE_PROMPT + '\n\n' + studyPrompt
     : studyLevelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + studyPrompt;
 
