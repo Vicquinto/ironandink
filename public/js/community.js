@@ -287,7 +287,7 @@
 
   function studyTypeBadge(type) {
     var t = type || 'doctrinal';
-    var labels = { doctrinal: 'DOCTRINAL', deepdive: 'DEEP DIVE', historical: 'HISTORICAL' };
+    var labels = { doctrinal: 'DOCTRINAL', deepdive: 'DEEP DIVE', historical: 'HISTORICAL', scripture: 'SCRIPTURE' };
     var label  = labels[t] || 'DOCTRINAL';
     return '<span class="study-type-badge study-type-badge-' + t + '">' + label + '</span>';
   }

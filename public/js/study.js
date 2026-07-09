@@ -59,10 +59,10 @@
     });
   }
 
-  // ── Study-type picker — Doctrinal (default) / Deep Dive / Historical ───────
-  // The Study Level (writing register) control is only meaningful for Doctrinal
-  // and Historical; Deep Dive is always deep, so its level field is hidden while
-  // Deep Dive is selected.
+  // ── Study-type picker — Doctrinal (default) / Deep Dive / Historical / Scripture ─
+  // The Study Level (writing register) control is meaningful for every type except
+  // Deep Dive (which is always deep), so the level field is hidden only while Deep
+  // Dive is selected and shown for all other types, including Scripture & Verse.
   function updateLevelVisibility() {
     if (!studyLevelField) return;
     studyLevelField.style.display = (selectedType === 'deepdive') ? 'none' : '';
