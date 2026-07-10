@@ -19,7 +19,7 @@ export const TOURS = {
       id:       'study-generate',
       attachTo: { element: '#generateBtn', on: 'bottom' },
       title:    'Generate',
-      text:     'Click here and a structured Reformed study guide is built for you — with a topic overview, the key Scriptures in full, confessional context, and voices from church history.',
+      text:     'Click here and a structured Reformed study is built for you — with a topic overview, the key Scriptures in full, confessional context, and voices from church history.',
       buttons:  ['back', 'finish'],
     },
   ],

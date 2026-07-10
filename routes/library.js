@@ -24,7 +24,7 @@ router.get('/library', requireAuth, (req, res) => {
   const content = `
     <div class="page-header">
       <h2 class="page-title">Library</h2>
-      <p class="page-subtitle">Your saved study guides and dialogue sessions.</p>
+      <p class="page-subtitle">Your saved studies and dialogue sessions.</p>
     </div>
 
     <div class="lib-tabs">
@@ -96,7 +96,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/library.js?v=31"></script>',
+    scripts: '<script src="/js/library.js?v=32"></script>',
   }));
 });
 

@@ -25,7 +25,7 @@
     var grid = document.getElementById('studyCardsGrid');
 
     if (!studies.length) {
-      grid.innerHTML = '<p class="library-empty">No studies saved yet. Head to Study to generate your first guide.</p>';
+      grid.innerHTML = '<p class="library-empty">No studies saved yet. Head to Study to generate your first study.</p>';
       return;
     }
 

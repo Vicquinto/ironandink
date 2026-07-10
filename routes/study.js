@@ -126,7 +126,7 @@ router.get('/study', requireAuth, (req, res) => {
   const content = `
     <div class="page-header">
       <h2 class="page-title">Study</h2>
-      <p class="page-subtitle">Select a curated topic or enter your own to generate a study guide.</p>
+      <p class="page-subtitle">Select a curated topic or enter your own to generate a study.</p>
     </div>
 
     <div class="study-type-picker" id="studyTypePicker" role="radiogroup" aria-label="Study type">
@@ -163,7 +163,7 @@ router.get('/study', requireAuth, (req, res) => {
           <option value="scholar">Scholar</option>
         </select>
       </div>
-      <button id="generateBtn" class="btn-primary">Generate Guide</button>
+      <button id="generateBtn" class="btn-primary">Generate Study</button>
       <button id="appointedStudyBtn" class="btn-warm">Appointed Study</button>
     </div>
 
@@ -247,7 +247,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study.js?v=7"></script><script src="/js/library.js?v=31"></script>
+    scripts: `<script src="/js/study.js?v=7"></script><script src="/js/library.js?v=32"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};

@@ -35,7 +35,7 @@ router.get('/help', requireAuth, (req, res) => {
         <ul class="welcome-feature-list" style="margin-top:16px;">
           <li class="welcome-feature-item">
             <span class="welcome-feature-name">Study</span>
-            <span class="welcome-feature-desc">Generate a structured, confessionally Reformed study guide on any theological topic, passage, or question, at your chosen reading level.</span>
+            <span class="welcome-feature-desc">Generate a structured, confessionally Reformed study on any theological topic, passage, or question, at your chosen reading level.</span>
           </li>
           <li class="welcome-feature-item">
             <span class="welcome-feature-name">Dialogue</span>

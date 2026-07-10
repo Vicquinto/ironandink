@@ -100,7 +100,7 @@ router.get('/community', requireAuth, (req, res) => {
     <div id="studiesBoard" style="display:none;">
       <div class="page-header">
         <h2 class="page-title">Community Studies</h2>
-        <p class="page-subtitle">Study guides shared by the Iron &amp; Ink community.</p>
+        <p class="page-subtitle">Studies shared by the Iron &amp; Ink community.</p>
       </div>
       <div id="studiesLoading" class="study-loading" style="display:none;">
         <div class="study-spinner"></div>

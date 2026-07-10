@@ -200,7 +200,7 @@ router.get('/', (req, res) => {
         <div class="feature-entry">
           <div class="feature-title">Study</div>
           <p class="feature-desc">
-            Generate a structured Reformed study guide on any theological topic.
+            Generate a structured Reformed study on any theological topic.
             Scripture, confession, history, and guiding questions — all in one place.
           </p>
         </div>
