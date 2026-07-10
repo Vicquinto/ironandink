@@ -540,8 +540,8 @@
 
   function studyLevelBadge(level) {
     var l = level || 'journeyman';
-    var labels = { foundations: 'APPRENTICE', journeyman: 'STANDARD', scholar: 'ADVANCED' };
-    var label  = labels[l] || 'STANDARD';
+    var labels = { foundations: 'APPRENTICE', journeyman: 'JOURNEYMAN', scholar: 'SCHOLAR' };
+    var label  = labels[l] || 'JOURNEYMAN';
     return '<span class="study-level-badge study-level-badge-' + l + '">' + label + '</span>';
   }
 

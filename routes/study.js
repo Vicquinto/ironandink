@@ -155,8 +155,8 @@ router.get('/study', requireAuth, (req, res) => {
         <label class="form-label" for="studyLevelSelect">Study Level</label>
         <select id="studyLevelSelect" class="study-level-select" title="Writing register">
           <option value="foundations">Apprentice</option>
-          <option value="journeyman">Standard</option>
-          <option value="scholar">Advanced</option>
+          <option value="journeyman">Journeyman</option>
+          <option value="scholar">Scholar</option>
         </select>
       </div>
       <button id="generateBtn" class="btn-primary">Generate Guide</button>
@@ -243,7 +243,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study.js?v=5"></script><script src="/js/library.js?v=29"></script>
+    scripts: `<script src="/js/study.js?v=6"></script><script src="/js/library.js?v=30"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};
