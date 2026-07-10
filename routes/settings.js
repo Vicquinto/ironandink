@@ -98,7 +98,7 @@ router.get('/settings', requireAuth, (req, res) => {
         <div class="form-group">
           <label class="form-label">Writing Register</label>
           <select class="form-select" id="studyLevel">
-            <option value="foundations"${sel(s.studyLevel || 'journeyman', 'foundations')}>Foundational</option>
+            <option value="foundations"${sel(s.studyLevel || 'journeyman', 'foundations')}>Apprentice</option>
             <option value="journeyman"${sel(s.studyLevel || 'journeyman', 'journeyman')}>Standard</option>
             <option value="scholar"${sel(s.studyLevel || 'journeyman', 'scholar')}>Advanced</option>
           </select>

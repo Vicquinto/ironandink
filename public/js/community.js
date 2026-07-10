@@ -279,7 +279,7 @@
 
   function studyLevelBadge(level) {
     if (!level) return '';
-    var labels = { foundations: 'FOUNDATIONAL', journeyman: 'STANDARD', scholar: 'ADVANCED' };
+    var labels = { foundations: 'APPRENTICE', journeyman: 'STANDARD', scholar: 'ADVANCED' };
     var label  = labels[level];
     if (!label) return '';
     return '<span class="study-level-badge study-level-badge-' + esc(level) + '">' + label + '</span>';

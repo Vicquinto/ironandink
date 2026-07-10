@@ -107,7 +107,7 @@
           var badge = room.visibility === 'private'
             ? '<span class="rooms-badge rooms-badge-private">Private</span>'
             : '<span class="rooms-badge rooms-badge-open">Open</span>';
-          var levelLabels = { foundations: 'Foundational', journeyman: 'Standard', scholar: 'Advanced' };
+          var levelLabels = { foundations: 'Apprentice', journeyman: 'Standard', scholar: 'Advanced' };
           var levelBadge = '<span style="background:#A0845C;color:#fff;border-radius:4px;padding:2px 8px;font-size:0.75rem;">' +
             (levelLabels[room.studyLevel] || 'Standard') + '</span>';
           var pausedBadge = paused
@@ -141,7 +141,7 @@
 
         '<label style="display:block;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.05em;color:#5C1A28;margin-bottom:0.35rem;">Study Level</label>' +
         '<select id="roomStudyLevel" style="width:100%;box-sizing:border-box;padding:0.55rem 0.75rem;border:1px solid #c4a882;border-radius:6px;background:#fff;font-size:0.97rem;margin-bottom:1rem;">' +
-          '<option value="foundations">Foundational</option>' +
+          '<option value="foundations">Apprentice</option>' +
           '<option value="journeyman">Standard</option>' +
           '<option value="scholar">Advanced</option>' +
         '</select>' +
