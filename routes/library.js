@@ -96,7 +96,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/library.js?v=32"></script>',
+    scripts: '<script src="/js/library.js?v=33"></script>',
   }));
 });
 

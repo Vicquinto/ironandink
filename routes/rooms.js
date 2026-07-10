@@ -114,7 +114,7 @@ router.get('/rooms', requireAuth, (req, res) => {
     activeSection: 'rooms',
     title:         'Live Study Rooms',
     content,
-    scripts: `<script>window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};</script><script src="/js/rooms.js?v=6"></script><script src="/js/library.js?v=32"></script>`,
+    scripts: `<script>window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};</script><script src="/js/rooms.js?v=6"></script><script src="/js/library.js?v=33"></script>`,
   }));
 });
 
@@ -238,7 +238,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
       }
     })();
   </script>
-  <script src="/js/library.js?v=32"></script>`,
+  <script src="/js/library.js?v=33"></script>`,
     }));
   }
 
@@ -354,7 +354,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
     window.IS_ADMIN         = ${getIsAdmin(req)};
   </script>
   <script src="/js/room.js?v=13"></script>
-  <script src="/js/library.js?v=32"></script>`,
+  <script src="/js/library.js?v=33"></script>`,
   }));
 });
 

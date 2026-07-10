@@ -659,6 +659,7 @@
   var icmTopic          = '';
   var _pendingBroadcast = null;
   var _inScripture      = false;
+  var _lookupOnly       = false;
   var _pendingPinData   = null;
   var PINS_KEY          = 'ironink_scripture_pins';
 
@@ -846,6 +847,15 @@
       return { topic: titleText('libGuideTitle'), inScripture: false };
     }
 
+    // Community reader (shared studies + articles). Lookup-only: there is no room
+    // to broadcast into and no personal pin sidebar, so Share/Pin are suppressed.
+    var communityReading  = document.getElementById('communityReading');
+    var communityReadBody = document.getElementById('communityReadBody');
+    if (communityReading && communityReading.style.display !== 'none' &&
+        holds(communityReadBody, true)) {
+      return { topic: titleText('communityReadTitle'), inScripture: false, lookupOnly: true };
+    }
+
     var guideArea = document.getElementById('guideArea');
     if (guideArea && guideArea.style.display !== 'none' &&
         holds(guideArea, true)) {
@@ -905,6 +915,7 @@
     if (!ctx) return;
 
     _inScripture   = ctx.inScripture;
+    _lookupOnly    = (ctx.lookupOnly === true);
     upSelectedText = selText;
     icmTopic       = ctx.topic;
     showUp(selText, rect);
@@ -1026,10 +1037,10 @@
         defEl.innerHTML = '<span style="color:#e08080;font-style:italic;">' + esc(data.error) + '</span>';
       } else {
         defEl.innerHTML = renderMarkdown(data.definition);
-        if (window.ROOM_CODE && window.isHost) {
+        if (!_lookupOnly && window.ROOM_CODE && window.isHost) {
           showShareFooter({ roomCode: window.ROOM_CODE, type: 'Define', term: upSelectedText, response: data.definition });
         }
-        if (_inScripture) {
+        if (!_lookupOnly && _inScripture) {
           showPinFooter({ type: 'Define', term: upSelectedText, content: data.definition });
         }
       }
@@ -1077,10 +1088,10 @@
         verseEl.innerHTML = '<span style="color:#e08080;font-style:italic;">' + esc(data.error) + '</span>';
       } else {
         verseEl.innerHTML = renderMarkdown(data.verse);
-        if (window.ROOM_CODE && window.isHost) {
+        if (!_lookupOnly && window.ROOM_CODE && window.isHost) {
           showShareFooter({ roomCode: window.ROOM_CODE, type: 'Verse Lookup', term: upSelectedText, response: data.verse });
         }
-        if (_inScripture) {
+        if (!_lookupOnly && _inScripture) {
           showPinFooter({ type: 'Verse Lookup', term: upSelectedText, content: data.verse });
         }
       }
@@ -1125,10 +1136,10 @@
       var data = await res.json();
       if (data.success) {
         resp.innerHTML = renderMarkdown(data.answer);
-        if (window.ROOM_CODE && window.isHost) {
+        if (!_lookupOnly && window.ROOM_CODE && window.isHost) {
           showShareFooter({ roomCode: window.ROOM_CODE, type: 'Explore', term: upSelectedText, response: data.answer });
         }
-        if (_inScripture) {
+        if (!_lookupOnly && _inScripture) {
           showPinFooter({ type: 'Explore', term: upSelectedText, content: data.answer });
         }
       } else {
