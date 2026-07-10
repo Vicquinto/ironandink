@@ -146,6 +146,10 @@ router.get('/study', requireAuth, (req, res) => {
         <span class="study-type-name">Scripture &amp; Verse</span>
         <span class="study-type-sub">Study a specific passage, verse by verse</span>
       </button>
+      <button class="study-type-option" data-type="open" role="radio" aria-checked="false">
+        <span class="study-type-name">Open</span>
+        <span class="study-type-sub">Not sure which to pick? Start here — fits the study to the subject.</span>
+      </button>
     </div>
 
     <div class="study-search-bar">
@@ -243,7 +247,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study.js?v=6"></script><script src="/js/library.js?v=30"></script>
+    scripts: `<script src="/js/study.js?v=7"></script><script src="/js/library.js?v=31"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};
@@ -541,6 +545,7 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
     IRON_INK_EXPLORE_PROMPT,
     IRON_INK_HISTORICAL_PROMPT,
     IRON_INK_SCRIPTURE_PROMPT,
+    IRON_INK_OPEN_PROMPT,
   } = req.app.locals.prompts;
 
   // Study-type → prompt map. Doctrinal is the default (unchanged legacy behavior).
@@ -549,6 +554,7 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
     explore:    IRON_INK_EXPLORE_PROMPT,
     historical: IRON_INK_HISTORICAL_PROMPT,
     scripture:  IRON_INK_SCRIPTURE_PROMPT,
+    open:       IRON_INK_OPEN_PROMPT,
   };
   const resolvedStudyType = STUDY_TYPE_PROMPTS[studyType] ? studyType : 'doctrinal';
   const studyPrompt       = STUDY_TYPE_PROMPTS[resolvedStudyType];
@@ -559,9 +565,9 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
   const studyLevelInstruction = STUDY_LEVEL_INSTRUCTIONS[resolvedStudyLevel] || STUDY_LEVEL_INSTRUCTIONS.journeyman;
 
   // Depth rule: the writing register (studyLevel) applies to every type EXCEPT
-  // explore (doctrinal, historical, and scripture all get the level prefix). Explore
-  // has no depth dial by design, so it alone gets no level-register prefix — its
-  // system prompt is CORE + the Explore prompt alone.
+  // explore (doctrinal, historical, scripture, and open all get the level prefix).
+  // Explore has no depth dial by design, so it alone gets no level-register prefix —
+  // its system prompt is CORE + the Explore prompt alone.
   const systemPrompt = (resolvedStudyType === 'explore')
     ? IRON_INK_CORE_PROMPT + '\n\n' + studyPrompt
     : studyLevelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + studyPrompt;
