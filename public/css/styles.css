@@ -2993,8 +2993,37 @@ body {
   gap: 0;
 }
 
-/* Fourth action — deliberately white/distinct from the three maroon AI buttons,
-   set apart with its own spacing so it reads as an intentional action. */
+/* The three AI actions read as separated text within one slim maroon bar —
+   content-width, no per-button chrome, thin dividers between them. */
+.up-define-btn,
+.up-ai-btn,
+.up-verse-btn {
+  flex: 0 0 auto;
+  background: #5C1A28;
+  border: none;
+  color: #E8D9B8;
+  cursor: pointer;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+  padding: 5px 11px;
+  white-space: nowrap;
+  transition: background 0.12s;
+}
+.up-define-btn { border-radius: 4px 0 0 4px; }
+.up-verse-btn  { border-radius: 0 4px 4px 0; }
+/* Dividers between the actions, keeping the bar itself lean */
+.up-ai-btn,
+.up-verse-btn { border-left: 1px solid rgba(232,217,184,0.30); }
+.up-define-btn:hover,
+.up-ai-btn:hover,
+.up-verse-btn:hover { background: #4A1520; }
+.up-define-btn.up-btn-active,
+.up-ai-btn.up-btn-active,
+.up-verse-btn.up-btn-active { background: #3d1119; }
+
+/* Fourth action — slim white outlined button set apart from the maroon bar.
+   align-items:stretch keeps it the same height as the bar so they align. */
 .up-note-btn {
   flex: 0 0 auto;
   margin-left: 10px;
@@ -3004,53 +3033,13 @@ body {
   border-radius: 4px;
   cursor: pointer;
   font-family: 'EB Garamond', Georgia, serif;
-  font-size: 0.82rem;
-  letter-spacing: 0.04em;
-  padding: 6px 14px;
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+  padding: 4px 12px;
   white-space: nowrap;
   transition: background 0.12s, color 0.12s;
 }
 .up-note-btn:hover { background: #F1E6CC; color: #4A1520; }
-
-.up-define-btn,
-.up-ai-btn,
-.up-verse-btn {
-  flex: 1;
-  background: #5C1A28;
-  border: 1px solid #5C1A28;
-  color: #E8D9B8;
-  cursor: pointer;
-  font-family: 'EB Garamond', Georgia, serif;
-  font-size: 0.82rem;
-  letter-spacing: 0.04em;
-  padding: 6px 10px;
-  transition: background 0.12s, color 0.12s, border-color 0.12s;
-}
-.up-define-btn {
-  border-radius: 4px 0 0 4px;
-  border-right: none;
-}
-.up-ai-btn {
-  border-radius: 0;
-  border-right: none;
-}
-.up-verse-btn {
-  border-radius: 0 4px 4px 0;
-}
-.up-define-btn:hover,
-.up-ai-btn:hover,
-.up-verse-btn:hover {
-  background: #4A1520;
-  color: #E8D9B8;
-  border-color: #4A1520;
-}
-.up-define-btn.up-btn-active,
-.up-ai-btn.up-btn-active,
-.up-verse-btn.up-btn-active {
-  background: #4A1520;
-  color: #E8D9B8;
-  border-color: #4A1520;
-}
 
 .up-content {
   border-top: 1px solid rgba(160,132,92,0.12);
