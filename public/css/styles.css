@@ -2943,12 +2943,34 @@ body {
   min-width: 280px;
   min-height: 200px;
   max-width: calc(100vw - 16px);
+  max-height: 70vh;                 /* frame: keeps the panel a sensible height */
   background: #DDD0B0;
   border: 1px solid #A0845C;
   border-radius: 8px;
   box-shadow: 0 6px 28px rgba(0,0,0,0.65);
-  overflow: auto;
+  /* The panel is a fixed frame — header, actions, input and footers never scroll.
+     Only the results area (inside .up-content) scrolls. overflow:hidden removes
+     the panel-level scrollbar so there is a single scrollbar. resize still works. */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   resize: both;
+}
+
+/* Fixed regions of the frame */
+.up-header,
+.up-actions,
+.up-share-footer,
+.up-pin-footer,
+.up-save-note-footer { flex: 0 0 auto; }
+
+/* The only scrollable region: grows to fill the frame, its result box scrolls */
+.up-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;              /* becomes a column when JS reveals it (display:flex) */
+  flex-direction: column;
 }
 
 .up-header {
@@ -3048,6 +3070,9 @@ body {
 .up-define-pane,
 .up-verse-pane {
   padding: 12px 14px 4px;
+  flex: 1 1 auto;
+  min-height: 0;
+  flex-direction: column;   /* stacks the result box when JS reveals it (display:flex) */
 }
 
 .unified-popup .up-ai-response,
@@ -3061,7 +3086,8 @@ body {
   font-family: 'EB Garamond', Georgia, serif;
   color: #1E1208;
   line-height: 1.65 !important;
-  max-height: 180px;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
 }
 
@@ -3070,7 +3096,8 @@ body {
   font-family: 'EB Garamond', Georgia, serif;
   color: #1E1208;
   line-height: 1.65 !important;
-  max-height: 180px;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
 }
 
@@ -3082,12 +3109,16 @@ body {
 
 .up-ai-pane {
   padding: 10px 14px 4px;
+  flex: 1 1 auto;
+  min-height: 0;
+  flex-direction: column;   /* input row (fixed) + response (scrolls) + footer (fixed) */
 }
 
 .up-ai-input-row {
   display: flex;
   gap: 8px;
   margin-bottom: 8px;
+  flex: 0 0 auto;
 }
 
 .up-ai-input {
@@ -3131,7 +3162,8 @@ body {
   font-size: var(--tooltip-font-size, 1rem) !important;
   line-height: 1.65 !important;
   color: #1E1208;
-  max-height: 180px;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
   white-space: pre-wrap;
 }
@@ -3141,6 +3173,7 @@ body {
   justify-content: flex-end;
   padding-top: 6px;
   border-top: 1px solid rgba(160,132,92,0.1);
+  flex: 0 0 auto;
 }
 
 .up-chat-btn {

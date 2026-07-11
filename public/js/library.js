@@ -955,11 +955,13 @@
     var noteBtn = upEl.querySelector('.up-note-btn');
     if (noteBtn) noteBtn.style.display = notepadCtx() ? '' : 'none';
 
-    // Measure collapsed height before committing to a position
+    // Measure collapsed height before committing to a position. display:flex (not
+    // block) so the panel is a flex column — header/actions/footer fixed, the
+    // results area the only scroller.
     upEl.style.top        = '0';
     upEl.style.left       = '0';
     upEl.style.visibility = 'hidden';
-    upEl.style.display    = 'block';
+    upEl.style.display    = 'flex';
     var ph = upEl.offsetHeight || 80;
 
     var vw   = window.innerWidth;
@@ -1229,8 +1231,8 @@
   });
 
   upEl.querySelector('.up-define-btn').addEventListener('click', function () {
-    upEl.querySelector('.up-content').style.display     = 'block';
-    upEl.querySelector('.up-define-pane').style.display = 'block';
+    upEl.querySelector('.up-content').style.display     = 'flex';
+    upEl.querySelector('.up-define-pane').style.display = 'flex';
     upEl.querySelector('.up-ai-pane').style.display     = 'none';
     upEl.querySelector('.up-verse-pane').style.display  = 'none';
     upEl.querySelector('.up-define-btn').classList.add('up-btn-active');
@@ -1269,10 +1271,10 @@
   });
 
   upEl.querySelector('.up-ai-btn').addEventListener('click', function () {
-    upEl.querySelector('.up-content').style.display     = 'block';
+    upEl.querySelector('.up-content').style.display     = 'flex';
     upEl.querySelector('.up-define-pane').style.display = 'none';
     upEl.querySelector('.up-verse-pane').style.display  = 'none';
-    upEl.querySelector('.up-ai-pane').style.display     = 'block';
+    upEl.querySelector('.up-ai-pane').style.display     = 'flex';
     upEl.querySelector('.up-ai-btn').classList.add('up-btn-active');
     upEl.querySelector('.up-define-btn').classList.remove('up-btn-active');
     upEl.querySelector('.up-verse-btn').classList.remove('up-btn-active');
@@ -1281,10 +1283,10 @@
   });
 
   upEl.querySelector('.up-verse-btn').addEventListener('click', function () {
-    upEl.querySelector('.up-content').style.display     = 'block';
+    upEl.querySelector('.up-content').style.display     = 'flex';
     upEl.querySelector('.up-define-pane').style.display = 'none';
     upEl.querySelector('.up-ai-pane').style.display     = 'none';
-    upEl.querySelector('.up-verse-pane').style.display  = 'block';
+    upEl.querySelector('.up-verse-pane').style.display  = 'flex';
     upEl.querySelector('.up-verse-btn').classList.add('up-btn-active');
     upEl.querySelector('.up-define-btn').classList.remove('up-btn-active');
     upEl.querySelector('.up-ai-btn').classList.remove('up-btn-active');
