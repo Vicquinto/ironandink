@@ -42,6 +42,20 @@ function findNotepad(pads, studyId, userId) {
   return pads.find(p => p.studyId === studyId && p.userId === userId);
 }
 
+// Cascade helper: remove the notepad (and all its notes) for a given study. Used
+// when a study is deleted from the Library so notes are never left orphaned. If
+// userId is provided, only that user's notepad for the study is removed; pass null
+// to remove every user's notepad for the study. Returns the number of pads removed.
+function deleteNotepadsForStudy(studyId, userId) {
+  const pads = readNotepads();
+  const remaining = pads.filter(
+    p => !(p.studyId === studyId && (userId == null || p.userId === userId))
+  );
+  const removed = pads.length - remaining.length;
+  if (removed > 0) writeNotepads(remaining);
+  return removed;
+}
+
 function sortNotes(notes) {
   // Anchored notes first (by marker), then free notes (by time)
   return notes.slice().sort((a, b) => {
@@ -168,3 +182,5 @@ router.delete('/api/notepad/:studyId/note/:noteId', requireAuth, (req, res) => {
 });
 
 module.exports = router;
+// Expose the cascade helper so the Library delete route can clean up notes.
+module.exports.deleteNotepadsForStudy = deleteNotepadsForStudy;

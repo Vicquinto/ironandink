@@ -4,6 +4,7 @@ const path      = require('path');
 const Anthropic = require('@anthropic-ai/sdk');
 const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
+const notepadRoutes = require('./notepad');
 
 const router      = express.Router();
 const STUDIES_PATH = path.join(__dirname, '../data/studies.json');
@@ -103,7 +104,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/library.js?v=36"></script>',
+    scripts: '<script src="/js/library.js?v=37"></script>',
   }));
 });
 
@@ -195,6 +196,14 @@ router.delete('/api/library/:id', requireAuth, (req, res) => {
 
   studies.splice(idx, 1);
   writeStudies(studies);
+
+  // Cascade: delete this study's notepad + all its notes so nothing is orphaned.
+  try {
+    notepadRoutes.deleteNotepadsForStudy(req.params.id, req.session.userId);
+  } catch (err) {
+    console.error('Notepad cascade delete failed:', err.message);
+  }
+
   res.json({ success: true });
 });
 

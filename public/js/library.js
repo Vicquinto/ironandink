@@ -305,7 +305,8 @@
     document.getElementById('guideModal').style.display = 'none';
     document.body.style.overflow = '';
     if (upEl)  upEl.style.display  = 'none';
-    if (icmEl) icmEl.style.display = 'none';
+    // Route through closeIcm so a notepad hidden for the chat is restored.
+    if (icmEl && icmEl.style.display !== 'none') closeIcm();
   }
 
   var closeModalBtn = document.getElementById('closeModal');
@@ -316,7 +317,7 @@
   });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
-      if (icmEl && icmEl.style.display !== 'none') { icmEl.style.display = 'none'; return; }
+      if (icmEl && icmEl.style.display !== 'none') { closeIcm(); return; }
       if (upEl  && upEl.style.display  !== 'none') { upEl.style.display  = 'none'; return; }
       closeModal();
     }
@@ -481,6 +482,8 @@
                   '<span class="notes-allnote-caret">&#9656;</span>' +
                   marker +
                   '<span class="notes-allnote-preview">' + esc(preview) + '</span>' +
+                  '<button class="notes-allnote-del" data-study-id="' + esc(g.studyId) +
+                    '" data-note-id="' + esc(n.id) + '" title="Delete note" aria-label="Delete note">&times;</button>' +
                 '</div>' +
                 '<div class="notes-allnote-full" style="display:none;">' +
                   quoteBlock +
@@ -515,6 +518,32 @@
           summary.addEventListener('click', toggle);
           summary.addEventListener('keydown', function (e) {
             if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+          });
+        });
+
+        // Delete a note directly from the Notes view (styled confirm, like the
+        // notepad panel's × ). stopPropagation so the click doesn't also expand.
+        grid.querySelectorAll('.notes-allnote-del').forEach(function (delBtn) {
+          delBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var studyId = delBtn.dataset.studyId;
+            var noteId  = delBtn.dataset.noteId;
+            showConfirm('Delete this note? This cannot be undone.', 'Delete', function () {
+              fetch('/api/notepad/' + encodeURIComponent(studyId) + '/note/' + encodeURIComponent(noteId), {
+                method: 'DELETE',
+              })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                  if (!data.success) { showAlert('Could not delete note.'); return; }
+                  loadAllNotes(); // re-render the grouped view
+                  // Keep an open notepad + its reader markers in sync.
+                  if (window.__notepadStudy && window.__notepadStudy.id === studyId) {
+                    if (window.__notepad) window.__notepad.refresh();
+                    if (typeof window.__notepadRerenderMarkers === 'function') window.__notepadRerenderMarkers();
+                  }
+                })
+                .catch(function () { showAlert('Could not delete note.'); });
+            });
           });
         });
 
@@ -894,6 +923,47 @@
     return (window.__notepadStudy && !_lookupOnly) ? window.__notepadStudy : null;
   }
 
+  // The current selection sits in a freshly generated study that hasn't been
+  // saved to the Library yet (Study page draft, exposed by study.js). Such a
+  // study has no id to attach notes to — notes are offered but require a save.
+  function hasUnsavedDraft() {
+    return !_lookupOnly && !window.__notepadStudy &&
+           !!(window.__ironStudyDraft &&
+              typeof window.__ironStudyDraft.hasUnsaved === 'function' &&
+              window.__ironStudyDraft.hasUnsaved());
+  }
+
+  // Can the user take notes in the current context at all — either a bound study
+  // or a saveable unsaved draft? Drives note-button/footer visibility.
+  function canTakeNotes() {
+    return !!notepadCtx() || hasUnsavedDraft();
+  }
+
+  // Resolve a notepad context, saving the draft first when needed. cb(ctx) runs
+  // once a real study id is available; if the study must be saved, the app's
+  // styled confirm modal gates it. cb is not called if the user cancels or the
+  // save fails.
+  function ensureNotepadCtx(cb) {
+    var ctx = notepadCtx();
+    if (ctx) { cb(ctx); return; }
+    if (!hasUnsavedDraft()) return;
+    // Dismiss the tooltip so it doesn't sit under the confirm modal.
+    if (upEl) upEl.style.display = 'none';
+    showConfirm(
+      'Notes are saved with your study. Save this study to your Library to start taking notes?',
+      'Save & Add Note',
+      function () {
+        window.__ironStudyDraft.save(function (err, savedCtx) {
+          if (err || !savedCtx) {
+            showToast('Could not save the study. Please try again.', true);
+            return;
+          }
+          cb(savedCtx);
+        });
+      }
+    );
+  }
+
   // 0-based index of the current selection among all occurrences of `quote` in
   // the Library reader body. Lets the marker land on the exact highlight rather
   // than the first match. Falls back to 0 if it can't be determined.
@@ -915,7 +985,7 @@
   }
 
   function showSaveNoteFooter(data) {
-    if (!notepadCtx()) return;
+    if (!canTakeNotes()) return;
     _pendingNoteData = data;
     var footer = upEl.querySelector('.up-save-note-footer');
     var btn    = upEl.querySelector('.up-save-note-btn');
@@ -951,9 +1021,10 @@
     hidePinFooter();
     hideSaveNoteFooter();
 
-    // "Add Note" is only meaningful with a study open in the Library reader.
+    // "Add Note" shows whenever notes are possible — a study open in the Library
+    // reader, or a freshly generated study that can be saved on demand.
     var noteBtn = upEl.querySelector('.up-note-btn');
-    if (noteBtn) noteBtn.style.display = notepadCtx() ? '' : 'none';
+    if (noteBtn) noteBtn.style.display = canTakeNotes() ? '' : 'none';
 
     // Measure collapsed height before committing to a position. display:flex (not
     // block) so the panel is a flex column — header/actions/footer fixed, the
@@ -1049,10 +1120,39 @@
   }
 
   // ── Selection detection ────────────────────────────────────────────────────
+  // A modal / form / dialog is open, so any selection is stale/incidental rather
+  // than a deliberate highlight of study content. Covers: the Library study modal,
+  // the Study-page "Save to Library" form, the Study Chat modal, and any styled
+  // confirm/alert modal (modal.js). When any of these is up, the tooltip stays shut.
+  function isBlockingOverlayOpen() {
+    if (icmEl && icmEl.style.display !== 'none') return true;               // Study Chat
+    var gm = document.getElementById('guideModal');
+    if (gm && gm.style.display !== 'none') return true;                      // Library study modal
+    var sp = document.getElementById('savePanel');
+    if (sp && sp.style.display !== 'none') return true;                      // Save to Library form
+    if (document.querySelector('.ironink-modal-overlay')) return true;      // confirm / alert modal
+    return false;
+  }
+
+  // The mouseup landed on (or inside) a UI control rather than study text, so it
+  // isn't a fresh highlight — e.g. clicking "Save to Library" while old highlighted
+  // text is still selected. Suppress the tooltip in that case.
+  function isUiControlTarget(t) {
+    return !!(t && t.closest && t.closest(
+      'button, input, textarea, select, label, a, ' +
+      '.up-actions, .save-panel, .guide-actions, .card-edit-popup, .save-panel-btns'
+    ));
+  }
+
   document.addEventListener('mouseup', function (e) {
     if (e.target.closest && (
           e.target.closest('#unifiedPopup') ||
           e.target.closest('#inlineChatModal'))) return;
+
+    // Only fire on a deliberate highlight of study content — never on top of an
+    // open dialog/form, and never when the release lands on a UI control. This is
+    // the single guard that kills the several "stale selection" tooltip symptoms.
+    if (isBlockingOverlayOpen() || isUiControlTarget(e.target)) return;
 
     var sel = window.getSelection();
     if (!sel) return;
@@ -1200,10 +1300,13 @@
 
   // ── Notepad: "Add Note" (anchored personal note — skips AI) ─────────────────
   upEl.querySelector('.up-note-btn').addEventListener('click', function () {
-    var ctx = notepadCtx();
-    if (!ctx || !window.__notepad) return;
-    upEl.style.display = 'none';
-    window.__notepad.startAnchoredNote(ctx.id, ctx.title, upSelectedText, upOccurrence);
+    if (!window.__notepad) return;
+    // Capture the selection now — ensureNotepadCtx may pop a confirm modal first.
+    var quote = upSelectedText, occ = upOccurrence;
+    ensureNotepadCtx(function (ctx) {
+      upEl.style.display = 'none';
+      window.__notepad.startAnchoredNote(ctx.id, ctx.title, quote, occ);
+    });
   });
 
   // ── Notepad: "Save to Notepad" (anchored lookup — captures term + result) ───
@@ -1215,18 +1318,21 @@
 
   upEl.querySelector('.up-save-note-btn').addEventListener('click', function () {
     var btn = this;
-    var ctx = notepadCtx();
-    if (!ctx || !_pendingNoteData || !window.__notepad) return;
-    btn.disabled    = true;
-    btn.textContent = 'Saving…';
-    window.__notepad.saveLookupNote(ctx.id, ctx.title, _pendingNoteData, function (ok) {
-      if (!ok) { btn.textContent = 'Save to Notepad'; btn.disabled = false; return; }
-      // Saved: give clear feedback via the app toast, then close the tooltip cleanly.
-      hideSaveNoteFooter();
-      btn.textContent = 'Save to Notepad';
-      btn.disabled    = false;
-      upEl.style.display = 'none';
-      showToast('Saved to Notepad');
+    if (!_pendingNoteData || !window.__notepad) return;
+    // Capture the note data now — ensureNotepadCtx may pop a confirm modal first.
+    var data = _pendingNoteData;
+    ensureNotepadCtx(function (ctx) {
+      btn.disabled    = true;
+      btn.textContent = 'Saving…';
+      window.__notepad.saveLookupNote(ctx.id, ctx.title, data, function (ok) {
+        if (!ok) { btn.textContent = 'Save to Notepad'; btn.disabled = false; return; }
+        // Saved: give clear feedback via the app toast, then close the tooltip cleanly.
+        hideSaveNoteFooter();
+        btn.textContent = 'Save to Notepad';
+        btn.disabled    = false;
+        upEl.style.display = 'none';
+        showToast('Saved to Notepad');
+      });
     });
   });
 
@@ -1381,6 +1487,13 @@
 
 
   // ── Chat modal ─────────────────────────────────────────────────────────────
+  // Track whether the floating notepad was open when the chat launched, so we can
+  // restore it on close. Study Chat is a full-screen modal; the notepad is a high
+  // z-index floating panel — leaving both up makes them fight for the same space.
+  // Hiding the notepad while the chat is open (and restoring it after) keeps both
+  // features intact without an overlay/z-index conflict.
+  var _notepadWasOpen = false;
+
   function openIcm(selectedText, topic) {
     icmContextText = selectedText;
     icmTopic       = topic;
@@ -1390,15 +1503,24 @@
     icmEl.querySelector('.icm-thread').innerHTML         = '';
     icmEl.querySelector('.icm-input').value              = '';
 
+    // Stand the notepad down for the duration of the chat, remembering its state.
+    _notepadWasOpen = !!(window.__notepad && window.__notepad.isOpen && window.__notepad.isOpen());
+    if (_notepadWasOpen) window.__notepad.close();
+
     icmEl.style.display = 'flex';
     setTimeout(function () { icmEl.querySelector('.icm-input').focus(); }, 40);
   }
 
-  icmEl.querySelector('.icm-close').addEventListener('click', function () {
+  function closeIcm() {
     icmEl.style.display = 'none';
-  });
+    // Restore the notepad exactly as the user left it before opening the chat.
+    if (_notepadWasOpen && window.__notepad) window.__notepad.open();
+    _notepadWasOpen = false;
+  }
+
+  icmEl.querySelector('.icm-close').addEventListener('click', closeIcm);
   icmEl.addEventListener('click', function (e) {
-    if (e.target === icmEl) icmEl.style.display = 'none';
+    if (e.target === icmEl) closeIcm();
   });
 
   icmEl.querySelector('.icm-send-btn').addEventListener('click', doSendChat);

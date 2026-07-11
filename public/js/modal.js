@@ -3,6 +3,9 @@
 
   function buildModal(message, buttons) {
     var overlay = document.createElement('div');
+    // Tagged so other UI (e.g. the highlight tooltip) can detect that a styled
+    // confirm/alert modal is open and suppress itself while it is showing.
+    overlay.className = 'ironink-modal-overlay';
     overlay.style.cssText = [
       'position:fixed', 'inset:0', 'z-index:9999',
       'background:rgba(0,0,0,0.6)',

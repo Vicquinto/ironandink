@@ -577,6 +577,7 @@
     toggle:            toggleWidget,
     open:              openWidget,
     close:             closeWidget,
+    isOpen:            function () { return isOpen; },
     setStudy:          setStudy,
     clearStudy:        clearStudy,
     refresh:           refresh,

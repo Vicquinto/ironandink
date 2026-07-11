@@ -6533,7 +6533,22 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
 }
+.notes-allnote-del {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: #a0704a;
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+  opacity: 0.6;
+  transition: opacity 0.15s, color 0.15s;
+}
+.notes-allnote-del:hover { opacity: 1; color: #5C1A28; }
 .notes-allnote-full { padding: 4px 0 6px; }
 .notes-allnote-full .notes-allnote-quote { margin-bottom: 4px; }
 .notes-allnote-quote {

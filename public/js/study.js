@@ -5,6 +5,7 @@
   let selectedRating  = 0;
   let abortController = null;
   let studyGenerated  = false;
+  let savedStudyId    = null;   // set once the current draft has been persisted
   var selectedLength  = 'Short';
   var selectedType    = 'doctrinal';
 
@@ -226,6 +227,13 @@
   // ── Guide generation ───────────────────────────────────────────────────────
   async function generateGuide(topic) {
     studyGenerated = false;
+    savedStudyId   = null;
+    // Reset the save button in case a prior draft left it in the "saved" state.
+    if (saveLibraryBtn) { saveLibraryBtn.textContent = 'Save to Library'; saveLibraryBtn.disabled = false; }
+    // A new draft has no notepad binding yet.
+    window.__notepadStudy = null;
+    window.__notepadRerenderMarkers = null;
+    if (window.__notepad) window.__notepad.clearStudy();
     showState('loading');
     loadingTopicName.textContent = topic;
 
@@ -288,7 +296,12 @@
   dismissGuideBtn.addEventListener('click', function () {
     studyGenerated = false;
     currentGuide = null;
+    savedStudyId = null;
     topicInput.value = '';
+    // Unbind the notepad so it doesn't linger on a dismissed draft.
+    window.__notepadStudy = null;
+    window.__notepadRerenderMarkers = null;
+    if (window.__notepad) window.__notepad.clearStudy();
     showState('browser');
   });
 
@@ -345,6 +358,75 @@
       showToast('Error: ' + err.message, true);
     }
   });
+
+  // ── Notepad bridge: take notes on a freshly generated (unsaved) study ────────
+  // The floating notepad keys everything by study id, which an unsaved draft does
+  // not have yet. When the user tries to add/save a note on such a draft, the
+  // tooltip (library.js) calls into this bridge to persist the study first, then
+  // continues the note flow seamlessly. Saving here uses sensible defaults (no
+  // tags/rating, not shared) so the user isn't forced through the full save form.
+  function markStudySaved(study) {
+    savedStudyId   = study.id;
+    studyGenerated = false;                 // draft is persisted → drop the unload guard
+    // Reflect the saved state so the user can't create a duplicate via Save to Library.
+    if (saveLibraryBtn) {
+      saveLibraryBtn.textContent = 'Saved to Library ✓';
+      saveLibraryBtn.disabled    = true;
+    }
+    // Bind the floating notepad to the now-saved study so notes + markers work,
+    // including display-only markers injected into this page's study body.
+    window.__notepadStudy = { id: study.id, title: study.topic };
+    window.__notepadRerenderMarkers = function () {
+      if (window.__notepad) window.__notepad.injectMarkers(guideBody, study.id);
+    };
+    if (window.__notepad) {
+      window.__notepad.setStudy(study.id, study.topic);
+      window.__notepad.injectMarkers(guideBody, study.id);
+    }
+  }
+
+  window.__ironStudyDraft = {
+    // True only when an unsaved, freshly generated study is on screen.
+    hasUnsaved: function () {
+      return !!(studyGenerated && currentGuide && !savedStudyId);
+    },
+    // Persist the current draft, then invoke onDone(err, { id, title }).
+    save: function (onDone) {
+      if (typeof onDone !== 'function') onDone = function () {};
+      if (!currentGuide) { onDone(new Error('No study to save.')); return; }
+      if (savedStudyId)  { onDone(null, { id: savedStudyId, title: currentGuide.topic }); return; }
+
+      var body = {
+        topic:       currentGuide.topic,
+        content:     currentGuide.content,
+        translation: currentGuide.translation,
+        tags:        '',
+        rating:      0,
+        studyLength: currentGuide.studyLength,
+        studyLevel:  currentGuide.studyLevel,
+        studyType:   currentGuide.studyType,
+        shared:      false,
+        createdAt:   new Date().toISOString(),
+      };
+
+      fetch('/api/library/save', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(body),
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.success && data.study) {
+            markStudySaved(data.study);
+            showToast('Saved to Library.');
+            onDone(null, { id: data.study.id, title: data.study.topic });
+          } else {
+            onDone(new Error(data.error || 'Save failed.'));
+          }
+        })
+        .catch(function (err) { onDone(err); });
+    },
+  };
 
   // ── Markdown renderer ──────────────────────────────────────────────────────
   function renderMarkdown(text) {
