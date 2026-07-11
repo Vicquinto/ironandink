@@ -436,6 +436,19 @@
   });
 
   // ── Global notes view (all notes across studies, grouped by study) ──────────
+  // Short plain-text preview for a collapsed note row: the quote if anchored,
+  // otherwise the opening of the note body with markdown syntax stripped.
+  function notePreview(n) {
+    if (n.quote) return '“' + n.quote + '”';
+    var t = String(n.content || '')
+      .replace(/[#*_>`~]/g, ' ')
+      .replace(/^\s*[-\d.]+\s+/gm, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (!t) return 'Empty note';
+    return t.length > 90 ? t.slice(0, 90) + '…' : t;
+  }
+
   function loadAllNotes() {
     notesLoaded = true;
     var grid = document.getElementById('notesAllGrid');
@@ -453,16 +466,26 @@
         }
 
         grid.innerHTML = groups.map(function (g) {
+          // Each note is collapsed by default: a clickable summary (marker + a
+          // short preview) that expands to the full rendered note on click.
           var notesHtml = g.notes.map(function (n) {
             var marker = (n.marker != null)
               ? '<span class="notes-allnote-marker">' + esc(String(n.marker)) + '</span>'
               : '';
-            var quote = n.quote
-              ? '<div class="notes-allnote-quote">' + marker + '&ldquo;' + esc(n.quote) + '&rdquo;</div>'
-              : (marker ? '<div class="notes-allnote-quote">' + marker + '</div>' : '');
-            return '<div class="notes-allnote">' +
-                quote +
-                '<div class="notes-allnote-body">' + renderMarkdown(n.content || '') + '</div>' +
+            var preview = notePreview(n);
+            var quoteBlock = n.quote
+              ? '<div class="notes-allnote-quote">&ldquo;' + esc(n.quote) + '&rdquo;</div>'
+              : '';
+            return '<div class="notes-allnote notes-allnote--collapsed">' +
+                '<div class="notes-allnote-summary" role="button" tabindex="0">' +
+                  '<span class="notes-allnote-caret">&#9656;</span>' +
+                  marker +
+                  '<span class="notes-allnote-preview">' + esc(preview) + '</span>' +
+                '</div>' +
+                '<div class="notes-allnote-full" style="display:none;">' +
+                  quoteBlock +
+                  '<div class="notes-allnote-body">' + renderMarkdown(n.content || '') + '</div>' +
+                '</div>' +
               '</div>';
           }).join('');
 
@@ -478,6 +501,22 @@
               notesHtml +
             '</div>';
         }).join('');
+
+        // Expand / collapse a note on summary click (or Enter/Space).
+        grid.querySelectorAll('.notes-allnote-summary').forEach(function (summary) {
+          function toggle() {
+            var note  = summary.closest('.notes-allnote');
+            var full  = note.querySelector('.notes-allnote-full');
+            var caret = summary.querySelector('.notes-allnote-caret');
+            var collapsed = note.classList.toggle('notes-allnote--collapsed');
+            full.style.display = collapsed ? 'none' : 'block';
+            if (caret) caret.innerHTML = collapsed ? '&#9656;' : '&#9662;';
+          }
+          summary.addEventListener('click', toggle);
+          summary.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+          });
+        });
 
         grid.querySelectorAll('.notes-group-open:not([disabled])').forEach(function (btn) {
           btn.addEventListener('click', function () {
@@ -785,15 +824,15 @@
         '</div>' +
       '</div>' +
     '</div>' +
-    '<div class="up-share-footer" style="display:none;flex-direction:row;gap:0.5rem;justify-content:flex-end;padding-top:0.5rem;border-top:1px solid #ddd0b0;">' +
+    '<div class="up-share-footer" style="display:none;flex-direction:row;gap:0.5rem;justify-content:flex-end;padding:0.6rem 14px 0.8rem;margin-top:0.4rem;border-top:1px solid #ddd0b0;">' +
       '<button class="up-private-btn" style="background:transparent;color:#8a6c30;border:1px solid #c4a882;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Keep Private</button>' +
       '<button class="up-share-btn" style="background:#5C1A28;color:#fff;border:none;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Share to Chat</button>' +
     '</div>' +
-    '<div class="up-pin-footer" style="display:none;flex-direction:row;gap:0.5rem;justify-content:flex-end;padding-top:0.5rem;border-top:1px solid #ddd0b0;">' +
+    '<div class="up-pin-footer" style="display:none;flex-direction:row;gap:0.5rem;justify-content:flex-end;padding:0.6rem 14px 0.8rem;margin-top:0.4rem;border-top:1px solid #ddd0b0;">' +
       '<button class="up-pin-dismiss-btn" style="background:transparent;color:#8a6c30;border:1px solid #c4a882;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Dismiss</button>' +
       '<button class="up-pin-btn" style="background:#5C1A28;color:#fff;border:none;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Pin to Sidebar</button>' +
     '</div>' +
-    '<div class="up-save-note-footer" style="display:none;flex-direction:row;gap:0.5rem;justify-content:flex-end;padding-top:0.5rem;border-top:1px solid #ddd0b0;">' +
+    '<div class="up-save-note-footer" style="display:none;flex-direction:row;gap:0.5rem;justify-content:flex-end;padding:0.6rem 14px 0.8rem;margin-top:0.4rem;border-top:1px solid #ddd0b0;">' +
       '<button class="up-save-note-dismiss" style="background:transparent;color:#8a6c30;border:1px solid #c4a882;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Dismiss</button>' +
       '<button class="up-save-note-btn" style="background:#5C1A28;color:#fff;border:none;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Save to Notepad</button>' +
     '</div>';
@@ -849,9 +888,30 @@
   // Notepad "Save to Notepad" footer (Library reader only — where a study is
   // open). Mirrors the pin footer, but persists to the per-study notepad.
   var _pendingNoteData = null;
+  var upOccurrence     = 0;   // which occurrence of upSelectedText was highlighted
 
   function notepadCtx() {
     return (window.__notepadStudy && !_lookupOnly) ? window.__notepadStudy : null;
+  }
+
+  // 0-based index of the current selection among all occurrences of `quote` in
+  // the Library reader body. Lets the marker land on the exact highlight rather
+  // than the first match. Falls back to 0 if it can't be determined.
+  function computeSelectionOccurrence(quote) {
+    try {
+      if (!libGuideBody || !quote) return 0;
+      var sel = window.getSelection();
+      if (!sel || !sel.rangeCount) return 0;
+      var selRange = sel.getRangeAt(0);
+      if (!libGuideBody.contains(selRange.startContainer)) return 0;
+      var pre = document.createRange();
+      pre.setStart(libGuideBody, 0);
+      pre.setEnd(selRange.startContainer, selRange.startOffset);
+      var before = pre.toString();
+      var count = 0, i = 0;
+      while ((i = before.indexOf(quote, i)) !== -1) { count++; i += quote.length; }
+      return count;
+    } catch (e) { return 0; }
   }
 
   function showSaveNoteFooter(data) {
@@ -1038,6 +1098,8 @@
     _inScripture   = ctx.inScripture;
     _lookupOnly    = (ctx.lookupOnly === true);
     upSelectedText = selText;
+    // Capture which occurrence was highlighted now, while the selection is live.
+    upOccurrence   = computeSelectionOccurrence(selText);
     icmTopic       = ctx.topic;
     showUp(selText, rect);
     // Suppress any legacy dictionary tooltip that may fire after its 400 ms debounce
@@ -1139,12 +1201,14 @@
     var ctx = notepadCtx();
     if (!ctx || !window.__notepad) return;
     upEl.style.display = 'none';
-    window.__notepad.startAnchoredNote(ctx.id, ctx.title, upSelectedText);
+    window.__notepad.startAnchoredNote(ctx.id, ctx.title, upSelectedText, upOccurrence);
   });
 
   // ── Notepad: "Save to Notepad" (anchored lookup — captures term + result) ───
+  // Dismiss closes the whole tooltip (same as the × button), not just the footer.
   upEl.querySelector('.up-save-note-dismiss').addEventListener('click', function () {
     hideSaveNoteFooter();
+    upEl.style.display = 'none';
   });
 
   upEl.querySelector('.up-save-note-btn').addEventListener('click', function () {
@@ -1154,13 +1218,13 @@
     btn.disabled    = true;
     btn.textContent = 'Saving…';
     window.__notepad.saveLookupNote(ctx.id, ctx.title, _pendingNoteData, function (ok) {
-      btn.textContent = ok ? 'Saved ✓' : 'Save to Notepad';
-      if (!ok) { btn.disabled = false; return; }
-      setTimeout(function () {
-        hideSaveNoteFooter();
-        btn.textContent = 'Save to Notepad';
-        btn.disabled    = false;
-      }, 1400);
+      if (!ok) { btn.textContent = 'Save to Notepad'; btn.disabled = false; return; }
+      // Saved: give clear feedback via the app toast, then close the tooltip cleanly.
+      hideSaveNoteFooter();
+      btn.textContent = 'Save to Notepad';
+      btn.disabled    = false;
+      upEl.style.display = 'none';
+      showToast('Saved to Notepad');
     });
   });
 
@@ -1194,7 +1258,7 @@
         if (!_lookupOnly && _inScripture) {
           showPinFooter({ type: 'Define', term: upSelectedText, content: data.definition });
         }
-        showSaveNoteFooter({ quote: upSelectedText, question: null, content: data.definition, source: 'define' });
+        showSaveNoteFooter({ quote: upSelectedText, question: null, content: data.definition, source: 'define', occurrence: upOccurrence });
       }
       clampUp();
     })
@@ -1246,7 +1310,7 @@
         if (!_lookupOnly && _inScripture) {
           showPinFooter({ type: 'Verse Lookup', term: upSelectedText, content: data.verse });
         }
-        showSaveNoteFooter({ quote: upSelectedText, question: null, content: data.verse, source: 'verse' });
+        showSaveNoteFooter({ quote: upSelectedText, question: null, content: data.verse, source: 'verse', occurrence: upOccurrence });
       }
       clampUp();
     })
@@ -1295,7 +1359,7 @@
         if (!_lookupOnly && _inScripture) {
           showPinFooter({ type: 'Explore', term: upSelectedText, content: data.answer });
         }
-        showSaveNoteFooter({ quote: upSelectedText, question: question, content: data.answer, source: 'explore' });
+        showSaveNoteFooter({ quote: upSelectedText, question: question, content: data.answer, source: 'explore', occurrence: upOccurrence });
       } else {
         resp.innerHTML = '<span style="color:#e08080;font-style:italic;">Error: ' + esc(data.error || 'Failed.') + '</span>';
       }

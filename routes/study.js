@@ -247,7 +247,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study.js?v=7"></script><script src="/js/library.js?v=34"></script>
+    scripts: `<script src="/js/study.js?v=7"></script><script src="/js/library.js?v=35"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};

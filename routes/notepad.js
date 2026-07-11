@@ -10,9 +10,10 @@ const STUDIES_PATH  = path.join(__dirname, '../data/studies.json');
 
 // Notepad store shape: an array of notepad records, one per (studyId, userId):
 //   { studyId, userId, notes: [ note, ... ] }
-// note: { id, marker, quote, question, content, source, ts, updatedAt? }
-//   marker   — sequential number per notepad for anchored notes; null for free notes
-//   quote    — the highlighted study text a note is anchored to; null for free notes
+// note: { id, marker, quote, occurrence, question, content, source, ts, updatedAt? }
+//   marker     — sequential number per notepad for anchored notes; null for free notes
+//   quote      — the highlighted study text a note is anchored to; null for free notes
+//   occurrence — 0-based index of which occurrence of quote was highlighted; null if n/a
 //   question — what was asked (Explore); null otherwise
 //   content  — the note body (markdown text from the editor)
 //   source   — 'define' | 'explore' | 'verse' | 'personal' | 'free'
@@ -93,7 +94,7 @@ router.get('/api/notepad/:studyId', requireAuth, (req, res) => {
 router.post('/api/notepad/:studyId/note', requireAuth, (req, res) => {
   const userId    = req.session.userId;
   const { studyId } = req.params;
-  const { quote, question, content, source } = req.body;
+  const { quote, question, content, source, occurrence } = req.body;
 
   const src      = VALID_SOURCES.includes(source) ? source : 'free';
   const hasQuote = quote != null && String(quote).trim() !== '';
@@ -114,6 +115,10 @@ router.post('/api/notepad/:studyId/note', requireAuth, (req, res) => {
     id:       randomUUID(),
     marker,
     quote:    hasQuote ? String(quote) : null,
+    // 0-based index of which occurrence of `quote` in the study body was
+    // highlighted, so the display-only marker lands on the right one. null when
+    // not anchored or not provided (older clients) → render falls back to first.
+    occurrence: (hasQuote && typeof occurrence === 'number' && occurrence >= 0) ? occurrence : null,
     question: (question != null && String(question).trim() !== '') ? String(question) : null,
     content:  content != null ? String(content) : '',
     source:   src,

@@ -107,7 +107,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   <title>${title} — Iron &amp; Ink</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/shepherd.css">
-  <link rel="stylesheet" href="/css/styles.css?v=50">
+  <link rel="stylesheet" href="/css/styles.css?v=51">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
@@ -166,7 +166,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/dm-badge.js?v=2"></script>
   <script src="/js/dm-widget.js?v=2"></script>
-  <script src="/js/notepad.js?v=1"></script>
+  <script src="/js/notepad.js?v=2"></script>
   ${scripts}
   <script type="module" src="/js/tour-runner.js?v=3"></script>
   <script>

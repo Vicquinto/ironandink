@@ -75,6 +75,12 @@
     handle.addEventListener('mousedown', function (e) {
       if (e.target.closest('button')) return;
       var r = el.getBoundingClientRect();
+      // Switch to pure top/left anchoring before dragging so the panel isn't
+      // fighting any right/bottom offset (keeps vertical drag free).
+      el.style.right  = '';
+      el.style.bottom = '';
+      el.style.left   = r.left + 'px';
+      el.style.top    = r.top  + 'px';
       off = { x: e.clientX - r.left, y: e.clientY - r.top };
       document.body.style.userSelect = 'none';
     });
@@ -124,14 +130,19 @@
     ].join('');
     document.body.appendChild(el);
 
-    // Restore saved position / minimized state
+    // Restore saved position / minimized state. Always anchor by top/left (never
+    // right/bottom) so the panel is freely draggable and not pinned to an edge.
     var pos = loadPos();
-    if (pos.left) el.style.left = pos.left;
-    if (pos.top)  el.style.top  = pos.top;
-    if (!pos.left && !pos.top) {
-      // Default: bottom-right, mirroring the mini-inbox resting place
-      el.style.right  = '20px';
-      el.style.bottom = '20px';
+    el.style.right  = '';
+    el.style.bottom = '';
+    if (pos.left || pos.top) {
+      if (pos.left) el.style.left = pos.left;
+      if (pos.top)  el.style.top  = pos.top;
+    } else {
+      // Default resting place: bottom-right corner, expressed as top/left.
+      var dw = 340, dh = 460;
+      el.style.left = Math.max(8, window.innerWidth  - dw - 20) + 'px';
+      el.style.top  = Math.max(8, window.innerHeight - dh - 20) + 'px';
     }
 
     document.getElementById('notepadClose').addEventListener('click', closeWidget);
@@ -291,8 +302,8 @@
 
   // ── Composer (free note or pending anchored personal note) ──────────────────
 
-  function setPendingAnchor(quote) {
-    pendingAnchor = { quote: quote };
+  function setPendingAnchor(quote, occurrence) {
+    pendingAnchor = { quote: quote, occurrence: (typeof occurrence === 'number' ? occurrence : null) };
     var banner = document.getElementById('notepadAnchorBanner');
     var cancel = document.getElementById('notepadCancelAnchor');
     if (banner) {
@@ -325,8 +336,8 @@
     if (!text && !pendingAnchor) { input.focus(); return; }
 
     var payload = pendingAnchor
-      ? { quote: pendingAnchor.quote, question: null, content: text, source: 'personal' }
-      : { quote: null,                question: null, content: text, source: 'free' };
+      ? { quote: pendingAnchor.quote, question: null, content: text, source: 'personal', occurrence: pendingAnchor.occurrence }
+      : { quote: null,                question: null, content: text, source: 'free',     occurrence: null };
 
     var addBtn = document.getElementById('notepadAddBtn');
     if (addBtn) addBtn.disabled = true;
@@ -388,19 +399,26 @@
   }
 
   function deleteNote(noteId) {
-    if (!window.confirm('Delete this note? This cannot be undone.')) return;
-    fetch('/api/notepad/' + encodeURIComponent(curStudyId) + '/note/' + encodeURIComponent(noteId), {
-      method: 'DELETE',
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        if (data.success) {
-          notesCache = notesCache.filter(function (x) { return x.id !== noteId; });
-          if (editingId === noteId) editingId = null;
-          refreshAndMarkers();
-        }
+    // Use the app's styled confirmation modal (modal.js), not the native dialog.
+    var doDelete = function () {
+      fetch('/api/notepad/' + encodeURIComponent(curStudyId) + '/note/' + encodeURIComponent(noteId), {
+        method: 'DELETE',
       })
-      .catch(function () {});
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.success) {
+            notesCache = notesCache.filter(function (x) { return x.id !== noteId; });
+            if (editingId === noteId) editingId = null;
+            refreshAndMarkers();
+          }
+        })
+        .catch(function () {});
+    };
+    if (typeof window.showConfirm === 'function') {
+      window.showConfirm('Delete this note? This cannot be undone.', 'Delete', doDelete);
+    } else {
+      doDelete();
+    }
   }
 
   function cssEsc(s) {
@@ -419,11 +437,11 @@
   // ── Public entry points used by the tooltip (library.js) ────────────────────
 
   // (c) Anchored personal note: capture quote, open notepad, let the user write.
-  function startAnchoredNote(studyId, studyName, quote) {
+  function startAnchoredNote(studyId, studyName, quote, occurrence) {
     setStudy(studyId, studyName);
     if (isMinimized) toggleMinimize();
     openWidget();
-    setPendingAnchor(quote);
+    setPendingAnchor(quote, occurrence);
     var input = document.getElementById('notepadInput');
     if (input) { input.value = ''; setTimeout(function () { input.focus(); }, 40); }
   }
@@ -433,10 +451,11 @@
   function saveLookupNote(studyId, studyName, data, doneCb) {
     setStudy(studyId, studyName);
     postNote({
-      quote:    data.quote,
-      question: data.question || null,
-      content:  data.content || '',
-      source:   data.source || 'personal',
+      quote:      data.quote,
+      question:   data.question || null,
+      content:    data.content || '',
+      source:     data.source || 'personal',
+      occurrence: (typeof data.occurrence === 'number' ? data.occurrence : null),
     }, function (ok, note) {
       if (ok) {
         renderNotesList();
@@ -475,28 +494,38 @@
     var quote = String(note.quote || '').trim();
     if (!quote) return;
 
+    // Place the marker on the SAME occurrence the user highlighted. `occurrence`
+    // is a 0-based index of the match within the study body (stable because the
+    // body is never edited). Legacy notes without it fall back to the first match.
+    var target = (typeof note.occurrence === 'number' && note.occurrence >= 0) ? note.occurrence : 0;
+
     var walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
-    var node;
+    var node, seen = 0;
     while ((node = walker.nextNode())) {
       var parent = node.parentNode;
       if (!parent) continue;
       if (parent.classList && parent.classList.contains('notepad-marker')) continue;
-      var idx = node.nodeValue.indexOf(quote);
-      if (idx !== -1) {
-        var after = node.splitText(idx + quote.length);
-        var sup = document.createElement('sup');
-        sup.className = 'notepad-marker';
-        sup.setAttribute('data-note-id', note.id);
-        sup.setAttribute('data-marker', String(note.marker));
-        sup.setAttribute('role', 'button');
-        sup.setAttribute('tabindex', '0');
-        sup.title = 'Note ' + note.marker;
-        sup.textContent = note.marker;
-        parent.insertBefore(sup, after);
-        return; // one marker per note
+      var text = node.nodeValue;
+      var from = 0, idx;
+      while ((idx = text.indexOf(quote, from)) !== -1) {
+        if (seen === target) {
+          var after = node.splitText(idx + quote.length);
+          var sup = document.createElement('sup');
+          sup.className = 'notepad-marker';
+          sup.setAttribute('data-note-id', note.id);
+          sup.setAttribute('data-marker', String(note.marker));
+          sup.setAttribute('role', 'button');
+          sup.setAttribute('tabindex', '0');
+          sup.title = 'Note ' + note.marker;
+          sup.textContent = note.marker;
+          parent.insertBefore(sup, after);
+          return; // one marker per note
+        }
+        seen++;
+        from = idx + quote.length;
       }
     }
-    // Not found → graceful no-op.
+    // Target occurrence not found → graceful no-op (note still lists normally).
   }
 
   // Marker click → open notepad and reveal the note.
