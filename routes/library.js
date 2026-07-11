@@ -30,6 +30,7 @@ router.get('/library', requireAuth, (req, res) => {
     <div class="lib-tabs">
       <button class="lib-tab active" data-tab="studies">Studies</button>
       <button class="lib-tab" data-tab="dialogues">Dialogues</button>
+      <button class="lib-tab" data-tab="notes">Notes</button>
     </div>
 
     <div id="tab-studies" class="lib-tab-content">
@@ -72,6 +73,12 @@ router.get('/library', requireAuth, (req, res) => {
       </div>
     </div>
 
+    <div id="tab-notes" class="lib-tab-content" style="display:none;">
+      <div id="notesAllGrid">
+        <p class="library-loading-msg">Loading&#8230;</p>
+      </div>
+    </div>
+
     <div id="guideModal" class="guide-modal" style="display:none;" role="dialog" aria-modal="true">
       <div class="guide-modal-inner">
         <div class="guide-modal-header">
@@ -96,7 +103,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/library.js?v=33"></script>',
+    scripts: '<script src="/js/library.js?v=34"></script>',
   }));
 });
 

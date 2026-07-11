@@ -18,5 +18,6 @@ data/feedback.json
 data/messages.json
 data/reading_tracker.json
 data/selah.json
+data/notepads.json
 data/presence.json
 data/password_resets.json

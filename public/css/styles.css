@@ -6115,3 +6115,379 @@ body {
   opacity: 1;
   transform: translateY(0);
 }
+
+/* ══ Floating Notepad ═══════════════════════════════════════════════════════ */
+/* Shell mirrors .dm-widget / .ask-ai-panel; adds drag + minimize + position    */
+/* memory. Editor is a plain textarea (markdown), rendered via marked on display.*/
+
+.notepad-widget {
+  position: fixed;
+  width: 340px;
+  max-width: calc(100vw - 16px);
+  max-height: calc(100vh - 40px);
+  background: #E8D9B8;
+  border: 1px solid rgba(107,66,38,0.28);
+  border-radius: 10px;
+  box-shadow: 0 8px 36px rgba(30,18,8,0.32);
+  z-index: 9100;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.notepad-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(107,66,38,0.1);
+  border-bottom: 1px solid rgba(107,66,38,0.18);
+  flex-shrink: 0;
+  cursor: grab;
+}
+.notepad-header:active { cursor: grabbing; }
+
+.notepad-title {
+  flex: 1;
+  font-family: 'Cinzel', serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--warm-brown);
+}
+
+.notepad-hint {
+  font-family: inherit;
+  font-size: 0.6rem;
+  color: var(--warm-brown);
+  opacity: 0.45;
+  background: rgba(107,66,38,0.1);
+  border: 1px solid rgba(107,66,38,0.2);
+  border-radius: 3px;
+  padding: 1px 4px;
+  letter-spacing: 0;
+}
+
+.notepad-min,
+.notepad-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--warm-brown);
+  opacity: 0.55;
+  padding: 0 2px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.notepad-min:hover,
+.notepad-close:hover { opacity: 1; }
+
+.notepad-study {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  font-family: Georgia, serif;
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--warm-brown);
+  background: rgba(107,66,38,0.05);
+  border-bottom: 1px solid rgba(107,66,38,0.12);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.notepad-study--empty { opacity: 0.6; }
+
+.notepad-body {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 90px;
+  padding: 10px 12px;
+}
+
+.notepad-empty {
+  font-family: Georgia, serif;
+  font-size: 0.82rem;
+  color: var(--warm-brown);
+  opacity: 0.7;
+  text-align: center;
+  padding: 18px 8px;
+  line-height: 1.5;
+}
+
+.notepad-note {
+  background: #F1E6CC;
+  border: 1px solid rgba(107,66,38,0.16);
+  border-radius: 7px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+}
+.notepad-note--flash {
+  animation: notepadFlash 1.6s ease;
+}
+@keyframes notepadFlash {
+  0%   { box-shadow: 0 0 0 3px rgba(179,140,51,0.75); }
+  100% { box-shadow: 0 0 0 3px rgba(179,140,51,0); }
+}
+
+.notepad-note-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.notepad-note-spacer { flex: 1; }
+
+.notepad-note-marker {
+  background: rgba(179,140,51,0.9);
+  color: #1E1208;
+  font-family: 'Cinzel', serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  border-radius: 8px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notepad-note-source {
+  font-family: 'Cinzel', serif;
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #5C1A28;
+  border: 1px solid rgba(92,26,40,0.35);
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+.notepad-src-personal, .notepad-src-free { color: var(--warm-brown); border-color: rgba(107,66,38,0.3); }
+
+.notepad-note-edit-btn,
+.notepad-note-del-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--warm-brown);
+  opacity: 0.5;
+  font-size: 0.85rem;
+  line-height: 1;
+  padding: 0 2px;
+}
+.notepad-note-edit-btn:hover,
+.notepad-note-del-btn:hover { opacity: 1; }
+
+.notepad-note-quote {
+  font-family: Georgia, serif;
+  font-size: 0.76rem;
+  font-style: italic;
+  color: #5C1A28;
+  border-left: 3px solid rgba(92,26,40,0.4);
+  padding-left: 7px;
+  margin: 3px 0;
+  line-height: 1.4;
+}
+.notepad-note-question {
+  font-family: Georgia, serif;
+  font-size: 0.72rem;
+  color: var(--warm-brown);
+  opacity: 0.8;
+  margin: 2px 0;
+}
+
+.notepad-note-content {
+  font-family: Georgia, serif;
+  font-size: 0.82rem;
+  color: #1E1208;
+  line-height: 1.5;
+}
+.notepad-note-content p { margin: 0 0 5px; }
+.notepad-note-content p:last-child { margin-bottom: 0; }
+.notepad-note-content h1, .notepad-note-content h2, .notepad-note-content h3,
+.notepad-note-content h4, .notepad-note-content h5 {
+  font-family: 'Cinzel', serif; font-size: 0.86rem; margin: 4px 0 2px; color: #5C1A28;
+}
+.notepad-note-content ul, .notepad-note-content ol { margin: 2px 0 5px; padding-left: 18px; }
+.notepad-note-content blockquote {
+  border-left: 3px solid rgba(107,66,38,0.35); margin: 4px 0; padding-left: 8px; font-style: italic;
+}
+.notepad-note-blank { color: var(--warm-brown); opacity: 0.6; }
+
+.notepad-edit-input,
+.notepad-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: #FBF5E6;
+  border: 1px solid rgba(107,66,38,0.3);
+  border-radius: 5px;
+  padding: 7px 9px;
+  font-family: Georgia, serif;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: #1E1208;
+  resize: vertical;
+}
+.notepad-edit-input:focus,
+.notepad-input:focus { outline: none; border-color: #5C1A28; }
+
+.notepad-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 5px;
+}
+
+.notepad-composer {
+  flex-shrink: 0;
+  border-top: 1px solid rgba(107,66,38,0.18);
+  padding: 10px 12px;
+  background: rgba(107,66,38,0.04);
+}
+
+.notepad-anchor-banner {
+  font-family: Georgia, serif;
+  font-size: 0.74rem;
+  color: #5C1A28;
+  background: rgba(179,140,51,0.14);
+  border: 1px solid rgba(179,140,51,0.35);
+  border-radius: 5px;
+  padding: 5px 8px;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+.notepad-anchor-label { font-weight: 700; }
+.notepad-anchor-quote { font-style: italic; }
+
+.notepad-composer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.notepad-add-btn,
+.notepad-edit-save {
+  background: #5C1A28;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 14px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-family: 'EB Garamond', Georgia, serif;
+  letter-spacing: 0.02em;
+}
+.notepad-add-btn:hover,
+.notepad-edit-save:hover { background: #4A1520; }
+.notepad-add-btn:disabled { opacity: 0.5; cursor: wait; }
+
+.notepad-cancel-anchor,
+.notepad-edit-cancel {
+  background: transparent;
+  color: #8a6c30;
+  border: 1px solid #c4a882;
+  border-radius: 4px;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-family: 'EB Garamond', Georgia, serif;
+}
+
+/* Minimized: show only the header bar */
+.notepad-widget.notepad-minimized .notepad-study,
+.notepad-widget.notepad-minimized .notepad-body,
+.notepad-widget.notepad-minimized .notepad-composer { display: none !important; }
+
+/* Display-only marker injected into the study reader (never stored) */
+.notepad-marker {
+  display: inline-block;
+  font-family: 'Cinzel', serif;
+  font-size: 0.62em;
+  font-weight: 700;
+  line-height: 1;
+  vertical-align: super;
+  color: #fff;
+  background: #5C1A28;
+  border-radius: 8px;
+  min-width: 14px;
+  padding: 1px 4px;
+  margin: 0 1px 0 2px;
+  cursor: pointer;
+  user-select: none;
+}
+.notepad-marker:hover { background: #b38c33; color: #1E1208; }
+
+/* ══ Global notes view (Library "Notes" tab) ════════════════════════════════ */
+.notes-group {
+  border: 1px solid rgba(107,66,38,0.18);
+  border-radius: 9px;
+  background: #F1E6CC;
+  padding: 12px 16px;
+  margin-bottom: 14px;
+}
+.notes-group-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(107,66,38,0.16);
+}
+.notes-group-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #5C1A28;
+}
+.notes-group-open {
+  background: transparent;
+  color: #5C1A28;
+  border: 1px solid #c4a882;
+  border-radius: 4px;
+  padding: 3px 12px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  font-family: 'EB Garamond', Georgia, serif;
+  white-space: nowrap;
+}
+.notes-group-open:hover { background: rgba(92,26,40,0.08); }
+.notes-group-open[disabled] { opacity: 0.5; cursor: default; }
+
+.notes-allnote {
+  border-left: 3px solid rgba(179,140,51,0.5);
+  padding: 4px 0 4px 10px;
+  margin: 8px 0;
+}
+.notes-allnote-quote {
+  font-family: Georgia, serif;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: #5C1A28;
+  margin-bottom: 2px;
+}
+.notes-allnote-body {
+  font-family: Georgia, serif;
+  font-size: 0.88rem;
+  color: #1E1208;
+  line-height: 1.55;
+}
+.notes-allnote-marker {
+  display: inline-block;
+  background: rgba(179,140,51,0.9);
+  color: #1E1208;
+  font-family: 'Cinzel', serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  border-radius: 8px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  margin-right: 5px;
+}

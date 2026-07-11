@@ -4,6 +4,7 @@
   var allStudies   = [];
   var allDialogues = [];
   var dialoguesLoaded = false;
+  var notesLoaded     = false;
 
   // ── Load studies on page load ──────────────────────────────────────────────
   async function loadStudies() {
@@ -261,12 +262,28 @@
     if (libFilterBar)   libFilterBar.style.display   = 'none';
     libGuideArea.style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Notepad: bind this study so the panel + tooltip target the right notepad,
+    // inject display-only markers onto anchored text (never mutates study.content),
+    // and expose a re-render hook the notepad calls after add/delete.
+    window.__notepadStudy = { id: study.id, title: study.topic };
+    window.__notepadRerenderMarkers = function () {
+      if (window.__notepad) window.__notepad.injectMarkers(libGuideBody, study.id);
+    };
+    if (window.__notepad) {
+      window.__notepad.setStudy(study.id, study.topic);
+      window.__notepad.injectMarkers(libGuideBody, study.id);
+    }
   }
 
   function backToLibrary() {
     if (libGuideArea) libGuideArea.style.display = 'none';
     if (studyCardsGrid) studyCardsGrid.style.display = '';
     if (libFilterBar)   libFilterBar.style.display   = '';
+
+    window.__notepadStudy = null;
+    window.__notepadRerenderMarkers = null;
+    if (window.__notepad) window.__notepad.clearStudy();
   }
 
   var libBackBtn = document.getElementById('libBackBtn');
@@ -412,8 +429,79 @@
       if (target === 'dialogues' && !dialoguesLoaded) {
         loadDialogues();
       }
+      if (target === 'notes') {
+        loadAllNotes();   // always refresh — notes change often
+      }
     });
   });
+
+  // ── Global notes view (all notes across studies, grouped by study) ──────────
+  function loadAllNotes() {
+    notesLoaded = true;
+    var grid = document.getElementById('notesAllGrid');
+    if (!grid) return;
+    grid.innerHTML = '<p class="library-loading-msg">Loading&#8230;</p>';
+
+    fetch('/api/notepad/all')
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.success) throw new Error(data.error || 'Failed.');
+        var groups = data.groups || [];
+        if (!groups.length) {
+          grid.innerHTML = '<p class="library-empty">No notes yet. Open a study and press Ctrl+Alt+N, or highlight text to save a note.</p>';
+          return;
+        }
+
+        grid.innerHTML = groups.map(function (g) {
+          var notesHtml = g.notes.map(function (n) {
+            var marker = (n.marker != null)
+              ? '<span class="notes-allnote-marker">' + esc(String(n.marker)) + '</span>'
+              : '';
+            var quote = n.quote
+              ? '<div class="notes-allnote-quote">' + marker + '&ldquo;' + esc(n.quote) + '&rdquo;</div>'
+              : (marker ? '<div class="notes-allnote-quote">' + marker + '</div>' : '');
+            return '<div class="notes-allnote">' +
+                quote +
+                '<div class="notes-allnote-body">' + renderMarkdown(n.content || '') + '</div>' +
+              '</div>';
+          }).join('');
+
+          var openBtn = g.studyExists
+            ? '<button class="notes-group-open" data-id="' + esc(g.studyId) + '">Open study &rarr;</button>'
+            : '<button class="notes-group-open" disabled title="Study no longer exists">Study deleted</button>';
+
+          return '<div class="notes-group">' +
+              '<div class="notes-group-head">' +
+                '<span class="notes-group-title">' + esc(g.studyTitle) + '</span>' +
+                openBtn +
+              '</div>' +
+              notesHtml +
+            '</div>';
+        }).join('');
+
+        grid.querySelectorAll('.notes-group-open:not([disabled])').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var id    = btn.dataset.id;
+            var study = allStudies.find(function (s) { return s.id === id; });
+            // Switch to the Studies tab and open the study inline (markers render there).
+            var studiesTab = document.querySelector('.lib-tab[data-tab="studies"]');
+            if (studiesTab) studiesTab.click();
+            if (study) {
+              showStudyInline(study);
+            } else {
+              // allStudies not yet loaded on this session — fetch, then open.
+              loadStudies().then(function () {
+                var s = allStudies.find(function (x) { return x.id === id; });
+                if (s) showStudyInline(s);
+              });
+            }
+          });
+        });
+      })
+      .catch(function () {
+        grid.innerHTML = '<p class="library-empty">Could not load notes. Please refresh.</p>';
+      });
+  }
 
   // ── Load dialogues ─────────────────────────────────────────────────────────
   async function loadDialogues() {
@@ -677,6 +765,7 @@
       '<button class="up-define-btn">Define</button>' +
       '<button class="up-ai-btn">Explore</button>' +
       '<button class="up-verse-btn">Verse Lookup</button>' +
+      '<button class="up-note-btn">Add Note</button>' +
     '</div>' +
     '<div class="up-content" style="display:none;">' +
       '<div class="up-define-pane" style="display:none;">' +
@@ -703,6 +792,10 @@
     '<div class="up-pin-footer" style="display:none;flex-direction:row;gap:0.5rem;justify-content:flex-end;padding-top:0.5rem;border-top:1px solid #ddd0b0;">' +
       '<button class="up-pin-dismiss-btn" style="background:transparent;color:#8a6c30;border:1px solid #c4a882;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Dismiss</button>' +
       '<button class="up-pin-btn" style="background:#5C1A28;color:#fff;border:none;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Pin to Sidebar</button>' +
+    '</div>' +
+    '<div class="up-save-note-footer" style="display:none;flex-direction:row;gap:0.5rem;justify-content:flex-end;padding-top:0.5rem;border-top:1px solid #ddd0b0;">' +
+      '<button class="up-save-note-dismiss" style="background:transparent;color:#8a6c30;border:1px solid #c4a882;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Dismiss</button>' +
+      '<button class="up-save-note-btn" style="background:#5C1A28;color:#fff;border:none;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Save to Notepad</button>' +
     '</div>';
   document.body.appendChild(upEl);
 
@@ -753,6 +846,29 @@
     if (footer) footer.style.display = 'none';
   }
 
+  // Notepad "Save to Notepad" footer (Library reader only — where a study is
+  // open). Mirrors the pin footer, but persists to the per-study notepad.
+  var _pendingNoteData = null;
+
+  function notepadCtx() {
+    return (window.__notepadStudy && !_lookupOnly) ? window.__notepadStudy : null;
+  }
+
+  function showSaveNoteFooter(data) {
+    if (!notepadCtx()) return;
+    _pendingNoteData = data;
+    var footer = upEl.querySelector('.up-save-note-footer');
+    var btn    = upEl.querySelector('.up-save-note-btn');
+    if (btn) { btn.textContent = 'Save to Notepad'; btn.disabled = false; }
+    if (footer) { footer.style.display = 'flex'; clampUp(); }
+  }
+
+  function hideSaveNoteFooter() {
+    _pendingNoteData = null;
+    var footer = upEl.querySelector('.up-save-note-footer');
+    if (footer) footer.style.display = 'none';
+  }
+
   // ── Show unified popup ─────────────────────────────────────────────────────
   function showUp(text, rect) {
     upEl.querySelector('.up-preview').textContent =
@@ -773,6 +889,11 @@
     upEl.querySelector('.up-verse-btn').classList.remove('up-btn-active');
     hideShareFooter();
     hidePinFooter();
+    hideSaveNoteFooter();
+
+    // "Add Note" is only meaningful with a study open in the Library reader.
+    var noteBtn = upEl.querySelector('.up-note-btn');
+    if (noteBtn) noteBtn.style.display = notepadCtx() ? '' : 'none';
 
     // Measure collapsed height before committing to a position
     upEl.style.top        = '0';
@@ -1013,6 +1134,36 @@
     }, 1500);
   });
 
+  // ── Notepad: "Add Note" (anchored personal note — skips AI) ─────────────────
+  upEl.querySelector('.up-note-btn').addEventListener('click', function () {
+    var ctx = notepadCtx();
+    if (!ctx || !window.__notepad) return;
+    upEl.style.display = 'none';
+    window.__notepad.startAnchoredNote(ctx.id, ctx.title, upSelectedText);
+  });
+
+  // ── Notepad: "Save to Notepad" (anchored lookup — captures term + result) ───
+  upEl.querySelector('.up-save-note-dismiss').addEventListener('click', function () {
+    hideSaveNoteFooter();
+  });
+
+  upEl.querySelector('.up-save-note-btn').addEventListener('click', function () {
+    var btn = this;
+    var ctx = notepadCtx();
+    if (!ctx || !_pendingNoteData || !window.__notepad) return;
+    btn.disabled    = true;
+    btn.textContent = 'Saving…';
+    window.__notepad.saveLookupNote(ctx.id, ctx.title, _pendingNoteData, function (ok) {
+      btn.textContent = ok ? 'Saved ✓' : 'Save to Notepad';
+      if (!ok) { btn.disabled = false; return; }
+      setTimeout(function () {
+        hideSaveNoteFooter();
+        btn.textContent = 'Save to Notepad';
+        btn.disabled    = false;
+      }, 1400);
+    });
+  });
+
   upEl.querySelector('.up-define-btn').addEventListener('click', function () {
     upEl.querySelector('.up-content').style.display     = 'block';
     upEl.querySelector('.up-define-pane').style.display = 'block';
@@ -1043,6 +1194,7 @@
         if (!_lookupOnly && _inScripture) {
           showPinFooter({ type: 'Define', term: upSelectedText, content: data.definition });
         }
+        showSaveNoteFooter({ quote: upSelectedText, question: null, content: data.definition, source: 'define' });
       }
       clampUp();
     })
@@ -1094,6 +1246,7 @@
         if (!_lookupOnly && _inScripture) {
           showPinFooter({ type: 'Verse Lookup', term: upSelectedText, content: data.verse });
         }
+        showSaveNoteFooter({ quote: upSelectedText, question: null, content: data.verse, source: 'verse' });
       }
       clampUp();
     })
@@ -1142,6 +1295,7 @@
         if (!_lookupOnly && _inScripture) {
           showPinFooter({ type: 'Explore', term: upSelectedText, content: data.answer });
         }
+        showSaveNoteFooter({ quote: upSelectedText, question: question, content: data.answer, source: 'explore' });
       } else {
         resp.innerHTML = '<span style="color:#e08080;font-style:italic;">Error: ' + esc(data.error || 'Failed.') + '</span>';
       }
