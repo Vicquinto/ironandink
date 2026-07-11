@@ -162,7 +162,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="/js/modal.js?v=8"></script>
   <script src="/js/app.js?v=8"></script>
-  <script src="/js/dictionary.js?v=8"></script>
+  <script src="/js/dictionary.js?v=9"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/dm-badge.js?v=2"></script>
   <script src="/js/dm-widget.js?v=2"></script>
