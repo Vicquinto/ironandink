@@ -977,7 +977,13 @@
       var pre = document.createRange();
       pre.setStart(libGuideBody, 0);
       pre.setEnd(selRange.startContainer, selRange.startOffset);
-      var before = pre.toString();
+      // Count over the SAME clean text the marker renderer sees (notepad.js
+      // buildCleanText): clone the prefix and strip any injected markers so their
+      // digits never shift the count. `textContent` collapses element boundaries
+      // just like the renderer's flattened walk, so multi-word phrases line up.
+      var frag = pre.cloneContents();
+      frag.querySelectorAll('.notepad-marker').forEach(function (m) { m.remove(); });
+      var before = frag.textContent || '';
       var count = 0, i = 0;
       while ((i = before.indexOf(quote, i)) !== -1) { count++; i += quote.length; }
       return count;

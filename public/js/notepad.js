@@ -490,6 +490,39 @@
     container.querySelectorAll('.notepad-marker').forEach(function (m) { m.remove(); });
   }
 
+  // Flatten `container` into marker-free text plus a map from each global char
+  // offset back to the DOM text node that supplies it. Save-time occurrence
+  // counting (library.js `computeSelectionOccurrence`) and this render-time
+  // placement MUST see the SAME text, or indices drift and markers land on the
+  // wrong occurrence. Both therefore operate on this one clean representation:
+  // injected markers excluded, element boundaries collapsed (so a multi-word
+  // phrase that spans <strong>/<em>/block edges is still counted as one match).
+  function buildCleanText(container) {
+    var walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
+    var text = '', map = [], node;
+    while ((node = walker.nextNode())) {
+      var parent = node.parentNode;
+      if (parent && parent.classList && parent.classList.contains('notepad-marker')) continue;
+      var v = node.nodeValue || '';
+      if (!v) continue;
+      map.push({ start: text.length, node: node, len: v.length });
+      text += v;
+    }
+    return { text: text, map: map };
+  }
+
+  // Map a global char offset in the clean text back to { node, offset }. Returns
+  // the text node holding the character that ends at `off`, so splitting there
+  // lands immediately after it. Null if it can't be resolved (→ no marker).
+  function locateOffset(map, off) {
+    for (var k = 0; k < map.length; k++) {
+      var m = map[k];
+      if (off > m.start && off <= m.start + m.len) return { node: m.node, offset: off - m.start };
+    }
+    if (map.length && off === 0) return { node: map[0].node, offset: 0 };
+    return null;
+  }
+
   function placeMarker(container, note) {
     var quote = String(note.quote || '').trim();
     if (!quote) return;
@@ -499,33 +532,38 @@
     // body is never edited). Legacy notes without it fall back to the first match.
     var target = (typeof note.occurrence === 'number' && note.occurrence >= 0) ? note.occurrence : 0;
 
-    var walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
-    var node, seen = 0;
-    while ((node = walker.nextNode())) {
-      var parent = node.parentNode;
-      if (!parent) continue;
-      if (parent.classList && parent.classList.contains('notepad-marker')) continue;
-      var text = node.nodeValue;
-      var from = 0, idx;
-      while ((idx = text.indexOf(quote, from)) !== -1) {
-        if (seen === target) {
-          var after = node.splitText(idx + quote.length);
-          var sup = document.createElement('sup');
-          sup.className = 'notepad-marker';
-          sup.setAttribute('data-note-id', note.id);
-          sup.setAttribute('data-marker', String(note.marker));
-          sup.setAttribute('role', 'button');
-          sup.setAttribute('tabindex', '0');
-          sup.title = 'Note ' + note.marker;
-          sup.textContent = note.marker;
-          parent.insertBefore(sup, after);
-          return; // one marker per note
-        }
-        seen++;
-        from = idx + quote.length;
-      }
+    var built = buildCleanText(container);
+    var text  = built.text;
+
+    // Find the target-th occurrence of the (possibly multi-word) phrase.
+    var from = 0, idx, seen = 0, hit = -1;
+    while ((idx = text.indexOf(quote, from)) !== -1) {
+      if (seen === target) { hit = idx; break; }
+      seen++;
+      from = idx + quote.length;
     }
-    // Target occurrence not found → graceful no-op (note still lists normally).
+    // Occurrence genuinely not found → render NO marker rather than a wrong one.
+    if (hit === -1) return;
+
+    // Anchor at the end of the matched phrase. The phrase may span several text
+    // nodes; locateOffset resolves the node holding its final character.
+    var pos = locateOffset(built.map, hit + quote.length);
+    if (!pos || !pos.node.parentNode) return; // unmappable → no marker, never a wrong one
+
+    var parent = pos.node.parentNode;
+    var after  = (pos.offset >= (pos.node.nodeValue || '').length)
+      ? pos.node.nextSibling            // phrase ends exactly at this node's edge
+      : pos.node.splitText(pos.offset); // split so the marker sits right after it
+
+    var sup = document.createElement('sup');
+    sup.className = 'notepad-marker';
+    sup.setAttribute('data-note-id', note.id);
+    sup.setAttribute('data-marker', String(note.marker));
+    sup.setAttribute('role', 'button');
+    sup.setAttribute('tabindex', '0');
+    sup.title = 'Note ' + note.marker;
+    sup.textContent = note.marker;
+    parent.insertBefore(sup, after); // `after` null → appended at end of parent
   }
 
   // Marker click → open notepad and reveal the note.
