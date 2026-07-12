@@ -1211,11 +1211,23 @@
     }, 450);
   });
 
+  // True once the tooltip is engaged — a Define/Explore/Verse pane is open (a
+  // result the user may still be reading), as opposed to the fresh, action-buttons
+  // -only state. `.up-content` is display:none until a pane is activated.
+  function upShowingResult() {
+    var content = upEl && upEl.querySelector('.up-content');
+    return !!(content && content.style.display !== 'none');
+  }
+
   // Dismiss popup on click outside
   document.addEventListener('mousedown', function (e) {
     if (upEl && upEl.style.display !== 'none' &&
         !e.target.closest('#unifiedPopup') &&
         !e.target.closest('.tooltip-font-ctrl')) {
+      // Don't let an incidental outside click destroy a lookup result — once a
+      // pane is open it persists until the user explicitly closes it (×, Dismiss,
+      // or a successful Save to Notepad). A fresh buttons-only tooltip still closes.
+      if (upShowingResult()) return;
       upEl.style.display = 'none';
     }
   });
