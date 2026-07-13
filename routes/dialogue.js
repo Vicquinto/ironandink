@@ -4,6 +4,7 @@ const fs        = require('fs');
 const path      = require('path');
 const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
+const { assertNoEsvText } = require('./esvGuard');
 
 const router         = express.Router();
 
@@ -225,6 +226,21 @@ router.post('/api/dialogue/exchange', requireAuth, async (req, res) => {
     ];
   }
 
+  // Crossway ESV compliance: never send ESV-licensed text to Anthropic. Checked
+  // before SSE headers are flushed so a block returns a normal JSON error. Guards
+  // the dialogue transcript / linked study content (defensive).
+  try {
+    assertNoEsvText('dialogue/stream', systemPrompt, apiMessages);
+  } catch (err) {
+    console.error('ESV guard:', err.message);
+    return res.status(err && err.code === 'ESV_TEXT_BLOCKED' ? 422 : 500).json({
+      success: false,
+      error: err && err.code === 'ESV_TEXT_BLOCKED'
+        ? 'ESV Scripture text cannot be sent to the AI.'
+        : 'Failed to start dialogue. Please try again.',
+    });
+  }
+
   // Set SSE headers
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -310,6 +326,9 @@ router.post('/api/dialogue/gaps', requireAuth, async (req, res) => {
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
   try {
+    // Crossway ESV compliance: never send ESV-licensed text to Anthropic (defensive —
+    // the transcript is user/model dialogue that could contain pasted ESV text).
+    assertNoEsvText('dialogue/feedback', IRON_INK_CORE_PROMPT, userPrompt);
     const message = await client.messages.create({
       model:      'claude-opus-4-8',
       max_tokens: 400,

@@ -3,6 +3,7 @@ const fs        = require('fs');
 const path      = require('path');
 const Anthropic = require('@anthropic-ai/sdk');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
+const { assertNoEsvText } = require('./esvGuard');
 
 const router          = express.Router();
 const STUDIES_PATH    = path.join(__dirname, '../data/studies.json');
@@ -253,6 +254,10 @@ A brief closing prayer (3–5 sentences) addressed directly to God. Let it be co
 Tone: warm but serious. Reformed and confessional.`;
 
   try {
+    // Crossway ESV compliance: the devotional prompt instructs the model to print
+    // LSB text (model-generated, never fetched); recentPassages are references
+    // only. Guard defensively so ESV text can never enter this prompt.
+    assertNoEsvText('dashboard/devotional', systemPrompt, userPrompt);
     const client  = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const message = await client.messages.create({
       model:      'claude-sonnet-4-6',

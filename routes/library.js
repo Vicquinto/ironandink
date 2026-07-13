@@ -5,6 +5,7 @@ const Anthropic = require('@anthropic-ai/sdk');
 const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
 const notepadRoutes = require('./notepad');
+const { assertNoEsvText } = require('./esvGuard');
 
 const router      = express.Router();
 const STUDIES_PATH = path.join(__dirname, '../data/studies.json');
@@ -104,7 +105,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/library.js?v=39"></script>',
+    scripts: '<script src="/js/library.js?v=40"></script>',
   }));
 });
 
@@ -233,6 +234,11 @@ router.post('/api/library/ask', requireAuth, async (req, res) => {
   }
 
   try {
+    // Crossway ESV compliance: ESV text must NEVER be sent to Anthropic. This is
+    // the highlight→Explore vector (a Scripture-reader selection arrives as
+    // highlightedText). The client already withholds Explore for ESV selections;
+    // this backstops any ESV text that still carries its copyright notice.
+    assertNoEsvText('library/ask', systemPrompt, messages);
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const message = await client.messages.create({
       model:      'claude-sonnet-4-6',
@@ -242,6 +248,10 @@ router.post('/api/library/ask', requireAuth, async (req, res) => {
     });
     res.json({ success: true, answer: message.content[0].text });
   } catch (err) {
+    if (err && err.code === 'ESV_TEXT_BLOCKED') {
+      console.error('ESV guard:', err.message);
+      return res.status(422).json({ success: false, error: 'ESV Scripture text cannot be sent to the AI. Try selecting from a study instead.' });
+    }
     console.error('Inline ask error:', err.message);
     res.status(500).json({ success: false, error: 'Failed to get answer. Please try again.' });
   }

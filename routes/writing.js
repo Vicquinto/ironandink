@@ -4,6 +4,7 @@ const fs         = require('fs');
 const path       = require('path');
 const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
+const { assertNoEsvText } = require('./esvGuard');
 
 const router       = express.Router();
 
@@ -322,6 +323,9 @@ Generate the ${tierLabel} now.`;
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
   try {
+    // Crossway ESV compliance: never send ESV-licensed text to Anthropic. A user
+    // could paste ESV text into an answer field; this blocks notice-bearing text.
+    assertNoEsvText('writing/generate', systemPrompt, userPrompt);
     const message = await client.messages.create({
       model,
       max_tokens: tokens,
@@ -331,6 +335,10 @@ Generate the ${tierLabel} now.`;
 
     res.json({ success: true, content: message.content[0].text });
   } catch (err) {
+    if (err && err.code === 'ESV_TEXT_BLOCKED') {
+      console.error('ESV guard:', err.message);
+      return res.status(422).json({ success: false, error: 'ESV Scripture text cannot be sent to the AI. Reference the passage instead of pasting ESV text.' });
+    }
     console.error('[Writing/generate]', err.message);
     res.status(500).json({ success: false, error: err.message });
   }

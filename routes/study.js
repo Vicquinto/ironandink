@@ -2,6 +2,7 @@ const express = require('express');
 const Anthropic = require('@anthropic-ai/sdk');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
 const { VERSES } = require('./dashboard'); // reuse the Verse-of-the-Day pool for the patience loading screen
+const { assertNoEsvText } = require('./esvGuard');
 
 const router = express.Router();
 
@@ -247,7 +248,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study.js?v=8"></script><script src="/js/library.js?v=39"></script>
+    scripts: `<script src="/js/study.js?v=8"></script><script src="/js/library.js?v=40"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};
@@ -587,6 +588,10 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
     const attemptStart = Date.now();
     try {
       console.log(`[study-gen] Calling Anthropic API — attempt ${attempt} time=${new Date().toISOString()}`);
+      // Crossway ESV compliance: the study prompt only carries the topic + a
+      // translation label (LSB text is model-generated, never fetched), but guard
+      // defensively so ESV text can never enter this prompt in future edits.
+      assertNoEsvText('study/generate', systemPrompt, userMessage);
       const message = await client.messages.create({
         model:      'claude-sonnet-4-6',
         max_tokens: 8000,

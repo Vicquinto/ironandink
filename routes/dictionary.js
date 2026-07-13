@@ -4,6 +4,7 @@ const fs        = require('fs');
 const path      = require('path');
 const Anthropic = require('@anthropic-ai/sdk');
 const { requireAuth } = require('./layout');
+const { assertNoEsvText } = require('./esvGuard');
 
 const router = express.Router();
 
@@ -67,6 +68,10 @@ const PROMPT_COMMON =
   "No theology. No philosophy. No examples. One sentence only.";
 
 async function fetchAnthropicDefinition(term, system) {
+  // Crossway ESV compliance: ESV text must NEVER be sent to Anthropic. This is
+  // the highlight→Define vector (a Scripture-reader selection arrives as `term`).
+  // The client withholds Define for ESV selections; this is the server backstop.
+  assertNoEsvText('dictionary/define', term);
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const message = await client.messages.create({
     model:      'claude-sonnet-4-6',

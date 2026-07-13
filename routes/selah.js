@@ -4,6 +4,7 @@ const path           = require('path');
 const Anthropic      = require('@anthropic-ai/sdk');
 const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
+const { assertNoEsvText } = require('./esvGuard');
 
 const router     = express.Router();
 const SELAH_PATH = path.join(__dirname, '../data/selah.json');
@@ -143,6 +144,9 @@ router.post('/api/selah/reflect', requireAuth, async (req, res) => {
     'would to a sheep he knows. Be warm but not saccharine. Be brief. End with a sense of rest.';
 
   try {
+    // Crossway ESV compliance: never send ESV-licensed text to Anthropic (defensive —
+    // the journal entry is free text a user could paste ESV into).
+    assertNoEsvText('selah/reflect', systemPrompt, String(content).trim());
     const client  = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const message = await client.messages.create({
       model:      'claude-sonnet-4-6',
@@ -152,6 +156,10 @@ router.post('/api/selah/reflect', requireAuth, async (req, res) => {
     });
     res.json({ success: true, reflection: message.content[0].text });
   } catch (err) {
+    if (err && err.code === 'ESV_TEXT_BLOCKED') {
+      console.error('ESV guard:', err.message);
+      return res.status(422).json({ success: false, error: 'ESV Scripture text cannot be sent to the AI.' });
+    }
     console.error('Selah reflect error:', err.message);
     res.status(500).json({ success: false, error: 'Failed to generate reflection. Please try again.' });
   }

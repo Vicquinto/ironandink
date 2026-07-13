@@ -1005,6 +1005,18 @@
     if (footer) footer.style.display = 'none';
   }
 
+  // ── Crossway ESV compliance ─────────────────────────────────────────────────
+  // ESV text is served on the Scripture reader when ESV_API_KEY is set
+  // (window.SCRIPTURE_IS_ESV). Such text must NEVER be sent to the Anthropic API.
+  // Define and Explore forward the raw selection to Anthropic-backed endpoints, so
+  // both are withheld for an ESV Scripture selection. Verse Lookup is unaffected —
+  // it only queries the ESV API (Crossway → user), never Anthropic. There is no
+  // clean "reference only" substitute for an arbitrary sub-verse highlight, so the
+  // compliant behaviour is to withhold the AI actions here, not to send a ref.
+  function esvLockedSelection() {
+    return _inScripture && !!window.SCRIPTURE_IS_ESV;
+  }
+
   // ── Show unified popup ─────────────────────────────────────────────────────
   function showUp(text, rect) {
     upEl.querySelector('.up-preview').textContent =
@@ -1031,6 +1043,14 @@
     // reader, or a freshly generated study that can be saved on demand.
     var noteBtn = upEl.querySelector('.up-note-btn');
     if (noteBtn) noteBtn.style.display = canTakeNotes() ? '' : 'none';
+
+    // Crossway ESV compliance: withhold the Anthropic-backed actions (Define,
+    // Explore) for an ESV Scripture selection so ESV text can't reach Anthropic.
+    var esvLocked  = esvLockedSelection();
+    var defineBtn  = upEl.querySelector('.up-define-btn');
+    var exploreBtn = upEl.querySelector('.up-ai-btn');
+    if (defineBtn)  defineBtn.style.display  = esvLocked ? 'none' : '';
+    if (exploreBtn) exploreBtn.style.display = esvLocked ? 'none' : '';
 
     // Measure collapsed height before committing to a position. display:flex (not
     // block) so the panel is a flex column — header/actions/footer fixed, the
@@ -1355,6 +1375,9 @@
   });
 
   upEl.querySelector('.up-define-btn').addEventListener('click', function () {
+    // Crossway ESV compliance backstop: never send an ESV Scripture selection to
+    // the Anthropic-backed define endpoint (button is also hidden in this case).
+    if (esvLockedSelection()) return;
     upEl.querySelector('.up-content').style.display     = 'flex';
     upEl.querySelector('.up-define-pane').style.display = 'flex';
     upEl.querySelector('.up-ai-pane').style.display     = 'none';
@@ -1395,6 +1418,9 @@
   });
 
   upEl.querySelector('.up-ai-btn').addEventListener('click', function () {
+    // Crossway ESV compliance backstop: never open Explore for an ESV Scripture
+    // selection (the button is also hidden in this case).
+    if (esvLockedSelection()) return;
     upEl.querySelector('.up-content').style.display     = 'flex';
     upEl.querySelector('.up-define-pane').style.display = 'none';
     upEl.querySelector('.up-verse-pane').style.display  = 'none';
@@ -1460,6 +1486,9 @@
   });
 
   async function doInlineAsk(question) {
+    // Crossway ESV compliance backstop: an ESV Scripture selection must never be
+    // sent as highlightedText to the Anthropic-backed /api/library/ask endpoint.
+    if (esvLockedSelection()) return;
     var askBtn = upEl.querySelector('.up-ai-ask-btn');
     var resp   = upEl.querySelector('.up-ai-response');
     askBtn.disabled    = true;
