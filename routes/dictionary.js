@@ -5,6 +5,7 @@ const path      = require('path');
 const Anthropic = require('@anthropic-ai/sdk');
 const { requireAuth } = require('./layout');
 const { assertNoEsvText } = require('./esvGuard');
+const { injectVerses, SCRIPTURE_RULE } = require('../lib/asv');
 
 const router = express.Router();
 
@@ -61,11 +62,11 @@ function fetchDictionaryApi(word) {
 const PROMPT_THEOLOGICAL =
   "You are a friendly Bible study helper. Explain this theological term in plain English first — " +
   "what it means in simple words. Then one sentence on why it matters in Reformed theology. " +
-  "Maximum 2-3 sentences. Avoid jargon where possible.";
+  "Maximum 2-3 sentences. Avoid jargon where possible.\n\n" + SCRIPTURE_RULE;
 
 const PROMPT_COMMON =
   "Define this single English word in one plain sentence. Just the basic meaning. " +
-  "No theology. No philosophy. No examples. One sentence only.";
+  "No theology. No philosophy. No examples. One sentence only.\n\n" + SCRIPTURE_RULE;
 
 async function fetchAnthropicDefinition(term, system) {
   // Crossway ESV compliance: ESV text must NEVER be sent to Anthropic. This is
@@ -79,7 +80,8 @@ async function fetchAnthropicDefinition(term, system) {
     system,
     messages:   [{ role: 'user', content: 'Define: ' + term }],
   });
-  return message.content[0].text.trim();
+  // Insert verified ASV for any {{verse:...}} marker the definition emits.
+  return injectVerses(message.content[0].text.trim());
 }
 
 // ─── POST /api/dictionary/define ─────────────────────────────────────────────

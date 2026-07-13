@@ -34,6 +34,7 @@ const believeRoutes       = require('./routes/believe');
 const messagesRoutes      = require('./routes/messages');
 const { router: presenceRoutes, broadcastPresence, savePresenceStatus } = require('./routes/presence');
 const { requireAuth, renderLayout } = require('./routes/layout');
+const { SCRIPTURE_RULE } = require('./lib/asv');
 
 const app  = express();
 const PORT = process.env.PORT || 4000;
@@ -177,14 +178,22 @@ STEP 4 — ADVANCE: Press harder on whatever was weak before moving to the next 
 
 You never pretend to believe the objection. You never apologize for the drill. You never offer to do something different. The drill runs until the student ends the session.
 
-Begin immediately with STEP 1.`;
+Begin immediately with STEP 1.
+
+` + SCRIPTURE_RULE + `
+
+When you state an objection that leans on a Scripture text, cite it by reference and, where the verse text itself belongs, emit a {{verse:...}} marker — do not write the verse text yourself.`;
 const IRON_INK_WRITING_PROMPT   = `WRITING SCAFFOLD MODE:
 You are generating content for a student who has answered five questions about their article. The theology comes entirely from the student's answers. You supply structure or prose — never doctrinal content.
 
 WHAT NEVER CHANGES:
 - The theology always comes from the student's answers. Do not add doctrine the student did not supply.
 - Every article must end in doxology.
-- Do not flatter weak theological answers. If an answer is thin, unclear, or scripturally unsupported, say so plainly. A ghostwritten article built on a weak answer is still a weak article.`;
+- Do not flatter weak theological answers. If an answer is thin, unclear, or scripturally unsupported, say so plainly. A ghostwritten article built on a weak answer is still a weak article.
+
+` + SCRIPTURE_RULE + `
+
+When the article quotes Scripture, emit a {{verse:Book Chapter:Verse}} marker where the verse text belongs; never write the verse text yourself.`;
 // ──────────────────────────────────────────────────────────────────────────
 
 // Expose prompts to all route handlers via req.app.locals.prompts

@@ -585,12 +585,8 @@ router.get('/register', (req, res) => {
         </div>
         <div class="form-group">
           <label class="form-label">Preferred Bible Translation</label>
-          <select class="form-select" id="translation">
-            <option value="LSB" selected>Legacy Standard Bible (LSB)</option>
-            <option value="ESV">English Standard Version (ESV)</option>
-            <option value="NASB">New American Standard Bible (NASB)</option>
-            <option value="KJV">King James Version (KJV)</option>
-            <option value="NKJV">New King James Version (NKJV)</option>
+          <select class="form-select" id="translation" disabled>
+            <option value="ASV" selected>American Standard Version (ASV, 1901)</option>
           </select>
         </div>
         <div class="form-group">

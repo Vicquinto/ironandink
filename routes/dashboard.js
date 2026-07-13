@@ -197,6 +197,45 @@ function getDevotionalArchive() {
   }
 }
 
+// ─── Admin: devotional archive management ────────────────────────────────────
+function readDevotionalStore() {
+  try {
+    if (!fs.existsSync(DEVOTIONAL_PATH)) return { recentPassages: [], entries: [] };
+    const raw = JSON.parse(fs.readFileSync(DEVOTIONAL_PATH, 'utf8'));
+    return {
+      recentPassages: Array.isArray(raw.recentPassages) ? raw.recentPassages : [],
+      entries:        Array.isArray(raw.entries)         ? raw.entries         : [],
+    };
+  } catch { return { recentPassages: [], entries: [] }; }
+}
+
+// Every archived devotional (including today's), newest first, for the admin list.
+function listDevotionals() {
+  return readDevotionalStore().entries
+    .slice()
+    .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+    .map(e => ({ date: e.date, scripture: e.scripture || '', snippet: extractSnippet(e.content || '') }));
+}
+
+// Delete one archived devotional by date. Returns how many entries were removed.
+// Also frees its passage from the recent-passages list so it can be reused.
+function deleteDevotional(date) {
+  const store = readDevotionalStore();
+  const before = store.entries.length;
+  const removedRefs = store.entries.filter(e => e.date === date).map(e => e.scripture).filter(Boolean);
+  store.entries = store.entries.filter(e => e.date !== date);
+  store.recentPassages = store.recentPassages.filter(p => !removedRefs.includes(p));
+  fs.writeFileSync(DEVOTIONAL_PATH, JSON.stringify(store, null, 2), 'utf8');
+  return before - store.entries.length;
+}
+
+// Purge the entire archive (entries + recent-passage tracking). Returns count removed.
+function clearAllDevotionals() {
+  const removed = readDevotionalStore().entries.length;
+  fs.writeFileSync(DEVOTIONAL_PATH, JSON.stringify({ recentPassages: [], entries: [] }, null, 2), 'utf8');
+  return removed;
+}
+
 // Request-independent core. Ensures today's devotional exists in data/devotional.json,
 // generating + saving it via the Anthropic API only if it is missing. Safe to call from
 // a page visit (getDailyDevotional) or the scheduled cron job in server.js.
@@ -391,4 +430,4 @@ router.get('/dashboard', requireAuth, (req, res) => {
   res.send(renderLayout({ req, activeSection: 'dashboard', title: 'Dashboard', content, scripts }));
 });
 
-module.exports = { router, getDailyDevotional, getDevotionalArchive, ensureTodaysDevotional, VERSES };
+module.exports = { router, getDailyDevotional, getDevotionalArchive, ensureTodaysDevotional, VERSES, listDevotionals, deleteDevotional, clearAllDevotionals };

@@ -4,6 +4,7 @@ const path     = require('path');
 const { randomUUID } = require('crypto');
 const sgMail   = require('@sendgrid/mail');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
+const { listDevotionals, deleteDevotional, clearAllDevotionals } = require('./dashboard');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
 
@@ -82,6 +83,7 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
         <button class="admin-tab" data-tab="rooms">Live Rooms</button>
         <button class="admin-tab" data-tab="members">Members</button>
         <button class="admin-tab" data-tab="feedback">Feedback</button>
+        <button class="admin-tab" data-tab="devotionals">Devotionals</button>
       </div>
 
       <div id="adminTabPending" class="admin-tab-content">
@@ -112,6 +114,15 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
       <div id="adminTabFeedback" class="admin-tab-content" style="display:none;">
         <div id="feedbackList" class="article-list-container"></div>
         <p id="feedbackEmpty" class="writing-empty" style="display:none;">No feedback submissions yet.</p>
+      </div>
+
+      <div id="adminTabDevotionals" class="admin-tab-content" style="display:none;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
+          <p style="font-size:0.82rem; color:var(--dark-cream); line-height:1.5; margin:0; max-width:60ch;">Archived daily devotionals. Scripture in newly generated devotionals is verified ASV; older entries generated before that change may contain unverified text and can be deleted here. Deleting today's entry lets it regenerate as ASV.</p>
+          <button class="btn-discard" id="devotionalsClearAllBtn" style="white-space:nowrap;">Clear all</button>
+        </div>
+        <div id="devotionalsList" class="article-list-container"></div>
+        <p id="devotionalsEmpty" class="writing-empty" style="display:none;">No archived devotionals.</p>
       </div>
 
       <div id="adminTabInvitations" class="admin-tab-content" style="display:none;">
@@ -184,7 +195,7 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
     activeSection: 'admin',
     title:         'Admin Panel',
     content,
-    scripts: `<script src="/js/admin.js?v=13"></script>
+    scripts: `<script src="/js/admin.js?v=14"></script>
 <script>
 (function () {
   var form     = document.getElementById('directInviteForm');
@@ -554,6 +565,25 @@ router.get('/api/admin/feedback', requireAuth, requireAdmin, (req, res) => {
     .slice()
     .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
   res.json({ success: true, feedback });
+});
+
+// ─── Devotional archive management (admin) ───────────────────────────────────
+// List every archived devotional (newest first) so an admin can review/purge.
+router.get('/api/admin/devotionals', requireAuth, requireAdmin, (req, res) => {
+  res.json({ success: true, devotionals: listDevotionals() });
+});
+
+// Delete one archived devotional by its date (YYYY-MM-DD). Regenerates as verified
+// ASV on the next visit/cron if it was today's.
+router.delete('/api/admin/devotionals/:date', requireAuth, requireAdmin, (req, res) => {
+  const removed = deleteDevotional(req.params.date);
+  res.json({ success: true, removed });
+});
+
+// Purge the entire devotional archive (for the ASV cleanup).
+router.delete('/api/admin/devotionals', requireAuth, requireAdmin, (req, res) => {
+  const removed = clearAllDevotionals();
+  res.json({ success: true, removed });
 });
 
 module.exports = router;

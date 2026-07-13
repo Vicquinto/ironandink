@@ -78,14 +78,10 @@ router.get('/settings', requireAuth, (req, res) => {
       <form id="prefsForm">
         <div class="form-group">
           <label class="form-label">Preferred Bible Translation</label>
-          <select class="form-select" id="bibleTranslation">
-            <option value="LSB"${sel(s.bibleTranslation, 'LSB')}>LSB — Legacy Standard Bible</option>
-            <option value="ESV"${sel(s.bibleTranslation, 'ESV')}>ESV — English Standard Version</option>
-            <option value="NASB"${sel(s.bibleTranslation, 'NASB')}>NASB — New American Standard Bible</option>
-            <option value="KJV"${sel(s.bibleTranslation, 'KJV')}>KJV — King James Version</option>
-            <option value="NKJV"${sel(s.bibleTranslation, 'NKJV')}>NKJV — New King James Version</option>
-            <option value="CSB"${sel(s.bibleTranslation, 'CSB')}>CSB — Christian Standard Bible</option>
+          <select class="form-select" id="bibleTranslation" disabled>
+            <option value="ASV" selected>ASV — American Standard Version (1901)</option>
           </select>
+          <p class="form-hint" style="margin-top:0.4rem;font-size:0.85rem;color:var(--text-muted);">Study Scripture is served as the verified public-domain ASV, inserted by the system.</p>
         </div>
         <div class="form-group">
           <label class="form-label">Default Writing Tier</label>

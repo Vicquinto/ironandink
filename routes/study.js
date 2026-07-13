@@ -592,9 +592,9 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
     const attemptStart = Date.now();
     try {
       console.log(`[study-gen] Calling Anthropic API — attempt ${attempt} time=${new Date().toISOString()}`);
-      // Crossway ESV compliance: the study prompt only carries the topic + a
-      // translation label (LSB text is model-generated, never fetched), but guard
-      // defensively so ESV text can never enter this prompt in future edits.
+      // Crossway ESV compliance: the study prompt carries only the topic and
+      // instructions (verse text is inserted post-generation from ASV, never
+      // fetched), but guard defensively so ESV text can never enter this prompt.
       assertNoEsvText('study/generate', systemPrompt, userMessage);
       const message = await client.messages.create({
         model:      'claude-sonnet-4-6',

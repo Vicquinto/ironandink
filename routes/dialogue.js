@@ -5,6 +5,7 @@ const path      = require('path');
 const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
 const { assertNoEsvText } = require('./esvGuard');
+const { injectVerses } = require('../lib/asv');
 
 const router         = express.Router();
 
@@ -263,15 +264,34 @@ router.post('/api/dialogue/exchange', requireAuth, async (req, res) => {
       try { stream.abort(); } catch {}
     });
 
-    stream.on('text', (text) => {
-      if (!closed && !res.writableEnded) {
-        res.write(`data: ${JSON.stringify({ text })}\n\n`);
+    // Marker-safe streaming: the model may emit {{verse:...}} markers, which must
+    // become real ASV text and must never be split across SSE chunks. Buffer the
+    // stream, hold back any in-progress marker (an unclosed "{{" or a trailing
+    // "{"), inject completed markers, and emit only the safe prefix.
+    let buf = '';
+    function flush(final) {
+      if (closed || res.writableEnded) { buf = ''; return; }
+      let cut = buf.length;
+      if (!final) {
+        const open = buf.lastIndexOf('{{');
+        if (open !== -1 && buf.indexOf('}}', open) === -1) cut = open;      // unclosed marker
+        else if (buf.endsWith('{')) cut = buf.length - 1;                    // lone trailing brace
       }
+      const emit = injectVerses(buf.slice(0, cut));
+      buf = buf.slice(cut);
+      if (emit) res.write(`data: ${JSON.stringify({ text: emit })}\n\n`);
+    }
+
+    stream.on('text', (text) => {
+      if (closed || res.writableEnded) return;
+      buf += text;
+      flush(false);
     });
 
     await stream.done();
 
     if (!closed && !res.writableEnded) {
+      flush(true);
       res.write('data: [DONE]\n\n');
       res.end();
     }
@@ -343,11 +363,12 @@ router.post('/api/dialogue/gaps', requireAuth, async (req, res) => {
 
     // Accept the new three-part shape, and fall back to the old key names
     // (summary/studyNext) so a stale or partial response still renders.
+    // Inject verified ASV for any {{verse:...}} marker in the feedback fields.
     res.json({
       success:   true,
-      strengths: parsed.strengths || '',
-      growth:    parsed.growth    || parsed.summary   || '',
-      nextTopic: parsed.nextTopic || parsed.studyNext || '',
+      strengths: injectVerses(parsed.strengths || ''),
+      growth:    injectVerses(parsed.growth    || parsed.summary   || ''),
+      nextTopic: injectVerses(parsed.nextTopic || parsed.studyNext || ''),
     });
   } catch (err) {
     console.error('[Dialogue/gaps]', err.message);

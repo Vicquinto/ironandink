@@ -5,6 +5,7 @@ const Anthropic      = require('@anthropic-ai/sdk');
 const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
 const { assertNoEsvText } = require('./esvGuard');
+const { injectVerses, SCRIPTURE_RULE } = require('../lib/asv');
 
 const router     = express.Router();
 const SELAH_PATH = path.join(__dirname, '../data/selah.json');
@@ -141,7 +142,8 @@ router.post('/api/selah/reflect', requireAuth, async (req, res) => {
     'to a word of Scripture, draw on the comfort of Reformed doctrine — the sovereignty of God, the ' +
     'faithfulness of Christ, the work of the Spirit — or simply affirm what is true about God in ' +
     'light of what the user has expressed. Speak directly and personally, as a wise and caring shepherd ' +
-    'would to a sheep he knows. Be warm but not saccharine. Be brief. End with a sense of rest.';
+    'would to a sheep he knows. Be warm but not saccharine. Be brief. End with a sense of rest.\n\n' +
+    SCRIPTURE_RULE;
 
   try {
     // Crossway ESV compliance: never send ESV-licensed text to Anthropic (defensive —
@@ -154,7 +156,8 @@ router.post('/api/selah/reflect', requireAuth, async (req, res) => {
       system:     systemPrompt,
       messages:   [{ role: 'user', content: String(content).trim() }],
     });
-    res.json({ success: true, reflection: message.content[0].text });
+    // Replace any {{verse:...}} markers with verified ASV before returning.
+    res.json({ success: true, reflection: injectVerses(message.content[0].text) });
   } catch (err) {
     if (err && err.code === 'ESV_TEXT_BLOCKED') {
       console.error('ESV guard:', err.message);

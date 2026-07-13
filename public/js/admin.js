@@ -36,6 +36,11 @@
   var feedbackList     = document.getElementById('feedbackList');
   var feedbackEmpty    = document.getElementById('feedbackEmpty');
 
+  var adminTabDevotionals = document.getElementById('adminTabDevotionals');
+  var devotionalsList     = document.getElementById('devotionalsList');
+  var devotionalsEmpty    = document.getElementById('devotionalsEmpty');
+  var devotionalsClearAll = document.getElementById('devotionalsClearAllBtn');
+
   var inviteRequestList  = document.getElementById('inviteRequestList');
   var inviteRequestEmpty = document.getElementById('inviteRequestEmpty');
   var sentInviteList     = document.getElementById('sentInviteList');
@@ -105,12 +110,67 @@
       if (adminTabRooms) adminTabRooms.style.display = which === 'rooms' ? 'block' : 'none';
       if (adminTabMembers) adminTabMembers.style.display = which === 'members' ? 'block' : 'none';
       if (adminTabFeedback) adminTabFeedback.style.display = which === 'feedback' ? 'block' : 'none';
+      if (adminTabDevotionals) adminTabDevotionals.style.display = which === 'devotionals' ? 'block' : 'none';
       if (which === 'invitations') { loadInviteRequests(); loadSentInvites(); }
       if (which === 'rooms') { loadAdminRooms(); }
       if (which === 'members') { loadMembers(); }
       if (which === 'feedback') { loadFeedback(); }
+      if (which === 'devotionals') { loadDevotionals(); }
     });
   });
+
+  // ── Devotionals archive management ──────────────────────────────────────────
+  function loadDevotionals() {
+    if (!devotionalsList) return;
+    devotionalsList.innerHTML = '<p class="writing-empty">Loading&#8230;</p>';
+    fetch('/api/admin/devotionals')
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.success) { devotionalsList.innerHTML = ''; return; }
+        var items = data.devotionals || [];
+        if (devotionalsClearAll) devotionalsClearAll.style.display = items.length ? '' : 'none';
+        if (!items.length) {
+          devotionalsList.innerHTML = '';
+          if (devotionalsEmpty) devotionalsEmpty.style.display = 'block';
+          return;
+        }
+        if (devotionalsEmpty) devotionalsEmpty.style.display = 'none';
+        devotionalsList.innerHTML = items.map(function (d) {
+          return '<div class="article-list-item" style="display:flex; align-items:flex-start; justify-content:space-between; gap:14px;">' +
+              '<div style="min-width:0;">' +
+                '<div style="font-weight:600; color:var(--text);">' + esc(d.date) +
+                  (d.scripture ? ' <span style="color:var(--warm-brown); font-weight:400;">&middot; ' + esc(d.scripture) + '</span>' : '') +
+                '</div>' +
+                '<div style="font-size:0.85rem; color:var(--dark-cream); margin-top:4px; line-height:1.45;">' + esc(d.snippet) + '</div>' +
+              '</div>' +
+              '<button class="btn-discard devotional-del-btn" data-date="' + esc(d.date) + '" style="white-space:nowrap;">Delete</button>' +
+            '</div>';
+        }).join('');
+        devotionalsList.querySelectorAll('.devotional-del-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var date = btn.dataset.date;
+            showConfirm('Delete the devotional for ' + date + '? This cannot be undone.', 'Delete', function () {
+              fetch('/api/admin/devotionals/' + encodeURIComponent(date), { method: 'DELETE' })
+                .then(function (r) { return r.json(); })
+                .then(function (res) { if (res.success) loadDevotionals(); })
+                .catch(function () {});
+            });
+          });
+        });
+      })
+      .catch(function () { devotionalsList.innerHTML = ''; });
+  }
+
+  if (devotionalsClearAll) {
+    devotionalsClearAll.addEventListener('click', function () {
+      showConfirm('Delete ALL archived devotionals? This cannot be undone.', 'Clear all', function () {
+        fetch('/api/admin/devotionals', { method: 'DELETE' })
+          .then(function (r) { return r.json(); })
+          .then(function (res) { if (res.success) loadDevotionals(); })
+          .catch(function () {});
+      });
+    });
+  }
 
   // ── Back button ───────────────────────────────────────────────────────────
   if (adminBackBtn) {
