@@ -5,6 +5,11 @@
   var currentAbortCtrl  = null;
   var roomCode          = window.ROOM_CODE;
   var isHost            = !!(window.CURRENT_USER && window.CURRENT_USER.email === window.ROOM_HOST);
+  var isAdmin           = !!window.IS_ADMIN;
+  // Host and admins both keep room controls (incl. Resume) when paused, so treat
+  // them alike for pause-driven UI decisions — an admin must not be redirected
+  // out of a room they are able to resume.
+  var canControl        = isHost || isAdmin;
   var selectedRoomLength = 'Short';
 
   console.log('isHost: ' + isHost);
@@ -111,7 +116,7 @@
   });
 
   socket.on('room-paused', function () {
-    if (isHost) {
+    if (canControl) {
       if (roomPauseBtn) {
         roomPauseBtn.textContent = 'Resume Room';
         roomPauseBtn.disabled    = false;
@@ -124,7 +129,7 @@
   });
 
   socket.on('room-resumed', function () {
-    if (!isHost) window.location.reload();
+    if (!canControl) window.location.reload();
   });
 
   socket.on('room-clear-study', function () {

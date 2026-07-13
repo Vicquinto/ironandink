@@ -142,8 +142,13 @@ router.get('/room/:code', requireAuth, (req, res) => {
 
   const isPaused   = (room.status || 'active') === 'paused';
   const isRoomHost = room.host === userId;
+  const isAdmin    = getIsAdmin(req);
+  // Host and admins retain full control of a paused room — most importantly the
+  // Resume button, without which the room is permanently stuck. Only regular
+  // members drop to the read-only view.
+  const canControl = isRoomHost || isAdmin;
 
-  if (isPaused && !isRoomHost) {
+  if (isPaused && !canControl) {
     const levelLabel   = { foundations: 'Apprentice', journeyman: 'Journeyman', scholar: 'Scholar' }[room.studyLevel || 'journeyman'] || 'Journeyman';
     const topicText    = room.study && room.study.topic ? 'Currently studying: ' + escHtml(room.study.topic) : '';
     const studySection = room.study && room.study.content
@@ -293,8 +298,8 @@ router.get('/room/:code', requireAuth, (req, res) => {
       <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:#9a8060;margin-bottom:0.6rem;font-family:'EB Garamond',Georgia,serif;">Room Functions</div>
       <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:1.5rem;">
         <button id="roomExitBtn" style="background:transparent;color:#5C1A28;border:1px solid #5C1A28;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;">Exit Room</button>
-        ${room.host === userId ? `<button id="roomPauseBtn" style="background:#A0845C;color:#fff;border:none;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;">${(room.status || 'active') === 'paused' ? 'Resume Room' : 'Pause Room'}</button>` : ''}
-        ${room.host === userId ? `<button id="roomDeleteBtn" style="background:#5a0a0a;color:#fff;border:none;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;opacity:0.85;">Delete Room</button>` : ''}
+        ${canControl ? `<button id="roomPauseBtn" style="background:#A0845C;color:#fff;border:none;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;">${(room.status || 'active') === 'paused' ? 'Resume Room' : 'Pause Room'}</button>` : ''}
+        ${canControl ? `<button id="roomDeleteBtn" style="background:#5a0a0a;color:#fff;border:none;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;opacity:0.85;">Delete Room</button>` : ''}
       </div>
 
       <div id="roomLoading" class="study-loading" style="display:none;">
@@ -353,7 +358,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
     window.ROOM_CHAT        = ${JSON.stringify(room.chat || [])};
     window.IS_ADMIN         = ${getIsAdmin(req)};
   </script>
-  <script src="/js/room.js?v=13"></script>
+  <script src="/js/room.js?v=14"></script>
   <script src="/js/library.js?v=39"></script>`,
   }));
 });
@@ -539,7 +544,7 @@ router.patch('/api/rooms/:code/pause', requireAuth, (req, res) => {
   const idx   = rooms.findIndex(r => r.code === code);
 
   if (idx === -1) return res.status(404).json({ success: false, error: 'Room not found.' });
-  if (rooms[idx].host !== req.session.userId) {
+  if (rooms[idx].host !== req.session.userId && !getIsAdmin(req)) {
     return res.status(403).json({ success: false, error: 'Not authorized.' });
   }
 
@@ -560,7 +565,7 @@ router.patch('/api/rooms/:code/resume', requireAuth, (req, res) => {
   const idx   = rooms.findIndex(r => r.code === code);
 
   if (idx === -1) return res.status(404).json({ success: false, error: 'Room not found.' });
-  if (rooms[idx].host !== req.session.userId) {
+  if (rooms[idx].host !== req.session.userId && !getIsAdmin(req)) {
     return res.status(403).json({ success: false, error: 'Not authorized.' });
   }
 
