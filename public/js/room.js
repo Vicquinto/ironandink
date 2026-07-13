@@ -471,6 +471,29 @@
     });
   }
 
+  // ── Delete Room ─────────────────────────────────────────────────────────────
+  // Wired at module top level (NOT inside the host-only block) so a non-host
+  // admin — for whom the server also renders this button (isHost || isAdmin) —
+  // gets a live button too. The server enforces the same permission on DELETE.
+  if (roomDeleteBtn) {
+    roomDeleteBtn.addEventListener('click', function () {
+      showConfirm('Delete this room? This cannot be undone.', 'Delete Room', function () {
+        fetch('/api/rooms/' + encodeURIComponent(roomCode), { method: 'DELETE' })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (data && data.success) {
+              window.location.href = '/rooms';
+            } else {
+              showToast('Error: ' + ((data && data.error) || 'Could not delete room.'), true);
+            }
+          })
+          .catch(function (err) {
+            showToast('Error: ' + (err && err.message ? err.message : 'Could not delete room.'), true);
+          });
+      });
+    });
+  }
+
   // ── Chat ──────────────────────────────────────────────────────────────────
   function sendChat() {
     if (!chatInput) return;
@@ -657,57 +680,6 @@
 
       roomNewStudyBtn.addEventListener('click', function () {
         newStudyModal.style.display = 'flex';
-      });
-    }
-
-    // ── Delete Room modal ──────────────────────────────────────────────────
-    if (roomDeleteBtn) {
-      var deleteModal = document.createElement('div');
-      deleteModal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;';
-      deleteModal.innerHTML =
-        '<div style="background:#E8D9B8;border:2px solid #8B0000;border-radius:8px;padding:2rem 2.25rem;max-width:400px;width:90%;font-family:\'EB Garamond\',Georgia,serif;box-shadow:0 8px 32px rgba(0,0,0,0.4);">' +
-          '<h4 style="margin:0 0 0.75rem;color:#8B0000;font-size:1.15rem;font-weight:600;">Delete Room Permanently</h4>' +
-          '<p style="margin:0 0 1.5rem;color:#3a2a1a;font-size:0.97rem;line-height:1.6;">Delete this room permanently? All chat history and study content will be removed. This cannot be undone.</p>' +
-          '<div style="display:flex;gap:0.75rem;justify-content:flex-end;">' +
-            '<button class="btn-warm" id="deleteModalCancel">Cancel</button>' +
-            '<button id="deleteModalConfirm" style="background:#8B0000;color:#fff;border:none;border-radius:4px;padding:6px 16px;font-size:0.9rem;font-family:inherit;cursor:pointer;">Delete Room</button>' +
-          '</div>' +
-        '</div>';
-      document.body.appendChild(deleteModal);
-
-      var deleteModalCancel  = deleteModal.querySelector('#deleteModalCancel');
-      var deleteModalConfirm = deleteModal.querySelector('#deleteModalConfirm');
-
-      deleteModalCancel.addEventListener('click', function () {
-        deleteModal.style.display = 'none';
-      });
-      deleteModal.addEventListener('click', function (e) {
-        if (e.target === deleteModal) deleteModal.style.display = 'none';
-      });
-      deleteModalConfirm.addEventListener('click', async function () {
-        deleteModalConfirm.disabled    = true;
-        deleteModalConfirm.textContent = 'Deleting…';
-        try {
-          var r    = await fetch('/api/rooms/' + encodeURIComponent(roomCode), { method: 'DELETE' });
-          var data = await r.json();
-          if (data.success) {
-            window.location.href = '/rooms';
-          } else {
-            showToast('Error: ' + (data.error || 'Could not delete room.'), true);
-            deleteModal.style.display      = 'none';
-            deleteModalConfirm.disabled    = false;
-            deleteModalConfirm.textContent = 'Delete Room';
-          }
-        } catch (err) {
-          showToast('Error: ' + err.message, true);
-          deleteModal.style.display      = 'none';
-          deleteModalConfirm.disabled    = false;
-          deleteModalConfirm.textContent = 'Delete Room';
-        }
-      });
-
-      roomDeleteBtn.addEventListener('click', function () {
-        deleteModal.style.display = 'flex';
       });
     }
   }
