@@ -1269,7 +1269,7 @@ body {
 
 .study-card-meta {
   display: flex;
-  flex-wrap: wrap; /* badges (date, LSB, level, Shared) wrap to a new line instead of overflowing */
+  flex-wrap: wrap; /* badges (date, translation, level, Shared) wrap to a new line instead of overflowing */
   gap: 8px 10px;
   align-items: center;
   margin-bottom: 10px;
