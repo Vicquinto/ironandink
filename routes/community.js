@@ -151,8 +151,8 @@ router.get('/community', requireAuth, (req, res) => {
         window.IS_ADMIN = ${isAdmin};
         window.CURRENT_USER_ID = ${JSON.stringify(req.session.userId)};
       </script>
-      <script src="/js/community.js?v=15"></script>
-      <script src="/js/library.js?v=40"></script>`,
+      <script src="/js/community.js?v=16"></script>
+      <script src="/js/library.js?v=41"></script>`,
   }));
 });
 
@@ -189,7 +189,7 @@ router.get('/api/community/studies', requireAuth, (req, res) => {
       id:          s.id,
       topic:       s.topic,                  // studies use `topic`, not `title`
       content:     s.content,
-      translation: s.translation || 'LSB',
+      translation: s.translation || 'ASV',
       studyLevel:  s.studyLevel || null,
       studyType:   s.studyType || 'doctrinal',
       tags:        s.tags || [],

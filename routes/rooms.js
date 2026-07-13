@@ -59,7 +59,12 @@ function renderMarkdown(text) {
   for (const line of lines) {
     const ulM = line.match(/^[-*] (.+)/);
     const olM = line.match(/^\d+\. (.+)/);
-    if (ulM) {
+    const bqM = line.match(/^> (.+)/);
+    if (bqM) {
+      if (inUl) { result.push('</ul>'); inUl = false; }
+      if (inOl) { result.push('</ol>'); inOl = false; }
+      result.push('<blockquote class="guide-bq">' + bqM[1] + '</blockquote>');
+    } else if (ulM) {
       if (inOl) { result.push('</ol>'); inOl = false; }
       if (!inUl) { result.push('<ul class="guide-list">'); inUl = true; }
       result.push('<li>' + ulM[1] + '</li>');
@@ -114,7 +119,7 @@ router.get('/rooms', requireAuth, (req, res) => {
     activeSection: 'rooms',
     title:         'Live Study Rooms',
     content,
-    scripts: `<script>window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};</script><script src="/js/rooms.js?v=6"></script><script src="/js/library.js?v=40"></script>`,
+    scripts: `<script>window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};</script><script src="/js/rooms.js?v=6"></script><script src="/js/library.js?v=41"></script>`,
   }));
 });
 
@@ -155,7 +160,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
       ? `<div id="roomGuideArea">
         <div class="guide-header-bar">
           <h3 id="roomGuideTitle">${escHtml(room.study.topic || '')}</h3>
-          <span id="roomGuideBadge" class="guide-badge">${escHtml(room.study.translation || 'LSB')}</span>
+          <span id="roomGuideBadge" class="guide-badge">${escHtml(room.study.translation || 'ASV')}</span>
         </div>
         <div id="roomGuideBody" class="guide-body">${renderMarkdown(room.study.content)}</div>
       </div>` : '';
@@ -243,7 +248,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
       }
     })();
   </script>
-  <script src="/js/library.js?v=40"></script>`,
+  <script src="/js/library.js?v=41"></script>`,
     }));
   }
 
@@ -358,8 +363,8 @@ router.get('/room/:code', requireAuth, (req, res) => {
     window.ROOM_CHAT        = ${JSON.stringify(room.chat || [])};
     window.IS_ADMIN         = ${getIsAdmin(req)};
   </script>
-  <script src="/js/room.js?v=15"></script>
-  <script src="/js/library.js?v=40"></script>`,
+  <script src="/js/room.js?v=16"></script>
+  <script src="/js/library.js?v=41"></script>`,
   }));
 });
 

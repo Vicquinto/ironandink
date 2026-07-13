@@ -4,6 +4,7 @@ const path      = require('path');
 const Anthropic = require('@anthropic-ai/sdk');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
 const { assertNoEsvText } = require('./esvGuard');
+const { injectVerses, lookup: asvLookup } = require('../lib/asv');
 
 const router          = express.Router();
 const STUDIES_PATH    = path.join(__dirname, '../data/studies.json');
@@ -11,7 +12,11 @@ const DIALOGUES_PATH  = path.join(__dirname, '../data/dialogues.json');
 const ARTICLES_PATH   = path.join(__dirname, '../data/articles.json');
 const DEVOTIONAL_PATH = path.join(__dirname, '../data/devotional.json');
 
-const VERSES = [
+// Verse-of-the-Day / study-loading pool. Text is replaced with verified ASV at
+// load (each ref resolved against data/asv.json) so the app shows no unverified,
+// mislabeled Scripture. `ref` is the source of truth; the literal text below is a
+// fallback only (all 81 refs currently resolve).
+const RAW_VERSES = [
   // Psalms
   { text: "Blessed is the man who does not walk in the counsel of the wicked, nor stand in the path of sinners, nor sit in the seat of scoffers! But his delight is in the law of the LORD, and in His law he meditates day and night.", ref: "Psalm 1:1–2" },
   { text: "The law of the LORD is perfect, restoring the soul; the testimony of the LORD is sure, making wise the simple.", ref: "Psalm 19:7" },
@@ -103,6 +108,9 @@ const VERSES = [
   { text: "Contend earnestly for the faith which was once for all handed down to the saints.", ref: "Jude 3" },
 ];
 
+// Real, verified ASV text keyed off each ref — no unverified/mislabeled verses.
+const VERSES = RAW_VERSES.map(v => ({ ref: v.ref, text: asvLookup(v.ref) || v.text }));
+
 function getDayOfYear() {
   const now   = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
@@ -158,6 +166,7 @@ function extractPassageRef(content) {
 function extractSnippet(content) {
   const stripped = content
     .replace(/^#{1,6}\s+.*$/gm, '')
+    .replace(/^>\s?/gm, '')                 // drop blockquote markers (injected verses)
     .replace(/\*\*([^*]+)\*\*/g, '$1')
     .replace(/\*([^*]+)\*/g, '$1')
     .trim();
@@ -240,7 +249,7 @@ async function ensureTodaysDevotional(prompts) {
   const userPrompt = `Write the Iron & Ink Daily Devotional for ${dateStr}. Today's date is ${today}. Select a Scripture passage appropriate for this specific day — ${exclusionNote} Choose from across the full breadth of Scripture — Psalms, Proverbs, the Gospels, the Epistles, the Old Testament prophets — varying the selection each day. Use exactly these four section headings:
 
 ## Scripture
-Choose a passage of 3–5 verses — a psalm, a prophet, a Gospel, or an epistle. Choose for doctrinal richness. Print the complete LSB text of every verse, word for word.
+Choose a passage of 3–5 verses — a psalm, a prophet, a Gospel, or an epistle. Choose for doctrinal richness. Do NOT write the verse text yourself; emit a single verse marker for the whole passage in the form {{verse:Book Chapter:Verse-Verse}} (e.g. {{verse:Romans 8:1-4}}) on its own line. The system inserts the real, verified ASV text.
 
 ## Exposition
 Write 2–3 paragraphs of careful, doctrinally serious exposition. Engage the theology directly — what does this passage teach about God, man, sin, grace, or redemption? Think like a Reformed pastor who takes the student seriously. No shallow encouragement. No moralism.
@@ -254,9 +263,9 @@ A brief closing prayer (3–5 sentences) addressed directly to God. Let it be co
 Tone: warm but serious. Reformed and confessional.`;
 
   try {
-    // Crossway ESV compliance: the devotional prompt instructs the model to print
-    // LSB text (model-generated, never fetched); recentPassages are references
-    // only. Guard defensively so ESV text can never enter this prompt.
+    // Crossway ESV compliance: the devotional prompt carries only instructions and
+    // passage references (verse text is inserted post-generation from ASV, never
+    // fetched). Guard defensively so ESV text can never enter this prompt.
     assertNoEsvText('dashboard/devotional', systemPrompt, userPrompt);
     const client  = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const message = await client.messages.create({
@@ -265,7 +274,8 @@ Tone: warm but serious. Reformed and confessional.`;
       system:     systemPrompt,
       messages:   [{ role: 'user', content: userPrompt }],
     });
-    const content = message.content[0].text;
+    // Replace {{verse:...}} markers with verified ASV text before caching/returning.
+    const content = injectVerses(message.content[0].text);
 
     const passageRef = extractPassageRef(content);
     if (passageRef) {
@@ -339,7 +349,7 @@ router.get('/dashboard', requireAuth, (req, res) => {
     <div class="verse-card">
       <div class="verse-label">Verse of the Day</div>
       <div class="verse-text">"${verse.text}"</div>
-      <div class="verse-ref">${verse.ref} — Legacy Standard Bible</div>
+      <div class="verse-ref">${verse.ref} — American Standard Version</div>
     </div>
 
     <div class="stat-cards">

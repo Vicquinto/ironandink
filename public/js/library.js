@@ -60,7 +60,7 @@
           '</div>' +
           '<div class="study-card-meta">' +
             '<span class="study-card-date">' + formatDate(s.savedAt) + '</span>' +
-            '<span class="study-card-translation">' + esc(s.translation || 'LSB') + '</span>' +
+            '<span class="study-card-translation">' + esc(s.translation || 'ASV') + '</span>' +
             studyTypeBadge(s.studyType) +
             studyLevelBadge(s.studyLevel) +
             sharedBadge +
@@ -256,7 +256,7 @@
   function showStudyInline(study) {
     if (!libGuideArea) return;
     libGuideTitle.textContent = study.topic;
-    libGuideBadge.textContent = study.translation || 'LSB';
+    libGuideBadge.textContent = study.translation || 'ASV';
     libGuideBody.innerHTML    = renderMarkdown(study.content);
     if (studyCardsGrid) studyCardsGrid.style.display = 'none';
     if (libFilterBar)   libFilterBar.style.display   = 'none';
@@ -292,7 +292,7 @@
   // ── Modal ──────────────────────────────────────────────────────────────────
   function openModal(study) {
     document.getElementById('modalTitle').textContent = study.topic;
-    document.getElementById('modalBadge').textContent = study.translation || 'LSB';
+    document.getElementById('modalBadge').textContent = study.translation || 'ASV';
     var body = document.getElementById('modalBody');
     body.className = 'guide-modal-body';
     body.innerHTML = renderMarkdown(study.content);

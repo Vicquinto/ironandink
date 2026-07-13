@@ -205,7 +205,7 @@
     if (verseRotator) verseRotator.classList.remove('is-visible');
     setTimeout(function () {
       verseTextEl.textContent = '“' + v.text + '”';
-      if (verseRefEl) verseRefEl.textContent = v.ref + ' — Legacy Standard Bible';
+      if (verseRefEl) verseRefEl.textContent = v.ref + ' — American Standard Version';
       if (verseRotator) verseRotator.classList.add('is-visible');
     }, 200);
   }
@@ -252,7 +252,7 @@
 
       currentGuide = { studyLength: selectedLength, studyType: selectedType, ...data };
       guideTitle.textContent   = data.topic;
-      guideBadge.textContent   = data.translation || 'LSB';
+      guideBadge.textContent   = data.translation || 'ASV';
       guideBody.innerHTML      = renderMarkdown(data.content);
       showState('guide');
       studyGenerated = true;

@@ -114,8 +114,9 @@ router.get('/copyright', (req, res) => {
 
       <div class="copy-section-heading">Primary Translation</div>
       <p class="copy-body">
-        Iron &amp; Ink uses the <strong>Legacy Standard Bible (LSB)</strong> as its primary translation
-        for all study content, devotionals, and AI-generated theological material.
+        Iron &amp; Ink uses the <strong>American Standard Version (ASV, 1901, public domain)</strong> as its
+        Scripture text for all study content, devotionals, and AI-generated theological material — the
+        verified verse text is inserted by the system, never produced by the AI model.
         The ESV is made available as a secondary reference through the Crossway ESV API.
       </p>
 

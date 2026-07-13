@@ -220,13 +220,13 @@
           card.addEventListener('click', function () {
             var study = studyMap[card.dataset.id];
             if (!study) return;
-            var studyData = { topic: study.topic, content: study.content, translation: study.translation || 'LSB', success: true };
+            var studyData = { topic: study.topic, content: study.content, translation: study.translation || 'ASV', success: true };
             displayStudy(studyData);
             socket.emit('room-study-result', { roomCode: roomCode, data: studyData });
             fetch('/api/rooms/' + encodeURIComponent(roomCode) + '/save-study', {
               method:  'POST',
               headers: { 'Content-Type': 'application/json' },
-              body:    JSON.stringify({ topic: study.topic, content: study.content, translation: study.translation || 'LSB' }),
+              body:    JSON.stringify({ topic: study.topic, content: study.content, translation: study.translation || 'ASV' }),
             }).catch(function () {});
             libraryPanel.style.display = 'none';
           });
@@ -369,7 +369,7 @@
   function displayStudy(data) {
     currentStudy = data;
     if (guideTitle)      guideTitle.textContent  = data.topic || '';
-    if (guideBadge)      guideBadge.textContent  = data.translation || 'LSB';
+    if (guideBadge)      guideBadge.textContent  = data.translation || 'ASV';
     if (guideBody)       guideBody.innerHTML     = renderMarkdown(data.content || '');
     if (roomLoading)     roomLoading.style.display   = 'none';
     if (guideArea)       guideArea.style.display     = 'block';
@@ -560,8 +560,13 @@
     lines.forEach(function (line) {
       var ulM = line.match(/^[-*] (.+)/);
       var olM = line.match(/^\d+\. (.+)/);
+      var bqM = line.match(/^> (.+)/);
 
-      if (ulM) {
+      if (bqM) {
+        if (inUl) { result.push('</ul>'); inUl = false; }
+        if (inOl) { result.push('</ol>'); inOl = false; }
+        result.push('<blockquote class="guide-bq">' + bqM[1] + '</blockquote>');
+      } else if (ulM) {
         if (inOl) { result.push('</ol>'); inOl = false; }
         if (!inUl) { result.push('<ul class="guide-list">'); inUl = true; }
         result.push('<li>' + ulM[1] + '</li>');

@@ -3,6 +3,7 @@ const Anthropic = require('@anthropic-ai/sdk');
 const { requireAuth, renderLayout }  = require('./layout');
 const { getDailyDevotional, getDevotionalArchive } = require('./dashboard');
 const { assertNoEsvText } = require('./esvGuard');
+const { injectVerses } = require('../lib/asv');
 
 const router = express.Router();
 
@@ -252,7 +253,9 @@ router.post('/api/devotional/ask', requireAuth, async (req, res) => {
       system:     systemPrompt,
       messages:   history,
     });
-    res.json({ success: true, answer: message.content[0].text });
+    // Core-prompt answers quote Scripture via {{verse:...}} markers — insert the
+    // verified ASV text before returning.
+    res.json({ success: true, answer: injectVerses(message.content[0].text) });
   } catch (err) {
     if (err && err.code === 'ESV_TEXT_BLOCKED') {
       console.error('ESV guard:', err.message);

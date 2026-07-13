@@ -695,7 +695,7 @@ router.post('/api/register', async (req, res) => {
       role:         'user',
       needsSetup:   false,
       settings: {
-        translation: translation || 'LSB',
+        translation: translation || 'ASV',
         tradition:   tradition   || 'Reformed/Calvinist',
       },
       // Explicit false flags for every guided-tour page so first-time tours

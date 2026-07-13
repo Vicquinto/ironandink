@@ -443,7 +443,7 @@
       '<div class="community-card-meta">' +
         studyTypeBadge(s.studyType) +
         studyLevelBadge(s.studyLevel) +
-        '<span class="study-card-translation">' + esc(s.translation || 'LSB') + '</span>' +
+        '<span class="study-card-translation">' + esc(s.translation || 'ASV') + '</span>' +
         '<span class="community-card-author">' + esc(s.authorName || '') + '</span>' +
         '<span class="article-card-date">' + fmtDate(s.sharedAt) + '</span>' +
         '<span class="article-word-count">' + words + ' words</span>' +
@@ -478,7 +478,7 @@
     communityReadBody.innerHTML    = renderReadingText(s.content || '');
     if (communityReadBadges) {
       communityReadBadges.innerHTML =
-        '<span class="study-card-translation">' + esc(s.translation || 'LSB') + '</span>' +
+        '<span class="study-card-translation">' + esc(s.translation || 'ASV') + '</span>' +
         (s.studyLevel ? ' ' + studyLevelBadge(s.studyLevel) : '');
     }
     setReaderArticleSections(false);   // studies have no Amen / comments

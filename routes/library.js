@@ -6,6 +6,7 @@ const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
 const notepadRoutes = require('./notepad');
 const { assertNoEsvText } = require('./esvGuard');
+const { injectVerses } = require('../lib/asv');
 
 const router      = express.Router();
 const STUDIES_PATH = path.join(__dirname, '../data/studies.json');
@@ -105,7 +106,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/library.js?v=40"></script>',
+    scripts: '<script src="/js/library.js?v=41"></script>',
   }));
 });
 
@@ -137,7 +138,7 @@ router.post('/api/library/save', requireAuth, (req, res) => {
     userId:      req.session.userId,
     topic:       topic.trim(),
     content,
-    translation: translation || 'LSB',
+    translation: translation || 'ASV',
     tags:        parsedTags,
     rating:      Math.min(5, Math.max(0, parseInt(rating) || 0)),
     studyLevel:  validLevels.includes(studyLevel)
@@ -246,7 +247,9 @@ router.post('/api/library/ask', requireAuth, async (req, res) => {
       system:     systemPrompt,
       messages,
     });
-    res.json({ success: true, answer: message.content[0].text });
+    // Inline answers use the core prompt, so the model quotes Scripture via
+    // {{verse:...}} markers too — insert the verified ASV text before returning.
+    res.json({ success: true, answer: injectVerses(message.content[0].text) });
   } catch (err) {
     if (err && err.code === 'ESV_TEXT_BLOCKED') {
       console.error('ESV guard:', err.message);

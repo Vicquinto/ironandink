@@ -5,6 +5,7 @@ const path       = require('path');
 const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
 const { assertNoEsvText } = require('./esvGuard');
+const { injectVerses } = require('../lib/asv');
 
 const router       = express.Router();
 
@@ -333,7 +334,9 @@ Generate the ${tierLabel} now.`;
       messages:   [{ role: 'user', content: userPrompt }],
     });
 
-    res.json({ success: true, content: message.content[0].text });
+    // Core-prompt output quotes Scripture via {{verse:...}} markers — insert the
+    // verified ASV text before returning the article.
+    res.json({ success: true, content: injectVerses(message.content[0].text) });
   } catch (err) {
     if (err && err.code === 'ESV_TEXT_BLOCKED') {
       console.error('ESV guard:', err.message);

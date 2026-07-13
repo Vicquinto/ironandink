@@ -3,6 +3,7 @@ const Anthropic = require('@anthropic-ai/sdk');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
 const { VERSES } = require('./dashboard'); // reuse the Verse-of-the-Day pool for the patience loading screen
 const { assertNoEsvText } = require('./esvGuard');
+const { injectVerses } = require('../lib/asv');
 
 const router = express.Router();
 
@@ -248,7 +249,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study.js?v=8"></script><script src="/js/library.js?v=40"></script>
+    scripts: `<script src="/js/study.js?v=9"></script><script src="/js/library.js?v=41"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};
@@ -536,7 +537,10 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
   }
 
   const userSettings  = req.session.user && req.session.user.settings;
-  const translation   = (userSettings && userSettings.bibleTranslation) || 'LSB';
+  // All study Scripture is verified ASV, inserted by the server from data/asv.json
+  // via {{verse:...}} markers — the model never writes verse text — so the study's
+  // translation label is always ASV regardless of any legacy per-user preference.
+  const translation   = 'ASV';
   // Length tier system suspended — tiers kept in STUDY_LENGTH_CONFIG but bypassed for now
   const studyLength   = STUDY_LENGTH_CONFIG[length] ? length : 'Short';
 
@@ -577,7 +581,7 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
   console.log(`[study-gen] START topic="${topic.trim()}" type="${resolvedStudyType}" level="${resolvedStudyLevel}" time=${new Date().toISOString()}`);
 
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-  const userMessage = `Generate a Reformed theological study guide on the following topic from a biblical and confessional perspective: ${topic.trim()}\n\nBible translation preference: ${translation}`;
+  const userMessage = `Generate a Reformed theological study guide on the following topic from a biblical and confessional perspective: ${topic.trim()}\n\nRemember: do not write any Bible verse text yourself. Quote Scripture only by emitting {{verse:Book Chapter:Verse}} markers; the system inserts the verified ASV text.`;
 
   // The content filter blocks the specific generated OUTPUT, which differs on
   // every call — so a fresh regeneration usually passes. Retry up to 3 times
@@ -601,7 +605,11 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
       console.log(`[study-gen] API call ${attempt} finished in ${Date.now() - attemptStart}ms — success`);
       console.log(`[study-gen] stop_reason: ${message.stop_reason}`);
 
-      const content = message.content[0].text;
+      // Replace every {{verse:...}} marker with real, verified ASV text from
+      // data/asv.json. The model never writes Scripture; all verse text is
+      // inserted here. Unresolvable markers collapse to the plain reference —
+      // never model-generated verse text.
+      const content = injectVerses(message.content[0].text);
       console.log(`[study-gen] DONE total time=${Date.now() - reqStart}ms`);
       return res.json({ success: true, content, topic: topic.trim(), translation, studyLength, studyLevel: resolvedStudyLevel, studyType: resolvedStudyType });
     } catch (err) {
