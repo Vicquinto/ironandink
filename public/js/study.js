@@ -375,7 +375,9 @@
     }
     // Bind the floating notepad to the now-saved study so notes + markers work,
     // including display-only markers injected into this page's study body.
-    window.__notepadStudy = { id: study.id, title: study.topic };
+    // `body` is the exact element markers render into; computeSelectionOccurrence
+    // must count occurrences against this same container, not a hardcoded id.
+    window.__notepadStudy = { id: study.id, title: study.topic, body: guideBody };
     window.__notepadRerenderMarkers = function () {
       if (window.__notepad) window.__notepad.injectMarkers(guideBody, study.id);
     };

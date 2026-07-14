@@ -523,6 +523,36 @@
     return null;
   }
 
+  // Save-time counterpart to placeMarker: the 0-based index of the occurrence of
+  // `quote` the user highlighted, where the highlight point is the live selection's
+  // (node, offset). Counts over the SAME buildCleanText(container).text that
+  // placeMarker searches, against the SAME container markers render into — so
+  // save-time and render-time cannot diverge (the whole cause of the wrong-
+  // occurrence bug). `container` MUST be the element passed to injectMarkers for
+  // this study (libGuideBody in the Library reader, guideBody on the Study page).
+  function occurrenceOf(container, quote, node, offset) {
+    quote = String(quote || '');
+    if (!container || !quote || !node) return 0;
+    try {
+      var text = buildCleanText(container).text; // identical to placeMarker's search text
+      // Clean-text length of everything before the selection point, measured the
+      // same way (markers stripped, boundaries collapsed) so it indexes into `text`.
+      var pre = document.createRange();
+      pre.setStart(container, 0);
+      pre.setEnd(node, offset);
+      var frag = pre.cloneContents();
+      frag.querySelectorAll('.notepad-marker').forEach(function (m) { m.remove(); });
+      var pointOffset = (frag.textContent || '').length;
+      // Count only whole occurrences that END at/before the highlight point; the
+      // highlighted occurrence itself starts AT the point and must not be counted.
+      var count = 0, i = 0;
+      while ((i = text.indexOf(quote, i)) !== -1 && i + quote.length <= pointOffset) {
+        count++; i += quote.length;
+      }
+      return count;
+    } catch (e) { return 0; }
+  }
+
   function placeMarker(container, note) {
     var quote = String(note.quote || '').trim();
     if (!quote) return;
@@ -622,6 +652,7 @@
     startAnchoredNote: startAnchoredNote,
     saveLookupNote:    saveLookupNote,
     injectMarkers:     injectMarkers,
+    occurrenceOf:      occurrenceOf,
     revealNote:        revealNote,
   };
 })();

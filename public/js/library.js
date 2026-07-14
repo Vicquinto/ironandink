@@ -266,7 +266,9 @@
     // Notepad: bind this study so the panel + tooltip target the right notepad,
     // inject display-only markers onto anchored text (never mutates study.content),
     // and expose a re-render hook the notepad calls after add/delete.
-    window.__notepadStudy = { id: study.id, title: study.topic };
+    // `body` is the exact element markers render into; computeSelectionOccurrence
+    // must count occurrences against this same container, not a hardcoded id.
+    window.__notepadStudy = { id: study.id, title: study.topic, body: libGuideBody };
     window.__notepadRerenderMarkers = function () {
       if (window.__notepad) window.__notepad.injectMarkers(libGuideBody, study.id);
     };
@@ -965,28 +967,24 @@
   }
 
   // 0-based index of the current selection among all occurrences of `quote` in
-  // the Library reader body. Lets the marker land on the exact highlight rather
-  // than the first match. Falls back to 0 if it can't be determined.
+  // the study body. Lets the marker land on the exact highlight rather than the
+  // first match. Delegates to notepad.js `occurrenceOf` so save-time counting and
+  // render-time marker placement share ONE clean-text implementation and count
+  // against the SAME container. Falls back to 0 (first match) if undeterminable.
   function computeSelectionOccurrence(quote) {
     try {
-      if (!libGuideBody || !quote) return 0;
+      // The element markers are injected into for the bound study, exposed by
+      // whichever page owns the notepad. NEVER assume libGuideBody: it does not
+      // exist on the Study page, where relying on it silently forced every marker
+      // to occurrence 0 (first match) — the divergence this fix removes.
+      var container = (window.__notepadStudy && window.__notepadStudy.body) || libGuideBody;
+      if (!container || !quote || !window.__notepad || !window.__notepad.occurrenceOf) return 0;
       var sel = window.getSelection();
       if (!sel || !sel.rangeCount) return 0;
       var selRange = sel.getRangeAt(0);
-      if (!libGuideBody.contains(selRange.startContainer)) return 0;
-      var pre = document.createRange();
-      pre.setStart(libGuideBody, 0);
-      pre.setEnd(selRange.startContainer, selRange.startOffset);
-      // Count over the SAME clean text the marker renderer sees (notepad.js
-      // buildCleanText): clone the prefix and strip any injected markers so their
-      // digits never shift the count. `textContent` collapses element boundaries
-      // just like the renderer's flattened walk, so multi-word phrases line up.
-      var frag = pre.cloneContents();
-      frag.querySelectorAll('.notepad-marker').forEach(function (m) { m.remove(); });
-      var before = frag.textContent || '';
-      var count = 0, i = 0;
-      while ((i = before.indexOf(quote, i)) !== -1) { count++; i += quote.length; }
-      return count;
+      if (!container.contains(selRange.startContainer)) return 0;
+      return window.__notepad.occurrenceOf(
+        container, quote, selRange.startContainer, selRange.startOffset);
     } catch (e) { return 0; }
   }
 
