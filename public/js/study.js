@@ -9,6 +9,15 @@
   var selectedLength  = 'Short';
   var selectedType    = 'doctrinal';
 
+  // Branch lineage queued by a "Further Studies" click. These are non-null ONLY
+  // between a branch click and the very next generate. pendingBranchTopic is the
+  // guard: at generate time we apply the lineage only if the topic being
+  // generated still equals the topic the branch click queued — so a from-scratch
+  // study, a curated pick, or an Appointed Study can never inherit stale lineage.
+  var pendingParentId    = null;
+  var pendingRootId      = null;
+  var pendingBranchTopic = null;
+
   // ── DOM refs ──────────────────────────────────────────────────────────────
   const topicInput       = document.getElementById('topicInput');
   const generateBtn      = document.getElementById('generateBtn');
@@ -133,6 +142,7 @@
   // ── Topic item click — populate input only, do not generate ──────────────
   document.querySelectorAll('.topic-item').forEach(function (btn) {
     btn.addEventListener('click', function () {
+      clearPendingLineage(); // picking a curated topic is a fresh, non-branch intent
       topicInput.value = btn.dataset.topic;
       generateBtn.focus();
     });
@@ -151,6 +161,121 @@
       if (topic) generateGuide(topic);
     }
   });
+
+  // ── Further Studies → clickable branch suggestions (study page only) ─────────
+  // Scoped post-processing pass. We do NOT modify the shared renderer; instead,
+  // AFTER renderMarkdown output lands in #guideBody, we upgrade any paragraph
+  // that is exactly a `Study prompt: "…"` line into a clickable branch button.
+  // Anchor (confirmed in investigation): /^\s*Study prompt:\s*"([^"]+)"\s*$/ —
+  // capture the FULL quoted phrase (it may contain colons or a trailing "?").
+  // Only #guideBody is enhanced; Library/Room views keep plain paragraphs (4c).
+  function enhanceFurtherStudies(containerEl) {
+    if (!containerEl) return;
+    var paras = containerEl.querySelectorAll('p.guide-p');
+    Array.prototype.forEach.call(paras, function (p) {
+      var m = (p.textContent || '').match(/^\s*Study prompt:\s*"([^"]+)"\s*$/);
+      if (!m) return; // only exact anchor matches; every other paragraph is left untouched
+      var topic = m[1];
+
+      // Built entirely via DOM + setAttribute (never innerHTML), so the topic is
+      // stored as a raw string value; the browser handles attribute-encoding of
+      // any stray quote/<>/& on its own — there is no HTML-injection surface here.
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'branch-suggestion';
+      btn.setAttribute('data-branch-topic', topic);
+
+      var topicEl = document.createElement('span');
+      topicEl.className = 'branch-suggestion-topic';
+      topicEl.textContent = topic;
+
+      var cueEl = document.createElement('span');
+      cueEl.className = 'branch-suggestion-cue';
+      cueEl.textContent = 'Explore this study →';
+
+      btn.appendChild(topicEl);
+      btn.appendChild(cueEl);
+      p.replaceWith(btn);
+    });
+  }
+
+  // Small "Branching from: …" banner shown above the type picker while a branch
+  // is queued. Created lazily and reused.
+  function showBranchNote(parentTopic) {
+    var note = document.getElementById('branchNote');
+    if (!note) {
+      note = document.createElement('div');
+      note.id = 'branchNote';
+      note.className = 'branch-note';
+      if (studyTypePicker && studyTypePicker.parentNode) {
+        studyTypePicker.parentNode.insertBefore(note, studyTypePicker);
+      }
+    }
+    note.textContent = 'Branching from: ';
+    var strong = document.createElement('strong');
+    strong.textContent = parentTopic || 'this study';
+    note.appendChild(strong);
+    note.style.display = 'block';
+  }
+  function clearBranchNote() {
+    var note = document.getElementById('branchNote');
+    if (note) { note.style.display = 'none'; note.textContent = ''; }
+  }
+  // Abandon any queued branch lineage (user changed intent) and hide the banner.
+  function clearPendingLineage() {
+    pendingParentId    = null;
+    pendingRootId      = null;
+    pendingBranchTopic = null;
+    clearBranchNote();
+  }
+
+  // Typing a topic manually abandons a queued branch (fresh intent).
+  topicInput.addEventListener('input', function () {
+    if (pendingBranchTopic !== null) clearPendingLineage();
+  });
+
+  // Delegated click → QUEUE an in-place branch generate. Does NOT auto-generate;
+  // the user reviews the study type and clicks Generate themselves.
+  if (guideBody) {
+    guideBody.addEventListener('click', function (e) {
+      var btn = e.target && e.target.closest ? e.target.closest('.branch-suggestion') : null;
+      if (!btn || !guideBody.contains(btn)) return;
+      var topic = btn.getAttribute('data-branch-topic') || '';
+      if (!topic) return;
+
+      // Resolve lineage from the on-screen study (held in currentGuide).
+      //  • parentId: only a SAVED on-screen study has an id to point at. If it is
+      //    unsaved we do NOT invent one — parent stays null (see report).
+      //  • rootId: if the on-screen study is itself a branch, share its root; else
+      //    if it is a saved root, use its own id; else null.
+      pendingParentId    = savedStudyId || null;
+      pendingRootId      = (currentGuide && currentGuide.rootId)
+        ? currentGuide.rootId
+        : (savedStudyId || null);
+      pendingBranchTopic = topic;
+
+      // Pre-fill the topic (programmatic .value set does NOT fire 'input', so it
+      // will not self-abandon the lineage we just queued).
+      if (topicInput) topicInput.value = topic;
+
+      // Default the type to Doctrinal but keep it fully user-changeable; reflect
+      // the default in the picker UI. The user's picker choice at Generate wins.
+      selectedType = 'doctrinal';
+      if (studyTypePicker) {
+        studyTypePicker.querySelectorAll('.study-type-option').forEach(function (o) {
+          var isDefault = (o.dataset.type === 'doctrinal');
+          o.classList.toggle('study-type-option--active', isDefault);
+          o.setAttribute('aria-checked', isDefault ? 'true' : 'false');
+        });
+      }
+      updateLevelVisibility();
+
+      // Surface the queued branch and send the user up to review + Generate.
+      showBranchNote(currentGuide && currentGuide.topic);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (topicInput) topicInput.focus();
+    });
+  }
 
   // ── Star rating ────────────────────────────────────────────────────────────
   stars.forEach(function (star) {
@@ -251,9 +376,29 @@
       if (!data.success) throw new Error(data.error || 'Generation failed.');
 
       currentGuide = { studyLength: selectedLength, studyType: selectedType, ...data };
+
+      // Apply queued branch lineage ONLY if this generate is the one the branch
+      // click queued — i.e. the topic still equals the branch topic. Anything else
+      // (from-scratch, curated pick, Appointed Study) fails the guard and gets null
+      // lineage. Then consume the queue so nothing can inherit it afterward. This
+      // is the reset guarantee: lineage is non-null only for an immediately-
+      // preceding branch click on this exact topic.
+      if (pendingBranchTopic !== null && topic === pendingBranchTopic) {
+        currentGuide.parentId = pendingParentId;
+        currentGuide.rootId   = pendingRootId;
+      } else {
+        currentGuide.parentId = null;
+        currentGuide.rootId   = null;
+      }
+      pendingParentId    = null;
+      pendingRootId      = null;
+      pendingBranchTopic = null;
+      clearBranchNote();
+
       guideTitle.textContent   = data.topic;
       guideBadge.textContent   = data.translation || 'ASV';
       guideBody.innerHTML      = renderMarkdown(data.content);
+      enhanceFurtherStudies(guideBody);
       showState('guide');
       studyGenerated = true;
       // TEMP: admin word-count monitor for Study Length tuning — remove later
@@ -298,6 +443,7 @@
     currentGuide = null;
     savedStudyId = null;
     topicInput.value = '';
+    clearPendingLineage(); // drop any queued branch when the study is dismissed
     // Unbind the notepad so it doesn't linger on a dismissed draft.
     window.__notepadStudy = null;
     window.__notepadRerenderMarkers = null;
@@ -333,6 +479,8 @@
       studyLength: currentGuide.studyLength,
       studyLevel:  currentGuide.studyLevel,
       studyType:   currentGuide.studyType,
+      parentId:    currentGuide.parentId || null,
+      rootId:      currentGuide.rootId || null,
       shared:      !!(saveShareInput && saveShareInput.checked),
       createdAt:   new Date().toISOString(),
     };
@@ -407,6 +555,8 @@
         studyLength: currentGuide.studyLength,
         studyLevel:  currentGuide.studyLevel,
         studyType:   currentGuide.studyType,
+        parentId:    currentGuide.parentId || null,
+        rootId:      currentGuide.rootId || null,
         shared:      false,
         createdAt:   new Date().toISOString(),
       };

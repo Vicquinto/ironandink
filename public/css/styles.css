@@ -878,6 +878,62 @@ body {
 .guide-body strong { color: var(--dark-cream); }
 .guide-body em    { color: var(--dark-cream); font-style: italic; }
 
+/* ─── FURTHER STUDIES — clickable branch suggestions ────────────────────── */
+/* A `Study prompt: "…"` line, upgraded to an actionable branch affordance. */
+.branch-suggestion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  background: rgba(160,132,92,0.08);
+  border: 1px solid rgba(92,26,40,0.28);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  padding: 10px 14px;
+  margin: 8px 0;
+  cursor: pointer;
+  font-family: Georgia, serif;
+  transition: background 0.15s, border-color 0.15s, transform 0.05s;
+}
+.branch-suggestion:hover {
+  background: rgba(160,132,92,0.16);
+  border-color: var(--accent);
+}
+.branch-suggestion:active { transform: translateY(1px); }
+.branch-suggestion:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.branch-suggestion-topic {
+  color: var(--accent);
+  font-size: 0.98rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.branch-suggestion-cue {
+  flex: none;
+  color: var(--warm-brown);
+  font-size: 0.82rem;
+  font-style: italic;
+  white-space: nowrap;
+}
+
+/* "Branching from: …" banner shown above the type picker while a branch is queued. */
+.branch-note {
+  background: rgba(160,132,92,0.12);
+  border: 1px solid rgba(92,26,40,0.25);
+  border-radius: 4px;
+  padding: 8px 14px;
+  margin: 0 0 12px;
+  color: var(--warm-brown);
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+}
+.branch-note strong { color: var(--accent); }
+
 .guide-font-toolbar {
   display: flex;
   justify-content: flex-end;
