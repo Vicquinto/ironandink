@@ -130,7 +130,7 @@ router.post('/api/library/save', requireAuth, (req, res) => {
 
   const userSettings = req.session.user && req.session.user.settings;
   const validLevels  = ['foundations', 'journeyman', 'scholar'];
-  const validTypes   = ['doctrinal', 'explore', 'historical', 'scripture', 'open'];
+  const validTypes   = ['doctrinal', 'explore', 'historical', 'scripture', 'open', 'people'];
   const now          = new Date().toISOString();
   const isShared     = shared === true;
   const study = {

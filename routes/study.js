@@ -148,6 +148,10 @@ router.get('/study', requireAuth, (req, res) => {
         <span class="study-type-name">Scripture &amp; Verse</span>
         <span class="study-type-sub">Study a specific passage, verse by verse</span>
       </button>
+      <button class="study-type-option" data-type="people" role="radio" aria-checked="false">
+        <span class="study-type-name">People</span>
+        <span class="study-type-sub">A person in Scripture &amp; their place in God&#39;s plan</span>
+      </button>
       <button class="study-type-option" data-type="open" role="radio" aria-checked="false">
         <span class="study-type-name">Open</span>
         <span class="study-type-sub">Not sure which to pick? Start here — fits the study to the subject.</span>
@@ -551,6 +555,7 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
     IRON_INK_HISTORICAL_PROMPT,
     IRON_INK_SCRIPTURE_PROMPT,
     IRON_INK_OPEN_PROMPT,
+    IRON_INK_PEOPLE_PROMPT,
   } = req.app.locals.prompts;
 
   // Study-type → prompt map. Doctrinal is the default (unchanged legacy behavior).
@@ -560,6 +565,7 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
     historical: IRON_INK_HISTORICAL_PROMPT,
     scripture:  IRON_INK_SCRIPTURE_PROMPT,
     open:       IRON_INK_OPEN_PROMPT,
+    people:     IRON_INK_PEOPLE_PROMPT,
   };
   const resolvedStudyType = STUDY_TYPE_PROMPTS[studyType] ? studyType : 'doctrinal';
   const studyPrompt       = STUDY_TYPE_PROMPTS[resolvedStudyType];

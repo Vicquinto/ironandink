@@ -2131,6 +2131,11 @@ body {
   color: #5E3A70;
   border: 1px solid rgba(94,58,112,0.34);
 }
+.study-type-badge-people {
+  background: rgba(31,92,92,0.12);
+  color: #1F5C5C;
+  border: 1px solid rgba(31,92,92,0.34);
+}
 
 .tier-badge-main {
   font-size: 0.78rem;
