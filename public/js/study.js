@@ -17,6 +17,7 @@
   var pendingParentId    = null;
   var pendingRootId      = null;
   var pendingBranchTopic = null;
+  var branchSaving       = false; // guards the auto-save round-trip against double-clicks
 
   // ── DOM refs ──────────────────────────────────────────────────────────────
   const topicInput       = document.getElementById('topicInput');
@@ -234,46 +235,74 @@
     if (pendingBranchTopic !== null) clearPendingLineage();
   });
 
-  // Delegated click → QUEUE an in-place branch generate. Does NOT auto-generate;
-  // the user reviews the study type and clicks Generate themselves.
+  // Queue an in-place branch generate against a known parent id. Sets the pending
+  // lineage, pre-fills the topic, defaults the picker, shows the note, scrolls up.
+  // Does NOT auto-generate; the user reviews the type and clicks Generate.
+  //  • rootId: if the on-screen study is itself a branch, share its root; else the
+  //    parent is a root, so its own id is the root.
+  function queueBranch(topic, parentId) {
+    pendingParentId    = parentId || null;
+    pendingRootId      = (currentGuide && currentGuide.rootId)
+      ? currentGuide.rootId
+      : (parentId || null);
+    pendingBranchTopic = topic;
+
+    // Programmatic .value set does NOT fire 'input', so it won't self-abandon the
+    // lineage we just queued.
+    if (topicInput) topicInput.value = topic;
+
+    // Default the type to Doctrinal but keep it fully user-changeable; reflect the
+    // default in the picker UI. The user's picker choice at Generate wins.
+    selectedType = 'doctrinal';
+    if (studyTypePicker) {
+      studyTypePicker.querySelectorAll('.study-type-option').forEach(function (o) {
+        var isDefault = (o.dataset.type === 'doctrinal');
+        o.classList.toggle('study-type-option--active', isDefault);
+        o.setAttribute('aria-checked', isDefault ? 'true' : 'false');
+      });
+    }
+    updateLevelVisibility();
+
+    // Surface the queued branch and send the user up to review + Generate.
+    showBranchNote(currentGuide && currentGuide.topic);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (topicInput) topicInput.focus();
+  }
+
+  // Delegated click → QUEUE an in-place branch generate. Does NOT auto-generate.
   if (guideBody) {
     guideBody.addEventListener('click', function (e) {
       var btn = e.target && e.target.closest ? e.target.closest('.branch-suggestion') : null;
       if (!btn || !guideBody.contains(btn)) return;
       var topic = btn.getAttribute('data-branch-topic') || '';
       if (!topic) return;
+      if (branchSaving) return; // an auto-save is already in flight; ignore extra clicks
 
-      // Resolve lineage from the on-screen study (held in currentGuide).
-      //  • parentId: only a SAVED on-screen study has an id to point at. If it is
-      //    unsaved we do NOT invent one — parent stays null (see report).
-      //  • rootId: if the on-screen study is itself a branch, share its root; else
-      //    if it is a saved root, use its own id; else null.
-      pendingParentId    = savedStudyId || null;
-      pendingRootId      = (currentGuide && currentGuide.rootId)
-        ? currentGuide.rootId
-        : (savedStudyId || null);
-      pendingBranchTopic = topic;
+      // Already-saved parent: queue immediately against its existing id.
+      if (savedStudyId) { queueBranch(topic, savedStudyId); return; }
 
-      // Pre-fill the topic (programmatic .value set does NOT fire 'input', so it
-      // will not self-abandon the lineage we just queued).
-      if (topicInput) topicInput.value = topic;
-
-      // Default the type to Doctrinal but keep it fully user-changeable; reflect
-      // the default in the picker UI. The user's picker choice at Generate wins.
-      selectedType = 'doctrinal';
-      if (studyTypePicker) {
-        studyTypePicker.querySelectorAll('.study-type-option').forEach(function (o) {
-          var isDefault = (o.dataset.type === 'doctrinal');
-          o.classList.toggle('study-type-option--active', isDefault);
-          o.setAttribute('aria-checked', isDefault ? 'true' : 'false');
-        });
+      // Unsaved parent: it must be persisted FIRST so the child can link to a real
+      // id — generating the child would otherwise replace it in-page and lose it
+      // (no navigation, so the save-guard never fires). Persist via the existing
+      // notepad bridge, then link. Do NOT queue lineage or show the note until the
+      // id is confirmed, so "Branching from …" is always truthful.
+      if (!currentGuide || !window.__ironStudyDraft || typeof window.__ironStudyDraft.save !== 'function') {
+        showToast("Couldn't save the current study to branch from it — please try again.", true);
+        return;
       }
-      updateLevelVisibility();
-
-      // Surface the queued branch and send the user up to review + Generate.
-      showBranchNote(currentGuide && currentGuide.topic);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      if (topicInput) topicInput.focus();
+      branchSaving = true;
+      window.__ironStudyDraft.save(function (err, saved) {
+        branchSaving = false;
+        if (err || !saved || !saved.id) {
+          // Fail visibly rather than silently dropping the branch link. The bridge
+          // did not persist, so no lineage is queued; the user stays on the study.
+          showToast("Couldn't save the current study to branch from it — please try again.", true);
+          return;
+        }
+        // The bridge's markStudySaved() has already set savedStudyId, cleared the
+        // unsaved guard, and bound the notepad. Link the child to the new id.
+        queueBranch(topic, saved.id);
+      });
     });
   }
 
