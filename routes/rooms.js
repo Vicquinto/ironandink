@@ -364,8 +364,8 @@ router.get('/room/:code', requireAuth, (req, res) => {
     window.ROOM_CHAT        = ${JSON.stringify(room.chat || [])};
     window.IS_ADMIN         = ${getIsAdmin(req)};
   </script>
-  <script src="/js/room.js?v=16"></script>
   <script src="/js/render-markdown.js?v=1"></script>
+  <script src="/js/room.js?v=16"></script>
   <script src="/js/library.js?v=42"></script>`,
   }));
 });
