@@ -133,6 +133,18 @@ router.post('/api/library/save', requireAuth, (req, res) => {
   const validTypes   = ['doctrinal', 'explore', 'historical', 'scripture', 'open', 'people'];
   const now          = new Date().toISOString();
   const isShared     = shared === true;
+
+  // Branch lineage (optional, additive). A study created by "branching" from
+  // another carries parentId (the study it branched from) and rootId (the study
+  // at the top of that branch's tree). Both default to null for a study created
+  // normally (not by branching). Only a non-empty string is a valid id shape;
+  // anything else (number, object, empty string, missing) coerces to null rather
+  // than erroring. Dangling references are tolerated by design (graceful
+  // orphaning) — we do NOT verify the referenced ids exist at save time.
+  const coerceId = (v) => (typeof v === 'string' && v.trim() !== '') ? v : null;
+  const parentId = coerceId(req.body.parentId);
+  const rootId   = coerceId(req.body.rootId);
+
   const study = {
     id:          randomUUID(),
     userId:      req.session.userId,
@@ -146,6 +158,8 @@ router.post('/api/library/save', requireAuth, (req, res) => {
       : ((userSettings && userSettings.studyLevel) || 'journeyman'),
     studyLength: ['Short', 'Standard', 'Deep'].includes(studyLength) ? studyLength : 'Short',
     studyType:   validTypes.includes(studyType) ? studyType : 'doctrinal',
+    parentId,                                 // id of the study this branched from; null if not a branch
+    rootId,                                   // id of the tree root for this branch; null if not a branch
     shared:      isShared,                    // community-sharing flag (default false)
     sharedAt:    isShared ? now : null,       // stamp when first shared, for feed sort
     createdAt:   createdAt || now,
@@ -196,6 +210,11 @@ router.delete('/api/library/:id', requireAuth, (req, res) => {
   );
   if (idx === -1) return res.status(404).json({ success: false, error: 'Study not found.' });
 
+  // Graceful orphaning: remove ONLY this one record. Do NOT walk the branch
+  // tree, and do NOT touch, delete, or re-parent any study whose parentId/rootId
+  // points at this id — children are left with their now-dangling lineage refs,
+  // which a later UI phase surfaces as "parent study no longer available"
+  // (mirroring the notepad studyExists pattern). No other record is modified.
   studies.splice(idx, 1);
   writeStudies(studies);
 
