@@ -64,6 +64,7 @@
             studyTypeBadge(s.studyType) +
             studyLevelBadge(s.studyLevel) +
             sharedBadge +
+            lineageBadge(s) +
           '</div>' +
           tagsHtml +
           starsHtml +
@@ -252,12 +253,83 @@
   var libGuideBody  = document.getElementById('libGuideBody');
   var studyCardsGrid = document.getElementById('studyCardsGrid');
   var libFilterBar   = document.querySelector('#tab-studies .library-filter-bar');
+  var libLineageCrumb = document.getElementById('libLineageCrumb');
+  var libBranchesList = document.getElementById('libBranchesList');
+
+  // Both lineage regions must be emptied AND hidden on every view change, so
+  // stale lineage from a previously-viewed study never lingers (showStudyInline
+  // serves both the card grid and the Notes tab).
+  function clearLineageRegions() {
+    if (libLineageCrumb) { libLineageCrumb.innerHTML = ''; libLineageCrumb.style.display = 'none'; }
+    if (libBranchesList) { libBranchesList.innerHTML = ''; libBranchesList.style.display = 'none'; }
+  }
+
+  // (a) Breadcrumb: "Part of: [root] › … › [this study]". Ancestors are clickable;
+  // the current study is plain text. A deleted ancestor shows a dangling warning.
+  function renderLineageCrumb(study) {
+    if (!libLineageCrumb) return;
+    var info = getParentChain(study);
+    if (!info.chain.length && !info.danglingTop) return; // root/standalone → stay cleared
+    var crumbs = [];
+    if (info.danglingTop) {
+      crumbs.push('<span class="crumb-dangling" title="An earlier study in this branch was deleted">&#9888; earlier study no longer available</span>');
+    }
+    info.chain.forEach(function (ancestor) {
+      crumbs.push('<button type="button" class="crumb-link" data-id="' + esc(ancestor.id) + '">' + esc(ancestor.topic) + '</button>');
+    });
+    crumbs.push('<span class="crumb-current">' + esc(study.topic) + '</span>');
+    libLineageCrumb.innerHTML =
+      '<span class="crumb-lead">Part of:</span> ' +
+      crumbs.join('<span class="crumb-sep">&#8250;</span>');
+    libLineageCrumb.style.display = 'block';
+  }
+
+  // (b) Branches list: direct children of this study, each opening its own view.
+  function renderBranchesList(study) {
+    if (!libBranchesList) return;
+    var children = getChildren(study.id);
+    if (!children.length) return; // no children → stay cleared
+    var rows = children.map(function (c) {
+      return '<button type="button" class="lib-branch-row" data-id="' + esc(c.id) + '">' +
+               '<span class="lib-branch-topic">' + esc(c.topic) + '</span>' +
+               studyTypeBadge(c.studyType) +
+             '</button>';
+    }).join('');
+    libBranchesList.innerHTML =
+      '<h4 class="lib-branches-heading">Branches from this study</h4>' +
+      '<div class="lib-branches-rows">' + rows + '</div>';
+    libBranchesList.style.display = 'block';
+  }
+
+  // Shared open-by-id for lineage clicks; guards the dangling/missing target case.
+  function openStudyById(id) {
+    var target = allStudies.find(function (s) { return s.id === id; });
+    if (target) showStudyInline(target);
+    else showToast('That study is no longer available.', true);
+  }
+
+  // Delegated click wiring (once) for both lineage regions.
+  if (libLineageCrumb) {
+    libLineageCrumb.addEventListener('click', function (e) {
+      var b = e.target && e.target.closest ? e.target.closest('.crumb-link') : null;
+      if (b && b.dataset.id) openStudyById(b.dataset.id);
+    });
+  }
+  if (libBranchesList) {
+    libBranchesList.addEventListener('click', function (e) {
+      var b = e.target && e.target.closest ? e.target.closest('.lib-branch-row') : null;
+      if (b && b.dataset.id) openStudyById(b.dataset.id);
+    });
+  }
 
   function showStudyInline(study) {
     if (!libGuideArea) return;
+    clearLineageRegions(); // wipe any prior study's lineage before repopulating
     libGuideTitle.textContent = study.topic;
     libGuideBadge.textContent = study.translation || 'ASV';
     libGuideBody.innerHTML    = renderMarkdown(study.content);
+    renderLineageCrumb(study); // breadcrumb above the body (cleared if root/standalone)
+    renderBranchesList(study); // children below the body (cleared if none)
     if (studyCardsGrid) studyCardsGrid.style.display = 'none';
     if (libFilterBar)   libFilterBar.style.display   = 'none';
     libGuideArea.style.display = 'block';
@@ -280,6 +352,7 @@
 
   function backToLibrary() {
     if (libGuideArea) libGuideArea.style.display = 'none';
+    clearLineageRegions(); // don't leave stale lineage behind the hidden view
     if (studyCardsGrid) studyCardsGrid.style.display = '';
     if (libFilterBar)   libFilterBar.style.display   = '';
 
@@ -661,6 +734,60 @@
     var labels = { doctrinal: 'DOCTRINAL', explore: 'EXPLORE', historical: 'HISTORICAL', scripture: 'SCRIPTURE', open: 'OPEN', people: 'PEOPLE' };
     var label  = labels[t] || 'DOCTRINAL';
     return '<span class="study-type-badge study-type-badge-' + t + '">' + label + '</span>';
+  }
+
+  // ── Branch-lineage helpers (client-side tree over allStudies) ────────────────
+  // Legacy studies have no parentId/rootId → they read as undefined/falsy, which
+  // these helpers treat as "root/standalone". Nothing here errors on a missing
+  // field, and a parentId that resolves to no study (deleted parent) is surfaced
+  // as a dangling reference rather than followed blindly.
+
+  // Direct children only (not whole-tree descendants).
+  function getChildren(id) {
+    if (!id) return [];
+    return allStudies.filter(function (s) { return s.parentId === id; });
+  }
+
+  // Ordered ancestors from the ROOT down to (but NOT including) `study`.
+  // Returns { chain: [...ancestors root-first], danglingTop: bool }. danglingTop
+  // is true when a parentId in the chain points at a study that no longer exists
+  // (deleted parent) — the chain stops there and the UI flags it.
+  function getParentChain(study) {
+    var chain   = [];
+    var visited = {};          // guard against an accidental cycle
+    var danglingTop = false;
+    if (study) visited[study.id] = true;
+    var currentId = study && study.parentId;
+    while (currentId) {
+      if (visited[currentId]) break;          // cycle → stop
+      visited[currentId] = true;
+      var parent = allStudies.find(function (s) { return s.id === currentId; });
+      if (!parent) { danglingTop = true; break; } // deleted parent → dangling top
+      chain.unshift(parent);                  // build root-first
+      currentId = parent.parentId;
+    }
+    return { chain: chain, danglingTop: danglingTop };
+  }
+
+  // 'root' (no parent, ≥1 child) | 'branch' (has a parent) | 'standalone'.
+  function getLineageRole(study) {
+    if (study && study.parentId) return 'branch';
+    return getChildren(study && study.id).length ? 'root' : 'standalone';
+  }
+
+  // Small pill for the card meta row. Standalone studies get no badge (keeps the
+  // list clean); roots show their direct-child count; branches are flagged.
+  function lineageBadge(study) {
+    var role = getLineageRole(study);
+    if (role === 'root') {
+      var n = getChildren(study.id).length;
+      var label = '🌱 Root · ' + n + ' ' + (n === 1 ? 'branch' : 'branches');
+      return '<span class="study-card-lineage lineage-root">' + label + '</span>';
+    }
+    if (role === 'branch') {
+      return '<span class="study-card-lineage lineage-branch">↳ Branch</span>';
+    }
+    return '';
   }
 
   function formatDate(iso) {

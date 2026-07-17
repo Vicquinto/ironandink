@@ -57,6 +57,7 @@ router.get('/library', requireAuth, (req, res) => {
           <h3 class="guide-display-title" id="libGuideTitle"></h3>
           <span class="guide-translation-badge" id="libGuideBadge"></span>
         </div>
+        <div id="libLineageCrumb" class="lib-lineage-crumb" style="display:none;"></div>
         <div class="guide-font-toolbar">
           <button class="guide-font-btn guide-font-btn-sm" id="libFontDecBtn">A&#8722;</button>
           <button class="guide-font-btn guide-font-btn-md" id="libFontResetBtn">A</button>
@@ -64,6 +65,7 @@ router.get('/library', requireAuth, (req, res) => {
           <button class="guide-print-btn" id="libPrintBtn" title="Print or save as PDF">&#9113; Print / Download</button>
         </div>
         <div class="guide-body" id="libGuideBody"></div>
+        <div id="libBranchesList" class="lib-branches-list" style="display:none;"></div>
         <div class="guide-actions">
           <button class="btn-warm" id="libBackBtn">Back to Library</button>
         </div>
@@ -106,7 +108,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/render-markdown.js?v=1"></script><script src="/js/library.js?v=42"></script>',
+    scripts: '<script src="/js/render-markdown.js?v=1"></script><script src="/js/library.js?v=43"></script>',
   }));
 });
 
