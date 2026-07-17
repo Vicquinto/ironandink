@@ -152,6 +152,7 @@ router.get('/community', requireAuth, (req, res) => {
         window.CURRENT_USER_ID = ${JSON.stringify(req.session.userId)};
       </script>
       <script src="/js/community.js?v=16"></script>
+      <script src="/js/render-markdown.js?v=1"></script>
       <script src="/js/library.js?v=42"></script>`,
   }));
 });
