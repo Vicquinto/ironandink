@@ -869,7 +869,7 @@
   function studyTypeBadge(type) {
     var t = type || 'doctrinal';
     if (t === 'deepdive') t = 'explore'; // legacy records saved under the old Deep Dive key
-    var labels = { doctrinal: 'DOCTRINAL', explore: 'EXPLORE', historical: 'HISTORICAL', scripture: 'SCRIPTURE', open: 'OPEN', people: 'PEOPLE' };
+    var labels = { doctrinal: 'DOCTRINAL', explore: 'EXPLORE', historical: 'HISTORICAL', scripture: 'SCRIPTURE', open: 'OPEN', people: 'PEOPLE', pathway: 'PATHWAY' };
     var label  = labels[t] || 'DOCTRINAL';
     return '<span class="study-type-badge study-type-badge-' + t + '">' + label + '</span>';
   }

@@ -124,7 +124,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/library.js?v=47"></script>',
+    scripts: '<script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/library.js?v=48"></script>',
   }));
 });
 
@@ -148,7 +148,7 @@ router.post('/api/library/save', requireAuth, (req, res) => {
 
   const userSettings = req.session.user && req.session.user.settings;
   const validLevels  = ['foundations', 'journeyman', 'scholar'];
-  const validTypes   = ['doctrinal', 'explore', 'historical', 'scripture', 'open', 'people'];
+  const validTypes   = ['doctrinal', 'explore', 'historical', 'scripture', 'open', 'people', 'pathway'];
   const now          = new Date().toISOString();
   const isShared     = shared === true;
 
@@ -178,7 +178,7 @@ router.post('/api/library/save', requireAuth, (req, res) => {
   // (matches the validTypes coercion pattern) and applies only to this new save;
   // existing records are never rewritten.
   let resolvedType = validTypes.includes(studyType) ? studyType : 'doctrinal';
-  if (parentId && resolvedType === 'explore') resolvedType = 'doctrinal';
+  if (parentId && resolvedType === 'explore') resolvedType = 'pathway';
 
   const study = {
     id:          randomUUID(),

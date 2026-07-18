@@ -146,6 +146,8 @@
         pendingBranchTopic  = pending.topic;
         pendingSourcePrompt = pending.sourcePrompt || pending.topic; // provenance (fallback to topic)
         showBranchNote(pending.parentTopic); // "Branching from: <parent study>"
+        applyBranchDefaultType();            // Library branches default the picker to Pathway too
+
       }
     }
   } catch (err) { /* malformed blob — already cleared; lineage stays null */ }
@@ -282,18 +284,10 @@
     opt.setAttribute('aria-disabled', 'true');
     attachExploreLockTip(opt, parentTopic); // hover/click "why", naming the parent
     // A disabled type must never be the active selection: fall back to the branch
-    // default. (In normal flow selectedType is already 'doctrinal' here; this is
-    // the defensive path in case Explore was somehow active when branch mode began.)
+    // default (Pathway). This is the defensive path in case Explore was somehow
+    // active when branch mode began.
     if (selectedType === 'explore') {
-      selectedType = 'doctrinal';
-      if (studyTypePicker) {
-        studyTypePicker.querySelectorAll('.study-type-option').forEach(function (o) {
-          var on = (o.dataset.type === 'doctrinal');
-          o.classList.toggle('study-type-option--active', on);
-          o.setAttribute('aria-checked', on ? 'true' : 'false');
-        });
-      }
-      updateLevelVisibility();
+      applyBranchDefaultType();
     }
   }
   function enableExploreOption() {
@@ -320,6 +314,22 @@
     if (pendingBranchTopic !== null) clearPendingLineage();
   });
 
+  // Branch mode defaults the picker to Pathway — a full study that itself ends in
+  // a Further Studies section, so branch trees can keep growing. Fully user-changeable
+  // before Generate. One place sets both selectedType and the picker UI so queueBranch,
+  // the Library-consume path, and the Explore-lock fallback stay in sync.
+  function applyBranchDefaultType() {
+    selectedType = 'pathway';
+    if (studyTypePicker) {
+      studyTypePicker.querySelectorAll('.study-type-option').forEach(function (o) {
+        var isDefault = (o.dataset.type === 'pathway');
+        o.classList.toggle('study-type-option--active', isDefault);
+        o.setAttribute('aria-checked', isDefault ? 'true' : 'false');
+      });
+    }
+    updateLevelVisibility();
+  }
+
   // Queue an in-place branch generate against a known parent id. Sets the pending
   // lineage, pre-fills the topic, defaults the picker, shows the note, scrolls up.
   // Does NOT auto-generate; the user reviews the type and clicks Generate.
@@ -337,17 +347,9 @@
     // lineage we just queued.
     if (topicInput) topicInput.value = topic;
 
-    // Default the type to Doctrinal but keep it fully user-changeable; reflect the
+    // Default the type to Pathway but keep it fully user-changeable; reflect the
     // default in the picker UI. The user's picker choice at Generate wins.
-    selectedType = 'doctrinal';
-    if (studyTypePicker) {
-      studyTypePicker.querySelectorAll('.study-type-option').forEach(function (o) {
-        var isDefault = (o.dataset.type === 'doctrinal');
-        o.classList.toggle('study-type-option--active', isDefault);
-        o.setAttribute('aria-checked', isDefault ? 'true' : 'false');
-      });
-    }
-    updateLevelVisibility();
+    applyBranchDefaultType();
 
     // Surface the queued branch and send the user up to review + Generate.
     showBranchNote(currentGuide && currentGuide.topic);

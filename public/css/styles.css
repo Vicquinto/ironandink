@@ -2472,6 +2472,11 @@ body {
   color: #1F5C5C;
   border: 1px solid rgba(31,92,92,0.34);
 }
+.study-type-badge-pathway {
+  background: rgba(61,58,138,0.12);
+  color: #3D3A8A;
+  border: 1px solid rgba(61,58,138,0.34);
+}
 
 .tier-badge-main {
   font-size: 0.78rem;

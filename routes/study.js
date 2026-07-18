@@ -152,6 +152,10 @@ router.get('/study', requireAuth, (req, res) => {
         <span class="study-type-name">People</span>
         <span class="study-type-sub">A person in Scripture &amp; their place in God&#39;s plan</span>
       </button>
+      <button class="study-type-option" data-type="pathway" role="radio" aria-checked="false">
+        <span class="study-type-name">Pathway</span>
+        <span class="study-type-sub">A full study that follows the subject where it leads — and opens further paths.</span>
+      </button>
       <button class="study-type-option" data-type="open" role="radio" aria-checked="false">
         <span class="study-type-name">Open</span>
         <span class="study-type-sub">Not sure which to pick? Start here — fits the study to the subject.</span>
@@ -253,7 +257,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/study.js?v=16"></script><script src="/js/library.js?v=47"></script>
+    scripts: `<script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/study.js?v=17"></script><script src="/js/library.js?v=48"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};
@@ -556,6 +560,7 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
     IRON_INK_SCRIPTURE_PROMPT,
     IRON_INK_OPEN_PROMPT,
     IRON_INK_PEOPLE_PROMPT,
+    IRON_INK_PATHWAY_PROMPT,
   } = req.app.locals.prompts;
 
   // Study-type → prompt map. Doctrinal is the default (unchanged legacy behavior).
@@ -566,6 +571,7 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
     scripture:  IRON_INK_SCRIPTURE_PROMPT,
     open:       IRON_INK_OPEN_PROMPT,
     people:     IRON_INK_PEOPLE_PROMPT,
+    pathway:    IRON_INK_PATHWAY_PROMPT,
   };
   const resolvedStudyType = STUDY_TYPE_PROMPTS[studyType] ? studyType : 'doctrinal';
   const studyPrompt       = STUDY_TYPE_PROMPTS[resolvedStudyType];
