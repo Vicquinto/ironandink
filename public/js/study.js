@@ -83,8 +83,9 @@
     studyTypePicker.querySelectorAll('.study-type-option').forEach(function (opt) {
       opt.addEventListener('click', function () {
         // A disabled option (Explore, while a branch is queued) is inert: clicking
-        // it must not change the selection.
-        if (opt.classList.contains('is-disabled')) return;
+        // it must not change the selection — but it must not be silent either.
+        // Surface the same on-card explanation the user gets on hover.
+        if (opt.classList.contains('is-disabled')) { flashExploreLockTip(opt); return; }
         studyTypePicker.querySelectorAll('.study-type-option').forEach(function (o) {
           o.classList.remove('study-type-option--active');
           o.setAttribute('aria-checked', 'false');
@@ -219,14 +220,10 @@
     strong.textContent = parentTopic || 'this study';
     note.appendChild(strong);
 
-    // Teach why Explore is off for branches (not just block it). One short line.
-    var hint = document.createElement('div');
-    hint.className = 'branch-note-hint';
-    hint.textContent = 'Explore starts a new study journey — branches use focused study types.';
-    note.appendChild(hint);
-
     note.style.display = 'block';
-    disableExploreOption(); // Explore is journey-starting; a branch continues one
+    // Explore is journey-starting; a branch continues one. The "why" now lives on
+    // the Explore card itself (hover + click tooltip), naming this parent topic.
+    disableExploreOption(parentTopic);
   }
   function clearBranchNote() {
     var note = document.getElementById('branchNote');
@@ -241,16 +238,49 @@
   // clearBranchNote — so both engage points (queueBranch, on-load consume) and
   // every clear path (typing, curated pick, dismiss, post-generate reset) stay in
   // sync through one pair of functions.
+  var exploreTipTimer = null; // click-flash auto-hide timer for the Explore lock tip
+
   function exploreOption() {
     return studyTypePicker
       ? studyTypePicker.querySelector('.study-type-option[data-type="explore"]')
       : null;
   }
-  function disableExploreOption() {
+  // The card-anchored explanation, naming the parent when we have it and falling
+  // back to a generic phrasing when we don't. Shown on hover (CSS) and on click.
+  function exploreLockMessage(parentTopic) {
+    var t = (parentTopic && String(parentTopic).trim()) ? String(parentTopic).trim() : '';
+    return t
+      ? 'Explore is for starting a new study journey. Since you’re branching from “' + t + '”, choose a focused study type.'
+      : 'Explore is for starting a new study journey. Since you’re branching from another study, choose a focused study type.';
+  }
+  // Build (or refresh) the tooltip element on the Explore card with the message.
+  function attachExploreLockTip(opt, parentTopic) {
+    var tip = opt.querySelector('.explore-lock-tip');
+    if (!tip) {
+      tip = document.createElement('span');
+      tip.className = 'explore-lock-tip';
+      tip.setAttribute('role', 'tooltip');
+      opt.appendChild(tip);
+    }
+    tip.textContent = exploreLockMessage(parentTopic);
+  }
+  // Click feedback: surface the SAME explanation immediately, then auto-hide.
+  function flashExploreLockTip(opt) {
+    var tip = opt.querySelector('.explore-lock-tip');
+    if (!tip) return;
+    tip.classList.add('is-visible');
+    if (exploreTipTimer) clearTimeout(exploreTipTimer);
+    exploreTipTimer = setTimeout(function () {
+      tip.classList.remove('is-visible');
+      exploreTipTimer = null;
+    }, 2800);
+  }
+  function disableExploreOption(parentTopic) {
     var opt = exploreOption();
     if (!opt) return;
     opt.classList.add('is-disabled');
     opt.setAttribute('aria-disabled', 'true');
+    attachExploreLockTip(opt, parentTopic); // hover/click "why", naming the parent
     // A disabled type must never be the active selection: fall back to the branch
     // default. (In normal flow selectedType is already 'doctrinal' here; this is
     // the defensive path in case Explore was somehow active when branch mode began.)
@@ -271,6 +301,10 @@
     if (!opt) return;
     opt.classList.remove('is-disabled');
     opt.removeAttribute('aria-disabled');
+    // Tear the tooltip down completely so nothing lingers outside branch mode.
+    if (exploreTipTimer) { clearTimeout(exploreTipTimer); exploreTipTimer = null; }
+    var tip = opt.querySelector('.explore-lock-tip');
+    if (tip) tip.remove();
   }
   // Abandon any queued branch lineage (user changed intent) and hide the banner.
   function clearPendingLineage() {
