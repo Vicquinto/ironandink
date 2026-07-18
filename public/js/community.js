@@ -277,21 +277,10 @@
     return labels[form] || 'Article';
   }
 
-  function studyLevelBadge(level) {
-    if (!level) return '';
-    var labels = { foundations: 'APPRENTICE', journeyman: 'JOURNEYMAN', scholar: 'SCHOLAR' };
-    var label  = labels[level];
-    if (!label) return '';
-    return '<span class="study-level-badge study-level-badge-' + esc(level) + '">' + label + '</span>';
-  }
-
-  function studyTypeBadge(type) {
-    var t = type || 'doctrinal';
-    if (t === 'deepdive') t = 'explore'; // legacy records saved under the old Deep Dive key
-    var labels = { doctrinal: 'DOCTRINAL', explore: 'EXPLORE', historical: 'HISTORICAL', scripture: 'SCRIPTURE', open: 'OPEN' };
-    var label  = labels[t] || 'DOCTRINAL';
-    return '<span class="study-type-badge study-type-badge-' + t + '">' + label + '</span>';
-  }
+  // studyTypeBadge / studyLevelBadge now come from the shared window.* module
+  // (public/js/study-badges.js), loaded before this script. The private copy that
+  // lived here had a stale type-label map (no `people`/`pathway`) — consolidating
+  // removes that drift. Do not reintroduce local copies.
 
   function fmtDate(iso) {
     var d = new Date(iso);
@@ -443,6 +432,7 @@
       '<div class="community-card-meta">' +
         studyTypeBadge(s.studyType) +
         studyLevelBadge(s.studyLevel) +
+        studyLineageBadge(s) +   // Branch pill from this study's own parentId only (no cross-study lookup)
         '<span class="study-card-translation">' + esc(s.translation || 'ASV') + '</span>' +
         '<span class="community-card-author">' + esc(s.authorName || '') + '</span>' +
         '<span class="article-card-date">' + fmtDate(s.sharedAt) + '</span>' +

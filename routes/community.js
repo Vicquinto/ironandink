@@ -151,10 +151,11 @@ router.get('/community', requireAuth, (req, res) => {
         window.IS_ADMIN = ${isAdmin};
         window.CURRENT_USER_ID = ${JSON.stringify(req.session.userId)};
       </script>
-      <script src="/js/community.js?v=16"></script>
+      <script src="/js/study-badges.js?v=1"></script>
+      <script src="/js/community.js?v=17"></script>
       <script src="/js/render-markdown.js?v=1"></script>
       <script src="/js/enhance-further-studies.js?v=2"></script>
-      <script src="/js/library.js?v=49"></script>`,
+      <script src="/js/library.js?v=50"></script>`,
   }));
 });
 
@@ -195,6 +196,8 @@ router.get('/api/community/studies', requireAuth, (req, res) => {
       studyLevel:  s.studyLevel || null,
       studyType:   s.studyType || 'doctrinal',
       tags:        s.tags || [],
+      parentId:    s.parentId || null,       // lineage: presence marks this study as a Branch (display only)
+      rootId:      s.rootId || null,          // lineage: tree root id (sent for parity; not resolved client-side)
       authorName:  getAuthorName(s.userId),
       sharedAt:    s.sharedAt || s.savedAt || s.createdAt || null,
     }))

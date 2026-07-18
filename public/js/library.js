@@ -859,20 +859,9 @@
       .replace(/"/g, '&quot;');
   }
 
-  function studyLevelBadge(level) {
-    var l = level || 'journeyman';
-    var labels = { foundations: 'APPRENTICE', journeyman: 'JOURNEYMAN', scholar: 'SCHOLAR' };
-    var label  = labels[l] || 'JOURNEYMAN';
-    return '<span class="study-level-badge study-level-badge-' + l + '">' + label + '</span>';
-  }
-
-  function studyTypeBadge(type) {
-    var t = type || 'doctrinal';
-    if (t === 'deepdive') t = 'explore'; // legacy records saved under the old Deep Dive key
-    var labels = { doctrinal: 'DOCTRINAL', explore: 'EXPLORE', historical: 'HISTORICAL', scripture: 'SCRIPTURE', open: 'OPEN', people: 'SUBJECT', pathway: 'PATHWAY' };
-    var label  = labels[t] || 'DOCTRINAL';
-    return '<span class="study-type-badge study-type-badge-' + t + '">' + label + '</span>';
-  }
+  // studyTypeBadge / studyLevelBadge now live in the shared window.* module
+  // (public/js/study-badges.js), loaded before this script — do not reintroduce
+  // private copies here (that drift is exactly what the consolidation removed).
 
   // ── Branch-lineage helpers (client-side tree over allStudies) ────────────────
   // Legacy studies have no parentId/rootId → they read as undefined/falsy, which
