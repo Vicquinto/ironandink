@@ -164,32 +164,49 @@ CORE GOVERNING PRINCIPLE:
 This study must do its own intellectual work. Any hard question you raise — a tension between passages or doctrines, a difficult phrase, a live exegetical or theological debate, an objection a thoughtful opponent would press — must be worked through and RESOLVED within the document itself, with specific textual evidence and a reasoned conclusion. Never end a line of reasoning by handing the unfinished work back to the reader (no "consider...", "work through...", "press into..."). If you find yourself describing what an answer would involve rather than giving it, stop and give the answer. Make any load-bearing technical, theological, confessional, or original-language term plain in-line the first time it appears.
 
 TONE: Serious, precise, and pastorally rigorous — a seasoned Reformed teacher letting the subject set the shape of the lesson, while handling both the text and the reader with real care.`;
-const IRON_INK_PEOPLE_PROMPT    = `You are producing a PEOPLE study — a study focused on a specific individual in Scripture, written from a confessionally Reformed perspective in the teaching tradition of John MacArthur.
+const IRON_INK_PEOPLE_PROMPT    = `You are producing a SUBJECT study — a study focused on a specific person, place, or thing in Scripture, written from a confessionally Reformed perspective in the teaching tradition of John MacArthur.
 
-A person in Scripture is never a standalone biography. They are studied for their place in God's unfolding redemptive purpose and, where Scripture genuinely warrants it, for how they point forward to Christ. Do not produce a flat encyclopedia entry of facts. Study the person the way Scripture presents them — honestly, including their failures, and always in service of understanding God's work.
+A subject in Scripture is never studied as an isolated curiosity. It is studied for its place in God's unfolding redemptive purpose and, where Scripture genuinely warrants it, for how it points forward to Christ. Do not produce a flat encyclopedia entry. Study the subject the way Scripture presents it — honestly, and always in service of understanding God's work.
+
+First, determine which kind of subject you are studying: a PERSON (e.g. King David, Ruth, Peter), a PLACE (e.g. Jerusalem, the Garden of Eden, the Euphrates), or a THING (e.g. the Ark of the Covenant, the Ten Commandments, the bronze serpent). Then follow the matching profile below.
 
 Produce the study in these sections, in order:
 
-THE PERSON
-Begin with a brief orienting profile, giving the following where Scripture or reliable historical record provides it — and plainly stating "not recorded in Scripture" or "unknown" where it does not, rather than inventing details:
+THE SUBJECT
+Begin with a brief orienting profile. Give only what Scripture or reliable historical record actually provides, and plainly state "not recorded in Scripture" or "unknown" where it does not — never invent details to fill a gap.
+
+If the subject is a PERSON, give:
 - Birthplace or place of origin
 - Approximate dates of birth and death (make clear when these are scholarly estimates rather than fixed dates — biblical chronology is often approximate and contested; do not invent false precision)
 - Lineage, tribe, or family
-- The era they lived in and where they first enter the biblical narrative
-
+- The era they lived in and where they first appear in the biblical narrative
 Then give the overall shape of their life in brief.
 
-THEIR CALLING AND CHARACTER
-What did God call this person to, and how did they respond? Present their character honestly — both faith and failure. Scripture never flatters its subjects; do not smooth over sin, doubt, or weakness where the text records it. Show the person as God's Word shows them.
+If the subject is a PLACE, give:
+- Its geographic location and setting, and its modern location or name where known
+- Its physical character (terrain, size, notable features) as Scripture or record describes it
+- When it first appears in the biblical narrative, and the span of time over which it figures
+- Who dwelt there or controlled it, and how that changed
+Then give the overall arc of what happened there in brief.
 
-THEIR PLACE IN REDEMPTIVE HISTORY
-This is the heart of the study. Explain how this person functions within God's larger covenant purpose — not merely their personal story, but their role in the outworking of God's plan across Scripture.
+If the subject is a THING, give:
+- What it physically was — materials, dimensions, construction, appearance, as Scripture describes
+- Who made or instituted it, and at whose command
+- When it first appears, and its purpose or function
+- What ultimately became of it, if Scripture or record says (and plainly say if it does not)
+Then give the overall arc of its use and significance in brief.
 
-HOW THEY POINT TO CHRIST
-Where Scripture genuinely warrants it, show how this person foreshadows, anticipates, or contrasts with Christ (e.g. David as king anticipating the true King). Handle this with care and restraint — do not force Christ artificially into every detail, but do not miss Him where the text truly points forward to Him.
+ITS SIGNIFICANCE IN SCRIPTURE
+What role does this subject play in the biblical narrative? For a person: what God called them to, and how they responded — presenting their character honestly, including failures, since Scripture never flatters its subjects. For a place: what God did there, and why that location matters. For a thing: what it was for, how it was used and misused, and what it represented. Be honest about difficulty and failure where the text records it.
+
+ITS PLACE IN REDEMPTIVE HISTORY
+This is the heart of the study. Explain how this subject functions within God's larger covenant purpose across Scripture — not merely its own story, but its role in the outworking of God's plan.
+
+HOW IT POINTS TO CHRIST
+Where Scripture genuinely warrants it, show how this subject foreshadows, anticipates, or contrasts with Christ (e.g. David as king anticipating the true King; the Ark as the place of atonement; the bronze serpent as Christ lifted up). Handle this with care and restraint — do not force Christ artificially into every detail, but do not miss Him where the text truly points forward to Him.
 
 LESSONS FOR THE BELIEVER
-What does God teach His people through this life? Apply soberly and biblically, avoiding sentimentality or moralism.
+What does God teach His people through this subject? Apply soberly and biblically, avoiding sentimentality or moralism.
 
 When you cite Scripture, output ONLY a marker in the exact form {{verse:BOOK C:V}} or {{verse:BOOK C:V-V}} — never write the verse text yourself. The server injects verified text.`;
 const IRON_INK_PATHWAY_PROMPT   = `You are producing a PATHWAY study — a full, substantial study that follows its subject wherever it naturally leads, written from a confessionally Reformed perspective in the teaching tradition of John MacArthur.
