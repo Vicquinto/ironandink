@@ -66,6 +66,9 @@ router.get('/library', requireAuth, (req, res) => {
         </div>
         <div class="guide-body" id="libGuideBody"></div>
         <div id="libBranchesList" class="lib-branches-list" style="display:none;"></div>
+        <div id="libTreeLaunch" class="lib-tree-launch" style="display:none;">
+          <button type="button" class="lib-view-tree-btn" id="libViewTreeBtn">&#127795; View full tree</button>
+        </div>
         <div class="guide-actions">
           <button class="btn-warm" id="libBackBtn">Back to Library</button>
         </div>
@@ -101,6 +104,19 @@ router.get('/library', requireAuth, (req, res) => {
         </div>
         <div class="guide-modal-body" id="modalBody"></div>
       </div>
+    </div>
+
+    <div id="treeModal" class="guide-modal" style="display:none;" role="dialog" aria-modal="true" aria-label="Study tree">
+      <div class="guide-modal-inner tree-modal-inner">
+        <div class="guide-modal-header">
+          <div>
+            <h3 class="guide-modal-title" id="treeModalTitle">&#127795; Study Tree</h3>
+            <span class="tree-modal-sub" id="treeModalSub"></span>
+          </div>
+          <button class="modal-close-btn" id="closeTreeModal" title="Close">&#10005;</button>
+        </div>
+        <div class="tree-modal-body" id="treeModalBody"></div>
+      </div>
     </div>`;
 
   res.send(renderLayout({
@@ -108,7 +124,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/library.js?v=45"></script>',
+    scripts: '<script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/library.js?v=46"></script>',
   }));
 });
 

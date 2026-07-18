@@ -255,6 +255,7 @@
   var libFilterBar   = document.querySelector('#tab-studies .library-filter-bar');
   var libLineageCrumb = document.getElementById('libLineageCrumb');
   var libBranchesList = document.getElementById('libBranchesList');
+  var libTreeLaunch   = document.getElementById('libTreeLaunch');
 
   // The study currently shown inline. Captured at the top of showStudyInline so the
   // delegated Further-Studies click handler (below) knows which study it is
@@ -267,6 +268,7 @@
   function clearLineageRegions() {
     if (libLineageCrumb) { libLineageCrumb.innerHTML = ''; libLineageCrumb.style.display = 'none'; }
     if (libBranchesList) { libBranchesList.innerHTML = ''; libBranchesList.style.display = 'none'; }
+    if (libTreeLaunch)   { libTreeLaunch.style.display = 'none'; } // hidden until showStudyInline decides
   }
 
   // (a) Breadcrumb: "Part of: [root] › … › [this study]". Ancestors are clickable;
@@ -376,6 +378,11 @@
     }
     renderLineageCrumb(study); // breadcrumb above the body (cleared if root/standalone)
     renderBranchesList(study); // children below the body (cleared if none)
+    // "View full tree" launcher: shown only when this study belongs to a tree —
+    // a root with children OR a branch (has a parent). Standalone → nothing to view.
+    if (libTreeLaunch) {
+      libTreeLaunch.style.display = (getLineageRole(study) !== 'standalone') ? 'block' : 'none';
+    }
     if (studyCardsGrid) studyCardsGrid.style.display = 'none';
     if (libFilterBar)   libFilterBar.style.display   = 'none';
     libGuideArea.style.display = 'block';
@@ -439,10 +446,95 @@
   });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
+      if (treeModalEl && treeModalEl.style.display !== 'none') { closeTreeModal(); return; }
       if (icmEl && icmEl.style.display !== 'none') { closeIcm(); return; }
       if (upEl  && upEl.style.display  !== 'none') { upEl.style.display  = 'none'; return; }
       closeModal();
     }
+  });
+
+  // ── Bird's-eye tree view (Phase 5b) ──────────────────────────────────────────
+  // A read-only modal showing an ENTIRE study tree (root + all descendants, every
+  // depth). Reuses the platform's overlay idiom — same .guide-modal shell, close
+  // button / backdrop-click / Escape as #guideModal — in its own #treeModal so it
+  // stays clear of guideModal's notepad/ICM wiring. Computed fresh from allStudies
+  // on every open; nothing cached.
+  var treeModalEl    = document.getElementById('treeModal');
+  var treeModalBody  = document.getElementById('treeModalBody');
+  var treeModalSub   = document.getElementById('treeModalSub');
+
+  // One <li> per node: a clickable row (topic + reused type badge) plus a nested
+  // <ul> of children. The launched-from study gets the "you are here" highlight.
+  function renderTreeNode(node, currentId) {
+    if (!node || !node.study) return '';
+    var s = node.study;
+    var isCurrent = (s.id === currentId);
+    var row = '<button type="button" class="tree-node-row' + (isCurrent ? ' tree-node-current' : '') +
+                '" data-id="' + esc(s.id) + '"' + (isCurrent ? ' aria-current="true"' : '') + '>' +
+                (isCurrent ? '<span class="tree-node-here">You are here</span>' : '') +
+                '<span class="tree-node-topic">' + esc(s.topic) + '</span>' +
+                studyTypeBadge(s.studyType) +
+              '</button>';
+    var childrenHtml = '';
+    if (node.children && node.children.length) {
+      childrenHtml = '<ul class="tree-children">' +
+        node.children.map(function (c) { return renderTreeNode(c, currentId); }).join('') +
+      '</ul>';
+    }
+    return '<li class="tree-node">' + row + childrenHtml + '</li>';
+  }
+
+  // Open the tree that `study` belongs to: walk UP to the highest SURVIVING
+  // ancestor (chain[0], or the study itself if it has none), then render DOWN from
+  // there so any node shows its whole tree. A dangling top (deleted ancestor) is
+  // surfaced with a banner; we still render from the earliest survivor.
+  function openTreeModal(study) {
+    if (!treeModalEl || !treeModalBody || !study) return;
+    var info = getParentChain(study);
+    var rootStudy = info.chain.length ? info.chain[0] : study;
+    var tree = getDescendantTree(rootStudy.id);
+
+    var html = '';
+    if (info.danglingTop) {
+      html += '<div class="tree-dangling" title="An earlier study in this branch was deleted">' +
+                '&#9888; An earlier study in this branch is no longer available — showing from the earliest surviving study.' +
+              '</div>';
+    }
+    if (tree) {
+      html += '<ul class="tree-root-list">' + renderTreeNode(tree, study.id) + '</ul>';
+    } else {
+      html += '<p class="tree-empty">This tree is no longer available.</p>';
+    }
+    treeModalBody.innerHTML = html;
+    if (treeModalSub) treeModalSub.textContent = 'Root: ' + rootStudy.topic;
+
+    treeModalEl.style.display    = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeTreeModal() {
+    if (!treeModalEl) return;
+    treeModalEl.style.display    = 'none';
+    document.body.style.overflow = '';
+  }
+
+  // Click a node → open that study inline (reusing openStudyById's lookup+guard),
+  // and close the tree modal. Delegated once on the body.
+  if (treeModalBody) {
+    treeModalBody.addEventListener('click', function (e) {
+      var b = e.target && e.target.closest ? e.target.closest('.tree-node-row') : null;
+      if (b && b.dataset.id) { closeTreeModal(); openStudyById(b.dataset.id); }
+    });
+  }
+  var closeTreeBtn = document.getElementById('closeTreeModal');
+  if (closeTreeBtn) closeTreeBtn.addEventListener('click', closeTreeModal);
+  if (treeModalEl) treeModalEl.addEventListener('click', function (e) {
+    if (e.target === treeModalEl) closeTreeModal();
+  });
+
+  var libViewTreeBtn = document.getElementById('libViewTreeBtn');
+  if (libViewTreeBtn) libViewTreeBtn.addEventListener('click', function () {
+    if (currentInlineStudy) openTreeModal(currentInlineStudy);
   });
 
   // ── Delete ─────────────────────────────────────────────────────────────────
@@ -820,6 +912,28 @@
   function getLineageRole(study) {
     if (study && study.parentId) return 'branch';
     return getChildren(study && study.id).length ? 'root' : 'standalone';
+  }
+
+  // Whole-tree walk DOWN from a root id: { study, children: [ ...same shape... ] }.
+  // Reuses getChildren for each level and mirrors getParentChain's cycle guard — a
+  // repeated id stops that path instead of looping forever. An id that doesn't
+  // resolve in allStudies (e.g. a stale child ref) is skipped, not thrown on. Pure
+  // function of allStudies; computed fresh each open (never cached).
+  function getDescendantTree(rootId) {
+    var visited = {};
+    function build(id) {
+      if (!id || visited[id]) return null;   // missing id or cycle → stop this path
+      visited[id] = true;
+      var s = allStudies.find(function (x) { return x.id === id; });
+      if (!s) return null;                   // unresolved id → skip gracefully
+      return {
+        study: s,
+        children: getChildren(id)
+          .map(function (c) { return build(c.id); })
+          .filter(Boolean),
+      };
+    }
+    return build(rootId);
   }
 
   // Small pill for the card meta row. Standalone studies get no badge (keeps the

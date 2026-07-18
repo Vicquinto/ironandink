@@ -168,7 +168,7 @@ router.get('/scripture', requireAuth, async (req, res) => {
     activeSection: 'scripture',
     title:         'Scripture',
     content,
-    scripts:       `<script>window.SCRIPTURE_IS_ESV = ${usingEsv};</script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/scripture.js?v=7"></script><script src="/js/library.js?v=45"></script>`,
+    scripts:       `<script>window.SCRIPTURE_IS_ESV = ${usingEsv};</script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/scripture.js?v=7"></script><script src="/js/library.js?v=46"></script>`,
   }));
 });
 
