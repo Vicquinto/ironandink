@@ -17,6 +17,7 @@
   var pendingParentId    = null;
   var pendingRootId      = null;
   var pendingBranchTopic = null;
+  var pendingSourcePrompt = null; // exact prompt text the queued branch came from (provenance)
   var branchSaving       = false; // guards the auto-save round-trip against double-clicks
 
   // ── DOM refs ──────────────────────────────────────────────────────────────
@@ -136,9 +137,10 @@
       // the topic we actually prefilled. A mismatch (or malformed blob) is ignored,
       // so a stale/foreign parent can never be stamped onto this study.
       if (pending && pending.topic && urlPrefill && pending.topic === urlPrefill) {
-        pendingParentId    = pending.parentId || null;
-        pendingRootId      = pending.rootId   || null;
-        pendingBranchTopic = pending.topic;
+        pendingParentId     = pending.parentId || null;
+        pendingRootId       = pending.rootId   || null;
+        pendingBranchTopic  = pending.topic;
+        pendingSourcePrompt = pending.sourcePrompt || pending.topic; // provenance (fallback to topic)
         showBranchNote(pending.parentTopic); // "Branching from: <parent study>"
       }
     }
@@ -224,6 +226,7 @@
     pendingParentId    = null;
     pendingRootId      = null;
     pendingBranchTopic = null;
+    pendingSourcePrompt = null;
     clearBranchNote();
   }
 
@@ -243,6 +246,7 @@
       ? currentGuide.rootId
       : (parentId || null);
     pendingBranchTopic = topic;
+    pendingSourcePrompt = topic; // provenance: the exact prompt this branch came from
 
     // Programmatic .value set does NOT fire 'input', so it won't self-abandon the
     // lineage we just queued.
@@ -410,15 +414,18 @@
       // is the reset guarantee: lineage is non-null only for an immediately-
       // preceding branch click on this exact topic.
       if (pendingBranchTopic !== null && topic === pendingBranchTopic) {
-        currentGuide.parentId = pendingParentId;
-        currentGuide.rootId   = pendingRootId;
+        currentGuide.parentId     = pendingParentId;
+        currentGuide.rootId       = pendingRootId;
+        currentGuide.sourcePrompt = pendingSourcePrompt;
       } else {
-        currentGuide.parentId = null;
-        currentGuide.rootId   = null;
+        currentGuide.parentId     = null;
+        currentGuide.rootId       = null;
+        currentGuide.sourcePrompt = null;
       }
       pendingParentId    = null;
       pendingRootId      = null;
       pendingBranchTopic = null;
+      pendingSourcePrompt = null;
       clearBranchNote();
 
       guideTitle.textContent   = data.topic;
@@ -507,6 +514,7 @@
       studyType:   currentGuide.studyType,
       parentId:    currentGuide.parentId || null,
       rootId:      currentGuide.rootId || null,
+      sourcePrompt: currentGuide.sourcePrompt || null,
       shared:      !!(saveShareInput && saveShareInput.checked),
       createdAt:   new Date().toISOString(),
     };
@@ -583,6 +591,7 @@
         studyType:   currentGuide.studyType,
         parentId:    currentGuide.parentId || null,
         rootId:      currentGuide.rootId || null,
+        sourcePrompt: currentGuide.sourcePrompt || null,
         shared:      false,
         createdAt:   new Date().toISOString(),
       };

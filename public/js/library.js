@@ -343,10 +343,11 @@
       var rootId   = currentInlineStudy.rootId || currentInlineStudy.id;
       try {
         sessionStorage.setItem('ironBranchPending', JSON.stringify({
-          parentId:    parentId,
-          rootId:      rootId,
-          parentTopic: currentInlineStudy.topic, // for the "Branching from…" note on arrival
-          topic:       topic,
+          parentId:     parentId,
+          rootId:       rootId,
+          parentTopic:  currentInlineStudy.topic, // for the "Branching from…" note on arrival
+          sourcePrompt: topic,                    // provenance: the exact prompt this branch came from
+          topic:        topic,
         }));
       } catch (err) { /* sessionStorage blocked — proceed with topic-only prefill */ }
 
@@ -362,8 +363,17 @@
     libGuideBadge.textContent = study.translation || 'ASV';
     libGuideBody.innerHTML    = renderMarkdown(study.content);
     // Upgrade Further-Studies lines into clickable branch buttons (shared enhancer).
-    // Stateless markup, so re-running on every open (card-grid or Notes-tab entry) is fine.
-    if (window.enhanceFurtherStudies) window.enhanceFurtherStudies(libGuideBody);
+    // Gate any prompt that already has a child branched from it: build the explored
+    // set LIVE from this study's current children (their sourcePrompt values) — no
+    // cached/persisted explored-state, so deleting a child frees its prompt on the
+    // next open automatically. filter(Boolean) drops legacy children with no
+    // sourcePrompt so they never gate. Stateless markup → safe to re-run per open.
+    if (window.enhanceFurtherStudies) {
+      var exploredSet = new Set(
+        getChildren(study.id).map(function (c) { return c.sourcePrompt; }).filter(Boolean)
+      );
+      window.enhanceFurtherStudies(libGuideBody, exploredSet);
+    }
     renderLineageCrumb(study); // breadcrumb above the body (cleared if root/standalone)
     renderBranchesList(study); // children below the body (cleared if none)
     if (studyCardsGrid) studyCardsGrid.style.display = 'none';

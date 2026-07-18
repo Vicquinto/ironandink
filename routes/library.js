@@ -108,7 +108,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=1"></script><script src="/js/library.js?v=44"></script>',
+    scripts: '<script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/library.js?v=45"></script>',
   }));
 });
 
@@ -147,6 +147,14 @@ router.post('/api/library/save', requireAuth, (req, res) => {
   const parentId = coerceId(req.body.parentId);
   const rootId   = coerceId(req.body.rootId);
 
+  // Branch provenance (optional, additive). sourcePrompt is the exact "Further
+  // Studies" prompt text this study was branched from — used to gate that prompt
+  // (one branch per prompt) when its parent is later viewed in the Library. It is
+  // prompt text, not an id, so we trim to a non-empty string or null (never
+  // coerceId). Null for any study not created by clicking a Further-Studies prompt.
+  const coerceText = (v) => (typeof v === 'string' && v.trim() !== '') ? v.trim() : null;
+  const sourcePrompt = coerceText(req.body.sourcePrompt);
+
   const study = {
     id:          randomUUID(),
     userId:      req.session.userId,
@@ -162,6 +170,7 @@ router.post('/api/library/save', requireAuth, (req, res) => {
     studyType:   validTypes.includes(studyType) ? studyType : 'doctrinal',
     parentId,                                 // id of the study this branched from; null if not a branch
     rootId,                                   // id of the tree root for this branch; null if not a branch
+    sourcePrompt,                             // exact Further-Studies prompt text this branched from; null if not a prompt-branch
     shared:      isShared,                    // community-sharing flag (default false)
     sharedAt:    isShared ? now : null,       // stamp when first shared, for feed sort
     createdAt:   createdAt || now,
