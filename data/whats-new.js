@@ -19,6 +19,11 @@
 const WHATS_NEW = [
   {
     date:  'July 18, 2026',
+    title: 'Contact Us',
+    body: `You can now reach us directly. A Contact tab has been added to the About page with our email address, and the same address appears in the Help section. If you have a question, run into a problem, or have an idea for something that would make Iron & Ink more useful, please write — we read everything and we reply.`,
+  },
+  {
+    date:  'July 18, 2026',
     title: 'Study Trees',
     body: `Studies can now branch. At the end of a study you'll find a Further Studies list; click any suggestion and Iron & Ink generates a new study from it, remembering where it came from. Over time this builds a study tree — a connected journey through a subject rather than a pile of separate studies. Open any study to see where it sits: a breadcrumb showing the path that led there, a list of studies that branched from it, and a full tree view of the whole journey. Prompts you've already explored are marked, so you won't accidentally study the same thing twice.`,
   },
