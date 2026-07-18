@@ -26,7 +26,7 @@ const SCRIPT = `
   });
 
   var hash = window.location.hash.replace('#', '');
-  if (hash === 'confession' || hash === 'covenant' || hash === 'story') switchTab(hash);
+  if (hash === 'confession' || hash === 'covenant' || hash === 'story' || hash === 'contact') switchTab(hash);
 })();
 </script>`;
 
@@ -39,6 +39,7 @@ function buildContent() {
       <button class="believe-tab" data-tab="confession">Confession</button>
       <button class="believe-tab" data-tab="covenant">Covenant</button>
       <button class="believe-tab" data-tab="story">Our Story</button>
+      <button class="believe-tab" data-tab="contact">Contact</button>
     </div>
 
     <!-- ── About ── -->
@@ -196,6 +197,30 @@ function buildContent() {
         Iron &amp; Ink, what it means to them, and why this kind of community matters.
         Check back soon.
       </div>
+    </div>
+
+    <!-- ── Contact ── -->
+    <div id="believe-contact" class="believe-panel" style="display:none;">
+      <div class="copy-site-name">Iron &amp; Ink</div>
+      <h1 class="copy-page-title">Contact</h1>
+      <p class="copy-body">
+        Iron &amp; Ink is built and maintained by Carlo and Jamie Giaquinto. We read
+        everything that comes in, and we reply.
+      </p>
+      <p class="copy-body">
+        If you have a question, run into a problem, notice something that doesn&rsquo;t
+        seem right, or have an idea for something that would make the platform more
+        useful, please write to us:
+      </p>
+      <p style="text-align:center; margin:28px 0;">
+        <a href="mailto:contact@ironandinktheology.com"
+           style="color:var(--accent); text-decoration:none; font-size:1.5rem; letter-spacing:0.01em;">contact@ironandinktheology.com</a>
+      </p>
+      <p class="copy-body">
+        Iron &amp; Ink is in active early access and is being built continually. Your
+        questions and suggestions genuinely shape what gets built next &mdash; don&rsquo;t
+        hesitate to reach out.
+      </p>
     </div>
 
   </div>`;
