@@ -11,7 +11,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
 
 // Where new-invite-request notifications go. Overridable via env; single source
 // of truth so the address is changed in exactly one place.
-const ADMIN_NOTIFY_EMAIL = process.env.ADMIN_NOTIFY_EMAIL || 'carlo@risingstarweb.com';
+const ADMIN_NOTIFY_EMAIL = process.env.ADMIN_NOTIFY_EMAIL || 'contact@ironandinktheology.com';
 
 const USERS_PATH           = path.join(__dirname, '../data/users.json');
 const INVITES_PATH         = path.join(__dirname, '../data/invites.json');
