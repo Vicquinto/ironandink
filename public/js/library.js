@@ -284,7 +284,6 @@
     info.chain.forEach(function (ancestor) {
       crumbs.push('<button type="button" class="crumb-link" data-id="' + esc(ancestor.id) + '">' + esc(ancestor.topic) + '</button>');
     });
-    crumbs.push('<span class="crumb-current">' + esc(study.topic) + '</span>');
     libLineageCrumb.innerHTML =
       '<span class="crumb-lead">Part of:</span> ' +
       crumbs.join('<span class="crumb-sep">&#8250;</span>');

@@ -1525,7 +1525,6 @@ body {
   border-bottom-color: var(--accent);
   outline: none;
 }
-.lib-lineage-crumb .crumb-current { color: var(--dark-cream); font-weight: 600; }
 .lib-lineage-crumb .crumb-dangling { color: #9a6a2c; font-style: italic; }
 
 /* (b) Branches list — delineated section below the study body. */
