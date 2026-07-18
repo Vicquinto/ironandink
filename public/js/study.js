@@ -119,6 +119,31 @@
   var urlPrefill = new URLSearchParams(window.location.search).get('studyNext');
   if (urlPrefill && topicInput) { topicInput.value = urlPrefill; topicInput.focus(); }
 
+  // ── Consume pending branch lineage handed off from the Library (4c) ──────────
+  // When a Further-Studies button is clicked in the Library, library.js writes
+  // {parentId, rootId, parentTopic, topic} to sessionStorage and navigates here
+  // with ?studyNext=<topic>. Lineage never rides in the URL (privacy) — only the
+  // topic does. Read the blob ONCE, clear it immediately (consume-once, so a later
+  // manual /study visit can't inherit stale lineage), then apply it into 4b's
+  // existing pending* module vars ONLY if its topic matches the prefilled topic.
+  // From there the generate-time guard and save builders (4b) work unchanged.
+  try {
+    var pendingRaw = sessionStorage.getItem('ironBranchPending');
+    if (pendingRaw) {
+      sessionStorage.removeItem('ironBranchPending'); // consume-once, before any parse can throw
+      var pending = JSON.parse(pendingRaw);
+      // Topic-match guard: only adopt lineage if the stored branch topic equals
+      // the topic we actually prefilled. A mismatch (or malformed blob) is ignored,
+      // so a stale/foreign parent can never be stamped onto this study.
+      if (pending && pending.topic && urlPrefill && pending.topic === urlPrefill) {
+        pendingParentId    = pending.parentId || null;
+        pendingRootId      = pending.rootId   || null;
+        pendingBranchTopic = pending.topic;
+        showBranchNote(pending.parentTopic); // "Branching from: <parent study>"
+      }
+    }
+  } catch (err) { /* malformed blob — already cleared; lineage stays null */ }
+
   // ── Length picker ─────────────────────────────────────────────────────────
   var lengthPicker = document.getElementById('studyLengthPicker');
   if (lengthPicker) {
@@ -163,42 +188,14 @@
     }
   });
 
-  // ── Further Studies → clickable branch suggestions (study page only) ─────────
-  // Scoped post-processing pass. We do NOT modify the shared renderer; instead,
-  // AFTER renderMarkdown output lands in #guideBody, we upgrade any paragraph
-  // that is exactly a `Study prompt: "…"` line into a clickable branch button.
-  // Anchor (confirmed in investigation): /^\s*Study prompt:\s*"([^"]+)"\s*$/ —
-  // capture the FULL quoted phrase (it may contain colons or a trailing "?").
-  // Only #guideBody is enhanced; Library/Room views keep plain paragraphs (4c).
-  function enhanceFurtherStudies(containerEl) {
-    if (!containerEl) return;
-    var paras = containerEl.querySelectorAll('p.guide-p');
-    Array.prototype.forEach.call(paras, function (p) {
-      var m = (p.textContent || '').match(/^\s*Study prompt:\s*"([^"]+)"\s*$/);
-      if (!m) return; // only exact anchor matches; every other paragraph is left untouched
-      var topic = m[1];
-
-      // Built entirely via DOM + setAttribute (never innerHTML), so the topic is
-      // stored as a raw string value; the browser handles attribute-encoding of
-      // any stray quote/<>/& on its own — there is no HTML-injection surface here.
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'branch-suggestion';
-      btn.setAttribute('data-branch-topic', topic);
-
-      var topicEl = document.createElement('span');
-      topicEl.className = 'branch-suggestion-topic';
-      topicEl.textContent = topic;
-
-      var cueEl = document.createElement('span');
-      cueEl.className = 'branch-suggestion-cue';
-      cueEl.textContent = 'Explore this study →';
-
-      btn.appendChild(topicEl);
-      btn.appendChild(cueEl);
-      p.replaceWith(btn);
-    });
-  }
+  // ── Further Studies → clickable branch suggestions ───────────────────────────
+  // The anchor-matching / button-building core now lives in the shared module
+  // /js/enhance-further-studies.js (window.enhanceFurtherStudies), loaded before
+  // this script — the same consolidation pattern as renderMarkdown. Do not
+  // reintroduce a private copy here; edit the shared module so the study page and
+  // the Library view upgrade Further-Studies lines identically. The study page's
+  // own delegated click handler on #guideBody (below) stays here — it is the
+  // in-place branch behavior, distinct from the Library's navigate behavior.
 
   // Small "Branching from: …" banner shown above the type picker while a branch
   // is queued. Created lazily and reused.
@@ -427,7 +424,7 @@
       guideTitle.textContent   = data.topic;
       guideBadge.textContent   = data.translation || 'ASV';
       guideBody.innerHTML      = renderMarkdown(data.content);
-      enhanceFurtherStudies(guideBody);
+      window.enhanceFurtherStudies(guideBody);
       showState('guide');
       studyGenerated = true;
       // TEMP: admin word-count monitor for Study Length tuning — remove later

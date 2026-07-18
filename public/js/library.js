@@ -256,6 +256,11 @@
   var libLineageCrumb = document.getElementById('libLineageCrumb');
   var libBranchesList = document.getElementById('libBranchesList');
 
+  // The study currently shown inline. Captured at the top of showStudyInline so the
+  // delegated Further-Studies click handler (below) knows which study it is
+  // branching from — its id is the child's parentId, its rootId (or own id) the root.
+  var currentInlineStudy = null;
+
   // Both lineage regions must be emptied AND hidden on every view change, so
   // stale lineage from a previously-viewed study never lingers (showStudyInline
   // serves both the card grid and the Notes tab).
@@ -322,12 +327,43 @@
     });
   }
 
+  // Delegated Further-Studies branch click → NAVIGATE to /study to generate the
+  // child (the Library has no in-page generator). No auto-save: a Library study is
+  // by definition already persisted, so its id/rootId are the child's lineage. The
+  // topic rides in the URL; the lineage rides in a consume-once sessionStorage blob
+  // (never the URL). study.js's on-load reader adopts it iff the topic matches.
+  if (libGuideBody) {
+    libGuideBody.addEventListener('click', function (e) {
+      var btn = e.target && e.target.closest ? e.target.closest('.branch-suggestion') : null;
+      if (!btn || !libGuideBody.contains(btn)) return;
+      var topic = btn.getAttribute('data-branch-topic') || '';
+      if (!topic || !currentInlineStudy) return;
+
+      var parentId = currentInlineStudy.id;
+      var rootId   = currentInlineStudy.rootId || currentInlineStudy.id;
+      try {
+        sessionStorage.setItem('ironBranchPending', JSON.stringify({
+          parentId:    parentId,
+          rootId:      rootId,
+          parentTopic: currentInlineStudy.topic, // for the "Branching from…" note on arrival
+          topic:       topic,
+        }));
+      } catch (err) { /* sessionStorage blocked — proceed with topic-only prefill */ }
+
+      window.location.href = '/study?studyNext=' + encodeURIComponent(topic);
+    });
+  }
+
   function showStudyInline(study) {
     if (!libGuideArea) return;
+    currentInlineStudy = study; // remember which study a Further-Studies click branches from
     clearLineageRegions(); // wipe any prior study's lineage before repopulating
     libGuideTitle.textContent = study.topic;
     libGuideBadge.textContent = study.translation || 'ASV';
     libGuideBody.innerHTML    = renderMarkdown(study.content);
+    // Upgrade Further-Studies lines into clickable branch buttons (shared enhancer).
+    // Stateless markup, so re-running on every open (card-grid or Notes-tab entry) is fine.
+    if (window.enhanceFurtherStudies) window.enhanceFurtherStudies(libGuideBody);
     renderLineageCrumb(study); // breadcrumb above the body (cleared if root/standalone)
     renderBranchesList(study); // children below the body (cleared if none)
     if (studyCardsGrid) studyCardsGrid.style.display = 'none';
@@ -352,6 +388,7 @@
 
   function backToLibrary() {
     if (libGuideArea) libGuideArea.style.display = 'none';
+    currentInlineStudy = null; // no study is shown inline anymore
     clearLineageRegions(); // don't leave stale lineage behind the hidden view
     if (studyCardsGrid) studyCardsGrid.style.display = '';
     if (libFilterBar)   libFilterBar.style.display   = '';
