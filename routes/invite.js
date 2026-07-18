@@ -750,3 +750,7 @@ function escHtml(str) {
 }
 
 module.exports = router;
+// Single source of truth for the admin-notification recipient. Exported so other
+// notification senders (e.g. feedback in routes/help.js) reuse the exact same
+// env-driven address without redeclaring a second constant.
+module.exports.ADMIN_NOTIFY_EMAIL = ADMIN_NOTIFY_EMAIL;

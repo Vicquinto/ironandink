@@ -3,10 +3,44 @@ const router  = express.Router();
 const fs      = require('fs');
 const path    = require('path');
 const { randomUUID } = require('crypto');
+const sgMail  = require('@sendgrid/mail');
 const { requireAuth, renderLayout } = require('./layout');
+// Reuse the single ADMIN_NOTIFY_EMAIL source of truth from invite.js — no second
+// address constant. (invite.js exports the same env-driven value it uses itself.)
+const { ADMIN_NOTIFY_EMAIL } = require('./invite');
 
 const USERS_PATH_H   = path.join(__dirname, '../data/users.json');
 const FEEDBACK_PATH  = path.join(__dirname, '../data/feedback.json');
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
+
+// Best-effort admin notification when a member submits feedback. Mirrors
+// sendInviteRequestNotification in routes/invite.js: same SendGrid setup, same
+// from-address convention, fully self-contained, and swallows its own errors so
+// a send failure can never break the feedback submission.
+async function sendFeedbackNotification({ fullName, text, submittedAt }) {
+  if (!process.env.SENDGRID_API_KEY) {
+    console.warn('[feedbackNotify] SENDGRID_API_KEY not set — skipping email');
+    return;
+  }
+  try {
+    await sgMail.send({
+      to:   ADMIN_NOTIFY_EMAIL,
+      from: { email: process.env.SENDGRID_FROM_EMAIL, name: 'Iron & Ink' },
+      subject: 'New Iron & Ink feedback',
+      text: `A member has submitted feedback.\n\nName: ${fullName}\nSubmitted: ${submittedAt}\n\nFeedback:\n${text}\n\nView it in the Admin panel.\n\nSoli Deo Gloria,\nIron & Ink`,
+      html: `<p>A member has submitted feedback.</p>
+<p><strong>Name:</strong> ${fullName}<br><strong>Submitted:</strong> ${submittedAt}</p>
+<p><strong>Feedback:</strong></p>
+<p style="white-space:pre-wrap;">${text}</p>
+<p>View it in the Admin panel.</p>
+<p><em>Soli Deo Gloria,</em><br>Iron &amp; Ink</p>`,
+    });
+    console.log('[feedbackNotify] sent to', ADMIN_NOTIFY_EMAIL);
+  } catch (err) {
+    console.error('[feedbackNotify] failed:', err.message);
+  }
+}
 
 function readJSON(p) {
   try {
@@ -99,6 +133,10 @@ router.get('/help', requireAuth, (req, res) => {
           <span id="feedbackMsg" style="display:none; font-size:0.9rem; color:var(--warm-brown);"></span>
         </div>
 
+        <p class="copy-body" style="margin-top:20px;">You can also reach us directly at
+          <a href="mailto:contact@ironandinktheology.com" style="color:var(--accent); text-decoration:none;">contact@ironandinktheology.com</a>
+          &mdash; for questions, problems, or anything you&#39;d like to tell us.</p>
+
         <div class="copy-back">
           <a href="/dashboard">&#8592; Back to Dashboard</a>
         </div>
@@ -181,15 +219,21 @@ router.post('/api/feedback', requireAuth, (req, res) => {
   }
 
   const user = req.session.user || {};
-  const feedback = readJSON(FEEDBACK_PATH);
-  feedback.push({
+  const record = {
     id:          randomUUID(),
     userId:      user.id || req.session.userId,
     fullName:    user.fullName || 'Unknown',
     text,
     submittedAt: new Date().toISOString(),
-  });
+  };
+  const feedback = readJSON(FEEDBACK_PATH);
+  feedback.push(record);
   writeJSON(FEEDBACK_PATH, feedback);
+
+  // Best-effort admin notification. Fire-and-forget: never awaited into the
+  // response path, and its own try/catch swallows failures — so a mail error
+  // can never lose the (already-saved) feedback or surface an error to the member.
+  sendFeedbackNotification(record).catch(() => {});
 
   res.json({ success: true });
 });

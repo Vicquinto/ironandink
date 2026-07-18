@@ -185,6 +185,16 @@ const PAGE_STYLES = `
       letter-spacing: 0.03em;
       margin-bottom: 18px;
     }
+    .wn-contact {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text);
+      font-style: italic;
+      margin-bottom: 32px;
+    }
+    .wn-contact a { color: var(--accent); text-decoration: none; font-style: normal; }
+    .wn-contact a:hover { text-decoration: underline; }
     .wn-back {
       font-size: 0.9rem;
       color: var(--warm-brown);
@@ -212,6 +222,8 @@ router.get('/whats-new', requireAuth, (req, res) => {
         <h2 class="wn-overview-title">${esc(WHATS_NEW_OVERVIEW.title)}</h2>
         ${renderParagraphs(WHATS_NEW_OVERVIEW.body)}
       </section>
+
+      <p class="wn-contact">Iron &amp; Ink is in active early access and is being built continually. If you have questions, run into a problem, or have an idea for something that would make it more useful, write to us at <a href="mailto:contact@ironandinktheology.com">contact@ironandinktheology.com</a>.</p>
 
       <div class="wn-back">
         <a href="/dashboard">&#8592; Back to Dashboard</a>
