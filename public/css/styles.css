@@ -691,6 +691,20 @@ body {
   color: var(--warm-brown, #9a8060);
   line-height: 1.3;
 }
+/* Disabled type — Explore, while a branch is queued. Visibly muted and inert
+   (not hidden). Overrides the hover affordance so it can't read as clickable. */
+.study-type-option.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(160,132,92,0.05);
+  border-color: rgba(160,132,92,0.30);
+  border-style: dashed;
+  box-shadow: none;
+}
+.study-type-option.is-disabled:hover {
+  border-color: rgba(160,132,92,0.30);
+  background: rgba(160,132,92,0.05);
+}
 
 /* ─── LOADING STATE ─────────────────────────────────────────────────── */
 
@@ -974,6 +988,13 @@ body {
   letter-spacing: 0.02em;
 }
 .branch-note strong { color: var(--accent); }
+/* Second line of the branch note: why Explore is unavailable for a branch. */
+.branch-note-hint {
+  margin-top: 5px;
+  font-size: 0.82rem;
+  font-style: italic;
+  opacity: 0.85;
+}
 
 .guide-font-toolbar {
   display: flex;

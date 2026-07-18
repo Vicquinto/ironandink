@@ -82,6 +82,9 @@
   if (studyTypePicker) {
     studyTypePicker.querySelectorAll('.study-type-option').forEach(function (opt) {
       opt.addEventListener('click', function () {
+        // A disabled option (Explore, while a branch is queued) is inert: clicking
+        // it must not change the selection.
+        if (opt.classList.contains('is-disabled')) return;
         studyTypePicker.querySelectorAll('.study-type-option').forEach(function (o) {
           o.classList.remove('study-type-option--active');
           o.setAttribute('aria-checked', 'false');
@@ -215,11 +218,59 @@
     var strong = document.createElement('strong');
     strong.textContent = parentTopic || 'this study';
     note.appendChild(strong);
+
+    // Teach why Explore is off for branches (not just block it). One short line.
+    var hint = document.createElement('div');
+    hint.className = 'branch-note-hint';
+    hint.textContent = 'Explore starts a new study journey — branches use focused study types.';
+    note.appendChild(hint);
+
     note.style.display = 'block';
+    disableExploreOption(); // Explore is journey-starting; a branch continues one
   }
   function clearBranchNote() {
     var note = document.getElementById('branchNote');
     if (note) { note.style.display = 'none'; note.textContent = ''; }
+    enableExploreOption(); // single consistent un-disable point (every clear path calls this)
+  }
+
+  // ── Branch-mode Explore lock ────────────────────────────────────────────────
+  // Explore is for STARTING a study journey; a branch CONTINUES one and must use a
+  // bounded type. While a branch is queued we disable (never hide) the Explore
+  // picker option. disable is driven from showBranchNote, enable from
+  // clearBranchNote — so both engage points (queueBranch, on-load consume) and
+  // every clear path (typing, curated pick, dismiss, post-generate reset) stay in
+  // sync through one pair of functions.
+  function exploreOption() {
+    return studyTypePicker
+      ? studyTypePicker.querySelector('.study-type-option[data-type="explore"]')
+      : null;
+  }
+  function disableExploreOption() {
+    var opt = exploreOption();
+    if (!opt) return;
+    opt.classList.add('is-disabled');
+    opt.setAttribute('aria-disabled', 'true');
+    // A disabled type must never be the active selection: fall back to the branch
+    // default. (In normal flow selectedType is already 'doctrinal' here; this is
+    // the defensive path in case Explore was somehow active when branch mode began.)
+    if (selectedType === 'explore') {
+      selectedType = 'doctrinal';
+      if (studyTypePicker) {
+        studyTypePicker.querySelectorAll('.study-type-option').forEach(function (o) {
+          var on = (o.dataset.type === 'doctrinal');
+          o.classList.toggle('study-type-option--active', on);
+          o.setAttribute('aria-checked', on ? 'true' : 'false');
+        });
+      }
+      updateLevelVisibility();
+    }
+  }
+  function enableExploreOption() {
+    var opt = exploreOption();
+    if (!opt) return;
+    opt.classList.remove('is-disabled');
+    opt.removeAttribute('aria-disabled');
   }
   // Abandon any queued branch lineage (user changed intent) and hide the banner.
   function clearPendingLineage() {

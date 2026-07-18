@@ -155,6 +155,15 @@ router.post('/api/library/save', requireAuth, (req, res) => {
   const coerceText = (v) => (typeof v === 'string' && v.trim() !== '') ? v.trim() : null;
   const sourcePrompt = coerceText(req.body.sourcePrompt);
 
+  // Defense in depth: a branch (has a parentId) may never be an Explore study.
+  // Explore STARTS a study journey; a branch CONTINUES one with a bounded type.
+  // The client already disables Explore in branch mode, but the client can be
+  // bypassed — so coerce a branch's Explore to the branch default here. Gentle
+  // (matches the validTypes coercion pattern) and applies only to this new save;
+  // existing records are never rewritten.
+  let resolvedType = validTypes.includes(studyType) ? studyType : 'doctrinal';
+  if (parentId && resolvedType === 'explore') resolvedType = 'doctrinal';
+
   const study = {
     id:          randomUUID(),
     userId:      req.session.userId,
@@ -167,7 +176,7 @@ router.post('/api/library/save', requireAuth, (req, res) => {
       ? studyLevel
       : ((userSettings && userSettings.studyLevel) || 'journeyman'),
     studyLength: ['Short', 'Standard', 'Deep'].includes(studyLength) ? studyLength : 'Short',
-    studyType:   validTypes.includes(studyType) ? studyType : 'doctrinal',
+    studyType:   resolvedType,                // branches can never be 'explore' (coerced above)
     parentId,                                 // id of the study this branched from; null if not a branch
     rootId,                                   // id of the tree root for this branch; null if not a branch
     sourcePrompt,                             // exact Further-Studies prompt text this branched from; null if not a prompt-branch
