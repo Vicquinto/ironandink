@@ -3,6 +3,7 @@ const fs        = require('fs');
 const path      = require('path');
 const Anthropic = require('@anthropic-ai/sdk');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
+const { renderDashboardPanel: renderWhatsNewPanel } = require('./whats-new');
 const { assertNoEsvText } = require('./esvGuard');
 const { injectVerses, lookup: asvLookup } = require('../lib/asv');
 
@@ -405,6 +406,8 @@ router.get('/dashboard', requireAuth, (req, res) => {
         <div class="stat-value">${articlesCount}</div>
       </a>
     </div>
+
+    ${renderWhatsNewPanel(2)}
 
     <div class="dash-dedication">
       <p class="dash-dedication-text">Dedicated to the glory of God, and to Jamie, Aurora, and Barbara &mdash; with thanks for their faithfulness.</p>
