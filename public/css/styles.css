@@ -650,14 +650,24 @@ body {
 }
 
 /* ─── STUDY-TYPE PICKER ──────────────────────────────────────────────── */
+/* Seven study types wrap into a balanced grid (4 + 3) rather than a flex row
+   that orphans the seventh card onto a line of its own. Fixed equal-width
+   columns (1fr) keep every card identical in width; grid's default
+   align-items:stretch gives equal card heights within a row despite varying
+   description lengths. Column count steps down on narrower viewports. */
 .study-type-picker {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
   margin-bottom: 18px;
-  flex-wrap: wrap;
+}
+@media (max-width: 720px) {
+  .study-type-picker { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 440px) {
+  .study-type-picker { grid-template-columns: 1fr; }
 }
 .study-type-option {
-  flex: 1 1 180px;
   display: flex;
   flex-direction: column;
   gap: 3px;
