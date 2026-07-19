@@ -82,6 +82,37 @@ router.get('/dedication', (req, res) => {
       margin: 28px 0;
     }
 
+    /* Scripture quotations. Mirrors the platform's blockquote treatment
+       (.guide-bq / .devot-content blockquote): warm left rule, italic,
+       indented. The body copy on this page is already italic, so the rule
+       and indent carry the separation rather than the slant. */
+    .copy-quote {
+      border-left: 3px solid rgba(160,132,92,0.4);
+      margin: 22px 0;
+      padding: 6px 16px;
+      color: var(--dark-cream);
+      font-style: italic;
+      font-size: 1.02rem;
+      line-height: 1.75;
+    }
+
+    .copy-quote-ref {
+      display: block;
+      margin-top: 8px;
+      font-style: normal;
+      font-size: 0.85rem;
+      color: var(--warm-brown);
+      letter-spacing: 0.03em;
+    }
+
+    .copy-note {
+      margin-top: 22px;
+      font-size: 0.8rem;
+      font-style: normal;
+      color: var(--warm-brown);
+      letter-spacing: 0.02em;
+    }
+
     .copy-back {
       margin-top: 32px;
       font-size: 0.9rem;
@@ -135,6 +166,46 @@ router.get('/dedication', (req, res) => {
         To Barbara Starr &mdash; our first member, and a woman whose perseverance through hardship has been a
         testimony in itself. Thank you for trusting this platform in its earliest days, before it was polished
         or proven. You believed first.
+      </p>
+
+      <hr class="copy-rule">
+
+      <div class="copy-section-heading">A Word of Dedication</div>
+      <p class="copy-body">
+        Iron &amp; Ink Theology exists, in no small part, because of the faithful ministry of Pastor John MacArthur.
+      </p>
+      <p class="copy-body">
+        We do not say this to give a man glory that belongs to God alone &mdash; it is the Lord who ordains all
+        things, who calls, who teaches, who saves. But it is also the Lord&rsquo;s pattern to use faithful men to
+        shape His church, and for decades Pastor John was one of those men to us. His unwavering commitment to
+        expository preaching &mdash; to simply opening the text and saying what it says &mdash; taught us to love
+        Scripture rightly, to test everything against it, and to trust that God&rsquo;s Word does not need to be
+        improved upon, only rightly handled.
+      </p>
+
+      <blockquote class="copy-quote">
+        &ldquo;And we beseech you, brethren, to know them which labour among you, and are over you in the Lord, and
+        admonish you; and to esteem them very highly in love for their work&rsquo;s sake.&rdquo;
+        <span class="copy-quote-ref">&mdash; 1 Thessalonians 5:12-13</span>
+      </blockquote>
+
+      <p class="copy-body">
+        We would not be where we are today without the years he gave to that work. Iron &amp; Ink is, in part, an
+        outgrowth of what he sowed in us long before we ever imagined building it.
+      </p>
+      <p class="copy-body">
+        So we dedicate this work with gratitude &mdash; to the Lord first, who ordained it all, and in thankful
+        memory of a faithful servant who taught us to handle His Word rightly.
+      </p>
+
+      <blockquote class="copy-quote">
+        &ldquo;Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing
+        the word of truth.&rdquo;
+        <span class="copy-quote-ref">&mdash; 2 Timothy 2:15</span>
+      </blockquote>
+
+      <p class="copy-note">
+        Scripture quotations in this dedication are from the King James Version.
       </p>
 
       <div class="copy-back">
