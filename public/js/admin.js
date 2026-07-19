@@ -101,6 +101,7 @@
   // Maps the loader names in the descriptors to the real functions below.
   // These are function declarations, so they are hoisted and safe to reference here.
   var tabLoaders = {
+    loadContentStudies: loadContentStudies,
     loadInviteRequests: loadInviteRequests,
     loadSentInvites:    loadSentInvites,
     loadAdminRooms:     loadAdminRooms,
@@ -657,6 +658,131 @@
         '</div>' +
       '</div>';
     }).join('');
+  }
+
+  // ── Content management: studies + footprint ───────────────────────────────
+  // The list defaults to shared studies only — those are what is actually published
+  // to the Community and therefore what content management is responsible for.
+  // "Include private studies" is an explicit opt-in, never the default, because
+  // browsing members' private studies is a genuine privacy intrusion.
+  var contentStudyList  = document.getElementById('contentStudyList');
+  var contentStudyEmpty = document.getElementById('contentStudyEmpty');
+  var contentShowAll    = document.getElementById('contentShowAll');
+
+  if (contentShowAll) {
+    contentShowAll.addEventListener('change', function () { loadContentStudies(); });
+  }
+
+  async function loadContentStudies() {
+    if (!contentStudyList) return;
+    contentStudyList.innerHTML = '<p class="writing-empty">Loading&#8230;</p>';
+    var all = contentShowAll && contentShowAll.checked;
+    try {
+      var res  = await fetch('/api/admin/studies' + (all ? '?all=1' : ''));
+      var data = await res.json();
+      renderContentStudies(data.studies || [], all);
+    } catch (err) {
+      contentStudyList.innerHTML = '<p class="writing-empty">Could not load studies.</p>';
+    }
+  }
+
+  function renderContentStudies(studies, all) {
+    if (contentStudyEmpty) {
+      contentStudyEmpty.textContent = all ? 'No studies.' : 'No shared studies.';
+      contentStudyEmpty.style.display = studies.length ? 'none' : 'block';
+    }
+    if (!studies.length) { contentStudyList.innerHTML = ''; return; }
+
+    // Reuse the shared badge helpers rather than forking new ones.
+    var typeBadge  = window.studyTypeBadge  || function () { return ''; };
+    var levelBadge = window.studyLevelBadge || function () { return ''; };
+
+    contentStudyList.innerHTML = studies.map(function (s) {
+      return '<div class="article-card" data-study-card="' + esc(s.id) + '">' +
+        '<div class="article-card-header">' +
+          '<span class="article-card-title">' + esc(s.topic || 'Untitled study') + '</span>' +
+          '<span class="article-status-badge ' + (s.shared ? 'status-published' : 'status-pending') + '">' +
+            (s.shared ? 'Shared' : 'Private') +
+          '</span>' +
+        '</div>' +
+        '<div class="article-card-meta">' +
+          '<span class="community-card-author">' + esc(s.ownerName || 'Unknown') + '</span>' +
+          typeBadge(s.studyType) + levelBadge(s.studyLevel) +
+          '<span class="article-card-date">Saved ' + (s.savedAt ? fmtDate(s.savedAt) : 'unknown') + '</span>' +
+        '</div>' +
+        '<div class="admin-footprint" data-footprint="' + esc(s.id) + '" style="display:none; margin-top:12px; padding:12px 14px; background:rgba(160,132,92,0.08); border:1px solid rgba(160,132,92,0.25); border-radius:6px; font-size:0.85rem; color:var(--dark-cream); line-height:1.6;"></div>' +
+        '<div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">' +
+          '<button class="btn-warm admin-footprint-btn" data-id="' + esc(s.id) + '" style="font-size:0.82rem; padding:6px 14px;">Footprint</button>' +
+          (s.shared
+            ? '<button class="btn-reject admin-unshare-btn" data-id="' + esc(s.id) + '" data-topic="' + esc(s.topic || '') + '" style="font-size:0.82rem; padding:6px 14px;">Remove from Community</button>'
+            : '') +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    contentStudyList.querySelectorAll('.admin-footprint-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () { toggleFootprint(btn); });
+    });
+
+    contentStudyList.querySelectorAll('.admin-unshare-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id    = btn.getAttribute('data-id');
+        var topic = btn.getAttribute('data-topic') || 'this study';
+        showConfirm('Remove "' + topic + '" from the Community? It stays in the owner’s Library as a private study.', 'Remove', async function () {
+          btn.disabled = true;
+          btn.textContent = 'Removing…';
+          try {
+            var res  = await fetch('/api/admin/studies/' + encodeURIComponent(id) + '/unshare', { method: 'PATCH' });
+            var data = await res.json();
+            if (data.success) { showToast('Removed from Community.'); loadContentStudies(); }
+            else { showToast('Error: ' + (data.error || 'Failed.'), true); btn.disabled = false; btn.textContent = 'Remove from Community'; }
+          } catch (err) {
+            showToast('Error: ' + err.message, true);
+            btn.disabled = false; btn.textContent = 'Remove from Community';
+          }
+        });
+      });
+    });
+  }
+
+  async function toggleFootprint(btn) {
+    var id  = btn.getAttribute('data-id');
+    var box = contentStudyList.querySelector('[data-footprint="' + id + '"]');
+    if (!box) return;
+
+    if (box.style.display === 'block') {
+      box.style.display = 'none';
+      btn.textContent = 'Footprint';
+      return;
+    }
+
+    box.style.display = 'block';
+    box.innerHTML = 'Loading footprint…';
+    btn.textContent = 'Hide Footprint';
+
+    try {
+      var res  = await fetch('/api/admin/studies/' + encodeURIComponent(id) + '/footprint');
+      var data = await res.json();
+      if (!data.success) { box.innerHTML = 'Could not load footprint.'; return; }
+      box.innerHTML = footprintHtml(data.footprint);
+    } catch (err) {
+      box.innerHTML = 'Could not load footprint.';
+    }
+  }
+
+  function footprintHtml(f) {
+    function row(label, value) {
+      return '<div style="display:flex; gap:10px; justify-content:space-between;">' +
+        '<span>' + label + '</span><strong style="color:var(--text);">' + value + '</strong></div>';
+    }
+    return '<div style="font-weight:600; color:var(--text); margin-bottom:8px;">Where this study lives</div>' +
+      row('Community', f.shared ? 'Shared' + (f.sharedAt ? ' since ' + fmtDate(f.sharedAt) : '') : 'Not shared') +
+      row('Attached notes', f.noteCount) +
+      row('Studies branched from it', f.childCount) +
+      row('Linked dialogues', f.dialogueCount) +
+      '<div style="margin-top:10px; padding-top:8px; border-top:1px solid rgba(160,132,92,0.25); font-size:0.8rem;">' +
+        'Live Rooms keep their own copy of a study, so they are never affected by changes here.' +
+      '</div>';
   }
 
   // ── Admin room management ─────────────────────────────────────────────────

@@ -95,9 +95,10 @@
       });
 
       // Delete button
-      card.querySelector('.card-delete-btn').addEventListener('click', function (e) {
+      card.querySelector('.card-delete-btn').addEventListener('click', async function (e) {
         e.stopPropagation();
-        showConfirm('Delete this study? This cannot be undone.', 'Delete', async function () {
+        var message = await buildDeleteMessage(study);
+        showConfirm(message, 'Delete', async function () {
           await deleteStudy(id);
         });
       });
@@ -537,6 +538,51 @@
   });
 
   // ── Delete ─────────────────────────────────────────────────────────────────
+  // Builds a confirmation that states the study's actual footprint rather than a
+  // bare "cannot be undone". Two of the three counts need no request: `shared` is
+  // on the study record and children come from the already-loaded tree via
+  // getChildren(). Only the note count is fetched, from the existing per-study
+  // notepad endpoint — no new endpoint needed for the member-facing flow.
+  //
+  // Purely informational: it never blocks deletion, and a failed note lookup
+  // degrades to omitting that line rather than stopping the user.
+  async function buildDeleteMessage(study) {
+    var warnings = [];
+
+    if (study && study.shared) {
+      warnings.push('This study is shared to the Community and will be removed from the feed.');
+    }
+
+    var noteCount = 0;
+    try {
+      var res  = await fetch('/api/notepad/' + encodeURIComponent(study.id));
+      var data = await res.json();
+      noteCount = (data && data.notepad && data.notepad.notes) ? data.notepad.notes.length : 0;
+    } catch (err) {
+      noteCount = 0;
+    }
+    if (noteCount > 0) {
+      warnings.push(noteCount + ' attached note' + (noteCount === 1 ? '' : 's') +
+        ' will be permanently deleted.');
+    }
+
+    var childCount = getChildren(study.id).length;
+    if (childCount > 0) {
+      warnings.push(childCount === 1
+        ? '1 study branched from this one will lose its link back to it.'
+        : childCount + ' studies branched from this one will lose their link back to it.');
+    }
+
+    // Nothing attached — the plain confirmation is enough. The Rooms reassurance
+    // only reads as reassurance next to a warning; alone it would just puzzle.
+    if (!warnings.length) return 'Delete this study? This cannot be undone.';
+
+    return ['Delete this study? This cannot be undone.']
+      .concat(warnings)
+      .concat(['Live Rooms keep their own copy of a study and will not be affected.'])
+      .join('\n\n');
+  }
+
   async function deleteStudy(id) {
     try {
       var res  = await fetch('/api/library/' + encodeURIComponent(id), { method: 'DELETE' });

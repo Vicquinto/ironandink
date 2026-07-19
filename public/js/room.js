@@ -377,19 +377,7 @@
     var topicEl = document.getElementById('roomCurrentTopic');
     if (topicEl && data.topic) topicEl.textContent = 'Currently studying: ' + data.topic;
 
-    // TEMP: admin word-count monitor for Study Length tuning — remove later
-    if (window.IS_ADMIN) { showAdminWordCount(data.content, 'roomAdminWc'); }
-
     socket.emit('room-topic-update', { roomCode: roomCode, topic: data.topic });
-  }
-
-  // TEMP: admin word-count monitor for Study Length tuning — remove later
-  function showAdminWordCount(markdownContent, elId) {
-    var el = document.getElementById(elId);
-    if (!el) return;
-    var words = (markdownContent || '').replace(/[#*_`>\-]/g, ' ').trim().split(/\s+/).filter(Boolean).length;
-    el.textContent = words + ' words';
-    el.style.display = 'block';
   }
 
   // ── Clear Study ────────────────────────────────────────────────────────────

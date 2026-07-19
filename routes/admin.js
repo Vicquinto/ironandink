@@ -65,6 +65,7 @@ function requireAdmin(req, res, next) {
 const ADMIN_TABS = [
   { key: 'pending',     label: 'Pending Submissions', load: null },
   { key: 'published',   label: 'Published Articles',  load: null },
+  { key: 'content',     label: 'Content Management',  load: ['loadContentStudies'] },
   { key: 'invitations', label: 'Invitations',         load: ['loadInviteRequests', 'loadSentInvites'] },
   { key: 'rooms',       label: 'Live Rooms',          load: ['loadAdminRooms'] },
   { key: 'members',     label: 'Members',             load: ['loadMembers'] },
@@ -124,13 +125,25 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
       </div>
 
       <div id="adminTabMembers" class="admin-tab-content" style="display:none;">
-        <div class="admin-testing-utils" style="background:var(--card-bg); border:1px solid rgba(160,132,92,0.25); border-radius:6px; padding:16px 20px; margin-bottom:24px;">
+        <div id="memberList" class="article-list-container"></div>
+        <p id="memberEmpty" class="writing-empty" style="display:none;">No members.</p>
+      </div>
+
+      <div id="adminTabContent" class="admin-tab-content" style="display:none;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
+          <p style="font-size:0.82rem; color:var(--dark-cream); line-height:1.5; margin:0; max-width:70ch;">Studies shared to the Community. Open a study's footprint to see everywhere it lives before removing it. Members' private studies are not listed here.</p>
+          <label style="font-size:0.82rem; color:var(--dark-cream); display:flex; align-items:center; gap:8px; white-space:nowrap; cursor:pointer;">
+            <input type="checkbox" id="contentShowAll"> Include private studies
+          </label>
+        </div>
+        <div id="contentStudyList" class="article-list-container"></div>
+        <p id="contentStudyEmpty" class="writing-empty" style="display:none;">No shared studies.</p>
+
+        <div class="admin-testing-utils" style="background:var(--card-bg); border:1px solid rgba(160,132,92,0.25); border-radius:6px; padding:16px 20px; margin-top:32px;">
           <h3 class="community-section-label" style="margin-bottom:8px;">Testing Utilities</h3>
           <p style="font-size:0.82rem; color:var(--dark-cream); margin-bottom:12px; line-height:1.5;">Reset your own guided tours so the onboarding pop-ups show again as you visit each page. Only affects your account.</p>
           <button class="btn-warm" id="resetMyToursBtn" style="font-size:0.82rem; padding:6px 16px;">Reset my tours</button>
         </div>
-        <div id="memberList" class="article-list-container"></div>
-        <p id="memberEmpty" class="writing-empty" style="display:none;">No members.</p>
       </div>
 
       <div id="adminTabFeedback" class="admin-tab-content" style="display:none;">
@@ -218,7 +231,8 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
     title:         'Admin Panel',
     content,
     scripts: `<script>window.ADMIN_TABS = ${JSON.stringify(ADMIN_TABS)};</script>
-<script src="/js/admin.js?v=15"></script>
+<script src="/js/study-badges.js?v=1"></script>
+<script src="/js/admin.js?v=16"></script>
 <script>
 (function () {
   var form     = document.getElementById('directInviteForm');
@@ -363,6 +377,76 @@ router.patch('/api/admin/:id/unpublish', requireAuth, requireAdmin, (req, res) =
   articles[idx].updatedAt   = new Date().toISOString();
   writeJSON(ARTICLES_PATH, articles);
   res.json({ success: true, article: articles[idx] });
+});
+
+// ─── GET /api/admin/studies — Content Management list ────────────────────────
+// Defaults to shared studies only: those are the ones published to the Community
+// and therefore the ones content management is actually responsible for. Pass
+// ?all=1 to include members' private studies — an explicit, opt-in action, since
+// browsing private studies is a real privacy intrusion and should never be the
+// default view. Returns metadata only; study bodies are never included here.
+router.get('/api/admin/studies', requireAuth, requireAdmin, (req, res) => {
+  const includeAll = req.query.all === '1';
+  const studies    = readJSON(STUDIES_PATH);
+
+  const list = studies
+    .filter(s => includeAll || s.shared === true)
+    .map(s => ({
+      id:         s.id,
+      topic:      s.topic,
+      studyType:  s.studyType  || null,
+      studyLevel: s.studyLevel || null,
+      shared:     s.shared === true,
+      sharedAt:   s.sharedAt || null,
+      savedAt:    s.savedAt || s.createdAt || null,
+      ownerName:  getAuthorName(s.userId),
+    }))
+    .sort((a, b) => new Date(b.savedAt || 0) - new Date(a.savedAt || 0));
+
+  res.json({ success: true, studies: list, includeAll });
+});
+
+// ─── GET /api/admin/studies/:id/footprint ────────────────────────────────────
+// Everywhere a study currently lives, gathered before any destructive action.
+//
+// Deliberately does NOT report Live Room usage: a room stores a snapshot copy of
+// a study ({topic, content, translation}) with no study id, so there is no stored
+// reference to query — and equally, no risk, since deleting a study cannot affect
+// a room that already holds its own copy.
+router.get('/api/admin/studies/:id/footprint', requireAuth, requireAdmin, (req, res) => {
+  const id      = req.params.id;
+  const studies = readJSON(STUDIES_PATH);
+  const study   = studies.find(s => s.id === id);
+
+  if (!study) return res.status(404).json({ success: false, error: 'Study not found.' });
+
+  // Notes live in the notepad store keyed by studyId. One pad per (studyId, userId),
+  // so sum across pads rather than assuming a single pad.
+  const notepads  = readJSON(path.join(__dirname, '../data/notepads.json'));
+  const noteCount = notepads
+    .filter(p => p.studyId === id)
+    .reduce((sum, p) => sum + ((p.notes || []).length), 0);
+
+  const childCount    = studies.filter(s => s.parentId === id).length;
+  const dialogueCount = readJSON(path.join(__dirname, '../data/dialogues.json'))
+    .filter(d => d.linkedStudyId === id).length;
+
+  res.json({
+    success: true,
+    footprint: {
+      id:            study.id,
+      topic:         study.topic,
+      studyType:     study.studyType  || null,
+      studyLevel:    study.studyLevel || null,
+      savedAt:       study.savedAt || study.createdAt || null,
+      ownerName:     getAuthorName(study.userId),
+      shared:        study.shared === true,
+      sharedAt:      study.sharedAt || null,
+      noteCount,
+      childCount,
+      dialogueCount,
+    },
+  });
 });
 
 // ─── PATCH /api/admin/studies/:id/unshare — admin backstop ───────────────────

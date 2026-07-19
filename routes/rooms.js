@@ -119,7 +119,7 @@ router.get('/rooms', requireAuth, (req, res) => {
     activeSection: 'rooms',
     title:         'Live Study Rooms',
     content,
-    scripts: `<script>window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};</script><script src="/js/study-badges.js?v=1"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/rooms.js?v=6"></script><script src="/js/library.js?v=51"></script>`,
+    scripts: `<script>window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};</script><script src="/js/study-badges.js?v=1"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/rooms.js?v=6"></script><script src="/js/library.js?v=52"></script>`,
   }));
 });
 
@@ -251,7 +251,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
   <script src="/js/study-badges.js?v=1"></script>
   <script src="/js/render-markdown.js?v=1"></script>
   <script src="/js/enhance-further-studies.js?v=2"></script>
-  <script src="/js/library.js?v=51"></script>`,
+  <script src="/js/library.js?v=52"></script>`,
     }));
   }
 
@@ -329,8 +329,6 @@ router.get('/room/:code', requireAuth, (req, res) => {
         <div class="guide-actions">
           <button id="roomSaveBtn" class="btn-primary">Save to My Library</button>
         </div>
-        <!-- TEMP: admin word-count monitor for Study Length tuning — remove later -->
-        <div id="roomAdminWc" style="display:none;margin-top:8px;font-size:0.78rem;color:#9a8060;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.03em;"></div>
       </div>
 
       <div id="roomFollowUp" class="room-followup" style="display:none;">
@@ -369,8 +367,8 @@ router.get('/room/:code', requireAuth, (req, res) => {
   <script src="/js/study-badges.js?v=1"></script>
   <script src="/js/render-markdown.js?v=1"></script>
   <script src="/js/enhance-further-studies.js?v=2"></script>
-  <script src="/js/room.js?v=16"></script>
-  <script src="/js/library.js?v=51"></script>`,
+  <script src="/js/room.js?v=17"></script>
+  <script src="/js/library.js?v=52"></script>`,
   }));
 });
 

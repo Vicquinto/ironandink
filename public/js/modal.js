@@ -31,6 +31,10 @@
       'font-size:1rem',
       'line-height:1.55',
       'text-align:center',
+      // Honour newlines so a multi-part message (e.g. the Library delete
+      // confirmation listing a study's footprint) reads as separate statements.
+      // Single-line messages are unaffected.
+      'white-space:pre-line',
       'margin-bottom:1.5rem',
     ].join(';');
 

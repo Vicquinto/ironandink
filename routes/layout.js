@@ -160,7 +160,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
     window.__currentUserId  = ${JSON.stringify(userId || '')};
   </script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="/js/modal.js?v=9"></script>
+  <script src="/js/modal.js?v=10"></script>
   <script src="/js/app.js?v=8"></script>
   <script src="/js/dictionary.js?v=9"></script>
   <script src="/socket.io/socket.io.js"></script>

@@ -208,8 +208,6 @@ router.get('/study', requireAuth, (req, res) => {
         <button class="btn-primary" id="saveLibraryBtn">Save to Library</button>
         <button class="btn-warm" id="dismissGuideBtn">Dismiss</button>
       </div>
-      <!-- TEMP: admin word-count monitor for Study Length tuning — remove later -->
-      <div id="studyAdminWc" style="display:none;margin-top:8px;font-size:0.78rem;color:#9a8060;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.03em;"></div>
     </div>
 
     <div id="savePanel" class="save-panel" style="display:none;">
@@ -257,7 +255,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study-badges.js?v=1"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/study.js?v=17"></script><script src="/js/library.js?v=51"></script>
+    scripts: `<script src="/js/study-badges.js?v=1"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/study.js?v=18"></script><script src="/js/library.js?v=52"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};
