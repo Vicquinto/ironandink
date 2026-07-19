@@ -210,7 +210,7 @@
             var date = new Date(s.savedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             return '<div class="room-lib-card" data-id="' + escHtml(s.id) + '" style="background:#fff;border:1px solid #c4a882;border-radius:8px;padding:0.75rem 1rem;margin-bottom:0.5rem;cursor:pointer;">' +
               '<span style="font-weight:600;font-size:1rem;color:#3a2a1a;display:block;margin-bottom:0.25rem;">' + escHtml(s.topic) + '</span>' +
-              '<span style="font-size:0.8rem;color:#8a7a6a;">' + date + '</span>' +
+              '<span style="font-size:0.8rem;color:#6B4226;">' + date + '</span>' +
             '</div>';
           }).join('');
 

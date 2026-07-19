@@ -831,8 +831,8 @@ body {
 
 .btn-stop {
   background: transparent;
-  color: #b85450;
-  border: 1px solid #b85450;
+  color: #5a0a0a;
+  border: 1px solid #5a0a0a;
   padding: 8px 20px;
   font-size: 0.85rem;
   font-family: Georgia, serif;
@@ -844,8 +844,8 @@ body {
 }
 .btn-stop:hover {
   background: rgba(184, 84, 80, 0.12);
-  color: #d06460;
-  border-color: #d06460;
+  color: #5a0a0a;
+  border-color: #5a0a0a;
 }
 
 /* ─── GUIDE DISPLAY ─────────────────────────────────────────────────── */
@@ -2819,7 +2819,7 @@ body {
 
 .rejection-note {
   background: rgba(180,60,60,0.12);
-  border-left: 3px solid #c06060;
+  border-left: 3px solid #5a0a0a;
   color: #5a0a0a;
   font-size: 0.8rem;
   padding: 8px 12px;
@@ -2860,7 +2860,7 @@ body {
 
 .btn-reject {
   background: transparent;
-  border: 1px solid #c06060;
+  border: 1px solid #5a0a0a;
   color: #5a0a0a;
   font-family: 'Courier New', monospace;
   font-size: 0.78rem;
@@ -3271,7 +3271,7 @@ body {
 }
 
 .comment-delete-btn:hover {
-  color: #c06060;
+  color: #5a0a0a;
 }
 
 .comment-body {
@@ -4774,7 +4774,7 @@ body {
 
 .tracker-edit-btn {
   font-size: 0.75rem;
-  color: #8a7a6a;
+  color: #6B4226;
   background: none;
   border: none;
   cursor: pointer;
@@ -6785,7 +6785,7 @@ body {
 .notepad-edit-cancel {
   background: transparent;
   color: #8a6c30;
-  border: 1px solid #c4a882;
+  border: 1px solid #6B4226;
   border-radius: 4px;
   padding: 5px 12px;
   font-size: 0.8rem;

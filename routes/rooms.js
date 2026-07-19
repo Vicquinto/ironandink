@@ -119,7 +119,7 @@ router.get('/rooms', requireAuth, (req, res) => {
     activeSection: 'rooms',
     title:         'Live Study Rooms',
     content,
-    scripts: `<script>window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};</script><script src="/js/study-badges.js?v=1"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/rooms.js?v=6"></script><script src="/js/library.js?v=53"></script>`,
+    scripts: `<script>window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};</script><script src="/js/study-badges.js?v=1"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/rooms.js?v=6"></script><script src="/js/library.js?v=54"></script>`,
   }));
 });
 
@@ -194,9 +194,9 @@ router.get('/room/:code', requireAuth, (req, res) => {
     </div>
 
     <div style="position:fixed;right:0;top:0;width:320px;height:100vh;background:#f5ede0;border-left:1px solid #c4a882;display:flex;flex-direction:column;padding:1rem;box-sizing:border-box;z-index:100;">
-      <div style="font-weight:600;font-size:0.9rem;color:#5C1A28;margin-bottom:0.75rem;">Room Chat <span style="font-weight:400;color:#9a8060;font-size:0.8rem;">(paused)</span></div>
+      <div style="font-weight:600;font-size:0.9rem;color:#5C1A28;margin-bottom:0.75rem;">Room Chat <span style="font-weight:400;color:#6B4226;font-size:0.8rem;">(paused)</span></div>
       <div id="roomChatMessages" style="flex:1;overflow-y:auto;border:1px solid #c4a882;border-radius:8px;padding:0.75rem;background:#fff;margin-bottom:0.75rem;"></div>
-      <div style="text-align:center;padding:0.5rem 0;font-size:0.85rem;color:#9a8060;font-style:italic;">Chat is paused</div>
+      <div style="text-align:center;padding:0.5rem 0;font-size:0.85rem;color:#6B4226;font-style:italic;">Chat is paused</div>
     </div>`,
       scripts: `
   <script>
@@ -251,7 +251,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
   <script src="/js/study-badges.js?v=1"></script>
   <script src="/js/render-markdown.js?v=1"></script>
   <script src="/js/enhance-further-studies.js?v=2"></script>
-  <script src="/js/library.js?v=53"></script>`,
+  <script src="/js/library.js?v=54"></script>`,
     }));
   }
 
@@ -303,7 +303,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
       </div>
 
       <hr style="border:none;border-top:1px solid #d4b896;margin:0.9rem 0 0.5rem;" />
-      <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:#9a8060;margin-bottom:0.6rem;font-family:'EB Garamond',Georgia,serif;">Room Functions</div>
+      <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:#6B4226;margin-bottom:0.6rem;font-family:'EB Garamond',Georgia,serif;">Room Functions</div>
       <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:1.5rem;">
         <button id="roomExitBtn" style="background:transparent;color:#5C1A28;border:1px solid #5C1A28;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;">Exit Room</button>
         ${canControl ? `<button id="roomPauseBtn" style="background:#A0845C;color:#fff;border:none;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;">${(room.status || 'active') === 'paused' ? 'Resume Room' : 'Pause Room'}</button>` : ''}
@@ -367,8 +367,8 @@ router.get('/room/:code', requireAuth, (req, res) => {
   <script src="/js/study-badges.js?v=1"></script>
   <script src="/js/render-markdown.js?v=1"></script>
   <script src="/js/enhance-further-studies.js?v=2"></script>
-  <script src="/js/room.js?v=17"></script>
-  <script src="/js/library.js?v=53"></script>`,
+  <script src="/js/room.js?v=18"></script>
+  <script src="/js/library.js?v=54"></script>`,
   }));
 });
 

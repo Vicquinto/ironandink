@@ -157,7 +157,7 @@ router.get('/help', requireAuth, (req, res) => {
 
   function showMsg(text, isError) {
     msg.textContent = text;
-    msg.style.color = isError ? '#c06060' : 'var(--warm-brown)';
+    msg.style.color = isError ? '#5a0a0a' : 'var(--warm-brown)';
     msg.style.display = 'inline';
   }
 

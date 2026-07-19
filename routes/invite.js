@@ -55,7 +55,7 @@ function writeJSON(p, data) {
 
 function publicStyles() {
   return `
-    <link rel="stylesheet" href="/css/styles.css?v=62">
+    <link rel="stylesheet" href="/css/styles.css?v=63">
     <style>
       body { display:flex; align-items:center; justify-content:center; min-height:100vh; }
       .pub-container { width:100%; max-width:480px; padding:24px; }
@@ -573,14 +573,14 @@ router.get('/register', (req, res) => {
           <label class="form-label">Password <span style="font-size:0.7rem; color:var(--warm-brown);">(min 8 characters)</span></label>
           <div style="position:relative;">
             <input class="form-input" type="password" id="password" required minlength="8" placeholder="Choose a strong password">
-            <button type="button" tabindex="-1" onclick="var i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';" style="background:none;border:none;cursor:pointer;position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:#8a7a6a;line-height:1;">&#128065;</button>
+            <button type="button" tabindex="-1" onclick="var i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';" style="background:none;border:none;cursor:pointer;position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:#6B4226;line-height:1;">&#128065;</button>
           </div>
         </div>
         <div class="form-group">
           <label class="form-label">Confirm Password</label>
           <div style="position:relative;">
             <input class="form-input" type="password" id="confirm" required placeholder="Repeat your password">
-            <button type="button" tabindex="-1" onclick="var i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';" style="background:none;border:none;cursor:pointer;position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:#8a7a6a;line-height:1;">&#128065;</button>
+            <button type="button" tabindex="-1" onclick="var i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';" style="background:none;border:none;cursor:pointer;position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:#6B4226;line-height:1;">&#128065;</button>
           </div>
         </div>
         <div class="form-group">

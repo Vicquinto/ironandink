@@ -1130,15 +1130,15 @@
       '</div>' +
     '</div>' +
     '<div class="up-share-footer" style="display:none;flex-direction:row;gap:0.5rem;justify-content:flex-end;padding:0.6rem 14px 0.8rem;margin-top:0.4rem;border-top:1px solid #ddd0b0;">' +
-      '<button class="up-private-btn" style="background:transparent;color:#8a6c30;border:1px solid #c4a882;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Keep Private</button>' +
+      '<button class="up-private-btn" style="background:transparent;color:#8a6c30;border:1px solid #6B4226;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Keep Private</button>' +
       '<button class="up-share-btn" style="background:#5C1A28;color:#fff;border:none;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Share to Chat</button>' +
     '</div>' +
     '<div class="up-pin-footer" style="display:none;flex-direction:row;gap:0.5rem;justify-content:flex-end;padding:0.6rem 14px 0.8rem;margin-top:0.4rem;border-top:1px solid #ddd0b0;">' +
-      '<button class="up-pin-dismiss-btn" style="background:transparent;color:#8a6c30;border:1px solid #c4a882;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Dismiss</button>' +
+      '<button class="up-pin-dismiss-btn" style="background:transparent;color:#8a6c30;border:1px solid #6B4226;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Dismiss</button>' +
       '<button class="up-pin-btn" style="background:#5C1A28;color:#fff;border:none;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Pin to Sidebar</button>' +
     '</div>' +
     '<div class="up-save-note-footer" style="display:none;flex-direction:row;gap:0.5rem;justify-content:flex-end;padding:0.6rem 14px 0.8rem;margin-top:0.4rem;border-top:1px solid #ddd0b0;">' +
-      '<button class="up-save-note-dismiss" style="background:transparent;color:#8a6c30;border:1px solid #c4a882;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Dismiss</button>' +
+      '<button class="up-save-note-dismiss" style="background:transparent;color:#8a6c30;border:1px solid #6B4226;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Dismiss</button>' +
       '<button class="up-save-note-btn" style="background:#5C1A28;color:#fff;border:none;border-radius:4px;padding:5px 14px;font-size:0.82rem;cursor:pointer;font-family:\'EB Garamond\',Georgia,serif;letter-spacing:0.02em;">Save to Notepad</button>' +
     '</div>';
   document.body.appendChild(upEl);

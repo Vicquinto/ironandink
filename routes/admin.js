@@ -164,7 +164,7 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
 
         <div style="background:var(--card-bg); border:1px solid rgba(160,132,92,0.25); border-radius:6px; padding:20px 24px; margin-bottom:28px;">
           <h3 class="community-section-label" style="margin-bottom:14px;">Direct Invite</h3>
-          <div id="directInviteErr" style="display:none; color:#c06060; font-size:0.9rem; margin-bottom:10px;"></div>
+          <div id="directInviteErr" style="display:none; color:#5a0a0a; font-size:0.9rem; margin-bottom:10px;"></div>
           <div id="directInviteLink" style="display:none; background:rgba(160,132,92,0.1); border:1px solid rgba(160,132,92,0.3); border-radius:5px; padding:12px 16px; margin-bottom:12px;">
             <p style="font-size:0.9rem; color:var(--dark-cream); margin-bottom:6px;">Invite link:</p>
             <p id="directInviteLinkText" style="font-family:'Courier New',monospace; font-size:0.8rem; color:var(--accent); word-break:break-all;"></p>
