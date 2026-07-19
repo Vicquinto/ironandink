@@ -48,6 +48,32 @@ function requireAdmin(req, res, next) {
   return res.redirect('/dashboard');
 }
 
+// ─── Admin tab registry ───────────────────────────────────────────────────────
+// Single source of truth for the admin panel's tabs. Drives three things:
+//   1. the tab buttons rendered below,
+//   2. which panel is shown/hidden on switch (public/js/admin.js),
+//   3. which loader(s) run when a tab is opened.
+//
+// `key`   — matches both the button's data-tab value and the panel element id,
+//           which is 'adminTab' + the key capitalised (pending → adminTabPending).
+// `label` — button text.
+// `load`  — names of the client-side loader functions to call when the tab is
+//           opened, or null if the panel needs no fetch. Pending and Published
+//           are null because they load eagerly once at startup instead.
+//
+// Adding a tab: add one entry here plus its panel div in the template below.
+const ADMIN_TABS = [
+  { key: 'pending',     label: 'Pending Submissions', load: null },
+  { key: 'published',   label: 'Published Articles',  load: null },
+  { key: 'invitations', label: 'Invitations',         load: ['loadInviteRequests', 'loadSentInvites'] },
+  { key: 'rooms',       label: 'Live Rooms',          load: ['loadAdminRooms'] },
+  { key: 'members',     label: 'Members',             load: ['loadMembers'] },
+  { key: 'feedback',    label: 'Feedback',            load: ['loadFeedback'] },
+  { key: 'devotionals', label: 'Devotionals',         load: ['loadDevotionals'] },
+];
+
+const ADMIN_DEFAULT_TAB = 'pending';
+
 function readJSON(p) {
   try {
     if (!fs.existsSync(p)) return [];
@@ -77,13 +103,9 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
 
     <div id="adminFeed">
       <div class="admin-tabs">
-        <button class="admin-tab active" data-tab="pending">Pending Submissions</button>
-        <button class="admin-tab" data-tab="published">Published Articles</button>
-        <button class="admin-tab" data-tab="invitations">Invitations</button>
-        <button class="admin-tab" data-tab="rooms">Live Rooms</button>
-        <button class="admin-tab" data-tab="members">Members</button>
-        <button class="admin-tab" data-tab="feedback">Feedback</button>
-        <button class="admin-tab" data-tab="devotionals">Devotionals</button>
+        ${ADMIN_TABS.map(t =>
+          `<button class="admin-tab${t.key === ADMIN_DEFAULT_TAB ? ' active' : ''}" data-tab="${t.key}">${t.label}</button>`
+        ).join('\n        ')}
       </div>
 
       <div id="adminTabPending" class="admin-tab-content">
@@ -195,7 +217,8 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
     activeSection: 'admin',
     title:         'Admin Panel',
     content,
-    scripts: `<script src="/js/admin.js?v=14"></script>
+    scripts: `<script>window.ADMIN_TABS = ${JSON.stringify(ADMIN_TABS)};</script>
+<script src="/js/admin.js?v=15"></script>
 <script>
 (function () {
   var form     = document.getElementById('directInviteForm');

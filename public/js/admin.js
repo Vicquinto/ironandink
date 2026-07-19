@@ -20,11 +20,7 @@
   var rejectConfirmBtn = document.getElementById('rejectConfirmBtn');
   var rejectCancelBtn  = document.getElementById('rejectCancelBtn');
 
-  var adminTabPending     = document.getElementById('adminTabPending');
-  var adminTabPublished   = document.getElementById('adminTabPublished');
-  var adminTabInvitations = document.getElementById('adminTabInvitations');
-  var adminTabRooms       = document.getElementById('adminTabRooms');
-  var adminTabMembers     = document.getElementById('adminTabMembers');
+  // Tab panels are resolved by id convention in tabPanel() below — no refs needed here.
 
   var adminRoomsList  = document.getElementById('adminRoomsList');
   var adminRoomsEmpty = document.getElementById('adminRoomsEmpty');
@@ -32,11 +28,9 @@
   var memberList  = document.getElementById('memberList');
   var memberEmpty = document.getElementById('memberEmpty');
 
-  var adminTabFeedback = document.getElementById('adminTabFeedback');
   var feedbackList     = document.getElementById('feedbackList');
   var feedbackEmpty    = document.getElementById('feedbackEmpty');
 
-  var adminTabDevotionals = document.getElementById('adminTabDevotionals');
   var devotionalsList     = document.getElementById('devotionalsList');
   var devotionalsEmpty    = document.getElementById('devotionalsEmpty');
   var devotionalsClearAll = document.getElementById('devotionalsClearAllBtn');
@@ -99,23 +93,44 @@
   var currentRejectId = null;
 
   // ── Tabs ──────────────────────────────────────────────────────────────────
+  // Driven entirely by window.ADMIN_TABS, the descriptor array defined in
+  // routes/admin.js (which also renders the buttons). Adding a tab needs one
+  // entry there and its panel div — nothing changes in this file.
+  var ADMIN_TABS = window.ADMIN_TABS || [];
+
+  // Maps the loader names in the descriptors to the real functions below.
+  // These are function declarations, so they are hoisted and safe to reference here.
+  var tabLoaders = {
+    loadInviteRequests: loadInviteRequests,
+    loadSentInvites:    loadSentInvites,
+    loadAdminRooms:     loadAdminRooms,
+    loadMembers:        loadMembers,
+    loadFeedback:       loadFeedback,
+    loadDevotionals:    loadDevotionals
+  };
+
+  // Panel id convention: 'adminTab' + capitalised key (rooms → adminTabRooms).
+  function tabPanel(key) {
+    return document.getElementById('adminTab' + key.charAt(0).toUpperCase() + key.slice(1));
+  }
+
   document.querySelectorAll('.admin-tab').forEach(function (tab) {
     tab.addEventListener('click', function () {
       document.querySelectorAll('.admin-tab').forEach(function (t) { t.classList.remove('active'); });
       tab.classList.add('active');
       var which = tab.dataset.tab;
-      adminTabPending.style.display     = which === 'pending'     ? 'block' : 'none';
-      adminTabPublished.style.display   = which === 'published'   ? 'block' : 'none';
-      adminTabInvitations.style.display = which === 'invitations' ? 'block' : 'none';
-      if (adminTabRooms) adminTabRooms.style.display = which === 'rooms' ? 'block' : 'none';
-      if (adminTabMembers) adminTabMembers.style.display = which === 'members' ? 'block' : 'none';
-      if (adminTabFeedback) adminTabFeedback.style.display = which === 'feedback' ? 'block' : 'none';
-      if (adminTabDevotionals) adminTabDevotionals.style.display = which === 'devotionals' ? 'block' : 'none';
-      if (which === 'invitations') { loadInviteRequests(); loadSentInvites(); }
-      if (which === 'rooms') { loadAdminRooms(); }
-      if (which === 'members') { loadMembers(); }
-      if (which === 'feedback') { loadFeedback(); }
-      if (which === 'devotionals') { loadDevotionals(); }
+
+      ADMIN_TABS.forEach(function (t) {
+        var panel = tabPanel(t.key);
+        if (panel) panel.style.display = t.key === which ? 'block' : 'none';
+      });
+
+      ADMIN_TABS.forEach(function (t) {
+        if (t.key !== which || !t.load) return;
+        t.load.forEach(function (name) {
+          if (typeof tabLoaders[name] === 'function') tabLoaders[name]();
+        });
+      });
     });
   });
 
