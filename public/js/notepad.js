@@ -632,7 +632,7 @@
   // ── Keyboard shortcut: Ctrl+Alt+N (mirrors dm-badge.js's Ctrl+Alt+M) ────────
 
   document.addEventListener('keydown', function (e) {
-    if (e.ctrlKey && e.altKey && (e.key === 'n' || e.key === 'N')) {
+    if (e.ctrlKey && e.altKey && e.code === 'KeyN') {
       var tag = document.activeElement ? document.activeElement.tagName : '';
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
       e.preventDefault();

@@ -2063,7 +2063,7 @@
 
   // Ctrl+Alt+T summons / toggles the panel — mirrors the dm-badge.js pattern
   document.addEventListener('keydown', function (e) {
-    if (e.ctrlKey && e.altKey && (e.key === 't' || e.key === 'T')) {
+    if (e.ctrlKey && e.altKey && e.code === 'KeyT') {
       var tag = document.activeElement ? document.activeElement.tagName : '';
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
       e.preventDefault();

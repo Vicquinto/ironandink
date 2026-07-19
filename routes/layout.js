@@ -164,9 +164,9 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   <script src="/js/app.js?v=8"></script>
   <script src="/js/dictionary.js?v=9"></script>
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/js/dm-badge.js?v=2"></script>
+  <script src="/js/dm-badge.js?v=3"></script>
   <script src="/js/dm-widget.js?v=2"></script>
-  <script src="/js/notepad.js?v=5"></script>
+  <script src="/js/notepad.js?v=6"></script>
   ${scripts}
   <script type="module" src="/js/tour-runner.js?v=3"></script>
   <script>

@@ -56,7 +56,7 @@
   // ── Keyboard shortcut: Ctrl+Alt+M ────────────────────────────────────────
 
   document.addEventListener('keydown', function (e) {
-    if (e.ctrlKey && e.altKey && (e.key === 'm' || e.key === 'M')) {
+    if (e.ctrlKey && e.altKey && e.code === 'KeyM') {
       var tag = document.activeElement ? document.activeElement.tagName : '';
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
       e.preventDefault();
