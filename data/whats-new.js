@@ -19,6 +19,16 @@
 const WHATS_NEW = [
   {
     date:  'July 18, 2026',
+    title: 'A word of dedication',
+    body: `A dedication to Pastor John MacArthur has been added to the Dedication page. Iron & Ink owes a great deal to his decades of faithful expository preaching, and we wanted to say so plainly.`,
+  },
+  {
+    date:  'July 18, 2026',
+    title: 'Readability improvements',
+    body: `A number of places on the platform had text that was difficult or impossible to read — pale text sitting on pale backgrounds, left over from an earlier design. This affected status labels, error messages, and the confirmation notices you see after registering or resetting a password. All of it has been corrected, along with some button text that was rendering thin. If you come across anything else that's hard to read, please let us know.`,
+  },
+  {
+    date:  'July 18, 2026',
     title: 'Contact Us',
     body: `You can now reach us directly. A Contact tab has been added to the About page with our email address, and the same address appears in the Help section. If you have a question, run into a problem, or have an idea for something that would make Iron & Ink more useful, please write — we read everything and we reply.`,
   },
