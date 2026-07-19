@@ -166,7 +166,7 @@ function loginStyles() {
       .error-msg {
         background: rgba(180,60,60,0.15);
         border: 1px solid rgba(180,60,60,0.4);
-        color: #e08080; padding: 10px 14px;
+        color: #5a0a0a; padding: 10px 14px;
         border-radius: 4px; font-size: 0.85rem;
         margin-bottom: 18px; display: none;
       }
@@ -199,7 +199,7 @@ function renderLoginPage({ error, notice }) {
       <img src="/images/brand.jpg" alt="Iron & Ink — Iron sharpens iron, Proverbs 27:17" class="login-brand">
     </div>
     <div class="login-card">
-      ${notice ? `<div style="background:rgba(80,140,80,0.12);border:1px solid rgba(80,140,80,0.3);color:#a0d0a0;padding:10px 14px;border-radius:4px;font-size:0.85rem;margin-bottom:16px;">${notice}</div>` : ''}
+      ${notice ? `<div style="background:rgba(80,140,80,0.12);border:1px solid rgba(80,140,80,0.3);color:#2D5A3E;padding:10px 14px;border-radius:4px;font-size:0.85rem;margin-bottom:16px;">${notice}</div>` : ''}
       <div class="error-msg${error ? ' visible' : ''}" id="errorMsg">${error || ''}</div>
       <form id="loginForm">
         <div class="form-group">

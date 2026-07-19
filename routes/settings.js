@@ -120,7 +120,7 @@ router.get('/settings', requireAuth, (req, res) => {
     function flash(id, isError, msg) {
       const el = document.getElementById(id);
       el.textContent = msg || el.textContent;
-      el.style.color = isError ? '#e08080' : '#6abf69';
+      el.style.color = isError ? '#5a0a0a' : '#2D5A3E';
       el.classList.add('visible');
       setTimeout(() => el.classList.remove('visible'), 3000);
     }

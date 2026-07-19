@@ -22,7 +22,7 @@ function writeJSON(p, data) {
 
 function publicStyles() {
   return `
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/styles.css?v=62">
     <style>
       body { display:flex; align-items:center; justify-content:center; min-height:100vh; }
       .pub-container { width:100%; max-width:480px; padding:24px; }
@@ -56,7 +56,7 @@ function publicStyles() {
       .btn-pub:hover { background:#c9a040; color:#1A0F0A; }
       .error-msg {
         background:rgba(180,60,60,0.15); border:1px solid rgba(180,60,60,0.4);
-        color:#e08080; padding:10px 14px; border-radius:4px;
+        color:#5a0a0a; padding:10px 14px; border-radius:4px;
         font-size:0.85rem; margin-bottom:16px; display:none;
       }
       .error-msg.visible { display:block; }

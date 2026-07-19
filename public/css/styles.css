@@ -539,7 +539,7 @@ body {
 
 .save-message {
   font-size: 0.84rem;
-  color: #6abf69;
+  color: #2D5A3E;
   opacity: 0;
   transition: opacity 0.3s;
 }
@@ -1303,7 +1303,7 @@ body {
   transition: color 0.15s;
 }
 .card-delete-btn { color: rgba(160,132,92,0.5); }
-.card-delete-btn:hover { color: #e08080; }
+.card-delete-btn:hover { color: #5a0a0a; }
 .card-edit-btn { color: rgba(160,132,92,0.5); }
 .card-edit-btn:hover { color: var(--accent); }
 
@@ -1756,7 +1756,7 @@ body {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
-.toast-error { border-color: rgba(180,60,60,0.4); color: #e08080; }
+.toast-error { border-color: rgba(180,60,60,0.4); color: #5a0a0a; }
 
 /* ─── LIBRARY TABS ──────────────────────────────────────────────────────── */
 
@@ -2428,7 +2428,7 @@ body {
 }
 .study-level-badge-foundations {
   background: rgba(160,132,92,0.06);
-  color: rgba(160,132,92,0.5);
+  color: var(--warm-brown);
   border: 1px solid rgba(160,132,92,0.12);
 }
 .study-level-badge-journeyman {
@@ -2498,23 +2498,12 @@ body {
   letter-spacing: 0.05em;
 }
 
-.article-status-badge {
-  font-size: 0.68rem;
-  padding: 1px 8px;
-  border-radius: 10px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-.status-draft {
-  background: rgba(160,132,92,0.2);
-  color: var(--dark-cream);
-  border: 1px solid rgba(160,132,92,0.3);
-}
-.status-complete {
-  background: rgba(106,191,105,0.12);
-  color: #6abf69;
-  border: 1px solid rgba(106,191,105,0.25);
-}
+/* Status badges are defined once, in the STATUS BADGES block further down.
+   A second set of .article-status-badge / .status-draft / .status-complete
+   rules used to live here; being earlier at equal specificity, its colours
+   never won, so they read as live styling while rendering nothing. Only the
+   borders survived, which is how .status-complete ended up wearing a pale
+   green border over a tan pill. Merged there — do not redeclare them here. */
 
 /* ─── ARTICLE EDITOR ─────────────────────────────────────────────────────── */
 
@@ -2794,10 +2783,13 @@ body {
   font-weight: 600;
 }
 
-.status-draft     { background: rgba(160,132,92,0.25); color: var(--warm-brown); }
-.status-complete  { background: rgba(160,132,92,0.2);  color: var(--accent); }
-.status-pending   { background: rgba(160,132,92,0.35); color: #5C1A28; }
-.status-published { background: rgba(80,140,80,0.2);   color: #7ec87e; }
+/* The single definitive set — borders folded in from the old duplicate block.
+   .status-published follows the .study-type-badge model: dark tinted text on a
+   matching light wash of the same hue, rather than pale text on pale wash. */
+.status-draft     { background: rgba(160,132,92,0.25); color: var(--warm-brown); border: 1px solid rgba(160,132,92,0.3); }
+.status-complete  { background: rgba(160,132,92,0.2);  color: var(--accent);     border: 1px solid rgba(160,132,92,0.3); }
+.status-pending   { background: rgba(160,132,92,0.35); color: var(--accent); }
+.status-published { background: rgba(45,90,62,0.12);   color: #2D5A3E; }
 
 /* ─── MY ARTICLES — SUBMISSION ──────────────────────────────────────── */
 
@@ -2828,7 +2820,7 @@ body {
 .rejection-note {
   background: rgba(180,60,60,0.12);
   border-left: 3px solid #c06060;
-  color: #e8a0a0;
+  color: #5a0a0a;
   font-size: 0.8rem;
   padding: 8px 12px;
   border-radius: 0 4px 4px 0;
@@ -2869,7 +2861,7 @@ body {
 .btn-reject {
   background: transparent;
   border: 1px solid #c06060;
-  color: #e08080;
+  color: #5a0a0a;
   font-family: 'Courier New', monospace;
   font-size: 0.78rem;
   padding: 6px 14px;
@@ -5745,7 +5737,7 @@ body {
 
 .dm-unread-badge {
   background: var(--accent);
-  color: #1E1208;
+  color: var(--ink);
   font-size: 0.64rem;
   font-weight: 700;
   border-radius: 10px;

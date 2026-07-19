@@ -124,7 +124,7 @@
     function renderError(msg) {
       var el = document.getElementById('dictContent');
       if (!el) return;
-      el.innerHTML = '<span style="color:#EBD9C6;font-style:italic;">' + escapeHtml(msg) + '</span>';
+      el.innerHTML = '<span style="color:#5a0a0a;font-style:italic;">' + escapeHtml(msg) + '</span>';
       if (lastRect) positionTooltip(lastRect);
     }
 

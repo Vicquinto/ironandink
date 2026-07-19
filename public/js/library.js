@@ -1670,7 +1670,7 @@
     .then(function (r) { return r.json(); })
     .then(function (data) {
       if (data.error) {
-        defEl.innerHTML = '<span style="color:#e08080;font-style:italic;">' + esc(data.error) + '</span>';
+        defEl.innerHTML = '<span style="color:#5a0a0a;font-style:italic;">' + esc(data.error) + '</span>';
       } else {
         defEl.innerHTML = renderMarkdown(data.definition);
         if (!_lookupOnly && window.ROOM_CODE && window.isHost) {
@@ -1684,7 +1684,7 @@
       clampUp();
     })
     .catch(function () {
-      defEl.innerHTML = '<span style="color:#e08080;font-style:italic;">Definition unavailable.</span>';
+      defEl.innerHTML = '<span style="color:#5a0a0a;font-style:italic;">Definition unavailable.</span>';
       clampUp();
     });
   });
@@ -1725,7 +1725,7 @@
     .then(function (r) { return r.json(); })
     .then(function (data) {
       if (data.error) {
-        verseEl.innerHTML = '<span style="color:#e08080;font-style:italic;">' + esc(data.error) + '</span>';
+        verseEl.innerHTML = '<span style="color:#5a0a0a;font-style:italic;">' + esc(data.error) + '</span>';
       } else {
         verseEl.innerHTML = renderMarkdown(data.verse);
         if (!_lookupOnly && window.ROOM_CODE && window.isHost) {
@@ -1739,7 +1739,7 @@
       clampUp();
     })
     .catch(function () {
-      verseEl.innerHTML = '<span style="color:#e08080;font-style:italic;">Verse lookup unavailable.</span>';
+      verseEl.innerHTML = '<span style="color:#5a0a0a;font-style:italic;">Verse lookup unavailable.</span>';
       clampUp();
     });
   });
@@ -1788,11 +1788,11 @@
         }
         showSaveNoteFooter({ quote: upSelectedText, question: question, content: data.answer, source: 'explore', occurrence: upOccurrence });
       } else {
-        resp.innerHTML = '<span style="color:#e08080;font-style:italic;">Error: ' + esc(data.error || 'Failed.') + '</span>';
+        resp.innerHTML = '<span style="color:#5a0a0a;font-style:italic;">Error: ' + esc(data.error || 'Failed.') + '</span>';
       }
       clampUp();
     } catch (err) {
-      resp.innerHTML = '<span style="color:#e08080;font-style:italic;">Error: ' + esc(err.message) + '</span>';
+      resp.innerHTML = '<span style="color:#5a0a0a;font-style:italic;">Error: ' + esc(err.message) + '</span>';
       clampUp();
     } finally {
       askBtn.disabled = false;
@@ -2089,13 +2089,13 @@
           body.innerHTML = renderMarkdown(data.answer);
           aapHistory.push({ role: 'assistant', content: data.answer });
         } else {
-          body.innerHTML = '<span style="color:#e08080;font-style:italic;">Error: ' +
+          body.innerHTML = '<span style="color:#5a0a0a;font-style:italic;">Error: ' +
             esc(data.error || 'Failed.') + '</span>';
           aapHistory.pop();  // drop the unanswered user turn
         }
       })
       .catch(function (err) {
-        body.innerHTML = '<span style="color:#e08080;font-style:italic;">Error: ' +
+        body.innerHTML = '<span style="color:#5a0a0a;font-style:italic;">Error: ' +
           esc(err.message) + '</span>';
         aapHistory.pop();
       })
