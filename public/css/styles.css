@@ -2797,7 +2797,7 @@ body {
   background: transparent;
   border: 1px solid var(--accent);
   color: var(--accent);
-  font-family: 'Courier New', monospace;
+  font-family: Georgia, serif;
   font-size: 0.78rem;
   padding: 6px 14px;
   border-radius: 4px;
@@ -2862,11 +2862,12 @@ body {
   background: transparent;
   border: 1px solid #5a0a0a;
   color: #5a0a0a;
-  font-family: 'Courier New', monospace;
+  font-family: Georgia, serif;
   font-size: 0.78rem;
   padding: 6px 14px;
   border-radius: 4px;
   cursor: pointer;
+  letter-spacing: 0.04em;
   transition: background 0.15s, color 0.15s;
 }
 
