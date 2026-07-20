@@ -19,6 +19,11 @@
 const WHATS_NEW = [
   {
     date:  'July 18, 2026',
+    title: 'Suggest a study type',
+    body: `Not sure which study type fits your topic? Type it in and click "Suggest a study type," and Iron & Ink will recommend one with a brief explanation of why. It's only a suggestion — you're free to choose any type you like.`,
+  },
+  {
+    date:  'July 18, 2026',
     title: 'A word of dedication',
     body: `A dedication to Pastor John MacArthur has been added to the Dedication page. Iron & Ink owes a great deal to his decades of faithful expository preaching, and we wanted to say so plainly.`,
   },
