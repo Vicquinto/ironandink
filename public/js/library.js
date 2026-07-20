@@ -1445,7 +1445,8 @@
   document.addEventListener('mouseup', function (e) {
     if (e.target.closest && (
           e.target.closest('#unifiedPopup') ||
-          e.target.closest('#inlineChatModal'))) return;
+          e.target.closest('#inlineChatModal') ||
+          e.target.closest('#unifiedConvoPanel'))) return;
 
     // Only fire on a deliberate highlight of study content — never on top of an
     // open dialog/form, and never when the release lands on a UI control. This is
@@ -1501,11 +1502,14 @@
     // Capture which occurrence was highlighted now, while the selection is live.
     upOccurrence   = computeSelectionOccurrence(selText);
     icmTopic       = ctx.topic;
-    showUp(selText, rect);
+    // Phase 1: the highlight-selection trigger now opens the unified conversation
+    // panel (grounded), not the old #unifiedPopup tooltip. showUp() and the rest
+    // of the old tooltip remain defined but unreachable pending Phase 2 removal.
+    openUnifiedGrounded(selText, upOccurrence, ctx);
     // Suppress any legacy dictionary tooltip that may fire after its 400 ms debounce
     setTimeout(function () {
       var dictTt = document.getElementById('dictTooltip');
-      if (dictTt && upEl && upEl.style.display !== 'none') dictTt.style.display = 'none';
+      if (dictTt && ucpEl && ucpEl.style.display !== 'none') dictTt.style.display = 'none';
     }, 450);
   });
 
@@ -2107,15 +2111,375 @@
       });
   }
 
-  // Ctrl+Alt+T summons / toggles the panel — mirrors the dm-badge.js pattern
+  // Ctrl+Alt+T summons / toggles the panel — mirrors the dm-badge.js pattern.
+  // Phase 1: routes to the unified conversation panel (ungrounded). The old
+  // toggleAskPanel()/#askAiPanel remain defined but unreachable pending Phase 2.
   document.addEventListener('keydown', function (e) {
     if (e.ctrlKey && e.altKey && e.code === 'KeyT') {
       var tag = document.activeElement ? document.activeElement.tagName : '';
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
       e.preventDefault();
-      toggleAskPanel();
+      toggleUnifiedUngrounded();
     }
   });
+
+  // ══ Unified conversation panel (Phase 1) ═══════════════════════════════════
+  // One centered, draggable, threaded panel replacing three overlapping widgets
+  // as the reachable UI: #unifiedPopup (grounded tooltip), #askAiPanel (threaded
+  // ask) and #inlineChatModal (grounded chat). Two entry points:
+  //   • highlight a selection → grounded  (selection + Define/Explore/Verse)
+  //   • Ctrl+Alt+T            → ungrounded (no selection, waiting for a question)
+  // The threaded spine mirrors #askAiPanel; grounded turn-one folding mirrors the
+  // old #inlineChatModal; answers route their pin to the notepad (the single pin
+  // destination now — the Scripture "Pin to Sidebar" is retired here).
+  var ucpEl               = null;
+  var ucpHistory          = [];
+  var ucpTopic            = '';
+  var ucpSelection        = '';
+  var ucpOccurrence       = null;
+  var ucpGrounded         = false;
+  var ucpEsvLocked        = false;   // persists for the whole grounded conversation
+  var ucpLookupOnly       = false;
+  var ucpPendingBroadcast = null;
+  var ucpLastPin          = null;    // pin payload for the most recent answer
+  var ucpLastPinned       = false;   // per-answer duplicate-pin guard
+
+  function buildUnifiedPanel() {
+    var el = document.createElement('div');
+    el.id        = 'unifiedConvoPanel';
+    el.className = 'unified-convo-panel';
+    el.style.display = 'none';
+    el.innerHTML =
+      '<div class="ucp-header">' +
+        '<span class="ucp-title">Iron &amp; Ink</span>' +
+        '<kbd class="ucp-hint">Ctrl+Alt+T</kbd>' +
+        '<button class="ucp-close" title="Close" aria-label="Close">×</button>' +
+      '</div>' +
+      '<div class="ucp-context" style="display:none;">' +
+        '<div class="ucp-selection"></div>' +
+        '<div class="ucp-actions">' +
+          '<button class="ucp-define-btn">Define</button>' +
+          '<button class="ucp-explore-btn">Explore</button>' +
+          '<button class="ucp-verse-btn">Verse Lookup</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ucp-thread"></div>' +
+      '<div class="ucp-footer" style="display:none;">' +
+        '<button class="ucp-share-btn" style="display:none;">Share to Chat</button>' +
+        '<button class="ucp-pin-btn" style="display:none;">Pin to Notepad</button>' +
+      '</div>' +
+      '<div class="ucp-input-row">' +
+        '<textarea class="ucp-input" rows="2" placeholder="Ask a question…"></textarea>' +
+        '<button class="ucp-ask-btn">Ask</button>' +
+      '</div>';
+    document.body.appendChild(el);
+
+    el.querySelector('.ucp-close').addEventListener('click', closeUnifiedPanel);
+    el.querySelector('.ucp-ask-btn').addEventListener('click', ucpAsk);
+    el.querySelector('.ucp-input').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ucpAsk(); }
+    });
+    el.querySelector('.ucp-define-btn').addEventListener('click', ucpDefine);
+    el.querySelector('.ucp-verse-btn').addEventListener('click', ucpVerse);
+    el.querySelector('.ucp-explore-btn').addEventListener('click', function () {
+      ucpEl.querySelector('.ucp-input').focus();
+    });
+    el.querySelector('.ucp-pin-btn').addEventListener('click', ucpPin);
+    el.querySelector('.ucp-share-btn').addEventListener('click', ucpShare);
+    // Keep clicks inside the panel from reaching any outside-dismiss handler.
+    el.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+    makeDraggable(el, el.querySelector('.ucp-header'));
+    return el;
+  }
+
+  // Always centered on screen (like the mini-inbox), in both modes — never
+  // anchored to the selection. Draggable thereafter via the shared helper.
+  function centerUnifiedPanel() {
+    ucpEl.style.visibility = 'hidden';
+    ucpEl.style.display    = 'flex';
+    var pw = ucpEl.offsetWidth, ph = ucpEl.offsetHeight;
+    ucpEl.style.left = Math.max(8, (window.innerWidth  - pw) / 2) + 'px';
+    ucpEl.style.top  = Math.max(8, (window.innerHeight - ph) / 2) + 'px';
+    ucpEl.style.visibility = '';
+  }
+
+  // Clears thread, history, footer and per-answer guard. Called on OPEN only —
+  // never by pin, so pinning leaves the conversation and input intact.
+  function ucpResetConversation() {
+    ucpHistory          = [];
+    ucpLastPin          = null;
+    ucpLastPinned       = false;
+    ucpPendingBroadcast = null;
+    if (!ucpEl) return;
+    ucpEl.querySelector('.ucp-thread').innerHTML       = '';
+    ucpEl.querySelector('.ucp-input').value            = '';
+    ucpEl.querySelector('.ucp-footer').style.display   = 'none';
+    ucpEl.querySelector('.ucp-pin-btn').style.display  = 'none';
+    ucpEl.querySelector('.ucp-share-btn').style.display = 'none';
+  }
+
+  // Grounded open: a selection was highlighted. `ctx` is the resolved study
+  // context (topic / inScripture / lookupOnly).
+  function openUnifiedGrounded(selText, occurrence, ctx) {
+    if (!ucpEl) ucpEl = buildUnifiedPanel();
+    ucpGrounded   = true;
+    ucpSelection  = selText;
+    ucpOccurrence = (typeof occurrence === 'number') ? occurrence : null;
+    ucpTopic      = ctx ? ctx.topic : '';
+    ucpLookupOnly = !!(ctx && ctx.lookupOnly);
+    // ESV lock is captured ONCE, here, and stored in panel state — it persists
+    // for the entire grounded conversation (never re-evaluated per action).
+    ucpEsvLocked  = !!(ctx && ctx.inScripture && window.SCRIPTURE_IS_ESV);
+    // Keep the shared module flags in sync so canTakeNotes()/ensureNotepadCtx()
+    // (which read _lookupOnly) resolve correctly for this grounding.
+    _lookupOnly   = ucpLookupOnly;
+    _inScripture  = !!(ctx && ctx.inScripture);
+
+    ucpResetConversation();
+    ucpEl.querySelector('.ucp-context').style.display = '';
+    ucpEl.querySelector('.ucp-selection').textContent =
+      selText.length > 160 ? selText.slice(0, 160) + '…' : selText;
+    applyEsvLock();
+    centerUnifiedPanel();
+    if (!ucpEsvLocked) {
+      setTimeout(function () { ucpEl.querySelector('.ucp-input').focus(); }, 40);
+    }
+  }
+
+  // Ungrounded open: Ctrl+Alt+T, no selection. Inherits only the study topic.
+  function openUnifiedUngrounded() {
+    if (!ucpEl) ucpEl = buildUnifiedPanel();
+    var ctx = resolveStudyContext(null);
+    ucpGrounded   = false;
+    ucpSelection  = '';
+    ucpOccurrence = null;
+    ucpTopic      = ctx ? ctx.topic : '';
+    ucpLookupOnly = !!(ctx && ctx.lookupOnly);
+    ucpEsvLocked  = false;                 // no selection → nothing ESV to withhold
+    _lookupOnly   = ucpLookupOnly;
+    _inScripture  = !!(ctx && ctx.inScripture);
+
+    ucpResetConversation();
+    ucpEl.querySelector('.ucp-context').style.display = 'none';
+    applyEsvLock();
+    centerUnifiedPanel();
+    setTimeout(function () { ucpEl.querySelector('.ucp-input').focus(); }, 40);
+  }
+
+  function closeUnifiedPanel() {
+    if (ucpEl) ucpEl.style.display = 'none';
+  }
+
+  function toggleUnifiedUngrounded() {
+    if (ucpEl && ucpEl.style.display !== 'none') closeUnifiedPanel();
+    else openUnifiedUngrounded();
+  }
+
+  // ESV compliance: an ESV Scripture selection must never reach Anthropic. While
+  // the panel is grounded in one, withhold Define, Explore and the ask input for
+  // the WHOLE conversation. Verse Lookup only queries the ESV API, so it stays.
+  // Because ucpEsvLocked lives in panel state (set once at open), the lock does
+  // not lapse after the first action.
+  function applyEsvLock() {
+    if (!ucpEl) return;
+    var lock = ucpEsvLocked;
+    ucpEl.querySelector('.ucp-define-btn').style.display  = lock ? 'none' : '';
+    ucpEl.querySelector('.ucp-explore-btn').style.display = lock ? 'none' : '';
+    ucpEl.querySelector('.ucp-input-row').style.display   = lock ? 'none' : '';
+  }
+
+  function ucpAppendMsg(kind, bodyHtml, labelOverride) {
+    var thread = ucpEl.querySelector('.ucp-thread');
+    var msg    = document.createElement('div');
+    msg.className = 'ucp-msg ucp-msg-' + kind;
+    var label = labelOverride || (kind === 'user' ? 'You' : 'Iron & Ink');
+    msg.innerHTML =
+      '<div class="ucp-msg-label">' + esc(label) + '</div>' +
+      '<div class="ucp-msg-body">' + bodyHtml + '</div>';
+    thread.appendChild(msg);
+    thread.scrollTop = thread.scrollHeight;
+    return msg;
+  }
+
+  // After any answer (Define / Verse / Ask) surface the per-answer footer. Pin
+  // shows only where a notepad study is bound (canTakeNotes → degrades to hidden
+  // on the Scripture reader / Community); Share only for a room host outside a
+  // lookup-only reader. Resets the duplicate-pin guard so THIS answer pins once.
+  function ucpShowAnswerFooter(pinData, type, responseText) {
+    ucpLastPin    = pinData;
+    ucpLastPinned = false;
+    var footer   = ucpEl.querySelector('.ucp-footer');
+    var pinBtn   = ucpEl.querySelector('.ucp-pin-btn');
+    var shareBtn = ucpEl.querySelector('.ucp-share-btn');
+
+    var canPin   = canTakeNotes();
+    var canShare = !ucpLookupOnly && !!window.ROOM_CODE && !!window.isHost;
+
+    pinBtn.style.display = canPin ? '' : 'none';
+    pinBtn.disabled      = false;
+    pinBtn.textContent   = 'Pin to Notepad';
+
+    shareBtn.style.display = canShare ? '' : 'none';
+    shareBtn.disabled      = false;
+    shareBtn.textContent   = 'Share to Chat';
+    ucpPendingBroadcast    = canShare
+      ? { roomCode: window.ROOM_CODE, type: type, term: ucpSelection, response: responseText }
+      : null;
+
+    footer.style.display = (canPin || canShare) ? 'flex' : 'none';
+  }
+
+  // Pin the most recent answer to the notepad. Grounded → anchored note (carries
+  // quote + occurrence, so the notepad's superscript-marker machinery fires);
+  // ungrounded → free note (quote null). Never closes or resets the panel.
+  function ucpPin() {
+    var btn = ucpEl.querySelector('.ucp-pin-btn');
+    if (!ucpLastPin || ucpLastPinned || !window.__notepad) return;
+    var data = ucpLastPin;
+    ensureNotepadCtx(function (ctx) {
+      btn.disabled    = true;
+      btn.textContent = 'Pinning…';
+      window.__notepad.saveLookupNote(ctx.id, ctx.title, data, function (ok) {
+        if (!ok) { btn.textContent = 'Pin to Notepad'; btn.disabled = false; return; }
+        // Per-answer guard: this specific answer is pinned; a NEW answer re-enables.
+        ucpLastPinned   = true;
+        btn.textContent = 'Pinned ✓';
+        btn.disabled    = true;
+        showToast('Saved to Notepad');
+      });
+    });
+  }
+
+  function ucpShare() {
+    var btn = ucpEl.querySelector('.ucp-share-btn');
+    if (ucpPendingBroadcast && window.roomSocket) {
+      window.roomSocket.emit('room-tooltip-broadcast', ucpPendingBroadcast);
+    }
+    btn.textContent = 'Shared ✓';
+    btn.disabled    = true;
+    setTimeout(function () {
+      btn.textContent = 'Share to Chat';
+      btn.disabled    = false;
+    }, 1500);
+  }
+
+  function ucpDefine() {
+    if (ucpEsvLocked || !ucpGrounded) return;   // ESV backstop; only meaningful grounded
+    var term = ucpSelection;
+    var msg  = ucpAppendMsg('assistant', '<span class="up-loading">Looking up definition…</span>', 'Definition');
+    var body = msg.querySelector('.ucp-msg-body');
+    fetch('/api/dictionary/define', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ term: term }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.error) {
+          body.innerHTML = '<span style="color:#5a0a0a;font-style:italic;">' + esc(data.error) + '</span>';
+        } else {
+          body.innerHTML = renderMarkdown(data.definition);
+          ucpShowAnswerFooter(
+            { quote: term, question: null, content: data.definition, source: 'define', occurrence: ucpOccurrence },
+            'Define', data.definition);
+        }
+        var t = ucpEl.querySelector('.ucp-thread'); t.scrollTop = t.scrollHeight;
+      })
+      .catch(function () {
+        body.innerHTML = '<span style="color:#5a0a0a;font-style:italic;">Definition unavailable.</span>';
+      });
+  }
+
+  function ucpVerse() {
+    if (!ucpGrounded) return;                    // Verse Lookup permitted even on ESV
+    var ref  = ucpSelection;
+    var msg  = ucpAppendMsg('assistant', '<span class="up-loading">Looking up verse…</span>', 'Verse');
+    var body = msg.querySelector('.ucp-msg-body');
+    fetch('/api/library/verse', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ reference: ref }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.error) {
+          body.innerHTML = '<span style="color:#5a0a0a;font-style:italic;">' + esc(data.error) + '</span>';
+        } else {
+          body.innerHTML = renderMarkdown(data.verse);
+          ucpShowAnswerFooter(
+            { quote: ref, question: null, content: data.verse, source: 'verse', occurrence: ucpOccurrence },
+            'Verse Lookup', data.verse);
+        }
+        var t = ucpEl.querySelector('.ucp-thread'); t.scrollTop = t.scrollHeight;
+      })
+      .catch(function () {
+        body.innerHTML = '<span style="color:#5a0a0a;font-style:italic;">Verse lookup unavailable.</span>';
+      });
+  }
+
+  function ucpAsk() {
+    if (ucpEsvLocked) return;                    // asking would resend the ESV selection
+    var input = ucpEl.querySelector('.ucp-input');
+    var btn   = ucpEl.querySelector('.ucp-ask-btn');
+    var q     = input.value.trim();
+    if (!q) { input.focus(); return; }
+
+    input.value  = '';
+    btn.disabled = true;
+
+    // First turn folds context in: grounded → selection preamble (mirrors the old
+    // #inlineChatModal at library.js:1876); ungrounded → topic-only preamble
+    // (mirrors #askAiPanel). Later turns are pure history mode.
+    var content;
+    if (ucpHistory.length === 0 && ucpGrounded && ucpSelection) {
+      content = 'I am reading a study on "' + ucpTopic + '" and have selected this passage:\n\n"' +
+        ucpSelection + '"\n\n' + q;
+    } else if (ucpHistory.length === 0 && ucpTopic) {
+      content = 'I am reading a study on "' + ucpTopic + '". ' + q;
+    } else {
+      content = q;
+    }
+
+    ucpAppendMsg('user', esc(q).replace(/\n/g, '<br>'));
+    ucpHistory.push({ role: 'user', content: content });
+
+    var pending = ucpAppendMsg('assistant', '<span class="up-loading">Thinking…</span>');
+    var body    = pending.querySelector('.ucp-msg-body');
+
+    fetch('/api/library/ask', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ history: ucpHistory }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.success) {
+          body.innerHTML = renderMarkdown(data.answer);
+          ucpHistory.push({ role: 'assistant', content: data.answer });
+          ucpShowAnswerFooter(
+            { quote:      ucpGrounded ? ucpSelection : null,
+              question:   q,
+              content:    data.answer,
+              source:     'explore',
+              occurrence: ucpGrounded ? ucpOccurrence : null },
+            'Explore', data.answer);
+        } else {
+          body.innerHTML = '<span style="color:#5a0a0a;font-style:italic;">Error: ' +
+            esc(data.error || 'Failed.') + '</span>';
+          ucpHistory.pop();   // drop the unanswered user turn
+        }
+      })
+      .catch(function (err) {
+        body.innerHTML = '<span style="color:#5a0a0a;font-style:italic;">Error: ' +
+          esc(err.message) + '</span>';
+        ucpHistory.pop();
+      })
+      .then(function () {
+        btn.disabled = false;
+        input.focus();
+        var t = ucpEl.querySelector('.ucp-thread'); t.scrollTop = t.scrollHeight;
+      });
+  }
 
   loadStudies();
 })();
