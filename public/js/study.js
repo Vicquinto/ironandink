@@ -23,6 +23,10 @@
   // ── DOM refs ──────────────────────────────────────────────────────────────
   const topicInput       = document.getElementById('topicInput');
   const generateBtn      = document.getElementById('generateBtn');
+  // Resolved here with the other refs, not beside its handlers below: branch mode
+  // can engage during top-level init (the Library-consume path calls
+  // showBranchNote before that point), and setSuggestVisible must find the button.
+  const suggestTypeBtn   = document.getElementById('suggestTypeBtn');
   const studyLoading     = document.getElementById('studyLoading');
   const loadingTopicName = document.getElementById('loadingTopicName');
   const stopBtn          = document.getElementById('stopGenerationBtn');
@@ -94,6 +98,9 @@
         opt.setAttribute('aria-checked', 'true');
         selectedType = opt.dataset.type || 'doctrinal';
         updateLevelVisibility();
+        // Picking a type by hand supersedes any suggestion — leaving the reason
+        // beside a different selection would misrepresent what was recommended.
+        clearSuggestNote();
       });
     });
     updateLevelVisibility(); // reflect the default selection on load
@@ -226,12 +233,120 @@
     // Explore is journey-starting; a branch continues one. The "why" now lives on
     // the Explore card itself (hover + click tooltip), naming this parent topic.
     disableExploreOption(parentTopic);
+    // A branch already has its type decided; suggesting another would just muddle
+    // it. Driven from here (and re-shown in clearBranchNote) so the button can
+    // never be left visible in branch mode, whichever path queued the branch.
+    setSuggestVisible(false);
   }
   function clearBranchNote() {
     var note = document.getElementById('branchNote');
     if (note) { note.style.display = 'none'; note.textContent = ''; }
     enableExploreOption(); // single consistent un-disable point (every clear path calls this)
+    setSuggestVisible(true);
   }
+
+  // ── Suggest a study type ────────────────────────────────────────────────────
+  // Asks the AI which of the seven types fits the typed topic, then highlights it
+  // in the picker with a one-line reason. Purely advisory: nothing is disabled,
+  // the picker stays live, and the member's selection at Generate always wins.
+  // Fires only on an explicit button click — never on typing, blur or focus.
+  var suggestBusy = false;
+
+  function setSuggestVisible(visible) {
+    if (!suggestTypeBtn) return;
+    suggestTypeBtn.style.display = visible ? '' : 'none';
+    if (!visible) clearSuggestNote();
+  }
+
+  // Enabled only with a topic to classify. Left alone while a request is in
+  // flight so the in-progress label isn't overwritten by an input event.
+  function syncSuggestEnabled() {
+    if (!suggestTypeBtn || suggestBusy) return;
+    suggestTypeBtn.disabled = !(topicInput && topicInput.value.trim());
+  }
+
+  // Sibling of #branchNote, deliberately NOT the same element: branch mode owns
+  // that one, and a queued branch plus a suggestion would otherwise overwrite
+  // each other. Same insertion point and styling so the two read alike.
+  function suggestNoteEl() {
+    var note = document.getElementById('suggestNote');
+    if (!note) {
+      note = document.createElement('div');
+      note.id = 'suggestNote';
+      note.className = 'branch-note';
+      note.style.display = 'none';
+      if (studyTypePicker && studyTypePicker.parentNode) {
+        studyTypePicker.parentNode.insertBefore(note, studyTypePicker);
+      }
+    }
+    return note;
+  }
+
+  function showSuggestNote(typeKey, reason) {
+    var note = suggestNoteEl();
+    note.textContent = 'Suggested: ';
+    var strong = document.createElement('strong');
+    var opt    = studyTypePicker && studyTypePicker.querySelector('.study-type-option[data-type="' + typeKey + '"]');
+    var label  = opt && opt.querySelector('.study-type-name');
+    // Show the card's own label — `people` reads as "Subject" in the picker, so the
+    // raw key would name a type the member cannot see.
+    strong.textContent = label ? label.textContent : typeKey;
+    note.appendChild(strong);
+    note.appendChild(document.createTextNode(' — ' + reason + ' You can still pick any type.'));
+    note.style.display = 'block';
+  }
+
+  function showSuggestError(msg) {
+    var note = suggestNoteEl();
+    note.textContent = msg;
+    note.style.display = 'block';
+  }
+
+  // A reason shown next to a different selection would be misleading, so it is
+  // cleared whenever the topic or the chosen type moves away from what was suggested.
+  function clearSuggestNote() {
+    var note = document.getElementById('suggestNote');
+    if (note) { note.style.display = 'none'; note.textContent = ''; }
+  }
+
+  if (suggestTypeBtn) {
+    suggestTypeBtn.addEventListener('click', async function () {
+      var topic = topicInput ? topicInput.value.trim() : '';
+      if (!topic || suggestBusy) return;
+
+      suggestBusy = true;
+      suggestTypeBtn.disabled    = true;
+      suggestTypeBtn.textContent = 'Thinking…';
+      clearSuggestNote();
+
+      try {
+        var res = await fetch('/api/study/suggest-type', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ topic: topic }),
+        });
+        var data = await res.json();
+        if (data && data.success) {
+          applyBranchDefaultType(data.type);   // highlight only — never locks
+          showSuggestNote(data.type, data.reason);
+        } else {
+          // Picker deliberately untouched on failure.
+          showSuggestError((data && data.error) || 'Could not suggest a type. Please try again.');
+        }
+      } catch (err) {
+        showSuggestError('Could not suggest a type. Please try again.');
+      } finally {
+        suggestBusy = false;
+        suggestTypeBtn.textContent = 'Suggest a study type';
+        syncSuggestEnabled();
+      }
+    });
+  }
+
+  // Reflect the topic the page loaded with — the button ships disabled in the
+  // markup, but a ?topic= prefill or a queued branch means there may already be
+  // one, and no 'input' event fires for a programmatic value.
+  syncSuggestEnabled();
 
   // ── Branch-mode Explore lock ────────────────────────────────────────────────
   // Explore is for STARTING a study journey; a branch CONTINUES one and must use a
@@ -312,17 +427,25 @@
   // Typing a topic manually abandons a queued branch (fresh intent).
   topicInput.addEventListener('input', function () {
     if (pendingBranchTopic !== null) clearPendingLineage();
+    // A new topic invalidates any suggestion made about the old one.
+    clearSuggestNote();
+    syncSuggestEnabled();
   });
 
   // Branch mode defaults the picker to Pathway — a full study that itself ends in
   // a Further Studies section, so branch trees can keep growing. Fully user-changeable
   // before Generate. One place sets both selectedType and the picker UI so queueBranch,
   // the Library-consume path, and the Explore-lock fallback stay in sync.
-  function applyBranchDefaultType() {
-    selectedType = 'pathway';
+  // Defaults to 'pathway' so the branch-mode callers below are unchanged; the
+  // "Suggest a study type" flow passes the suggested key instead. Selecting a
+  // type here is a starting point, never a lock — the picker stays live and
+  // whatever is selected at Generate wins.
+  function applyBranchDefaultType(type) {
+    var target = type || 'pathway';
+    selectedType = target;
     if (studyTypePicker) {
       studyTypePicker.querySelectorAll('.study-type-option').forEach(function (o) {
-        var isDefault = (o.dataset.type === 'pathway');
+        var isDefault = (o.dataset.type === target);
         o.classList.toggle('study-type-option--active', isDefault);
         o.setAttribute('aria-checked', isDefault ? 'true' : 'false');
       });

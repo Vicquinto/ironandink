@@ -4,6 +4,7 @@ const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
 const { VERSES } = require('./dashboard'); // reuse the Verse-of-the-Day pool for the patience loading screen
 const { assertNoEsvText } = require('./esvGuard');
 const { injectVerses } = require('../lib/asv');
+const { aiLimiter } = require('../middleware/rateLimit');
 
 const router = express.Router();
 
@@ -175,6 +176,7 @@ router.get('/study', requireAuth, (req, res) => {
       </div>
       <button id="generateBtn" class="btn-primary">Generate Study</button>
       <button id="appointedStudyBtn" class="btn-warm">Appointed Study</button>
+      <button id="suggestTypeBtn" class="btn-warm" disabled>Suggest a study type</button>
     </div>
 
     <div class="study-length-picker" id="studyLengthPicker" aria-label="Study length" style="display:none;">
@@ -255,7 +257,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study-badges.js?v=1"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/study.js?v=18"></script><script src="/js/library.js?v=54"></script>
+    scripts: `<script src="/js/study-badges.js?v=1"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/study.js?v=19"></script><script src="/js/library.js?v=54"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};
@@ -652,6 +654,120 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
       console.log(`[study-gen] DONE total time=${Date.now() - reqStart}ms`);
       return res.status(500).json({ success: false, error: 'Generation failed. Please try again.' });
     }
+  }
+});
+
+// ─── POST /api/study/suggest-type ────────────────────────────────────────────
+// Recommends which of the seven study types best fits a topic. Advisory only —
+// the client highlights the suggestion in the picker, and whatever the member has
+// selected at Generate is what gets used.
+//
+// Classification is on the shape of the SUBJECT, never the reader: no study level
+// or depth is inferred here.
+
+// The keys the picker uses, with the exact card descriptions members read. Kept
+// in step with the .study-type-option cards in GET /study below — if a card's
+// wording changes, change it here too so the model classifies against what the
+// member actually sees.
+const SUGGEST_TYPE_OPTIONS = [
+  { key: 'doctrinal',  label: 'Doctrinal',         desc: 'Reformed doctrine, confessions & historical voices' },
+  { key: 'explore',    label: 'Explore',           desc: 'Big subject? Get oriented, then branch into further studies.' },
+  { key: 'historical', label: 'Historical',        desc: 'Timeline, places, and what happened' },
+  { key: 'scripture',  label: 'Scripture & Verse', desc: 'Study a specific passage, verse by verse' },
+  { key: 'people',     label: 'Subject',           desc: 'A person, place, or thing in Scripture & its place in God\'s plan' },
+  { key: 'pathway',    label: 'Pathway',           desc: 'A full study that follows the subject where it leads — and opens further paths.' },
+  { key: 'open',       label: 'Open',              desc: 'Not sure which to pick? Start here — fits the study to the subject.' },
+];
+
+const SUGGEST_VALID_KEYS = SUGGEST_TYPE_OPTIONS.map(o => o.key);
+
+// Strip ``` fences before parsing. Asking for bare JSON usually gets bare JSON,
+// but a fenced reply is the common failure and is cheap to recover from.
+function parseSuggestion(raw) {
+  let text = String(raw || '').trim();
+  if (text.startsWith('```')) {
+    text = text.replace(/^```[a-zA-Z]*\s*/, '').replace(/```\s*$/, '').trim();
+  }
+  try {
+    const parsed = JSON.parse(text);
+    if (!parsed || typeof parsed !== 'object') return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+router.post('/api/study/suggest-type', requireAuth, aiLimiter, async (req, res) => {
+  const { topic } = req.body;
+  if (!topic || !String(topic).trim()) {
+    return res.status(400).json({ success: false, error: 'Enter a topic first.' });
+  }
+
+  const cleanTopic = String(topic).trim().slice(0, 300);
+
+  // Note the label/key split: `people` is shown to members as "Subject". The model
+  // is told to return the KEY, and the key is validated below — otherwise a
+  // sensible-looking "subject" would silently fall back to Open.
+  const typeList = SUGGEST_TYPE_OPTIONS
+    .map(o => `- ${o.key} (shown as "${o.label}"): ${o.desc}`)
+    .join('\n');
+
+  const systemPrompt =
+    'You help a Reformed Bible study platform choose which study type best fits a topic.\n\n' +
+    'The seven study types are:\n' + typeList + '\n\n' +
+    'Choose the ONE type that best fits the shape of the subject itself — what kind of thing ' +
+    'it is and how it is best studied. Do not consider the reader\'s experience level, and do ' +
+    'not comment on difficulty or depth.\n\n' +
+    'If the topic does not clearly fit a named type, answer "open" — that is a legitimate ' +
+    'answer, not a failure, and Open adapts the study to the subject.\n\n' +
+    'Respond with JSON only, in exactly this form:\n' +
+    '{"type": "<key>", "reason": "<one short sentence>"}\n\n' +
+    'Use one of these exact keys: ' + SUGGEST_VALID_KEYS.join(', ') + '. ' +
+    'The reason must be one short sentence explaining the fit, addressed to the member. ' +
+    'No preamble, no explanation outside the JSON, no markdown code fences.';
+
+  const userMessage = `Topic: ${cleanTopic}`;
+
+  try {
+    assertNoEsvText('study/suggest-type', systemPrompt, userMessage);
+
+    const client  = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const message = await client.messages.create({
+      model:      'claude-3-5-haiku-latest',
+      max_tokens: 200,
+      system:     systemPrompt,
+      messages: [{ role: 'user', content: userMessage }],
+    });
+
+    const parsed = parseSuggestion(message.content[0].text);
+
+    // Any unusable answer degrades to Open rather than failing the request — Open
+    // is a real option that fits the study to the subject, so it is a safe default.
+    if (!parsed) {
+      return res.json({
+        success: true,
+        type:    'open',
+        reason:  'No single type stood out for this topic — Open adapts the study to the subject.',
+      });
+    }
+
+    const type = SUGGEST_VALID_KEYS.includes(parsed.type)
+      ? parsed.type
+      : 'open';
+
+    let reason = typeof parsed.reason === 'string' ? parsed.reason.trim() : '';
+    if (!reason) reason = 'Suggested based on the shape of this topic.';
+    reason = reason.slice(0, 240);
+
+    return res.json({ success: true, type, reason });
+
+  } catch (err) {
+    if (err && err.code === 'ESV_TEXT_BLOCKED') {
+      console.error('ESV guard:', err.message);
+      return res.status(422).json({ success: false, error: 'That selection cannot be sent to the AI.' });
+    }
+    console.error('[study/suggest-type]', err.message);
+    return res.status(500).json({ success: false, error: 'Could not suggest a type. Please try again.' });
   }
 });
 
