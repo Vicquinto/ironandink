@@ -807,10 +807,14 @@
     if (adminRoomsEmpty) adminRoomsEmpty.style.display = 'none';
 
     adminRoomsList.innerHTML = rooms.map(function (r) {
+      var paused = (r.status || 'active') === 'paused';
       return '<div class="article-card">' +
         '<div class="article-card-header">' +
           '<span class="article-card-title">' + esc(r.name) + '</span>' +
-          '<span class="article-status-badge status-published">' + esc(r.visibility || 'open') + '</span>' +
+          '<span>' +
+            (paused ? '<span class="article-status-badge status-pending">Paused</span> ' : '') +
+            '<span class="article-status-badge status-published">' + esc(r.visibility || 'open') + '</span>' +
+          '</span>' +
         '</div>' +
         '<div class="article-card-meta">' +
           '<span style="font-family:\'Courier New\',monospace; font-size:0.85rem; color:var(--warm-brown);">' + esc(r.code) + '</span>' +
@@ -819,10 +823,41 @@
           '<span class="article-card-date">Created ' + fmtDate(r.createdAt) + '</span>' +
         '</div>' +
         '<div style="display:flex; gap:10px; margin-top:12px;">' +
+          '<button class="btn-warm admin-room-state-btn" data-code="' + esc(r.code) + '" data-action="' + (paused ? 'resume' : 'pause') + '" style="font-size:0.82rem; padding:6px 14px;">' +
+            (paused ? 'Resume Room' : 'Pause Room') +
+          '</button>' +
           '<button class="btn-reject admin-room-delete-btn" data-code="' + esc(r.code) + '" style="font-size:0.82rem; padding:6px 14px;">Delete Room</button>' +
         '</div>' +
       '</div>';
     }).join('');
+
+    // Pause / Resume. The endpoints authorise host || admin server-side and
+    // broadcast the same socket events the in-room button did, so members in
+    // the room react exactly as before.
+    adminRoomsList.querySelectorAll('.admin-room-state-btn').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        var code   = btn.getAttribute('data-code');
+        var action = btn.getAttribute('data-action');
+        btn.disabled = true;
+        btn.textContent = action === 'pause' ? 'Pausing…' : 'Resuming…';
+        try {
+          var res  = await fetch('/api/rooms/' + encodeURIComponent(code) + '/' + action, { method: 'PATCH' });
+          var data = await res.json();
+          if (data.success) {
+            showToast(action === 'pause' ? 'Room paused.' : 'Room resumed.');
+            loadAdminRooms();
+          } else {
+            showToast('Error: ' + (data.error || 'Request failed.'), true);
+            btn.disabled = false;
+            btn.textContent = action === 'pause' ? 'Pause Room' : 'Resume Room';
+          }
+        } catch (err) {
+          showToast('Error: ' + err.message, true);
+          btn.disabled = false;
+          btn.textContent = action === 'pause' ? 'Pause Room' : 'Resume Room';
+        }
+      });
+    });
 
     adminRoomsList.querySelectorAll('.admin-room-delete-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {

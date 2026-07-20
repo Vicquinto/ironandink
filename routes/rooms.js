@@ -147,11 +147,14 @@ router.get('/room/:code', requireAuth, (req, res) => {
 
   const isPaused   = (room.status || 'active') === 'paused';
   const isRoomHost = room.host === userId;
-  const isAdmin    = getIsAdmin(req);
-  // Host and admins retain full control of a paused room — most importantly the
-  // Resume button, without which the room is permanently stuck. Only regular
-  // members drop to the read-only view.
-  const canControl = isRoomHost || isAdmin;
+  // In-room controls belong to the host alone. Admins manage rooms — pause,
+  // resume, delete — from the Admin panel's Live Rooms tab, so an admin sitting
+  // in someone else's room sees exactly what any other member sees rather than
+  // host controls mixed into member UI. A paused room is no longer stuck for
+  // want of a Resume button: the admin list offers Resume for any paused room.
+  // Server-side authorisation on the pause/resume/delete endpoints is unchanged
+  // and still accepts host || admin.
+  const canControl = isRoomHost;
 
   if (isPaused && !canControl) {
     const levelLabel   = { foundations: 'Apprentice', journeyman: 'Journeyman', scholar: 'Scholar' }[room.studyLevel || 'journeyman'] || 'Journeyman';
@@ -367,7 +370,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
   <script src="/js/study-badges.js?v=1"></script>
   <script src="/js/render-markdown.js?v=1"></script>
   <script src="/js/enhance-further-studies.js?v=2"></script>
-  <script src="/js/room.js?v=18"></script>
+  <script src="/js/room.js?v=19"></script>
   <script src="/js/library.js?v=54"></script>`,
   }));
 });

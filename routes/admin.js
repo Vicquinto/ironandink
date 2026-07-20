@@ -232,7 +232,7 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
     content,
     scripts: `<script>window.ADMIN_TABS = ${JSON.stringify(ADMIN_TABS)};</script>
 <script src="/js/study-badges.js?v=1"></script>
-<script src="/js/admin.js?v=16"></script>
+<script src="/js/admin.js?v=17"></script>
 <script>
 (function () {
   var form     = document.getElementById('directInviteForm');
@@ -584,6 +584,9 @@ router.get('/api/admin/rooms', requireAuth, requireAdmin, (req, res) => {
       memberCount: Array.isArray(r.members) ? r.members.length : 0,
       createdAt:   r.createdAt,
       visibility:  r.visibility,
+      // Drives which of Pause / Resume the admin list offers. Same default as
+      // the room page uses for records saved before status was introduced.
+      status:      r.status || 'active',
     };
   }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   res.json({ success: true, rooms: result });

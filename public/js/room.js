@@ -5,11 +5,12 @@
   var currentAbortCtrl  = null;
   var roomCode          = window.ROOM_CODE;
   var isHost            = !!(window.CURRENT_USER && window.CURRENT_USER.email === window.ROOM_HOST);
-  var isAdmin           = !!window.IS_ADMIN;
-  // Host and admins both keep room controls (incl. Resume) when paused, so treat
-  // them alike for pause-driven UI decisions — an admin must not be redirected
-  // out of a room they are able to resume.
-  var canControl        = isHost || isAdmin;
+  // Only the host holds controls inside a room. An admin who is not the host is
+  // treated as an ordinary member here — including being redirected out when the
+  // room is paused — because admins pause, resume and delete rooms from the
+  // Admin panel's Live Rooms tab instead. The server still authorises those
+  // actions for host || admin; only this UI surface narrowed.
+  var canControl        = isHost;
   var selectedRoomLength = 'Short';
 
   console.log('isHost: ' + isHost);
