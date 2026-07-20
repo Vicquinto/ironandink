@@ -119,7 +119,7 @@ router.get('/rooms', requireAuth, (req, res) => {
     activeSection: 'rooms',
     title:         'Live Study Rooms',
     content,
-    scripts: `<script>window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};</script><script src="/js/study-badges.js?v=1"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/rooms.js?v=6"></script><script src="/js/library.js?v=55"></script>`,
+    scripts: `<script>window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};</script><script src="/js/study-badges.js?v=1"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/rooms.js?v=6"></script><script src="/js/library.js?v=56"></script>`,
   }));
 });
 
@@ -254,7 +254,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
   <script src="/js/study-badges.js?v=1"></script>
   <script src="/js/render-markdown.js?v=1"></script>
   <script src="/js/enhance-further-studies.js?v=2"></script>
-  <script src="/js/library.js?v=55"></script>`,
+  <script src="/js/library.js?v=56"></script>`,
     }));
   }
 
@@ -371,7 +371,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
   <script src="/js/render-markdown.js?v=1"></script>
   <script src="/js/enhance-further-studies.js?v=2"></script>
   <script src="/js/room.js?v=19"></script>
-  <script src="/js/library.js?v=55"></script>`,
+  <script src="/js/library.js?v=56"></script>`,
   }));
 });
 

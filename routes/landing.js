@@ -12,7 +12,7 @@ router.get('/', (req, res) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iron &amp; Ink — Reformed Theological Study</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/styles.css?v=65">
+  <link rel="stylesheet" href="/css/styles.css?v=66">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <style>
     /* Landing page layout — no sidebar */

@@ -2157,12 +2157,16 @@
       '</div>' +
       '<div class="ucp-context" style="display:none;">' +
         '<div class="ucp-selection"></div>' +
-        '<div class="ucp-actions">' +
-          '<button class="ucp-define-btn">Define</button>' +
-          '<button class="ucp-explore-btn">Explore</button>' +
-          '<button class="ucp-verse-btn">Verse Lookup</button>' +
-        '</div>' +
       '</div>' +
+      // Action row — present in BOTH modes. Buttons operate on the target text
+      // (typed input wins; the selection is used when the input is empty).
+      '<div class="ucp-actions">' +
+        '<button class="ucp-define-btn">Define</button>' +
+        '<button class="ucp-explore-btn">Explore</button>' +
+        '<button class="ucp-verse-btn">Verse Lookup</button>' +
+        '<button class="ucp-note-btn">Add Note</button>' +
+      '</div>' +
+      '<div class="ucp-notice" style="display:none;"></div>' +
       '<div class="ucp-thread"></div>' +
       '<div class="ucp-footer" style="display:none;">' +
         '<button class="ucp-share-btn" style="display:none;">Share to Chat</button>' +
@@ -2181,11 +2185,12 @@
     });
     el.querySelector('.ucp-define-btn').addEventListener('click', ucpDefine);
     el.querySelector('.ucp-verse-btn').addEventListener('click', ucpVerse);
-    el.querySelector('.ucp-explore-btn').addEventListener('click', function () {
-      ucpEl.querySelector('.ucp-input').focus();
-    });
+    el.querySelector('.ucp-explore-btn').addEventListener('click', ucpExplore);
+    el.querySelector('.ucp-note-btn').addEventListener('click', ucpAddNote);
     el.querySelector('.ucp-pin-btn').addEventListener('click', ucpPin);
     el.querySelector('.ucp-share-btn').addEventListener('click', ucpShare);
+    // Typing clears any lingering empty-input notice.
+    el.querySelector('.ucp-input').addEventListener('input', ucpClearNotice);
     // Keep clicks inside the panel from reaching any outside-dismiss handler.
     el.addEventListener('mousedown', function (e) { e.stopPropagation(); });
     makeDraggable(el, el.querySelector('.ucp-header'));
@@ -2216,6 +2221,7 @@
     ucpEl.querySelector('.ucp-footer').style.display   = 'none';
     ucpEl.querySelector('.ucp-pin-btn').style.display  = 'none';
     ucpEl.querySelector('.ucp-share-btn').style.display = 'none';
+    ucpClearNotice();
   }
 
   // Grounded open: a selection was highlighted. `ctx` is the resolved study
@@ -2240,6 +2246,7 @@
     ucpEl.querySelector('.ucp-selection').textContent =
       selText.length > 160 ? selText.slice(0, 160) + '…' : selText;
     applyEsvLock();
+    ucpUpdateNoteBtn();
     centerUnifiedPanel();
     if (!ucpEsvLocked) {
       setTimeout(function () { ucpEl.querySelector('.ucp-input').focus(); }, 40);
@@ -2262,6 +2269,7 @@
     ucpResetConversation();
     ucpEl.querySelector('.ucp-context').style.display = 'none';
     applyEsvLock();
+    ucpUpdateNoteBtn();
     centerUnifiedPanel();
     setTimeout(function () { ucpEl.querySelector('.ucp-input').focus(); }, 40);
   }
@@ -2301,11 +2309,49 @@
     return msg;
   }
 
+  // Text an action button operates on. Precedence (unchanged): typed input wins;
+  // the selection is used only when the input is empty. `fromSelection` marks the
+  // selection case so a lookup can anchor its pin to the study occurrence.
+  function ucpActionText() {
+    var typed = ucpEl.querySelector('.ucp-input').value.trim();
+    if (typed) return { text: typed, fromSelection: false };
+    if (ucpGrounded && ucpSelection) return { text: ucpSelection, fromSelection: true };
+    return { text: '', fromSelection: false };
+  }
+
+  // Brief inline message when an action is clicked with no text to act on. The
+  // buttons stay enabled — the notice just explains what's needed.
+  function ucpNotice(msg) {
+    var el = ucpEl && ucpEl.querySelector('.ucp-notice');
+    if (!el) return;
+    el.textContent   = msg;
+    el.style.display = '';
+  }
+  function ucpClearNotice() {
+    var el = ucpEl && ucpEl.querySelector('.ucp-notice');
+    if (el) { el.textContent = ''; el.style.display = 'none'; }
+  }
+
+  // Add Note shows only where a notepad study is bound (or a saveable draft) —
+  // the same gate as the pin affordance. Hidden (not errored) elsewhere.
+  function ucpUpdateNoteBtn() {
+    var noteBtn = ucpEl && ucpEl.querySelector('.ucp-note-btn');
+    if (noteBtn) noteBtn.style.display = canTakeNotes() ? '' : 'none';
+  }
+
+  // Open the notepad after a pin / note lands so the member sees the entry. Uses
+  // open() (never toggle): if it is already open, it stays open.
+  function ucpOpenNotepad() {
+    if (window.__notepad && typeof window.__notepad.open === 'function') {
+      window.__notepad.open();
+    }
+  }
+
   // After any answer (Define / Verse / Ask) surface the per-answer footer. Pin
   // shows only where a notepad study is bound (canTakeNotes → degrades to hidden
   // on the Scripture reader / Community); Share only for a room host outside a
   // lookup-only reader. Resets the duplicate-pin guard so THIS answer pins once.
-  function ucpShowAnswerFooter(pinData, type, responseText) {
+  function ucpShowAnswerFooter(pinData, type, responseText, termForShare) {
     ucpLastPin    = pinData;
     ucpLastPinned = false;
     var footer   = ucpEl.querySelector('.ucp-footer');
@@ -2323,7 +2369,7 @@
     shareBtn.disabled      = false;
     shareBtn.textContent   = 'Share to Chat';
     ucpPendingBroadcast    = canShare
-      ? { roomCode: window.ROOM_CODE, type: type, term: ucpSelection, response: responseText }
+      ? { roomCode: window.ROOM_CODE, type: type, term: (termForShare || ucpSelection), response: responseText }
       : null;
 
     footer.style.display = (canPin || canShare) ? 'flex' : 'none';
@@ -2346,6 +2392,7 @@
         btn.textContent = 'Pinned ✓';
         btn.disabled    = true;
         showToast('Saved to Notepad');
+        ucpOpenNotepad();   // reveal the entry that just landed
       });
     });
   }
@@ -2364,8 +2411,14 @@
   }
 
   function ucpDefine() {
-    if (ucpEsvLocked || !ucpGrounded) return;   // ESV backstop; only meaningful grounded
-    var term = ucpSelection;
+    if (ucpEsvLocked) return;                    // ESV backstop
+    var picked = ucpActionText();
+    if (!picked.text) { ucpNotice('Type a word to define.'); return; }
+    ucpClearNotice();
+    var term     = picked.text;
+    // Anchor the pin to the study only when we defined the actual selection; a
+    // typed term has no reliable occurrence, so it pins as a free note.
+    var anchored = picked.fromSelection && ucpGrounded;
     var msg  = ucpAppendMsg('assistant', '<span class="up-loading">Looking up definition…</span>', 'Definition');
     var body = msg.querySelector('.ucp-msg-body');
     fetch('/api/dictionary/define', {
@@ -2380,8 +2433,9 @@
         } else {
           body.innerHTML = renderMarkdown(data.definition);
           ucpShowAnswerFooter(
-            { quote: term, question: null, content: data.definition, source: 'define', occurrence: ucpOccurrence },
-            'Define', data.definition);
+            { quote: anchored ? term : null, question: null, content: data.definition,
+              source: 'define', occurrence: anchored ? ucpOccurrence : null },
+            'Define', data.definition, term);
         }
         var t = ucpEl.querySelector('.ucp-thread'); t.scrollTop = t.scrollHeight;
       })
@@ -2391,8 +2445,13 @@
   }
 
   function ucpVerse() {
-    if (!ucpGrounded) return;                    // Verse Lookup permitted even on ESV
-    var ref  = ucpSelection;
+    // Verse Lookup only queries the ESV/Bible API (never Anthropic), so it stays
+    // permitted even under the ESV lock.
+    var picked = ucpActionText();
+    if (!picked.text) { ucpNotice('Type a verse reference to look up.'); return; }
+    ucpClearNotice();
+    var ref      = picked.text;
+    var anchored = picked.fromSelection && ucpGrounded;
     var msg  = ucpAppendMsg('assistant', '<span class="up-loading">Looking up verse…</span>', 'Verse');
     var body = msg.querySelector('.ucp-msg-body');
     fetch('/api/library/verse', {
@@ -2407,8 +2466,9 @@
         } else {
           body.innerHTML = renderMarkdown(data.verse);
           ucpShowAnswerFooter(
-            { quote: ref, question: null, content: data.verse, source: 'verse', occurrence: ucpOccurrence },
-            'Verse Lookup', data.verse);
+            { quote: anchored ? ref : null, question: null, content: data.verse,
+              source: 'verse', occurrence: anchored ? ucpOccurrence : null },
+            'Verse Lookup', data.verse, ref);
         }
         var t = ucpEl.querySelector('.ucp-thread'); t.scrollTop = t.scrollHeight;
       })
@@ -2417,19 +2477,81 @@
       });
   }
 
-  function ucpAsk() {
-    if (ucpEsvLocked) return;                    // asking would resend the ESV selection
-    var input = ucpEl.querySelector('.ucp-input');
-    var btn   = ucpEl.querySelector('.ucp-ask-btn');
-    var q     = input.value.trim();
-    if (!q) { input.focus(); return; }
+  // Add Note — leave a note without a lookup. Grounded + empty input → anchored
+  // note tied to the selection (opens the notepad composer pre-anchored via the
+  // existing occurrence machinery). Typed text (either mode) → free note from the
+  // typed content, saved immediately. Degrades: the button is hidden where no
+  // notepad study is bound, so this rarely runs without a context.
+  function ucpAddNote() {
+    if (!window.__notepad) return;
+    var typed = ucpEl.querySelector('.ucp-input').value.trim();
 
-    input.value  = '';
+    // Grounded + empty input → anchored personal note on the selection.
+    if (!typed && ucpGrounded && ucpSelection) {
+      ucpClearNotice();
+      var quote = ucpSelection, occ = ucpOccurrence;
+      ensureNotepadCtx(function (ctx) {
+        // startAnchoredNote opens the notepad itself and pre-anchors the quote.
+        window.__notepad.startAnchoredNote(ctx.id, ctx.title, quote, occ);
+      });
+      return;
+    }
+
+    // Nothing typed and nothing to anchor to → explain what's needed.
+    if (!typed) { ucpNotice('Type a note to add.'); return; }
+
+    // Typed text → free note from the typed content.
+    ucpClearNotice();
+    var content = typed;
+    ensureNotepadCtx(function (ctx) {
+      window.__notepad.saveLookupNote(ctx.id, ctx.title,
+        { quote: null, question: null, content: content, source: 'free', occurrence: null },
+        function (ok) {
+          if (!ok) return;
+          ucpEl.querySelector('.ucp-input').value = '';
+          showToast('Saved to Notepad');
+          ucpOpenNotepad();   // reveal the entry that just landed
+        });
+    });
+  }
+
+  // Explore — an open AI question about the target text. Typed input wins (asked
+  // verbatim); an empty input on a grounded selection explores that selection
+  // (folded into turn one). Nothing to act on → inline notice.
+  function ucpExplore() {
+    if (ucpEsvLocked) return;
+    var input = ucpEl.querySelector('.ucp-input');
+    var typed = input.value.trim();
+    if (typed) {
+      input.value = '';
+      ucpRunAsk(typed);
+    } else if (ucpGrounded && ucpSelection) {
+      ucpClearNotice();
+      ucpRunAsk('Please explore and explain this passage.');
+    } else {
+      ucpNotice('Type something to explore.');
+    }
+  }
+
+  function ucpAsk() {
+    var input = ucpEl.querySelector('.ucp-input');
+    var q     = input.value.trim();
+    if (!q) { input.focus(); return; }   // Ask with empty input just focuses (unchanged)
+    input.value = '';
+    ucpRunAsk(q);
+  }
+
+  // Shared ask runner used by both Ask and Explore. First turn folds context in:
+  // grounded → selection preamble (mirrors the old #inlineChatModal); ungrounded →
+  // topic-only preamble (mirrors #askAiPanel). Later turns are pure history mode.
+  function ucpRunAsk(q) {
+    if (ucpEsvLocked) return;                    // asking would resend the ESV selection
+    q = (q || '').trim();
+    if (!q) return;
+    ucpClearNotice();
+    var btn = ucpEl.querySelector('.ucp-ask-btn');
     btn.disabled = true;
 
-    // First turn folds context in: grounded → selection preamble (mirrors the old
-    // #inlineChatModal at library.js:1876); ungrounded → topic-only preamble
-    // (mirrors #askAiPanel). Later turns are pure history mode.
     var content;
     if (ucpHistory.length === 0 && ucpGrounded && ucpSelection) {
       content = 'I am reading a study on "' + ucpTopic + '" and have selected this passage:\n\n"' +
@@ -2462,7 +2584,7 @@
               content:    data.answer,
               source:     'explore',
               occurrence: ucpGrounded ? ucpOccurrence : null },
-            'Explore', data.answer);
+            'Explore', data.answer, ucpGrounded ? ucpSelection : q);
         } else {
           body.innerHTML = '<span style="color:#5a0a0a;font-style:italic;">Error: ' +
             esc(data.error || 'Failed.') + '</span>';
@@ -2476,7 +2598,7 @@
       })
       .then(function () {
         btn.disabled = false;
-        input.focus();
+        ucpEl.querySelector('.ucp-input').focus();
         var t = ucpEl.querySelector('.ucp-thread'); t.scrollTop = t.scrollHeight;
       });
   }

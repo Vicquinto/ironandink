@@ -3934,11 +3934,11 @@ body {
 }
 .ucp-close:hover { color: #1E1208; }
 
-/* Grounded context strip — the highlighted selection + the three actions */
+/* Grounded context strip — the highlighted selection (actions live below, in
+   their own bar, so they render in both grounded and ungrounded modes) */
 .ucp-context {
   flex-shrink: 0;
-  padding: 10px 12px 8px;
-  border-bottom: 1px solid rgba(160,132,92,0.18);
+  padding: 10px 12px 4px;
 }
 .ucp-selection {
   font-family: 'EB Garamond', Georgia, serif;
@@ -3950,10 +3950,16 @@ body {
   max-height: 96px;
   overflow-y: auto;
 }
+/* Action bar — present in BOTH modes, its own row below the header/context */
 .ucp-actions {
   display: flex;
-  align-items: stretch;
+  align-items: center;
+  flex-wrap: wrap;
+  row-gap: 6px;
   gap: 0;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(160,132,92,0.18);
+  flex-shrink: 0;
 }
 .ucp-define-btn,
 .ucp-explore-btn,
@@ -3977,6 +3983,36 @@ body {
 .ucp-define-btn:hover,
 .ucp-explore-btn:hover,
 .ucp-verse-btn:hover { background: #4A1520; }
+
+/* Add Note — white outlined button set apart from the maroon lookup trio */
+.ucp-note-btn {
+  flex: 0 0 auto;
+  margin-left: 10px;
+  background: #fff;
+  color: #5C1A28;
+  border: 1px solid #5C1A28;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+  padding: 4px 12px;
+  white-space: nowrap;
+  transition: background 0.12s, color 0.12s;
+}
+.ucp-note-btn:hover { background: #F1E6CC; color: #4A1520; }
+
+/* Inline empty-input notice (e.g. "Type a word to define.") */
+.ucp-notice {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: 0.86rem;
+  color: var(--warm-brown);
+  background: rgba(107,66,38,0.06);
+  border-bottom: 1px solid rgba(160,132,92,0.14);
+}
 
 .ucp-thread {
   flex: 1;
