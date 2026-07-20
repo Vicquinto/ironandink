@@ -252,8 +252,18 @@
   // Fires only on an explicit button click — never on typing, blur or focus.
   var suggestBusy = false;
 
+  // A suggestion is only meaningful where there is a picker to highlight. Rooms
+  // generate studies but have no type picker, so if this file is ever loaded on
+  // such a view every entry point below no-ops rather than half-running — a
+  // button that resolves to nothing, or a note explaining a highlight that
+  // cannot appear. Checked at each entry point, not once at load, so it holds
+  // however the flow is reached.
+  function suggestAvailable() {
+    return !!(suggestTypeBtn && studyTypePicker);
+  }
+
   function setSuggestVisible(visible) {
-    if (!suggestTypeBtn) return;
+    if (!suggestAvailable()) return;
     suggestTypeBtn.style.display = visible ? '' : 'none';
     if (!visible) clearSuggestNote();
   }
@@ -261,7 +271,7 @@
   // Enabled only with a topic to classify. Left alone while a request is in
   // flight so the in-progress label isn't overwritten by an input event.
   function syncSuggestEnabled() {
-    if (!suggestTypeBtn || suggestBusy) return;
+    if (!suggestAvailable() || suggestBusy) return;
     suggestTypeBtn.disabled = !(topicInput && topicInput.value.trim());
   }
 
@@ -269,6 +279,7 @@
   // that one, and a queued branch plus a suggestion would otherwise overwrite
   // each other. Same insertion point and styling so the two read alike.
   function suggestNoteEl() {
+    if (!suggestAvailable()) return null;   // nothing to attach the note to
     var note = document.getElementById('suggestNote');
     if (!note) {
       note = document.createElement('div');
@@ -276,7 +287,10 @@
       note.className = 'branch-note';
       note.style.display = 'none';
       if (studyTypePicker && studyTypePicker.parentNode) {
-        studyTypePicker.parentNode.insertBefore(note, studyTypePicker);
+        // Directly beneath the picker: the note explains the highlight, so it
+        // reads after the cards rather than before them. (#branchNote stays
+        // above the picker — that one is branch mode's and is unchanged.)
+        studyTypePicker.parentNode.insertBefore(note, studyTypePicker.nextSibling);
       }
     }
     return note;
@@ -284,6 +298,7 @@
 
   function showSuggestNote(typeKey, reason) {
     var note = suggestNoteEl();
+    if (!note) return;
     note.textContent = 'Suggested: ';
     var strong = document.createElement('strong');
     var opt    = studyTypePicker && studyTypePicker.querySelector('.study-type-option[data-type="' + typeKey + '"]');
@@ -298,6 +313,7 @@
 
   function showSuggestError(msg) {
     var note = suggestNoteEl();
+    if (!note) return;
     note.textContent = msg;
     note.style.display = 'block';
   }
@@ -309,7 +325,13 @@
     if (note) { note.style.display = 'none'; note.textContent = ''; }
   }
 
-  if (suggestTypeBtn) {
+  // No picker means no suggestion to make: leave the button unwired and hidden
+  // rather than letting it fire a request whose answer could not be applied.
+  if (suggestTypeBtn && !studyTypePicker) {
+    suggestTypeBtn.style.display = 'none';
+  }
+
+  if (suggestAvailable()) {
     suggestTypeBtn.addEventListener('click', async function () {
       var topic = topicInput ? topicInput.value.trim() : '';
       if (!topic || suggestBusy) return;
