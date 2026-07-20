@@ -269,6 +269,11 @@ router.post('/api/dialogue/exchange', requireAuth, async (req, res) => {
     // stream, hold back any in-progress marker (an unclosed "{{" or a trailing
     // "{"), inject completed markers, and emit only the safe prefix.
     let buf = '';
+    // injectVerses picks the block or inline verse form by whether a marker
+    // starts its line. Each flush hands it only a slice of the response, so
+    // track whether that slice itself begins a line — otherwise a marker at
+    // slice[0] that is really mid-sentence would be injected as a blockquote.
+    let atLineStart = true;
     function flush(final) {
       if (closed || res.writableEnded) { buf = ''; return; }
       let cut = buf.length;
@@ -277,8 +282,10 @@ router.post('/api/dialogue/exchange', requireAuth, async (req, res) => {
         if (open !== -1 && buf.indexOf('}}', open) === -1) cut = open;      // unclosed marker
         else if (buf.endsWith('{')) cut = buf.length - 1;                    // lone trailing brace
       }
-      const emit = injectVerses(buf.slice(0, cut));
+      const slice = buf.slice(0, cut);
+      const emit  = injectVerses(slice, atLineStart);
       buf = buf.slice(cut);
+      if (slice) atLineStart = slice.endsWith('\n');
       if (emit) res.write(`data: ${JSON.stringify({ text: emit })}\n\n`);
     }
 
