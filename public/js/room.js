@@ -21,6 +21,7 @@
   var guideTitle        = document.getElementById('roomGuideTitle');
   var guideBadge        = document.getElementById('roomGuideBadge');
   var guideBody         = document.getElementById('roomGuideBody');
+  var guideAuthor       = document.getElementById('roomGuideAuthor');
   var saveBtn           = document.getElementById('roomSaveBtn');
   var membersLabel      = document.getElementById('roomMembersLabel');
   var chatInput         = document.getElementById('roomChatInput');
@@ -31,6 +32,8 @@
   var fontIncBtn        = document.getElementById('roomFontIncBtn');
   var loadLibraryBtn    = document.getElementById('roomLoadLibraryBtn');
   var libraryPanel      = document.getElementById('roomLibraryPanel');
+  var loadCommunityBtn  = document.getElementById('roomLoadCommunityBtn');
+  var communityPanel    = document.getElementById('roomCommunityPanel');
   var roomExitBtn       = document.getElementById('roomExitBtn');
   var roomPauseBtn      = document.getElementById('roomPauseBtn');
   var roomNewStudyBtn   = document.getElementById('roomNewStudyBtn');
@@ -191,6 +194,7 @@
   // ── Load from Library ──────────────────────────────────────────────────────
   function loadLibraryPanel() {
     if (!libraryPanel) return;
+    if (communityPanel) communityPanel.style.display = 'none';   // panels are mutually exclusive
     libraryPanel.innerHTML = '<p style="font-size:0.9rem;color:var(--text-muted);">Loading…</p>';
     libraryPanel.style.display = 'block';
 
@@ -239,12 +243,93 @@
       });
   }
 
+  // ── Load from Community ─────────────────────────────────────────────────────
+  // Mirrors loadLibraryPanel, but sources studies shared by OTHER members and
+  // attributes the original author. The feed (/api/community/studies) already
+  // returns full content + authorName; we do not touch that endpoint (it also
+  // feeds the public Community board), so the host's own shared studies are
+  // filtered out here, client-side, by comparing against the current user id.
+  function loadCommunityPanel() {
+    if (!communityPanel) return;
+    if (libraryPanel) libraryPanel.style.display = 'none';   // panels are mutually exclusive
+    communityPanel.innerHTML = '<p style="font-size:0.9rem;color:var(--text-muted);">Loading…</p>';
+    communityPanel.style.display = 'block';
+
+    // The feed whitelists out userId, so the only identity field shared between
+    // it and the client is the display name. Both `authorName` (feed) and
+    // CURRENT_USER.name (this page) are the user's fullName, so we self-filter
+    // on that. Not changing the endpoint to expose userId is a hard constraint —
+    // it also feeds the public Community board.
+    var myName = (window.CURRENT_USER && window.CURRENT_USER.name) || null;
+
+    fetch('/api/community/studies')
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var studies = (data.success && data.studies) ? data.studies : [];
+        // Self-filter: a host's own shared studies live in the Library panel;
+        // the Community panel means "studies from other members."
+        studies = studies.filter(function (s) {
+          return !myName || s.authorName !== myName;
+        });
+        if (!studies.length) {
+          communityPanel.innerHTML = '<p style="font-size:0.9rem;color:var(--text-muted);">No community studies from other members yet.</p>';
+          return;
+        }
+
+        var studyMap = {};
+        studies.forEach(function (s) { studyMap[s.id] = s; });
+
+        communityPanel.innerHTML =
+          '<p style="font-size:0.85rem;color:#5C1A28;font-weight:600;margin:0 0 0.75rem;">Select a community study to load into the room</p>' +
+          studies.map(function (s) {
+            var date = s.sharedAt ? new Date(s.sharedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+            return '<div class="room-comm-card" data-id="' + escHtml(s.id) + '" style="background:#fff;border:1px solid #c4a882;border-radius:8px;padding:0.75rem 1rem;margin-bottom:0.5rem;cursor:pointer;">' +
+              '<span style="font-weight:600;font-size:1rem;color:#3a2a1a;display:block;margin-bottom:0.25rem;">' + escHtml(s.topic) + '</span>' +
+              '<span style="font-size:0.8rem;color:#6B4226;">Shared by ' + escHtml(s.authorName || 'Unknown') + (date ? ' &middot; ' + date : '') + '</span>' +
+            '</div>';
+          }).join('');
+
+        communityPanel.querySelectorAll('.room-comm-card').forEach(function (card) {
+          card.addEventListener('mouseenter', function () { card.style.background = '#f5ede0'; });
+          card.addEventListener('mouseleave', function () { card.style.background = '#fff'; });
+          card.addEventListener('click', function () {
+            var study = studyMap[card.dataset.id];
+            if (!study) return;
+            // Same path as a library load, plus author for attribution.
+            var studyData = { topic: study.topic, content: study.content, translation: study.translation || 'ASV', author: study.authorName || 'Unknown', success: true };
+            displayStudy(studyData);
+            socket.emit('room-study-result', { roomCode: roomCode, data: studyData });
+            fetch('/api/rooms/' + encodeURIComponent(roomCode) + '/save-study', {
+              method:  'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body:    JSON.stringify({ topic: study.topic, content: study.content, translation: study.translation || 'ASV', author: study.authorName || 'Unknown' }),
+            }).catch(function () {});
+            communityPanel.style.display = 'none';
+          });
+        });
+      })
+      .catch(function () {
+        communityPanel.innerHTML = '<p style="font-size:0.9rem;color:#c05050;">Failed to load community studies.</p>';
+      });
+  }
+
   // ── Display Study ──────────────────────────────────────────────────────────
   function displayStudy(data) {
     currentStudy = data;
     if (guideTitle)      guideTitle.textContent  = data.topic || '';
     if (guideBadge)      guideBadge.textContent  = data.translation || 'ASV';
     if (guideBody)       guideBody.innerHTML     = renderMarkdown(data.content || '');
+    // Attribution shows only for community-loaded studies (author present).
+    // Library loads carry no author, so the line stays hidden — as before.
+    if (guideAuthor) {
+      if (data.author) {
+        guideAuthor.textContent   = 'Shared by ' + data.author;
+        guideAuthor.style.display = 'block';
+      } else {
+        guideAuthor.textContent   = '';
+        guideAuthor.style.display = 'none';
+      }
+    }
     if (roomLoading)     roomLoading.style.display   = 'none';
     if (guideArea)       guideArea.style.display     = 'block';
 
@@ -513,6 +598,16 @@
           return;
         }
         loadLibraryPanel();
+      });
+    }
+
+    if (loadCommunityBtn) {
+      loadCommunityBtn.addEventListener('click', function () {
+        if (communityPanel && communityPanel.style.display !== 'none') {
+          communityPanel.style.display = 'none';
+          return;
+        }
+        loadCommunityPanel();
       });
     }
 

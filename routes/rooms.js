@@ -165,6 +165,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
           <h3 id="roomGuideTitle">${escHtml(room.study.topic || '')}</h3>
           <span id="roomGuideBadge" class="guide-badge">${escHtml(room.study.translation || 'ASV')}</span>
         </div>
+        ${room.study.author ? `<div id="roomGuideAuthor" style="font-size:0.85rem;color:#6B4226;font-style:italic;margin:0.15rem 0 0.35rem;">Shared by ${escHtml(room.study.author)}</div>` : ''}
         <div id="roomGuideBody" class="guide-body">${renderMarkdown(room.study.content)}</div>
       </div>` : '';
 
@@ -288,9 +289,11 @@ router.get('/room/:code', requireAuth, (req, res) => {
       <div style="margin-bottom:0.25rem;">
         <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
           ${room.host === userId ? `<button id="roomLoadLibraryBtn" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;">Load from Library</button>` : ''}
+          ${room.host === userId ? `<button id="roomLoadCommunityBtn" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;">Load from Community</button>` : ''}
           ${room.host === userId ? `<button id="roomNewStudyBtn" style="background:transparent;color:#5C1A28;border:1px solid #5C1A28;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;">New Study</button>` : ''}
         </div>
         ${room.host === userId ? `<div id="roomLibraryPanel" style="display:none;background:#f5ede0;border:1px solid #c4a882;border-radius:8px;padding:1rem;margin-top:0.75rem;max-height:300px;overflow-y:auto;"></div>` : ''}
+        ${room.host === userId ? `<div id="roomCommunityPanel" style="display:none;background:#f5ede0;border:1px solid #c4a882;border-radius:8px;padding:1rem;margin-top:0.75rem;max-height:300px;overflow-y:auto;"></div>` : ''}
       </div>
 
       <hr style="border:none;border-top:1px solid #d4b896;margin:0.9rem 0 0.5rem;" />
@@ -306,6 +309,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
           <h3 id="roomGuideTitle"></h3>
           <span id="roomGuideBadge" class="guide-badge"></span>
         </div>
+        <div id="roomGuideAuthor" style="display:none;font-size:0.85rem;color:#6B4226;font-style:italic;margin:0.15rem 0 0.35rem;"></div>
         <div class="guide-font-toolbar">
           <button class="guide-font-btn guide-font-btn-sm" id="roomFontDecBtn">A&#8722;</button>
           <button class="guide-font-btn guide-font-btn-md" id="roomFontResetBtn">A</button>
@@ -347,7 +351,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
   <script src="/js/study-badges.js?v=1"></script>
   <script src="/js/render-markdown.js?v=1"></script>
   <script src="/js/enhance-further-studies.js?v=2"></script>
-  <script src="/js/room.js?v=22"></script>
+  <script src="/js/room.js?v=23"></script>
   <script src="/js/library.js?v=56"></script>`,
   }));
 });
@@ -361,8 +365,12 @@ router.post('/api/rooms/:code/save-study', requireAuth, (req, res) => {
 
   if (idx === -1) return res.status(404).json({ success: false, error: 'Room not found.' });
 
-  const { topic, content, translation } = req.body;
-  rooms[idx].study = { topic: topic || '', content: content || '', translation: translation || '' };
+  const { topic, content, translation, author } = req.body;
+  const study = { topic: topic || '', content: content || '', translation: translation || '' };
+  // Attribution is additive: only community-loaded studies pass an author, so a
+  // library load writes the exact same three-field record as before.
+  if (author) study.author = author;
+  rooms[idx].study = study;
   writeRooms(rooms);
 
   res.json({ success: true });
