@@ -91,7 +91,7 @@ export const TOURS = {
       id:       'rooms-host',
       attachTo: null,
       title:    'Host Tools',
-      text:     'If you’re hosting, you can generate studies, load from your Library, or ask a question — and share it with the whole room.',
+      text:     'If you’re hosting, load a study from your Library to bring it to the whole room. And anytime, highlight a word or press Ctrl + Alt + T to look something up — then share the answer straight to the room’s chat.',
       buttons:  ['back', 'finish'],
     },
   ],

@@ -424,10 +424,6 @@ io.on('connection', (socket) => {
     socket.to(roomCode).emit('room-study-result', data);
   });
 
-  socket.on('room-followup-result', ({ roomCode, data }) => {
-    socket.to(roomCode).emit('room-followup-result', data);
-  });
-
   socket.on('room-chat', ({ roomCode, message, senderName, id }) => {
     console.log('room-chat received: ' + roomCode + ' from: ' + senderName);
     // Relay the sender's id so other members render the entry with the same id

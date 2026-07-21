@@ -4,7 +4,7 @@
  */
 
 import Shepherd from '/js/shepherd.mjs';
-import { TOURS } from '/js/tours.js?v=3';
+import { TOURS } from '/js/tours.js?v=4';
 
 const PAGE       = window.__currentPage;
 const TOURS_SEEN = window.__toursSeen || {};

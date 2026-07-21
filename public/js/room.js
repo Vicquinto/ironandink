@@ -2,7 +2,6 @@
   'use strict';
 
   var currentStudy      = null;
-  var currentAbortCtrl  = null;
   var roomCode          = window.ROOM_CODE;
   var isHost            = !!(window.CURRENT_USER && window.CURRENT_USER.email === window.ROOM_HOST);
   // Only the host holds controls inside a room. An admin who is not the host is
@@ -14,12 +13,9 @@
   // Chat moderation (per-message delete) follows the server's room-action rule:
   // host OR admin. window.IS_ADMIN is injected by the room page before this loads.
   var canModerate       = isHost || !!window.IS_ADMIN;
-  var selectedRoomLength = 'Short';
 
   console.log('isHost: ' + isHost);
 
-  var generateBtn       = document.getElementById('roomGenerateBtn');
-  var topicInput        = document.getElementById('roomTopicInput');
   var roomLoading       = document.getElementById('roomLoading');
   var guideArea         = document.getElementById('roomGuideArea');
   var guideTitle        = document.getElementById('roomGuideTitle');
@@ -35,28 +31,10 @@
   var fontIncBtn        = document.getElementById('roomFontIncBtn');
   var loadLibraryBtn    = document.getElementById('roomLoadLibraryBtn');
   var libraryPanel      = document.getElementById('roomLibraryPanel');
-  var askAIBtn          = document.getElementById('roomAskAIBtn');
-  var askAIPanel        = document.getElementById('roomAskAIPanel');
-  var askAIInput        = document.getElementById('roomAskAIInput');
-  var askAISubmit       = document.getElementById('roomAskAISubmit');
   var roomExitBtn       = document.getElementById('roomExitBtn');
   var roomPauseBtn      = document.getElementById('roomPauseBtn');
   var roomNewStudyBtn   = document.getElementById('roomNewStudyBtn');
   var roomDeleteBtn     = document.getElementById('roomDeleteBtn');
-  var roomLengthPicker  = document.getElementById('roomLengthPicker');
-
-  // ── Room length picker ─────────────────────────────────────────────────────
-  if (roomLengthPicker) {
-    roomLengthPicker.querySelectorAll('.study-length-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        roomLengthPicker.querySelectorAll('.study-length-btn').forEach(function (b) {
-          b.classList.remove('study-length-btn--active');
-        });
-        btn.classList.add('study-length-btn--active');
-        selectedRoomLength = btn.dataset.length;
-      });
-    });
-  }
 
   // ── Font size control ─────────────────────────────────────────────────────
   var FONT_DEFAULT  = 16;
@@ -260,134 +238,6 @@
         libraryPanel.innerHTML = '<p style="font-size:0.9rem;color:#c05050;">Failed to load library.</p>';
       });
   }
-
-  // ── Ask AI ────────────────────────────────────────────────────────────────
-  if (askAIBtn) {
-    askAIBtn.addEventListener('click', function () {
-      if (askAIPanel && askAIPanel.style.display !== 'none') {
-        askAIPanel.style.display = 'none';
-        return;
-      }
-      if (askAIPanel) askAIPanel.style.display = 'block';
-      if (askAIInput) askAIInput.focus();
-    });
-  }
-
-  if (askAISubmit) {
-    askAISubmit.addEventListener('click', function () {
-      var question = askAIInput ? askAIInput.value.trim() : '';
-      if (!question) { if (askAIInput) askAIInput.focus(); return; }
-
-      askAISubmit.disabled     = true;
-      askAISubmit.textContent  = 'Asking…';
-
-      fetch('/api/study/generate', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ topic: question, studyLevel: window.ROOM_STUDY_LEVEL || '' }),
-      })
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        if (!data.success) throw new Error(data.error || 'Request failed.');
-
-        var term = question.length > 50 ? question.slice(0, 50) + '…' : question;
-
-        console.log('isHost in askAI handler: ' + isHost);
-        if (isHost) {
-          socket.emit('room-tooltip-broadcast', { roomCode: roomCode, type: 'Study Assistant', term: term, response: data.content });
-        } else {
-          var prev = document.getElementById('roomAskAIResponse');
-          if (prev) prev.remove();
-          var responseDiv = document.createElement('div');
-          responseDiv.id = 'roomAskAIResponse';
-          responseDiv.style.cssText = 'background:#f0e6c8;border-left:4px solid #5C1A28;border-radius:4px;padding:0.75rem 1rem;margin-top:0.75rem;font-size:0.9rem;max-height:300px;overflow-y:auto;';
-          responseDiv.innerHTML = renderMarkdown(data.content);
-          askAIPanel.appendChild(responseDiv);
-        }
-
-        if (askAIInput) askAIInput.value = '';
-      })
-      .catch(function (err) {
-        showToast('Error: ' + err.message, true);
-      })
-      .finally(function () {
-        askAISubmit.disabled    = false;
-        askAISubmit.textContent = 'Ask';
-      });
-    });
-  }
-
-  // ── Generate Study ─────────────────────────────────────────────────────────
-
-  // Inject Cancel button into the search bar, hidden by default
-  var cancelBtn = null;
-  if (generateBtn && generateBtn.parentNode) {
-    cancelBtn = document.createElement('button');
-    cancelBtn.textContent = 'Cancel';
-    cancelBtn.className   = 'btn-warm';
-    cancelBtn.style.display = 'none';
-    generateBtn.parentNode.insertBefore(cancelBtn, generateBtn.nextSibling);
-  }
-
-  if (cancelBtn) {
-    cancelBtn.addEventListener('click', function () {
-      if (currentAbortCtrl) currentAbortCtrl.abort();
-    });
-  }
-
-  if (generateBtn) {
-    generateBtn.addEventListener('click', function () {
-      var topic = topicInput ? topicInput.value.trim() : '';
-      if (!topic) { if (topicInput) topicInput.focus(); return; }
-      generateStudy(topic);
-    });
-  }
-
-  if (topicInput) {
-    topicInput.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') {
-        var topic = topicInput.value.trim();
-        if (topic) generateStudy(topic);
-      }
-    });
-  }
-
-  async function generateStudy(topic) {
-    currentAbortCtrl = new AbortController();
-
-    if (roomLoading)  roomLoading.style.display  = 'flex';
-    if (guideArea)    guideArea.style.display     = 'none';
-    if (generateBtn)  generateBtn.disabled        = true;
-    if (cancelBtn)    cancelBtn.style.display     = 'inline-block';
-
-    try {
-      var res  = await fetch('/api/study/generate', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ topic: topic, studyLevel: window.ROOM_STUDY_LEVEL || '', length: selectedRoomLength }),
-        signal:  currentAbortCtrl.signal,
-      });
-      var data = await res.json();
-      if (!data.success) throw new Error(data.error || 'Generation failed.');
-
-      displayStudy(data);
-      socket.emit('room-study-result', { roomCode: roomCode, data: data });
-
-      fetch('/api/rooms/' + encodeURIComponent(roomCode) + '/save-study', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ topic: data.topic, content: data.content, translation: data.translation }),
-      }).catch(function () {});
-    } catch (err) {
-      if (roomLoading) roomLoading.style.display = 'none';
-      if (err.name !== 'AbortError') showToast('Error: ' + err.message, true);
-    } finally {
-      if (generateBtn)  generateBtn.disabled    = false;
-      if (cancelBtn)    cancelBtn.style.display = 'none';
-      currentAbortCtrl = null;
-    }
-  }
-
 
   // ── Display Study ──────────────────────────────────────────────────────────
   function displayStudy(data) {
@@ -655,12 +505,6 @@
   }
 
   // ── Host-only UI ──────────────────────────────────────────────────────────
-  if (!isHost) {
-    var searchBar = document.querySelector('.study-search-bar');
-    if (searchBar) searchBar.style.display = 'none';
-    if (roomLengthPicker) roomLengthPicker.style.display = 'none';
-  }
-
   if (isHost) {
     if (loadLibraryBtn) {
       loadLibraryBtn.addEventListener('click', function () {
@@ -679,7 +523,7 @@
       newStudyModal.innerHTML =
         '<div style="background:#E8D9B8;border:1px solid #5C1A28;border-radius:8px;padding:2rem 2.25rem;max-width:380px;width:90%;font-family:\'EB Garamond\',Georgia,serif;box-shadow:0 8px 32px rgba(0,0,0,0.35);">' +
           '<h4 style="margin:0 0 0.75rem;color:#5C1A28;font-size:1.15rem;font-weight:600;">Start New Study</h4>' +
-          '<p style="margin:0 0 1.5rem;color:#3a2a1a;font-size:0.97rem;line-height:1.55;">Clear the current study content so a new one can be generated? The room stays open.</p>' +
+          '<p style="margin:0 0 1.5rem;color:#3a2a1a;font-size:0.97rem;line-height:1.55;">Clear the current study content? The room stays open, and you can load another study from your Library.</p>' +
           '<div style="display:flex;gap:0.75rem;justify-content:flex-end;">' +
             '<button class="btn-warm" id="newStudyModalCancel">Cancel</button>' +
             '<button id="newStudyModalConfirm" style="background:#5C1A28;color:#fff;border:none;border-radius:4px;padding:6px 16px;font-size:0.9rem;font-family:inherit;cursor:pointer;">Clear &amp; Continue</button>' +
