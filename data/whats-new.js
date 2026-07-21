@@ -18,6 +18,21 @@
 
 const WHATS_NEW = [
   {
+    date:  'July 20, 2026',
+    title: 'A better way to ask questions',
+    body: `The tooltip and the Ask panel are now one. Highlight a word or phrase to open it grounded in your selection, or press Ctrl+Alt+T anytime to open it on its own — either way you get the same panel, with Define, Explore, Verse Lookup, and Add Note available. You can now keep the conversation going: ask a follow-up, pin an answer to your notepad, and ask again without the panel closing on you. The panel can be moved and resized to sit wherever suits you.`,
+  },
+  {
+    date:  'July 20, 2026',
+    title: 'Live Rooms',
+    body: `Rooms are now for studying together, not for building studies. Generating a study inside a room has been removed — everyone waited on an unreviewed result, and a host can prepare something better beforehand. Instead, hosts can load a study from their own Library or, new today, from anything shared to the Community, with the original author credited. Shared tooltip answers now stay in the room's chat after you leave and come back, and hosts can remove individual chat messages.`,
+  },
+  {
+    date:  'July 20, 2026',
+    title: 'Scripture in your studies',
+    body: `Studies now quote Scripture more consistently. When a passage is being discussed in depth, the text itself appears rather than just a reference — and shorter quotations are woven into the sentence rather than set apart, so the reading flows better.`,
+  },
+  {
     date:  'July 18, 2026',
     title: 'Suggest a study type',
     body: `Not sure which study type fits your topic? Type it in and click "Suggest a study type," and Iron & Ink will recommend one with a brief explanation of why. It's only a suggestion — you're free to choose any type you like.`,
