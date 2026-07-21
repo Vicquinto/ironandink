@@ -290,7 +290,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
         <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
           ${room.host === userId ? `<button id="roomLoadLibraryBtn" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;">Load from Library</button>` : ''}
           ${room.host === userId ? `<button id="roomLoadCommunityBtn" style="background:#5C1A28;color:#fff;border:none;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;">Load from Community</button>` : ''}
-          ${room.host === userId ? `<button id="roomNewStudyBtn" style="background:transparent;color:#5C1A28;border:1px solid #5C1A28;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;">New Study</button>` : ''}
+          ${room.host === userId ? `<button id="roomNewStudyBtn" style="background:transparent;color:#5C1A28;border:1px solid #5C1A28;border-radius:6px;padding:0.5rem 0.85rem;font-size:0.88rem;cursor:pointer;font-family:'EB Garamond',Georgia,serif;letter-spacing:0.02em;">Clear Study</button>` : ''}
         </div>
         ${room.host === userId ? `<div id="roomLibraryPanel" style="display:none;background:#f5ede0;border:1px solid #c4a882;border-radius:8px;padding:1rem;margin-top:0.75rem;max-height:300px;overflow-y:auto;"></div>` : ''}
         ${room.host === userId ? `<div id="roomCommunityPanel" style="display:none;background:#f5ede0;border:1px solid #c4a882;border-radius:8px;padding:1rem;margin-top:0.75rem;max-height:300px;overflow-y:auto;"></div>` : ''}
@@ -351,7 +351,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
   <script src="/js/study-badges.js?v=1"></script>
   <script src="/js/render-markdown.js?v=1"></script>
   <script src="/js/enhance-further-studies.js?v=2"></script>
-  <script src="/js/room.js?v=23"></script>
+  <script src="/js/room.js?v=24"></script>
   <script src="/js/library.js?v=56"></script>`,
   }));
 });

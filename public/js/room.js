@@ -255,24 +255,16 @@
     communityPanel.innerHTML = '<p style="font-size:0.9rem;color:var(--text-muted);">Loading…</p>';
     communityPanel.style.display = 'block';
 
-    // The feed whitelists out userId, so the only identity field shared between
-    // it and the client is the display name. Both `authorName` (feed) and
-    // CURRENT_USER.name (this page) are the user's fullName, so we self-filter
-    // on that. Not changing the endpoint to expose userId is a hard constraint —
-    // it also feeds the public Community board.
-    var myName = (window.CURRENT_USER && window.CURRENT_USER.name) || null;
-
     fetch('/api/community/studies')
       .then(function (r) { return r.json(); })
       .then(function (data) {
+        // Show everything shared to Community — the panel means exactly its
+        // label. The host's own shared studies appear here too (attributed like
+        // any other); the overlap with Load-from-Library is harmless since both
+        // produce the same snapshot.
         var studies = (data.success && data.studies) ? data.studies : [];
-        // Self-filter: a host's own shared studies live in the Library panel;
-        // the Community panel means "studies from other members."
-        studies = studies.filter(function (s) {
-          return !myName || s.authorName !== myName;
-        });
         if (!studies.length) {
-          communityPanel.innerHTML = '<p style="font-size:0.9rem;color:var(--text-muted);">No community studies from other members yet.</p>';
+          communityPanel.innerHTML = '<p style="font-size:0.9rem;color:var(--text-muted);">No community studies shared yet.</p>';
           return;
         }
 
@@ -611,13 +603,13 @@
       });
     }
 
-    // ── New Study modal ────────────────────────────────────────────────────
+    // ── Clear Study modal ──────────────────────────────────────────────────
     if (roomNewStudyBtn) {
       var newStudyModal = document.createElement('div');
       newStudyModal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;';
       newStudyModal.innerHTML =
         '<div style="background:#E8D9B8;border:1px solid #5C1A28;border-radius:8px;padding:2rem 2.25rem;max-width:380px;width:90%;font-family:\'EB Garamond\',Georgia,serif;box-shadow:0 8px 32px rgba(0,0,0,0.35);">' +
-          '<h4 style="margin:0 0 0.75rem;color:#5C1A28;font-size:1.15rem;font-weight:600;">Start New Study</h4>' +
+          '<h4 style="margin:0 0 0.75rem;color:#5C1A28;font-size:1.15rem;font-weight:600;">Clear Study</h4>' +
           '<p style="margin:0 0 1.5rem;color:#3a2a1a;font-size:0.97rem;line-height:1.55;">Clear the current study content? The room stays open, and you can load another study from your Library.</p>' +
           '<div style="display:flex;gap:0.75rem;justify-content:flex-end;">' +
             '<button class="btn-warm" id="newStudyModalCancel">Cancel</button>' +
