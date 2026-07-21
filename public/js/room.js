@@ -143,6 +143,14 @@
   });
 
   socket.on('room-tooltip-broadcast', function (data) {
+    renderTooltipCard(data);
+  });
+
+  // Parchment-card renderer for a shared tooltip result. Called both live (from
+  // the socket event above) and on join (from the ROOM_CHAT replay below), so a
+  // replayed card renders identically to a live one. `data` carries
+  // { type, term, response } — the shape the socket event delivers.
+  function renderTooltipCard(data) {
     if (!chatMessages) return;
     var div = document.createElement('div');
     div.style.cssText = 'background:#f0e6c8;border-left:4px solid #5C1A28;border-radius:4px;padding:0.5rem 0.75rem;margin:0.25rem 0;font-size:0.875rem;';
@@ -153,7 +161,7 @@
       '<div>' + renderMarkdown(data.response) + '</div>';
     chatMessages.appendChild(div);
     chatMessages.scrollTop = chatMessages.scrollHeight;
-  });
+  }
 
   // ── Members list ──────────────────────────────────────────────────────────
   function loadMembersList() {
@@ -640,7 +648,14 @@
 
   if (window.ROOM_CHAT && window.ROOM_CHAT.length) {
     window.ROOM_CHAT.forEach(function (m) {
-      appendChatMessage(m.senderName, m.message);
+      // Branch on record type. Legacy records written before shared results were
+      // persisted have no `type` field — treat them as typed messages so existing
+      // rooms replay exactly as before.
+      if (m && m.type === 'tooltip') {
+        renderTooltipCard({ type: m.broadcastType, term: m.term, response: m.response });
+      } else {
+        appendChatMessage(m.senderName, m.message);
+      }
     });
   }
 

@@ -239,6 +239,10 @@ router.get('/room/:code', requireAuth, (req, res) => {
       var container = document.getElementById('roomChatMessages');
       if (container && chat.length) {
         chat.forEach(function (m) {
+          // Paused view is a stripped-down read-only snapshot with no card
+          // renderer loaded; skip shared-result records so they don't render as
+          // "undefined: undefined". They reappear in full once the room resumes.
+          if (m && m.type && m.type !== 'message') return;
           var div = document.createElement('div');
           div.style.cssText = 'padding:0.25rem 0;font-size:0.9rem;border-bottom:1px solid #e8d9b8;';
           var strong = document.createElement('strong');
@@ -370,7 +374,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
   <script src="/js/study-badges.js?v=1"></script>
   <script src="/js/render-markdown.js?v=1"></script>
   <script src="/js/enhance-further-studies.js?v=2"></script>
-  <script src="/js/room.js?v=19"></script>
+  <script src="/js/room.js?v=20"></script>
   <script src="/js/library.js?v=56"></script>`,
   }));
 });
@@ -391,33 +395,57 @@ router.post('/api/rooms/:code/save-study', requireAuth, (req, res) => {
   res.json({ success: true });
 });
 
-// ─── POST /api/rooms/:code/chat ──────────────────────────────────────────────
+// ─── Chat persistence ─────────────────────────────────────────────────────────
 
 const CHAT_HISTORY_LIMIT = 100;
 
-router.post('/api/rooms/:code/chat', requireAuth, (req, res) => {
-  const code  = req.params.code.toUpperCase();
+// Stable, unique-enough id for a chat record. Timestamp-based so records sort by
+// creation; the random suffix guards against collisions inside the same ms.
+// Nothing reads it yet — it exists so a future per-message delete has a handle
+// without a second migration.
+function makeChatId() {
+  return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+// Single choke point for appending to a room's chat history — used by both the
+// typed-message HTTP endpoint below and the tooltip-broadcast socket handler in
+// server.js. Keeping the read/push/cap/write here means the 100-entry cap and
+// the on-disk shape can never drift between the two writers. Returns false if
+// the room does not exist.
+function appendChatEntry(code, entry) {
   const rooms = readRooms();
   const idx   = rooms.findIndex(r => r.code === code);
-
-  if (idx === -1) return res.status(404).json({ success: false, error: 'Room not found.' });
-
-  const { senderName, message } = req.body;
-  if (!message || !String(message).trim()) {
-    return res.status(400).json({ success: false, error: 'Message is required.' });
-  }
+  if (idx === -1) return false;
 
   if (!Array.isArray(rooms[idx].chat)) rooms[idx].chat = [];
-  rooms[idx].chat.push({
-    senderName: String(senderName || 'Anonymous').trim(),
-    message:    String(message).trim(),
-  });
+  rooms[idx].chat.push(entry);
 
   if (rooms[idx].chat.length > CHAT_HISTORY_LIMIT) {
     rooms[idx].chat = rooms[idx].chat.slice(-CHAT_HISTORY_LIMIT);
   }
 
   writeRooms(rooms);
+  return true;
+}
+
+// ─── POST /api/rooms/:code/chat ──────────────────────────────────────────────
+
+router.post('/api/rooms/:code/chat', requireAuth, (req, res) => {
+  const code = req.params.code.toUpperCase();
+
+  const { senderName, message } = req.body;
+  if (!message || !String(message).trim()) {
+    return res.status(400).json({ success: false, error: 'Message is required.' });
+  }
+
+  const ok = appendChatEntry(code, {
+    type:       'message',
+    id:         makeChatId(),
+    senderName: String(senderName || 'Anonymous').trim(),
+    message:    String(message).trim(),
+  });
+  if (!ok) return res.status(404).json({ success: false, error: 'Room not found.' });
+
   res.json({ success: true });
 });
 
@@ -624,5 +652,10 @@ router.get('/api/rooms/:code/members', requireAuth, (req, res) => {
 
   res.json({ success: true, members });
 });
+
+// Exposed so server.js's tooltip-broadcast socket handler can persist a shared
+// result through the same choke point the typed-chat endpoint uses.
+router.appendChatEntry = appendChatEntry;
+router.makeChatId      = makeChatId;
 
 module.exports = router;

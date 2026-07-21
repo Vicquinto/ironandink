@@ -435,7 +435,26 @@ io.on('connection', (socket) => {
 
   socket.on('room-tooltip-broadcast', ({ roomCode, type, term, response }) => {
     console.log('room-tooltip-broadcast received: ' + roomCode + ' type: ' + type);
+    // Live delivery first — unchanged. Members currently in the room see the
+    // shared card immediately, exactly as before.
     io.to(roomCode).emit('room-tooltip-broadcast', { type, term, response });
+
+    // Then persist into the same chat[] array as typed messages, so the card
+    // survives leaving and rejoining. Written here — the one server-side choke
+    // point all three "Share to Chat" emit sites funnel through — rather than
+    // via a client POST, so the write lives in a single place. A failed write
+    // must never break the live broadcast above.
+    try {
+      roomsRoutes.appendChatEntry(roomCode, {
+        type:          'tooltip',
+        id:            roomsRoutes.makeChatId(),
+        broadcastType: type,
+        term,
+        response,
+      });
+    } catch (err) {
+      console.error('Failed to persist shared tooltip result: ' + err.message);
+    }
   });
 
   socket.on('room-topic-update', ({ roomCode, topic }) => {
