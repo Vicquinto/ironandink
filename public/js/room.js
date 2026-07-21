@@ -11,6 +11,9 @@
   // Admin panel's Live Rooms tab instead. The server still authorises those
   // actions for host || admin; only this UI surface narrowed.
   var canControl        = isHost;
+  // Chat moderation (per-message delete) follows the server's room-action rule:
+  // host OR admin. window.IS_ADMIN is injected by the room page before this loads.
+  var canModerate       = isHost || !!window.IS_ADMIN;
   var selectedRoomLength = 'Short';
 
   console.log('isHost: ' + isHost);
@@ -138,7 +141,7 @@
   });
 
   socket.on('room-chat-message', function (data) {
-    appendChatMessage(data.senderName, data.message);
+    appendChatMessage(data.senderName, data.message, data.id);
     loadMembersList();
   });
 
@@ -146,17 +149,29 @@
     renderTooltipCard(data);
   });
 
+  // A message/card was deleted somewhere; drop it from this member's chat too.
+  // Entries are tagged with data-chat-id, so we match by id. A no-op if the node
+  // isn't present (e.g. the deleter, who already removed it optimistically).
+  socket.on('room-chat-deleted', function (data) {
+    if (!data || !data.id || !chatMessages) return;
+    var node = chatMessages.querySelector('[data-chat-id="' + data.id + '"]');
+    if (node) node.remove();
+  });
+
   // Parchment-card renderer for a shared tooltip result. Called both live (from
   // the socket event above) and on join (from the ROOM_CHAT replay below), so a
   // replayed card renders identically to a live one. `data` carries
-  // { type, term, response } — the shape the socket event delivers.
+  // { type, term, response, id } — the shape the socket event delivers.
   function renderTooltipCard(data) {
     if (!chatMessages) return;
     var div = document.createElement('div');
+    div.className = 'room-chat-entry';
     div.style.cssText = 'background:#f0e6c8;border-left:4px solid #5C1A28;border-radius:4px;padding:0.5rem 0.75rem;margin:0.25rem 0;font-size:0.875rem;';
+    if (data.id) div.setAttribute('data-chat-id', data.id);
     div.innerHTML =
-      '<div style="font-weight:700;color:#5C1A28;margin-bottom:0.25rem;">' +
-        escHtml(data.type) + ': ' + escHtml(data.term) +
+      '<div style="font-weight:700;color:#5C1A28;margin-bottom:0.25rem;display:flex;align-items:baseline;gap:0.4rem;">' +
+        '<span style="flex:1;min-width:0;">' + escHtml(data.type) + ': ' + escHtml(data.term) + '</span>' +
+        chatDelBtn(data.id) +
       '</div>' +
       '<div>' + renderMarkdown(data.response) + '</div>';
     chatMessages.appendChild(div);
@@ -492,31 +507,88 @@
   }
 
   // ── Chat ──────────────────────────────────────────────────────────────────
+  // Stable id, same scheme/charset as the server's makeChatId. Generated on the
+  // client so the sender's optimistic echo, the live relay to others, and the
+  // persisted record all share one id — the handle deletion targets.
+  function makeChatId() {
+    return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
+  // Small × delete affordance. Rendered only for host/admin, and only when the
+  // entry has an id (legacy id-less records can't be targeted). Everyone else,
+  // and legacy records, get ''.
+  function chatDelBtn(id) {
+    if (!canModerate || !id) return '';
+    return '<button class="room-chat-del-btn" title="Delete" aria-label="Delete message">&times;</button>';
+  }
+
   function sendChat() {
     if (!chatInput) return;
     var msg = chatInput.value.trim();
     if (!msg) return;
     var senderName = window.CURRENT_USER ? window.CURRENT_USER.name : 'Anonymous';
+    var id = makeChatId();
 
-    appendChatMessage(senderName, msg);
+    appendChatMessage(senderName, msg, id);
     chatInput.value = '';
 
-    socket.emit('room-chat', { roomCode: roomCode, message: msg, senderName: senderName });
+    socket.emit('room-chat', { roomCode: roomCode, message: msg, senderName: senderName, id: id });
 
     fetch('/api/rooms/' + encodeURIComponent(roomCode) + '/chat', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ senderName: senderName, message: msg }),
+      body:    JSON.stringify({ senderName: senderName, message: msg, id: id }),
     }).catch(function () {});
   }
 
-  function appendChatMessage(sender, message) {
+  function appendChatMessage(sender, message, id) {
     if (!chatMessages) return;
     var div = document.createElement('div');
-    div.style.cssText = 'padding:0.25rem 0;font-size:0.9rem;border-bottom:1px solid #e8d9b8;';
-    div.innerHTML = '<strong>' + escHtml(sender) + '</strong>: ' + escHtml(message);
+    div.className = 'room-chat-entry';
+    div.style.cssText = 'padding:0.25rem 0;font-size:0.9rem;border-bottom:1px solid #e8d9b8;display:flex;align-items:baseline;gap:0.4rem;';
+    if (id) div.setAttribute('data-chat-id', id);
+    div.innerHTML =
+      '<span style="flex:1;min-width:0;"><strong>' + escHtml(sender) + '</strong>: ' + escHtml(message) + '</span>' +
+      chatDelBtn(id);
     chatMessages.appendChild(div);
     chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // Optimistically remove the entry, then call the endpoint. On failure, put the
+  // node back where it was and surface a brief error so the UI never drifts from
+  // the server. On success the server also broadcasts room-chat-deleted; by then
+  // the node is already gone here, so that broadcast is a harmless no-op.
+  function deleteChatEntry(id, node) {
+    var parent = node.parentNode;
+    var next   = node.nextSibling;
+    node.remove();
+
+    fetch('/api/rooms/' + encodeURIComponent(roomCode) + '/chat/' + encodeURIComponent(id), {
+      method: 'DELETE',
+    })
+      .then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (body) {
+          if (!r.ok || !body.success) {
+            throw new Error((body && body.error) || 'Delete failed.');
+          }
+        });
+      })
+      .catch(function (err) {
+        if (parent) parent.insertBefore(node, next);
+        showToast('Could not delete message: ' + (err && err.message ? err.message : 'error'), true);
+      });
+  }
+
+  // Delegated so it covers live and replayed entries alike, without per-entry
+  // listeners. Reads the id from the entry's data-chat-id.
+  if (chatMessages) {
+    chatMessages.addEventListener('click', function (e) {
+      var btn = e.target.closest('.room-chat-del-btn');
+      if (!btn) return;
+      var entry = btn.closest('[data-chat-id]');
+      if (!entry) return;
+      deleteChatEntry(entry.getAttribute('data-chat-id'), entry);
+    });
   }
 
   function escHtml(str) {
@@ -652,9 +724,9 @@
       // persisted have no `type` field — treat them as typed messages so existing
       // rooms replay exactly as before.
       if (m && m.type === 'tooltip') {
-        renderTooltipCard({ type: m.broadcastType, term: m.term, response: m.response });
+        renderTooltipCard({ type: m.broadcastType, term: m.term, response: m.response, id: m.id });
       } else {
-        appendChatMessage(m.senderName, m.message);
+        appendChatMessage(m.senderName, m.message, m.id);
       }
     });
   }

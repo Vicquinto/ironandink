@@ -3880,13 +3880,19 @@ body {
   display: flex;
   flex-direction: column;
   width: 380px;
+  min-width: 280px;
+  min-height: 200px;
   max-width: calc(100vw - 16px);
   max-height: calc(100vh - 32px);
   background: #DDD0B0;
   border: 1px solid #A0845C;
   border-radius: 8px;
   box-shadow: 0 6px 28px rgba(0,0,0,0.65);
+  /* Native corner resize, mirroring the old #unifiedPopup. overflow:hidden keeps
+     a single scrollbar (only .ucp-thread scrolls) while resize:both still draws
+     the bottom-right grip. Dragging via .ucp-header is unaffected. */
   overflow: hidden;
+  resize: both;
 }
 
 .ucp-header {
@@ -6939,6 +6945,23 @@ body {
 }
 .notepad-note-edit-btn:hover,
 .notepad-note-del-btn:hover { opacity: 1; }
+
+/* Per-entry delete × in Live Room chat (host/admin only). Mirrors the small,
+   unobtrusive removes used elsewhere (.notepad-note-del-btn / .comment-delete-btn):
+   borderless, low-opacity, brightening to maroon on hover. */
+.room-chat-del-btn {
+  flex: 0 0 auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--warm-brown);
+  opacity: 0.4;
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 0 2px;
+  transition: color 0.12s, opacity 0.12s;
+}
+.room-chat-del-btn:hover { opacity: 1; color: #5a0a0a; }
 
 .notepad-note-quote {
   font-family: Georgia, serif;

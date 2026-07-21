@@ -428,16 +428,24 @@ io.on('connection', (socket) => {
     socket.to(roomCode).emit('room-followup-result', data);
   });
 
-  socket.on('room-chat', ({ roomCode, message, senderName }) => {
+  socket.on('room-chat', ({ roomCode, message, senderName, id }) => {
     console.log('room-chat received: ' + roomCode + ' from: ' + senderName);
-    socket.to(roomCode).emit('room-chat-message', { senderName, message });
+    // Relay the sender's id so other members render the entry with the same id
+    // the sender echoed and the server persisted — the shared handle deletion
+    // targets. The POST validates/falls back on the id independently.
+    socket.to(roomCode).emit('room-chat-message', { senderName, message, id });
   });
 
   socket.on('room-tooltip-broadcast', ({ roomCode, type, term, response }) => {
     console.log('room-tooltip-broadcast received: ' + roomCode + ' type: ' + type);
-    // Live delivery first — unchanged. Members currently in the room see the
-    // shared card immediately, exactly as before.
-    io.to(roomCode).emit('room-tooltip-broadcast', { type, term, response });
+    // One id, used for both the live relay and the persisted record, so the card
+    // members see live carries the same delete handle as the replayed copy. The
+    // sharer is included (io.to, not socket.to), so their own card gets the id too.
+    const id = roomsRoutes.makeChatId();
+
+    // Live delivery first — members currently in the room see the shared card
+    // immediately, exactly as before (now with its id).
+    io.to(roomCode).emit('room-tooltip-broadcast', { id, type, term, response });
 
     // Then persist into the same chat[] array as typed messages, so the card
     // survives leaving and rejoining. Written here — the one server-side choke
@@ -447,7 +455,7 @@ io.on('connection', (socket) => {
     try {
       roomsRoutes.appendChatEntry(roomCode, {
         type:          'tooltip',
-        id:            roomsRoutes.makeChatId(),
+        id,
         broadcastType: type,
         term,
         response,

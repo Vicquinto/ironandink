@@ -374,7 +374,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
   <script src="/js/study-badges.js?v=1"></script>
   <script src="/js/render-markdown.js?v=1"></script>
   <script src="/js/enhance-further-studies.js?v=2"></script>
-  <script src="/js/room.js?v=20"></script>
+  <script src="/js/room.js?v=21"></script>
   <script src="/js/library.js?v=56"></script>`,
   }));
 });
@@ -433,18 +433,62 @@ function appendChatEntry(code, entry) {
 router.post('/api/rooms/:code/chat', requireAuth, (req, res) => {
   const code = req.params.code.toUpperCase();
 
-  const { senderName, message } = req.body;
+  const { senderName, message, id } = req.body;
   if (!message || !String(message).trim()) {
     return res.status(400).json({ success: false, error: 'Message is required.' });
   }
 
+  // Accept a client-supplied id so the sender's optimistic echo, the live relay
+  // to other members, and the persisted record all share one id — which is what
+  // lets any of them be targeted for deletion. Fall back to a server id if the
+  // client omitted it or sent something outside the makeChatId charset.
+  const safeId = (typeof id === 'string' && /^[a-z0-9]{1,40}$/i.test(id)) ? id : makeChatId();
+
   const ok = appendChatEntry(code, {
     type:       'message',
-    id:         makeChatId(),
+    id:         safeId,
     senderName: String(senderName || 'Anonymous').trim(),
     message:    String(message).trim(),
   });
   if (!ok) return res.status(404).json({ success: false, error: 'Room not found.' });
+
+  res.json({ success: true });
+});
+
+// ─── DELETE /api/rooms/:code/chat/:id ────────────────────────────────────────
+// Remove a single chat entry (typed message or shared tooltip card) by id.
+// Authorized host || admin, matching the existing room-action convention.
+// Legacy records written before ids existed cannot be targeted (they have no
+// id); they age out of the 100-entry cap instead. No migration is performed.
+
+router.delete('/api/rooms/:code/chat/:id', requireAuth, (req, res) => {
+  const code  = req.params.code.toUpperCase();
+  const rooms = readRooms();
+  const idx   = rooms.findIndex(r => r.code === code);
+
+  if (idx === -1) return res.status(404).json({ success: false, error: 'Room not found.' });
+
+  const isHost  = rooms[idx].host === req.session.userId;
+  const isAdmin = getIsAdmin(req);
+  if (!isHost && !isAdmin) {
+    return res.status(403).json({ success: false, error: 'Not authorized.' });
+  }
+
+  const targetId = req.params.id;
+  const chat     = Array.isArray(rooms[idx].chat) ? rooms[idx].chat : [];
+  const kept     = chat.filter(m => !(m && m.id === targetId));
+
+  if (kept.length === chat.length) {
+    return res.status(404).json({ success: false, error: 'Message not found.' });
+  }
+
+  rooms[idx].chat = kept;
+  writeRooms(rooms);
+
+  // Broadcast so the entry disappears for every member currently in the room,
+  // not just the person who deleted it.
+  const io = req.app.locals.io;
+  if (io) io.to(code).emit('room-chat-deleted', { id: targetId });
 
   res.json({ success: true });
 });
