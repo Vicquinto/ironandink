@@ -161,6 +161,10 @@ router.get('/study', requireAuth, (req, res) => {
         <span class="study-type-name">Open</span>
         <span class="study-type-sub">Not sure which to pick? Start here — fits the study to the subject.</span>
       </button>
+      <button class="study-type-option" data-type="book" role="radio" aria-checked="false">
+        <span class="study-type-name">Book</span>
+        <span class="study-type-sub">A whole book of the Bible — who wrote it, when, why, and its place in Scripture.</span>
+      </button>
     </div>
 
     <div class="study-search-bar">
@@ -257,7 +261,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study-badges.js?v=1"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/study.js?v=20"></script><script src="/js/library.js?v=56"></script>
+    scripts: `<script src="/js/study-badges.js?v=2"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/study.js?v=20"></script><script src="/js/library.js?v=56"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};
@@ -561,6 +565,7 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
     IRON_INK_OPEN_PROMPT,
     IRON_INK_PEOPLE_PROMPT,
     IRON_INK_PATHWAY_PROMPT,
+    IRON_INK_BOOK_PROMPT,
   } = req.app.locals.prompts;
 
   // Study-type → prompt map. Doctrinal is the default (unchanged legacy behavior).
@@ -572,6 +577,7 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
     open:       IRON_INK_OPEN_PROMPT,
     people:     IRON_INK_PEOPLE_PROMPT,
     pathway:    IRON_INK_PATHWAY_PROMPT,
+    book:       IRON_INK_BOOK_PROMPT,
   };
   const resolvedStudyType = STUDY_TYPE_PROMPTS[studyType] ? studyType : 'doctrinal';
   const studyPrompt       = STUDY_TYPE_PROMPTS[resolvedStudyType];
@@ -677,6 +683,7 @@ const SUGGEST_TYPE_OPTIONS = [
   { key: 'people',     label: 'Subject',           desc: 'A person, place, or thing in Scripture & its place in God\'s plan' },
   { key: 'pathway',    label: 'Pathway',           desc: 'A full study that follows the subject where it leads — and opens further paths.' },
   { key: 'open',       label: 'Open',              desc: 'Not sure which to pick? Start here — fits the study to the subject.' },
+  { key: 'book',       label: 'Book',              desc: 'A study of an entire book of the Bible — its authorship, date, themes, and structure.' },
 ];
 
 const SUGGEST_VALID_KEYS = SUGGEST_TYPE_OPTIONS.map(o => o.key);
