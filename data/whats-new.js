@@ -19,6 +19,11 @@
 const WHATS_NEW = [
   {
     date:  'July 20, 2026',
+    title: 'Book studies',
+    body: `A new study type: Book. Give it a book of the Bible and it lays out the essentials — who wrote it, when and why, its structure, major themes, and the real debates surrounding it — then points you toward chapters and themes worth studying next. A whole book can now grow into a study tree.`,
+  },
+  {
+    date:  'July 20, 2026',
     title: 'A better way to ask questions',
     body: `The tooltip and the Ask panel are now one. Highlight a word or phrase to open it grounded in your selection, or press Ctrl+Alt+T anytime to open it on its own — either way you get the same panel, with Define, Explore, Verse Lookup, and Add Note available. You can now keep the conversation going: ask a follow-up, pin an answer to your notepad, and ask again without the panel closing on you. The panel can be moved and resized to sit wherever suits you.`,
   },
