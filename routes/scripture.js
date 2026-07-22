@@ -11,7 +11,14 @@ const ESV_COPYRIGHT = 'ESV® Bible, Copyright © 2001 by Crossway';
 
 let _bible = null;
 function getBible() {
-  if (!_bible) _bible = JSON.parse(fs.readFileSync(KJV_PATH, 'utf8'));
+  // Lazy-load once. Strip a leading UTF-8 BOM (U+FEFF) before parsing: JSON.parse
+  // throws on a BOM ("Unexpected token"), so a BOM-carrying copy of data/kjv.json
+  // would otherwise 500 the whole reader. The slice is a no-op on a clean file.
+  if (!_bible) {
+    let raw = fs.readFileSync(KJV_PATH, 'utf8');
+    if (raw.charCodeAt(0) === 0xFEFF) raw = raw.slice(1);
+    _bible = JSON.parse(raw);
+  }
   return _bible;
 }
 
