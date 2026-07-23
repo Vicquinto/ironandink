@@ -185,6 +185,43 @@ router.get('/', (req, res) => {
       line-height: 1;
     }
 
+    /* Invite-only note — a second parchment panel resting on the same leather.
+       Reuses .features-inner / .feature-entry / .feature-title / .feature-desc
+       wholesale, and .hero-buttons + .btn-hero-primary for the repeated CTA (the
+       flex row is what lets the button's vertical padding sit correctly, as in
+       the hero). Only the two gaps below are new. */
+    .features-inner.invite-panel {
+      margin-top: 40px;
+    }
+
+    .invite-cta {
+      margin-top: 32px;
+    }
+
+    /* The card's 48px side padding leaves only ~229px of content at 375px (and
+       ~174px at 320px) — narrower than this button's natural width, so its label
+       wrapped to two lines. Let the button fill the card's width on phones rather
+       than trimming the card, so both parchment panels keep an identical text
+       inset and the label stays on one line at every narrow size. */
+    @media (max-width: 420px) {
+      .invite-cta .btn-hero-primary {
+        flex: 1;
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+    }
+
+    /* Below ~360px even a full-width button can't clear the card's 96px of side
+       padding (the 163px label needs 195px with its own padding, against 176px of
+       content). Trim this panel's inset the rest of the way; the three feature
+       cards are text-only and wrap fine, so they keep their original padding. */
+    @media (max-width: 360px) {
+      .features-inner.invite-panel {
+        padding-left: 32px;
+        padding-right: 32px;
+      }
+    }
+
     /* ── Footer ── */
     .landing-footer {
       background: var(--bg);
@@ -237,6 +274,23 @@ router.get('/', (req, res) => {
             Write a theological article, sermon, or letter in your own voice.
             Answer five questions and the scaffold builds itself around your theology.
           </p>
+        </div>
+      </div>
+
+      <div class="features-inner invite-panel">
+        <div class="feature-entry">
+          <div class="feature-title">Invite-only, by conviction</div>
+          <p class="feature-desc">
+            Iron &amp; Ink is invite-only — not for scarcity, but as a doctrinal front
+            door. Every prospective member answers a short questionnaire before joining,
+            so the community shares a common confession and a common starting point.
+            Whether you've held the doctrines of grace for decades or you're working
+            through them now, you'll spend your time going deeper, not re-litigating
+            the basics.
+          </p>
+          <div class="hero-buttons invite-cta">
+            <a href="/invite-request" class="btn-hero-primary">Request an Invitation</a>
+          </div>
         </div>
       </div>
     </section>
