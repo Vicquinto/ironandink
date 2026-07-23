@@ -227,6 +227,61 @@ router.get('/', (req, res) => {
       line-height: 1;
     }
 
+    /* Section eyebrow — introduces a group without competing with its headings.
+       Follows the page's secondary-label convention (small italic warm-brown, as
+       the footer uses) rather than the gold Cinzel of .feature-title. */
+    .feature-eyebrow {
+      font-size: 0.82rem;
+      font-style: italic;
+      color: var(--warm-brown);
+      letter-spacing: 0.08em;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    /* ── Second tier — supporting features, deliberately lighter ── */
+    /* Same parchment card, palette and faces as the core three; the lighter read
+       comes from a smaller heading (0.95rem vs 1.4rem), smaller/tighter body, a
+       2-up grid instead of full-width stacked entries, and no gold dividers. */
+    .features-inner.tier-two {
+      margin-top: 40px;
+    }
+
+    .tier-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px 36px;
+    }
+
+    .tier-entry {
+      text-align: center;
+    }
+
+    .tier-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #8A6D28;
+      margin-bottom: 8px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .tier-desc {
+      font-size: 0.9rem;
+      color: var(--dark-cream);
+      line-height: 1.65;
+    }
+
+    /* Two columns inside a 620px card get too narrow to read once the viewport
+       drops below tablet width — stack them instead. */
+    @media (max-width: 560px) {
+      .tier-grid {
+        grid-template-columns: 1fr;
+        gap: 26px;
+      }
+    }
+
     /* Invite-only note — a second parchment panel resting on the same leather.
        Reuses .features-inner / .feature-entry / .feature-title / .feature-desc
        wholesale, and .hero-buttons + .btn-hero-primary for the repeated CTA (the
@@ -300,14 +355,7 @@ router.get('/', (req, res) => {
 
     <section class="features" id="features">
       <div class="features-inner">
-        <div class="feature-entry">
-          <div class="feature-title">Study</div>
-          <p class="feature-desc">
-            Generate a structured Reformed study on any theological topic.
-            Scripture, confession, history, and guiding questions — all in one place.
-          </p>
-        </div>
-        <div class="feature-divider"><span>&#10070;</span></div>
+        <p class="feature-eyebrow">Three ways to sharpen</p>
         <div class="feature-entry">
           <div class="feature-title">Dialogue</div>
           <p class="feature-desc">
@@ -317,11 +365,52 @@ router.get('/', (req, res) => {
         </div>
         <div class="feature-divider"><span>&#10070;</span></div>
         <div class="feature-entry">
+          <div class="feature-title">Study</div>
+          <p class="feature-desc">
+            Generate a structured Reformed study on any theological topic.
+            Scripture, confession, history, and guiding questions — all in one place.
+          </p>
+        </div>
+        <div class="feature-divider"><span>&#10070;</span></div>
+        <div class="feature-entry">
           <div class="feature-title">Writing</div>
           <p class="feature-desc">
             Write a theological article, sermon, or letter in your own voice.
             Answer five questions and the scaffold builds itself around your theology.
           </p>
+        </div>
+      </div>
+
+      <div class="features-inner tier-two">
+        <p class="feature-eyebrow">And a complete study environment</p>
+        <div class="tier-grid">
+          <div class="tier-entry">
+            <div class="tier-title">Live Rooms</div>
+            <p class="tier-desc">
+              Study together in real time. A host leads a live session, and members read,
+              discuss, and share alongside — with the conversation kept for the room.
+            </p>
+          </div>
+          <div class="tier-entry">
+            <div class="tier-title">Scripture</div>
+            <p class="tier-desc">
+              A clean, distraction-free reader for working directly in the text.
+            </p>
+          </div>
+          <div class="tier-entry">
+            <div class="tier-title">Community</div>
+            <p class="tier-desc">
+              Share your studies and articles with the fellowship, and read what others
+              have written and wrestled through.
+            </p>
+          </div>
+          <div class="tier-entry">
+            <div class="tier-title">Study Trees</div>
+            <p class="tier-desc">
+              Follow a study wherever it leads. Branch from any question into a new study,
+              and watch a single topic grow into a connected tree of learning.
+            </p>
+          </div>
         </div>
       </div>
 
