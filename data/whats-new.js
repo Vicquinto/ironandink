@@ -71,24 +71,27 @@ Subject — a study of a specific person, place, or thing in Scripture. Whether 
   },
 ];
 
-// Standing overview — NOT a dated entry. Persistent description of the platform,
-// shown below the changelog on the /whats-new page. Paragraphs separated by
-// blank lines, same convention as entry bodies.
-const WHATS_NEW_OVERVIEW = {
-  title: 'What Iron & Ink Does',
-  body: `Iron & Ink is a confessionally Reformed study platform built to help believers engage Scripture seriously and share what they find.
+// ─── Coming Soon — planned, not yet shipped ──────────────────────────────────
+//
+// TO ADD A NEW ITEM: add one object to the TOP of the COMING_SOON array below
+// (shown in array order — index 0 renders first). Each item is:
+//   {
+//     title: 'Short title',
+//     body:  `Paragraph text.`
+//   }
+//
+// No date — these haven't shipped. Same body convention as WHATS_NEW entries:
+// plain text, blank lines separate paragraphs, escaped before rendering.
+//
+// Shown at the bottom of the /whats-new page only; the Dashboard panel is
+// unaffected. If this array is empty the section renders nothing at all.
+// When an item ships, move it into WHATS_NEW above with a date.
 
-Study generates structured Bible studies across several types — doctrinal studies, historical studies, verse-by-verse work, studies of people and places, broad explorations of large subjects, and pathway studies that open onto further study. Each can be run at three depths: Apprentice, Journeyman, or Scholar.
+const COMING_SOON = [
+  {
+    title: 'Study tools in Scripture reading',
+    body: `We're bringing the tooltip tools you use throughout Iron & Ink — Define, Explore, and more — into the Scripture reader. We're also working on approvals to offer additional translations, including the NASB, LSB, NKJV, NIV, and CSB, and we hope to make these available soon.`,
+  },
+];
 
-Dialogue is an adversarial theological trainer — defend the Reformed position against the strongest objections from other traditions.
-
-Writing helps you compose an article, sermon, or letter, with three levels of assistance from outline to full draft. Finished pieces can be shared with the community.
-
-Library holds everything you've saved. Scripture is a reader for working directly in the text. Community is where members share studies, articles, and prayer requests. Live Rooms let members study together in real time.
-
-Alongside these: a floating notepad that anchors notes to specific studies, a Scripture tooltip for looking up or exploring any word or phrase in place, Selah for private reflection, daily devotionals, and messaging between members.
-
-All Scripture in generated studies is drawn from the American Standard Version, inserted from a verified source rather than written by the AI.`,
-};
-
-module.exports = { WHATS_NEW, WHATS_NEW_OVERVIEW };
+module.exports = { WHATS_NEW, COMING_SOON };

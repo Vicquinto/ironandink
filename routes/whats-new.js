@@ -1,7 +1,7 @@
 const express = require('express');
 const router  = express.Router();
 const { requireAuth, renderLayout } = require('./layout');
-const { WHATS_NEW, WHATS_NEW_OVERVIEW } = require('../data/whats-new');
+const { WHATS_NEW, COMING_SOON } = require('../data/whats-new');
 
 // Escape user-facing text before it goes into HTML. The changelog content lives
 // in a JS data file (data/whats-new.js) and is trusted, but we escape anyway so
@@ -32,6 +32,18 @@ function renderEntry(entry) {
         <h2 class="wn-title">${esc(entry.title)}</h2>
       </div>
       ${renderParagraphs(entry.body)}
+    </article>`;
+}
+
+// Render a single Coming Soon item — same card as a changelog entry, minus the
+// date (these haven't shipped, so there is nothing to date them by).
+function renderComingSoon(item) {
+  return `
+    <article class="wn-entry wn-soon">
+      <div class="wn-entry-head">
+        <h3 class="wn-title">${esc(item.title)}</h3>
+      </div>
+      ${renderParagraphs(item.body)}
     </article>`;
 }
 
@@ -170,14 +182,7 @@ const PAGE_STYLES = `
       border-top: 1px solid rgba(92,26,40,0.25);
       margin: 40px 0 32px;
     }
-    .wn-overview {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(160,132,92,0.2);
-      border-radius: 6px;
-      padding: 28px 32px;
-      margin-bottom: 40px;
-    }
-    .wn-overview-title {
+    .wn-soon-heading {
       font-family: 'Cinzel', serif;
       font-size: 1.4rem;
       font-weight: 700;
@@ -185,6 +190,9 @@ const PAGE_STYLES = `
       letter-spacing: 0.03em;
       margin-bottom: 18px;
     }
+    .wn-soon { background: rgba(255,255,255,0.06); }
+    .wn-soon-list { margin-bottom: 40px; }
+    .wn-soon-list .wn-entry:last-child { margin-bottom: 0; }
     .wn-contact {
       font-family: 'EB Garamond', Georgia, serif;
       font-size: 1.05rem;
@@ -206,6 +214,16 @@ const PAGE_STYLES = `
 router.get('/whats-new', requireAuth, (req, res) => {
   const entriesHTML = WHATS_NEW.map(renderEntry).join('');
 
+  // Coming Soon renders nothing at all when the array is empty — no heading,
+  // no divider, no stray whitespace.
+  const comingSoonHTML = COMING_SOON.length ? `
+      <hr class="wn-divider">
+
+      <section class="wn-soon-list">
+        <h2 class="wn-soon-heading">Coming Soon</h2>
+        ${COMING_SOON.map(renderComingSoon).join('')}
+      </section>` : '';
+
   const content = `
     ${PAGE_STYLES}
     <div class="wn-wrap">
@@ -215,13 +233,7 @@ router.get('/whats-new', requireAuth, (req, res) => {
       </div>
 
       ${entriesHTML}
-
-      <hr class="wn-divider">
-
-      <section class="wn-overview">
-        <h2 class="wn-overview-title">${esc(WHATS_NEW_OVERVIEW.title)}</h2>
-        ${renderParagraphs(WHATS_NEW_OVERVIEW.body)}
-      </section>
+${comingSoonHTML}
 
       <p class="wn-contact">Iron &amp; Ink is in active early access and is being built continually. If you have questions, run into a problem, or have an idea for something that would make it more useful, write to us at <a href="mailto:contact@ironandinktheology.com">contact@ironandinktheology.com</a>.</p>
 
