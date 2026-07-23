@@ -44,16 +44,6 @@ router.get('/', (req, res) => {
       margin: 0 auto 32px;
     }
 
-    /* Eyebrow above the headline — italic, letter-spaced, in the secondary
-       label brown so it sits under the H1 without competing with it. */
-    .hero-kicker {
-      font-size: 0.95rem;
-      font-style: italic;
-      color: var(--warm-brown);
-      letter-spacing: 0.06em;
-      margin-bottom: 16px;
-    }
-
     /* Display face (Cinzel) and heading colour, matching .feature-title's
        family and the --accent heading convention. */
     .hero-headline {
@@ -63,6 +53,10 @@ router.get('/', (req, res) => {
       color: var(--accent);
       line-height: 1.3;
       max-width: 640px;
+      /* Adds to .hero-brand's 32px for 48px of separation from the logo. The
+         headline must sit further from the brand block than from its own
+         subhead (24px), or the two read as one crowded group. */
+      margin-top: 16px;
       margin-bottom: 24px;
     }
 
@@ -207,7 +201,6 @@ router.get('/', (req, res) => {
   <div class="landing-wrap">
     <section class="hero">
       <img src="/images/brand.jpg" alt="Iron & Ink — Iron sharpens iron, Proverbs 27:17" class="hero-brand">
-      <p class="hero-kicker">Iron sharpens iron. &mdash; Proverbs 27:17</p>
       <h1 class="hero-headline">A training ground for Reformed conviction.</h1>
       <p class="hero-description">
         A confessionally Reformed platform where you study Scripture deeply,
