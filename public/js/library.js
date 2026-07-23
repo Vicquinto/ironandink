@@ -2159,7 +2159,8 @@
         '<div class="ucp-selection"></div>' +
       '</div>' +
       // Action row — present in BOTH modes. Buttons operate on the target text
-      // (typed input wins; the selection is used when the input is empty).
+      // decided by the trigger: the original selection when grounded, the typed
+      // input when ungrounded (see ucpActionText).
       '<div class="ucp-actions">' +
         '<button class="ucp-define-btn">Define</button>' +
         '<button class="ucp-explore-btn">Explore</button>' +
@@ -2309,14 +2310,15 @@
     return msg;
   }
 
-  // Text an action button operates on. Precedence (unchanged): typed input wins;
-  // the selection is used only when the input is empty. `fromSelection` marks the
-  // selection case so a lookup can anchor its pin to the study occurrence.
+  // Text an action button operates on. The TRIGGER decides, once, for the whole
+  // panel session: a grounded panel (highlight) always operates on the original
+  // selection — typed text never overrides or redirects it; an ungrounded panel
+  // (Ctrl+Alt+T) operates on the typed input. Returns '' only in the ungrounded
+  // empty-input case, the one case that earns an inline notice. Anchoring is NOT
+  // derived from this helper — it keys on `ucpGrounded` alone.
   function ucpActionText() {
-    var typed = ucpEl.querySelector('.ucp-input').value.trim();
-    if (typed) return { text: typed, fromSelection: false };
-    if (ucpGrounded && ucpSelection) return { text: ucpSelection, fromSelection: true };
-    return { text: '', fromSelection: false };
+    if (ucpGrounded && ucpSelection) return ucpSelection;
+    return ucpEl.querySelector('.ucp-input').value.trim();
   }
 
   // Brief inline message when an action is clicked with no text to act on. The
@@ -2412,13 +2414,14 @@
 
   function ucpDefine() {
     if (ucpEsvLocked) return;                    // ESV backstop
-    var picked = ucpActionText();
-    if (!picked.text) { ucpNotice('Type a word to define.'); return; }
+    var term = ucpActionText();
+    if (!term) { ucpNotice('Type a word to define.'); return; }
     ucpClearNotice();
-    var term     = picked.text;
-    // Anchor the pin to the study only when we defined the actual selection; a
-    // typed term has no reliable occurrence, so it pins as a free note.
-    var anchored = picked.fromSelection && ucpGrounded;
+    // The trigger decides: a grounded panel defined the selection, so the pin
+    // anchors to it — for every action, for the whole session. An ungrounded
+    // panel defined a typed term, which has no reliable occurrence in the study,
+    // so it pins as a free note.
+    var anchored = ucpGrounded && !!ucpSelection;
     var msg  = ucpAppendMsg('assistant', '<span class="up-loading">Looking up definition…</span>', 'Definition');
     var body = msg.querySelector('.ucp-msg-body');
     fetch('/api/dictionary/define', {
@@ -2447,11 +2450,11 @@
   function ucpVerse() {
     // Verse Lookup only queries the ESV/Bible API (never Anthropic), so it stays
     // permitted even under the ESV lock.
-    var picked = ucpActionText();
-    if (!picked.text) { ucpNotice('Type a verse reference to look up.'); return; }
+    var ref = ucpActionText();
+    if (!ref) { ucpNotice('Type a verse reference to look up.'); return; }
     ucpClearNotice();
-    var ref      = picked.text;
-    var anchored = picked.fromSelection && ucpGrounded;
+    // Same trigger-decides rule as Define (see ucpDefine).
+    var anchored = ucpGrounded && !!ucpSelection;
     var msg  = ucpAppendMsg('assistant', '<span class="up-loading">Looking up verse…</span>', 'Verse');
     var body = msg.querySelector('.ucp-msg-body');
     fetch('/api/library/verse', {
@@ -2477,30 +2480,54 @@
       });
   }
 
-  // Add Note — leave a note without a lookup. Grounded + empty input → anchored
-  // note tied to the selection (opens the notepad composer pre-anchored via the
-  // existing occurrence machinery). Typed text (either mode) → free note from the
-  // typed content, saved immediately. Degrades: the button is hidden where no
-  // notepad study is bound, so this rarely runs without a context.
+  // Add Note — leave a note without a lookup. The trigger decides anchoring for
+  // the whole panel session: a GROUNDED panel always anchors to the original
+  // selection, whether or not the input has text — typed text supplies the note
+  // BODY, it never redirects the anchor. An UNGROUNDED panel always makes a free
+  // note. Degrades: the button is hidden where no notepad study is bound, so
+  // this rarely runs without a context.
   function ucpAddNote() {
     if (!window.__notepad) return;
     var typed = ucpEl.querySelector('.ucp-input').value.trim();
 
-    // Grounded + empty input → anchored personal note on the selection.
-    if (!typed && ucpGrounded && ucpSelection) {
+    if (ucpGrounded && ucpSelection) {
       ucpClearNotice();
+      // Read the anchor now — ensureNotepadCtx may pop a confirm modal first.
       var quote = ucpSelection, occ = ucpOccurrence;
+
+      // Grounded + empty input → open the composer pre-anchored to the selection;
+      // the user writes the body there (it saves as an anchored 'personal' note).
+      if (!typed) {
+        ensureNotepadCtx(function (ctx) {
+          // startAnchoredNote opens the notepad itself and pre-anchors the quote.
+          window.__notepad.startAnchoredNote(ctx.id, ctx.title, quote, occ);
+        });
+        return;
+      }
+
+      // Grounded + typed text → save immediately, ANCHORED to the selection with
+      // the typed text as the body (the James 1:5 case: highlight a verse, type a
+      // prayer, the prayer anchors to the verse). Carrying quote + occurrence is
+      // what fires the notepad's superscript-marker machinery; 'personal' is the
+      // same source the composer branch above ultimately writes, so both grounded
+      // paths produce an identically shaped note.
       ensureNotepadCtx(function (ctx) {
-        // startAnchoredNote opens the notepad itself and pre-anchors the quote.
-        window.__notepad.startAnchoredNote(ctx.id, ctx.title, quote, occ);
+        window.__notepad.saveLookupNote(ctx.id, ctx.title,
+          { quote: quote, question: null, content: typed, source: 'personal', occurrence: occ },
+          function (ok) {
+            if (!ok) return;
+            ucpEl.querySelector('.ucp-input').value = '';
+            showToast('Saved to Notepad');
+            ucpOpenNotepad();   // reveal the entry that just landed
+          });
       });
       return;
     }
 
-    // Nothing typed and nothing to anchor to → explain what's needed.
+    // Ungrounded + empty input → nothing to act on; explain what's needed.
     if (!typed) { ucpNotice('Type a note to add.'); return; }
 
-    // Typed text → free note from the typed content.
+    // Ungrounded + typed text → free note from the typed content.
     ucpClearNotice();
     var content = typed;
     ensureNotepadCtx(function (ctx) {
@@ -2515,9 +2542,12 @@
     });
   }
 
-  // Explore — an open AI question about the target text. Typed input wins (asked
-  // verbatim); an empty input on a grounded selection explores that selection
-  // (folded into turn one). Nothing to act on → inline notice.
+  // Explore — an open AI question about the target text. Already conforms to the
+  // trigger-decides rule and needs no precedence of its own: when grounded, typed
+  // text is a FOLLOW-UP QUESTION about the selection (the ask endpoint carries
+  // both — ucpRunAsk folds the selection into turn one and anchors the pin on
+  // ucpGrounded), and an empty input explores the selection itself. Ungrounded,
+  // it asks the typed text; nothing to act on → inline notice.
   function ucpExplore() {
     if (ucpEsvLocked) return;
     var input = ucpEl.querySelector('.ucp-input');
