@@ -18,6 +18,9 @@ router.get('/', (req, res) => {
     /* Landing page layout — no sidebar */
     body { font-family: 'EB Garamond', Georgia, serif; }
 
+    /* The hero's primary button is a same-page jump to #features, so ease it. */
+    html { scroll-behavior: smooth; }
+
     .landing-wrap {
       min-height: 100vh;
       display: flex;
@@ -110,6 +113,45 @@ router.get('/', (req, res) => {
     .btn-hero-secondary:hover {
       background: var(--accent);
       color: #E8D9B8;
+    }
+
+    /* Understated scroll affordance — a hairline chevron under the buttons so
+       the full-height hero visibly signals there is more below. Muted by
+       default, and it drifts just far enough to read as an invitation. */
+    .hero-scroll-cue {
+      display: block;
+      margin-top: 40px;
+      color: var(--warm-brown);
+      opacity: 0.5;
+      line-height: 0;
+      transition: opacity 0.15s;
+      animation: heroCueDrift 2.6s ease-in-out infinite;
+    }
+
+    .hero-scroll-cue:hover { opacity: 0.85; }
+
+    @keyframes heroCueDrift {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(5px); }
+    }
+
+    /* Respect a reduced-motion preference: no drift, no smooth-scroll easing. */
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .hero-scroll-cue { animation: none; }
+    }
+
+    /* On phones the hero's 140px of vertical padding already pushed it ~14px past
+       the viewport, which would have left the cue itself below the fold — where a
+       scroll affordance is useless. Reclaim enough for the whole hero, cue
+       included, to sit above the fold. */
+    @media (max-width: 420px) {
+      .hero {
+        padding-top: 40px;
+        padding-bottom: 28px;
+      }
+
+      .hero-scroll-cue { margin-top: 20px; }
     }
 
     /* ── Features — illuminated manuscript ── */
@@ -245,12 +287,18 @@ router.get('/', (req, res) => {
         alongside others who hold the same confession.
       </p>
       <div class="hero-buttons">
-        <a href="/invite-request" class="btn-hero-primary">Request an Invitation</a>
+        <a href="#features" class="btn-hero-primary">See what's inside</a>
         <a href="/login" class="btn-hero-secondary">Sign In</a>
       </div>
+      <a href="#features" class="hero-scroll-cue" aria-label="Scroll down to see more">
+        <svg width="22" height="12" viewBox="0 0 22 12" aria-hidden="true" focusable="false">
+          <path d="M1 1 L11 10 L21 1" fill="none" stroke="currentColor"
+                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
     </section>
 
-    <section class="features">
+    <section class="features" id="features">
       <div class="features-inner">
         <div class="feature-entry">
           <div class="feature-title">Study</div>
