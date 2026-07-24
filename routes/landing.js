@@ -401,7 +401,9 @@ router.get('/', (req, res) => {
           <div class="tier-entry">
             <div class="tier-title">Scripture</div>
             <p class="tier-desc">
-              A clean, distraction-free reader for working directly in the text.
+              A clean, distraction-free reader for working directly in the text — and a
+              reading tracker to set goals for each book and mark every time you read it
+              through.
             </p>
           </div>
           <div class="tier-entry">
