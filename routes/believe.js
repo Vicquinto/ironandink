@@ -26,7 +26,7 @@ const SCRIPT = `
   });
 
   var hash = window.location.hash.replace('#', '');
-  if (hash === 'confession' || hash === 'covenant' || hash === 'story' || hash === 'contact') switchTab(hash);
+  if (hash === 'confession' || hash === 'covenant' || hash === 'story' || hash === 'contact' || hash === 'ai') switchTab(hash);
 })();
 </script>`;
 
@@ -40,6 +40,7 @@ function buildContent() {
       <button class="believe-tab" data-tab="covenant">Covenant</button>
       <button class="believe-tab" data-tab="story">Our Story</button>
       <button class="believe-tab" data-tab="contact">Contact</button>
+      <button class="believe-tab" data-tab="ai">Where We Stand on AI</button>
     </div>
 
     <!-- ── About ── -->
@@ -221,6 +222,78 @@ function buildContent() {
         questions and suggestions genuinely shape what gets built next &mdash; don&rsquo;t
         hesitate to reach out.
       </p>
+    </div>
+
+    <!-- ── Where We Stand on AI ── -->
+    <div id="believe-ai" class="believe-panel" style="display:none;">
+      <div class="copy-site-name">Iron &amp; Ink</div>
+      <h1 class="copy-page-title">Where We Stand on AI</h1>
+      <p class="copy-body">
+        Iron &amp; Ink uses artificial intelligence, and we want to be plain about that
+        from the start &mdash; not buried in fine print, but stated openly, because we
+        think you deserve to know exactly what you&rsquo;re joining and how we&rsquo;ve
+        thought about it.
+      </p>
+      <p class="copy-body">
+        We understand that many thoughtful Christians have real reservations about AI,
+        and we do not take those concerns lightly. Some worry about discernment. Some
+        worry about a machine standing between a believer and the Word. Some simply
+        wonder whether a tool like this belongs anywhere near the study of Scripture.
+        These are good questions, asked in good faith, and we have wrestled with them
+        ourselves in building this platform.
+      </p>
+      <p class="copy-body">
+        Here is how we have answered them.
+      </p>
+      <p class="copy-body">
+        <strong>The AI never writes Scripture.</strong> This is the safeguard we care
+        about most. When a study is generated, the AI is not permitted to produce the
+        words of the Bible. It can only mark where a verse belongs &mdash; and our own
+        system then inserts the verified text from a trusted source. The result is that
+        the Scripture you read on Iron &amp; Ink is never written, paraphrased, or
+        altered by a machine. It is the Word, unchanged, placed by us &mdash; not by
+        the AI.
+      </p>
+      <p class="copy-body">
+        <strong>The AI is a tool, not an authority.</strong> Iron &amp; Ink uses AI the
+        way a serious student uses a concordance, a lexicon, or a commentary &mdash; as
+        an aid to study, never as a substitute for it. The authority in your study is,
+        and remains, the Word of God, read in the light of the historic Reformed
+        confessions and by the illumination of the Holy Spirit. No study we generate is
+        beyond your examination. We built this platform for Bereans &mdash; people who
+        test everything against Scripture &mdash; and we expect you to test what you
+        find here.
+      </p>
+      <p class="copy-body">
+        <strong>Everything is confessionally bounded.</strong> The studies, the
+        dialogues, and the tools are all shaped to a confessionally Reformed standard.
+        This is not a neutral machine answering from nowhere; it is a tool built to
+        serve a particular, historic understanding of the faith.
+      </p>
+      <p class="copy-body">
+        <strong>A word from us, personally.</strong> We built Iron &amp; Ink because we
+        use it ourselves &mdash; for our own study, in our own walk with the Lord. It
+        has been a genuine help: a tool that has deepened our reading, sharpened our
+        thinking, and driven us back to the text again and again. We do not offer it as
+        flawless. Like any study aid, it can err, and we expect you to read it as a
+        Berean reads &mdash; with Scripture as the final word and your own discernment
+        fully engaged. But used that way, with the Bible open and the heart prayerful,
+        we have found it to be a faithful servant of serious study.
+      </p>
+      <p class="copy-body">
+        <strong>Your discernment is essential.</strong> No tool &mdash; human or
+        otherwise &mdash; replaces the work God does in a believer through His Word and
+        Spirit. Use Iron &amp; Ink as you would any study aid: with your Bible open,
+        your mind engaged, and your heart prayerful. Bring what you learn here to the
+        Lord, to your church, and to the Scriptures themselves. The tool serves the
+        study. The study serves the soul. And the soul answers to God alone.
+      </p>
+      <p class="copy-body">
+        We offer Iron &amp; Ink in that spirit &mdash; as a servant of your study, not
+        a shortcut around it. If that is the kind of tool you are looking for, we would
+        be glad to have you.
+      </p>
+      <p class="copy-body"><em>Soli Deo Gloria.</em></p>
     </div>
 
   </div>`;
