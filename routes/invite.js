@@ -165,6 +165,23 @@ router.get('/invite-request', (req, res) => {
       border-radius: 6px; font-size: 1rem; color: var(--text);
       line-height: 1.7; text-align: center;
     }
+    /* ── Welcoming intro + optional "about you" field ── */
+    .pub-intro {
+      text-align: center; font-size: 0.95rem; color: var(--dark-cream);
+      line-height: 1.72; margin-bottom: 26px;
+    }
+    .pub-intro p { margin-bottom: 12px; }
+    .pub-intro p:last-child { margin-bottom: 0; }
+    .pub-intro a { color: var(--accent); text-decoration: underline; }
+    .pub-intro a:hover { color: #c9a040; }
+    .form-label-optional {
+      text-transform: none; letter-spacing: 0; font-size: 0.72rem;
+      font-style: italic; color: var(--warm-brown); margin-left: 7px;
+    }
+    .field-help {
+      font-size: 0.85rem; color: var(--warm-brown); font-style: italic;
+      line-height: 1.62; margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
@@ -254,7 +271,17 @@ router.get('/invite-request', (req, res) => {
 
       if (currentStep === 0) {
         // About you
-        html = '<div class="form-group">' +
+        html = '<div class="pub-intro">' +
+          '<p>Iron &amp; Ink is a small, confessionally Reformed community, and we like to ' +
+          'know a little about who&rsquo;s joining before we open the door &mdash; not to ' +
+          'test you, but to make sure everyone here shares a common starting point. There ' +
+          'are no trick questions and no wrong reasons to be curious. Whether you&rsquo;ve ' +
+          'held the doctrines of grace for years or you&rsquo;re still working through them, ' +
+          'tell us honestly where you are.</p>' +
+          '<p>We use AI to help build your studies, always within careful limits &mdash; you ' +
+          'can read <a href="/what-we-believe#ai">where we stand on that here</a>.</p>' +
+        '</div>' +
+        '<div class="form-group">' +
           '<label class="form-label">Full Name</label>' +
           '<input class="form-input" type="text" id="infoName" placeholder="Your full name" value="' + esc(formData.name) + '">' +
         '</div>' +
@@ -263,8 +290,12 @@ router.get('/invite-request', (req, res) => {
           '<input class="form-input" type="email" id="infoEmail" placeholder="your@email.com" value="' + esc(formData.email) + '">' +
         '</div>' +
         '<div class="form-group">' +
-          '<label class="form-label">Why do you want to join Iron &amp; Ink?</label>' +
-          '<textarea class="form-textarea" id="infoReason" placeholder="Tell us briefly about your theological background and what you hope to gain…">' + esc(formData.reason) + '</textarea>' +
+          '<label class="form-label">A little about you<span class="form-label-optional">(optional)</span></label>' +
+          '<p class="field-help">Iron &amp; Ink is a community, and we&rsquo;d genuinely love ' +
+          'to know the people in it. We&rsquo;ve told you a bit about who we are &mdash; if ' +
+          'you&rsquo;re comfortable, we&rsquo;d be glad to hear a little about you. ' +
+          'There&rsquo;s no wrong answer, and no pressure to share more than you&rsquo;d like.</p>' +
+          '<textarea class="form-textarea" id="infoReason" placeholder="Tell us where you are in your faith and what draws you to Iron &amp; Ink…">' + esc(formData.reason) + '</textarea>' +
         '</div>' +
         '<div class="step-nav"><span></span><button class="btn-pub" id="nextBtn" type="button">Continue</button></div>';
 
@@ -402,7 +433,6 @@ router.get('/invite-request', (req, res) => {
         if (!email || atIdx < 1 || lastDot < atIdx + 2 || lastDot >= email.length - 1) {
           showErr('Please enter a valid email address.'); return;
         }
-        if (!reason) { showErr('Please tell us why you want to join.'); return; }
         formData = { name: name, email: email, reason: reason };
         goTo(1);
 
@@ -457,8 +487,8 @@ router.get('/invite-request', (req, res) => {
 // ─── POST /api/invite-request ─────────────────────────────────────────────────
 router.post('/api/invite-request', (req, res) => {
   const { name, email, reason, doctrines, wishToJoin } = req.body;
-  if (!name || !email || !reason) {
-    return res.status(400).json({ success: false, error: 'All fields are required.' });
+  if (!name || !email) {
+    return res.status(400).json({ success: false, error: 'Name and email are required.' });
   }
 
   const DOC_KEYS    = ['scriptureAuthority', 'totalDepravity', 'unconditionalElection', 'particularAtonement', 'irresistibleGrace', 'perseverance'];
@@ -484,7 +514,7 @@ router.post('/api/invite-request', (req, res) => {
     id:          randomUUID(),
     name:        name.trim(),
     email:       email.trim().toLowerCase(),
-    reason:      reason.trim(),
+    reason:      (reason || '').trim(),
     doctrines:   cleanDoctrines,
     wishToJoin:  'Yes',
     status:      'pending',
