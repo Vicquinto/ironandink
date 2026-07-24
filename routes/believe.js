@@ -226,6 +226,11 @@ function buildContent() {
 
     <!-- ── Where We Stand on AI ── -->
     <div id="believe-ai" class="believe-panel" style="display:none;">
+      <style>
+        #believe-ai .copy-body { margin-bottom: 1.25em; }
+        #believe-ai .copy-body:has(> strong) { margin-top: 1.9em; }
+        #believe-ai .copy-body:last-child { margin-bottom: 0; }
+      </style>
       <div class="copy-site-name">Iron &amp; Ink</div>
       <h1 class="copy-page-title">Where We Stand on AI</h1>
       <p class="copy-body">
