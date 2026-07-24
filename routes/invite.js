@@ -278,8 +278,6 @@ router.get('/invite-request', (req, res) => {
           'are no trick questions and no wrong reasons to be curious. Whether you&rsquo;ve ' +
           'held the doctrines of grace for years or you&rsquo;re still working through them, ' +
           'tell us honestly where you are.</p>' +
-          '<p>We use AI to help build your studies, always within careful limits &mdash; you ' +
-          'can read <a href="/what-we-believe#ai">where we stand on that here</a>.</p>' +
         '</div>' +
         '<div class="form-group">' +
           '<label class="form-label">Full Name</label>' +
