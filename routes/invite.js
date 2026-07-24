@@ -342,9 +342,9 @@ router.get('/invite-request', (req, res) => {
         '<div class="form-group">' +
           '<label class="form-label">A little about you<span class="form-label-optional">(optional)</span></label>' +
           '<p class="field-help">Iron &amp; Ink is a community, and we&rsquo;d genuinely love ' +
-          'to know the people in it. We&rsquo;ve told you a bit about who we are &mdash; if ' +
-          'you&rsquo;re comfortable, we&rsquo;d be glad to hear a little about you. ' +
-          'There&rsquo;s no wrong answer, and no pressure to share more than you&rsquo;d like.</p>' +
+          'to know the people in it. If you&rsquo;re comfortable, we&rsquo;d be glad to hear ' +
+          'a little about you &mdash; there&rsquo;s no wrong answer, and no pressure to share ' +
+          'more than you&rsquo;d like.</p>' +
           '<textarea class="form-textarea" id="infoReason" placeholder="Tell us where you are in your faith and what draws you to Iron &amp; Ink…">' + esc(formData.reason) + '</textarea>' +
         '</div>' +
         '<div class="step-nav">' +
