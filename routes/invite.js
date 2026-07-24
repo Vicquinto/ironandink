@@ -238,7 +238,7 @@ router.get('/invite-request', (req, res) => {
       }
     ];
 
-    // Steps: 0=about, 1=intro, 2-7=statements 0-5, 8=closing, 9=final
+    // Steps: 0=intro, 1-6=statements 0-5, 7=closing, 8=final, 9=identity
     var container = document.getElementById('stepContent');
     var errEl     = document.getElementById('errMsg');
 
@@ -270,16 +270,68 @@ router.get('/invite-request', (req, res) => {
       var html = '';
 
       if (currentStep === 0) {
-        // About you
-        html = '<div class="pub-intro">' +
-          '<p>Iron &amp; Ink is a small, confessionally Reformed community, and we like to ' +
-          'know a little about who&rsquo;s joining before we open the door &mdash; not to ' +
-          'test you, but to make sure everyone here shares a common starting point. There ' +
-          'are no trick questions and no wrong reasons to be curious. Whether you&rsquo;ve ' +
-          'held the doctrines of grace for years or you&rsquo;re still working through them, ' +
-          'tell us honestly where you are.</p>' +
+        // Intro (opener — no Back button)
+        html = '<p class="doctrine-intro">' +
+          'Iron &amp; Ink Theology is a confessionally Reformed Bible study and community platform, ' +
+          'built on the historic doctrines of grace (often summarized as TULIP) and a high view of ' +
+          'Scripture’s authority. Before requesting access, please respond honestly to the ' +
+          'following six statements. There are no wrong answers if you’re still studying or ' +
+          'undecided — “Maybe” is a welcome response. This is simply to make sure ' +
+          'you understand what kind of community you’re joining, and that it will be a good ' +
+          'fit for you.' +
+        '</p>' +
+        '<div class="step-nav"><span></span><button class="btn-pub" id="nextBtn" type="button">Begin</button></div>';
+
+      } else if (currentStep >= 1 && currentStep <= 6) {
+        // Statement step
+        var idx = currentStep - 1;
+        var doc = DOCS[idx];
+        var sel = docAnswers[doc.key] || '';
+        html = progressDots(idx) +
+          '<label class="form-label">' + esc(doc.label) + '</label>' +
+          '<p class="doctrine-question">' + doc.text + '</p>' +
+          '<div class="doctrine-choices" id="docChoices">' +
+            choiceBtn('Yes',   sel) +
+            choiceBtn('Maybe', sel) +
+            choiceBtn('No',    sel) +
+          '</div>' +
+          '<div class="step-nav">' +
+            '<button class="btn-back" id="backBtn" type="button">← Back</button>' +
+          '</div>';
+
+      } else if (currentStep === 7) {
+        // Closing / framework agreement
+        html = '<div class="doctrine-closing">' +
+          'Iron &amp; Ink is meant to be a safe, doctrinally settled space for Reformed believers to ' +
+          'study, write, and discuss together. We ask that members engage from within this framework ' +
+          'rather than using the community as a venue to debate or challenge these core convictions. ' +
+          'If after reading these statements this sounds like a community you’d value being ' +
+          'part of, we’d love to have you.' +
         '</div>' +
-        '<div class="form-group">' +
+        '<div class="step-nav">' +
+          '<button class="btn-back" id="backBtn" type="button">← Back</button>' +
+          '<button class="btn-pub"  id="nextBtn" type="button">Continue</button>' +
+        '</div>';
+
+      } else if (currentStep === 8) {
+        // Final question — "Yes" advances to the identity screen
+        html = '<label class="form-label">Final Question</label>' +
+          '<p class="doctrine-question">Do you wish to join the Reformed Christian Iron &amp; Ink community?</p>' +
+          '<div class="doctrine-choices" id="finalChoices">' +
+            '<label class="doctrine-btn" data-value="Yes"><input type="radio" name="wish_choice" value="Yes"> Yes</label>' +
+            '<label class="doctrine-btn" data-value="No"><input type="radio" name="wish_choice" value="No"> No</label>' +
+          '</div>' +
+          '<div id="declineMsg" class="decline-msg" style="display:none;">' +
+            'Thank you for taking the time to consider Iron &amp; Ink. We wish you well in your walk.' +
+          '</div>' +
+          '<div class="step-nav">' +
+            '<button class="btn-back" id="backBtn" type="button">← Back</button>' +
+            '<button class="btn-pub"  id="nextBtn" type="button" style="display:none;">Continue</button>' +
+          '</div>';
+
+      } else if (currentStep === 9) {
+        // Identity — Name / Email / optional "about you" (final input step)
+        html = '<div class="form-group">' +
           '<label class="form-label">Full Name</label>' +
           '<input class="form-input" type="text" id="infoName" placeholder="Your full name" value="' + esc(formData.name) + '">' +
         '</div>' +
@@ -295,67 +347,10 @@ router.get('/invite-request', (req, res) => {
           'There&rsquo;s no wrong answer, and no pressure to share more than you&rsquo;d like.</p>' +
           '<textarea class="form-textarea" id="infoReason" placeholder="Tell us where you are in your faith and what draws you to Iron &amp; Ink…">' + esc(formData.reason) + '</textarea>' +
         '</div>' +
-        '<div class="step-nav"><span></span><button class="btn-pub" id="nextBtn" type="button">Continue</button></div>';
-
-      } else if (currentStep === 1) {
-        // Intro
-        html = '<p class="doctrine-intro">' +
-          'Iron &amp; Ink Theology is a confessionally Reformed Bible study and community platform, ' +
-          'built on the historic doctrines of grace (often summarized as TULIP) and a high view of ' +
-          'Scripture’s authority. Before requesting access, please respond honestly to the ' +
-          'following six statements. There are no wrong answers if you’re still studying or ' +
-          'undecided — “Maybe” is a welcome response. This is simply to make sure ' +
-          'you understand what kind of community you’re joining, and that it will be a good ' +
-          'fit for you.' +
-        '</p>' +
-        '<div class="step-nav"><span></span><button class="btn-pub" id="nextBtn" type="button">Begin</button></div>';
-
-      } else if (currentStep >= 2 && currentStep <= 7) {
-        // Statement step
-        var idx = currentStep - 2;
-        var doc = DOCS[idx];
-        var sel = docAnswers[doc.key] || '';
-        html = progressDots(idx) +
-          '<label class="form-label">' + esc(doc.label) + '</label>' +
-          '<p class="doctrine-question">' + doc.text + '</p>' +
-          '<div class="doctrine-choices" id="docChoices">' +
-            choiceBtn('Yes',   sel) +
-            choiceBtn('Maybe', sel) +
-            choiceBtn('No',    sel) +
-          '</div>' +
-          '<div class="step-nav">' +
-            '<button class="btn-back" id="backBtn" type="button">← Back</button>' +
-          '</div>';
-
-      } else if (currentStep === 8) {
-        // Closing
-        html = '<div class="doctrine-closing">' +
-          'Iron &amp; Ink is meant to be a safe, doctrinally settled space for Reformed believers to ' +
-          'study, write, and discuss together. We ask that members engage from within this framework ' +
-          'rather than using the community as a venue to debate or challenge these core convictions. ' +
-          'If after reading these statements this sounds like a community you’d value being ' +
-          'part of, we’d love to have you.' +
-        '</div>' +
         '<div class="step-nav">' +
           '<button class="btn-back" id="backBtn" type="button">← Back</button>' +
-          '<button class="btn-pub"  id="nextBtn" type="button">Continue</button>' +
+          '<button class="btn-pub"  id="submitBtn" type="button">Submit Request</button>' +
         '</div>';
-
-      } else if (currentStep === 9) {
-        // Final question
-        html = '<label class="form-label">Final Question</label>' +
-          '<p class="doctrine-question">Do you wish to join the Reformed Christian Iron &amp; Ink community?</p>' +
-          '<div class="doctrine-choices" id="finalChoices">' +
-            '<label class="doctrine-btn" data-value="Yes"><input type="radio" name="wish_choice" value="Yes"> Yes</label>' +
-            '<label class="doctrine-btn" data-value="No"><input type="radio" name="wish_choice" value="No"> No</label>' +
-          '</div>' +
-          '<div id="declineMsg" class="decline-msg" style="display:none;">' +
-            'Thank you for taking the time to consider Iron &amp; Ink. We wish you well in your walk.' +
-          '</div>' +
-          '<div class="step-nav">' +
-            '<button class="btn-back" id="backBtn" type="button">← Back</button>' +
-            '<button class="btn-pub"  id="submitBtn" type="button" style="display:none;">Submit Request</button>' +
-          '</div>';
       }
 
       container.innerHTML = html;
@@ -366,7 +361,7 @@ router.get('/invite-request', (req, res) => {
       var backBtn = document.getElementById('backBtn');
       var nextBtn = document.getElementById('nextBtn');
 
-      if (backBtn) backBtn.addEventListener('click', function () { goTo(currentStep - 1); });
+      if (backBtn) backBtn.addEventListener('click', function () { saveIdentity(); goTo(currentStep - 1); });
       if (nextBtn) nextBtn.addEventListener('click', handleNext);
 
       // Statement choice buttons — selecting auto-advances after brief visible state
@@ -384,7 +379,7 @@ router.get('/invite-request', (req, res) => {
             btn.classList.add('selected');
             var r = btn.querySelector('input');
             if (r) r.checked = true;
-            docAnswers[DOCS[currentStep - 2].key] = val;
+            docAnswers[DOCS[currentStep - 1].key] = val;
             setTimeout(function () { goTo(targetStep); }, 200);
           });
         });
@@ -401,13 +396,13 @@ router.get('/invite-request', (req, res) => {
             if (r) r.checked = true;
             var val        = btn.getAttribute('data-value');
             var declineMsg = document.getElementById('declineMsg');
-            var submitBtn  = document.getElementById('submitBtn');
+            var contBtn    = document.getElementById('nextBtn');
             if (val === 'No') {
               declineMsg.style.display = 'block';
-              submitBtn.style.display  = 'none';
+              contBtn.style.display    = 'none';
             } else {
               declineMsg.style.display = 'none';
-              submitBtn.style.display  = 'block';
+              contBtn.style.display    = 'block';
             }
           });
         });
@@ -422,28 +417,36 @@ router.get('/invite-request', (req, res) => {
       clearErr();
 
       if (currentStep === 0) {
-        var name    = document.getElementById('infoName').value.trim();
-        var email   = document.getElementById('infoEmail').value.trim();
-        var reason  = document.getElementById('infoReason').value.trim();
-        if (!name)   { showErr('Please enter your full name.'); return; }
-        var atIdx   = email.indexOf('@');
-        var lastDot = email.lastIndexOf('.');
-        if (!email || atIdx < 1 || lastDot < atIdx + 2 || lastDot >= email.length - 1) {
-          showErr('Please enter a valid email address.'); return;
-        }
-        formData = { name: name, email: email, reason: reason };
         goTo(1);
-
-      } else if (currentStep === 1) {
-        goTo(2);
-
+      } else if (currentStep === 7) {
+        goTo(8);
       } else if (currentStep === 8) {
         goTo(9);
       }
     }
 
+    // Persist the identity fields into formData whenever we leave the identity
+    // screen (Back or Submit), so typed values survive Back/forward navigation.
+    // No-op on any step where the inputs aren't present.
+    function saveIdentity() {
+      var n  = document.getElementById('infoName');
+      var e  = document.getElementById('infoEmail');
+      var rs = document.getElementById('infoReason');
+      if (n && e && rs) {
+        formData = { name: n.value.trim(), email: e.value.trim(), reason: rs.value.trim() };
+      }
+    }
+
     async function handleSubmit() {
       clearErr();
+      saveIdentity();
+      if (!formData.name) { showErr('Please enter your full name.'); return; }
+      var email   = formData.email;
+      var atIdx   = email.indexOf('@');
+      var lastDot = email.lastIndexOf('.');
+      if (!email || atIdx < 1 || lastDot < atIdx + 2 || lastDot >= email.length - 1) {
+        showErr('Please enter a valid email address.'); return;
+      }
       var btn = document.getElementById('submitBtn');
       btn.disabled    = true;
       btn.textContent = 'Submitting…';
