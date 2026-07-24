@@ -107,7 +107,8 @@
     loadAdminRooms:     loadAdminRooms,
     loadMembers:        loadMembers,
     loadFeedback:       loadFeedback,
-    loadDevotionals:    loadDevotionals
+    loadDevotionals:    loadDevotionals,
+    loadUsage:          loadUsage
   };
 
   // Panel id convention: 'adminTab' + capitalised key (rooms → adminTabRooms).
@@ -925,20 +926,37 @@
       var btnStyle = m.isActive
         ? 'background:#b03030; color:#fff; border:1px solid #8a2525;'
         : 'background:#2f7d34; color:#fff; border:1px solid #246128;';
-      var actionRow = canModerate
-        ? '<div style="display:flex; gap:10px; margin-top:12px;">' +
-            '<button class="btn-primary member-moderate-btn" ' +
-              'data-id="' + esc(m.id) + '" data-action="' + (m.isActive ? 'suspend' : 'reinstate') + '" ' +
-              'style="font-size:0.82rem; padding:6px 14px; ' + btnStyle + '">' +
-              (m.isActive ? 'Suspend' : 'Reinstate') +
-            '</button>' +
-          '</div>'
+      // Comp / Un-comp toggle. Billing groundwork: sets the inert `comped` flag on
+      // the record via the same POST-action shape as suspend/reinstate. Neutral
+      // slate styling so it reads as distinct from the red/green moderation action.
+      var compBtn = '<button class="btn-warm member-comp-btn" ' +
+        'data-id="' + esc(m.id) + '" data-action="' + (m.comped ? 'uncomp' : 'comp') + '" ' +
+        'style="font-size:0.82rem; padding:6px 14px;">' +
+        (m.comped ? 'Un-comp' : 'Comp') +
+      '</button>';
+
+      var moderateBtn = canModerate
+        ? '<button class="btn-primary member-moderate-btn" ' +
+            'data-id="' + esc(m.id) + '" data-action="' + (m.isActive ? 'suspend' : 'reinstate') + '" ' +
+            'style="font-size:0.82rem; padding:6px 14px; ' + btnStyle + '">' +
+            (m.isActive ? 'Suspend' : 'Reinstate') +
+          '</button>'
+        : '';
+
+      // Comp toggle is shown for every member (self/admin included) since it is
+      // billing-only and carries none of suspension's self-lockout risk.
+      var actionRow = '<div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">' +
+        moderateBtn + compBtn +
+      '</div>';
+
+      var compedTag = m.comped
+        ? '<span class="article-status-badge" style="background:#3a5a7d; color:#fff; border:1px solid #2c4560;">Comped</span>'
         : '';
 
       return '<div class="article-card">' +
         '<div class="article-card-header">' +
           '<span class="article-card-title">' + esc(m.fullName) + '</span>' +
-          statusBadge +
+          '<span>' + compedTag + ' ' + statusBadge + '</span>' +
         '</div>' +
         '<div class="article-card-meta">' +
           '<span class="community-card-author">' + esc(m.email) + '</span>' +
@@ -950,6 +968,31 @@
         actionRow +
       '</div>';
     }).join('');
+
+    memberList.querySelectorAll('.member-comp-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id     = btn.dataset.id;
+        var action = btn.dataset.action; // 'comp' | 'uncomp'
+        var verb   = action === 'comp' ? 'Comp' : 'Un-comp';
+        showConfirm(verb + ' this member?', verb, async function () {
+          btn.disabled = true;
+          try {
+            var res  = await fetch('/api/admin/members/' + encodeURIComponent(id) + '/' + action, { method: 'POST' });
+            var data = await res.json();
+            if (data.success) {
+              showToast('Member ' + (action === 'comp' ? 'comped' : 'un-comped') + '.');
+              loadMembers();
+            } else {
+              showToast(data.error || 'Action failed.', true);
+              btn.disabled = false;
+            }
+          } catch (err) {
+            showToast('Error: ' + err.message, true);
+            btn.disabled = false;
+          }
+        });
+      });
+    });
 
     memberList.querySelectorAll('.member-moderate-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
@@ -1017,6 +1060,83 @@
     var d = new Date(iso);
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) +
       ' · ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  }
+
+  // ── Usage / live presence ─────────────────────────────────────────────────
+  // Both the always-visible landing indicator and the Usage tab read the same
+  // GET /api/presence payload ({ online: [{ userId, fullName, status }] }) that
+  // the existing presence module serves — no new tracking, just a surface.
+
+  var STATUS_LABELS = { available: 'Available', away: 'Away', dnd: 'Do Not Disturb' };
+  var STATUS_COLORS = { available: '#2f7d34', away: '#9a6a1f', dnd: '#b03030' };
+
+  // Landing indicator: compact "Currently active: …", refreshed on a timer and
+  // on tab focus so it stays current for the quick pre-deploy glance.
+  var presenceNames = document.getElementById('adminPresenceNames');
+  var presenceDot   = document.getElementById('adminPresenceDot');
+
+  function refreshPresenceBar() {
+    if (!presenceNames) return;
+    fetch('/api/presence')
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var online = (data && data.online) || [];
+        if (presenceDot) presenceDot.style.background = online.length ? '#2f7d34' : '#9a6a1f';
+        presenceNames.textContent = online.length
+          ? online.map(function (u) { return u.fullName; }).join(', ')
+          : 'none';
+      })
+      .catch(function () {
+        if (presenceNames) presenceNames.textContent = 'unavailable';
+      });
+  }
+
+  if (presenceNames) {
+    refreshPresenceBar();
+    setInterval(refreshPresenceBar, 20000);
+    window.addEventListener('focus', refreshPresenceBar);
+  }
+
+  // Usage tab: the same data in more detail — one row per online user with a
+  // colored status pill and a live count.
+  var usageOnlineList  = document.getElementById('usageOnlineList');
+  var usageOnlineEmpty = document.getElementById('usageOnlineEmpty');
+  var usageOnlineCount = document.getElementById('usageOnlineCount');
+
+  async function loadUsage() {
+    if (!usageOnlineList) return;
+    usageOnlineList.innerHTML = '<p class="writing-empty">Loading…</p>';
+    try {
+      var res  = await fetch('/api/presence');
+      var data = await res.json();
+      renderUsage((data && data.online) || []);
+    } catch (err) {
+      usageOnlineList.innerHTML = '<p class="writing-empty">Could not load presence.</p>';
+    }
+  }
+
+  function renderUsage(online) {
+    if (usageOnlineCount) usageOnlineCount.textContent = online.length + ' online';
+    if (!online.length) {
+      if (usageOnlineEmpty) usageOnlineEmpty.style.display = 'block';
+      usageOnlineList.innerHTML = '';
+      return;
+    }
+    if (usageOnlineEmpty) usageOnlineEmpty.style.display = 'none';
+
+    usageOnlineList.innerHTML = online.map(function (u) {
+      var status = u.status || 'available';
+      var color  = STATUS_COLORS[status] || '#9a6a1f';
+      var label  = STATUS_LABELS[status] || status;
+      return '<div class="article-card">' +
+        '<div class="article-card-header">' +
+          '<span class="article-card-title">' + esc(u.fullName || 'Unknown') + '</span>' +
+          '<span class="article-status-badge" style="background:' + color + '; color:#fff; border:1px solid rgba(0,0,0,0.15);">' +
+            esc(label) +
+          '</span>' +
+        '</div>' +
+      '</div>';
+    }).join('');
   }
 
   loadPending();

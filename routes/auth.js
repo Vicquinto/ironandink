@@ -14,6 +14,22 @@ function writeUsers(users) {
   fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
 }
 
+// Stamp the moment of a successful login onto the user record. Purely additive:
+// reads the whole users array, sets one field on the matched user, rewrites the
+// whole object (preserving every other field). Never throws into the login flow —
+// a failed stamp must not block a valid login, so failures are logged and swallowed.
+function stampLastLogin(userId) {
+  try {
+    const users = readUsers();
+    const idx   = users.findIndex(u => u.id === userId);
+    if (idx === -1) return;
+    users[idx].lastLogin = new Date().toISOString();
+    writeUsers(users);
+  } catch (err) {
+    console.error('[stampLastLogin] failed for', userId, ':', err.message);
+  }
+}
+
 // GET /login — login page (redirect to dashboard if already logged in)
 router.get('/login', (req, res) => {
   if (req.session.userId) return res.redirect('/dashboard');
@@ -65,6 +81,9 @@ router.post('/api/login', async (req, res) => {
     isAdmin:  user.role === 'admin' || user.isAdmin === true,
   };
 
+  // Additive usage stamp — does not alter the session snapshot above or the response.
+  stampLastLogin(user.id);
+
   return res.json({ success: true, redirect: '/dashboard' });
 });
 
@@ -106,6 +125,10 @@ router.post('/api/setup-password', async (req, res) => {
     stats:    users[idx].stats,
     isAdmin:  users[idx].role === 'admin' || users[idx].isAdmin === true,
   };
+
+  // Capture the first login too, via the same shared helper (separate whole-object
+  // write; setup-password is a rare first-run path so the extra write is negligible).
+  stampLastLogin(users[idx].id);
 
   return res.json({ success: true, redirect: '/dashboard' });
 });

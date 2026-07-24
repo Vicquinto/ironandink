@@ -71,6 +71,7 @@ const ADMIN_TABS = [
   { key: 'members',     label: 'Members',             load: ['loadMembers'] },
   { key: 'feedback',    label: 'Feedback',            load: ['loadFeedback'] },
   { key: 'devotionals', label: 'Devotionals',         load: ['loadDevotionals'] },
+  { key: 'usage',       label: 'Usage',               load: ['loadUsage'] },
 ];
 
 const ADMIN_DEFAULT_TAB = 'pending';
@@ -103,6 +104,14 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
     </div>
 
     <div id="adminFeed">
+      <!-- Always-visible live-presence indicator: the "quick glance before I deploy"
+           surface. Populated and refreshed client-side from GET /api/presence. -->
+      <div id="adminPresenceBar" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; background:var(--card-bg); border:1px solid rgba(160,132,92,0.3); border-radius:6px; padding:10px 14px; margin-bottom:18px; font-size:0.85rem; color:var(--dark-cream);">
+        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#9a6a1f; flex-shrink:0;" id="adminPresenceDot"></span>
+        <span style="font-weight:600; color:var(--text);">Currently active:</span>
+        <span id="adminPresenceNames">Checking…</span>
+      </div>
+
       <div class="admin-tabs">
         ${ADMIN_TABS.map(t =>
           `<button class="admin-tab${t.key === ADMIN_DEFAULT_TAB ? ' active' : ''}" data-tab="${t.key}">${t.label}</button>`
@@ -158,6 +167,15 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
         </div>
         <div id="devotionalsList" class="article-list-container"></div>
         <p id="devotionalsEmpty" class="writing-empty" style="display:none;">No archived devotionals.</p>
+      </div>
+
+      <div id="adminTabUsage" class="admin-tab-content" style="display:none;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
+          <p style="font-size:0.82rem; color:var(--dark-cream); line-height:1.5; margin:0; max-width:70ch;">Live presence — who is signed in and connected right now, with their self-set status. This view refreshes on open and will grow to hold historical usage in a later phase.</p>
+          <span id="usageOnlineCount" class="article-status-badge status-published" style="white-space:nowrap;">—</span>
+        </div>
+        <div id="usageOnlineList" class="article-list-container"></div>
+        <p id="usageOnlineEmpty" class="writing-empty" style="display:none;">No one is currently online.</p>
       </div>
 
       <div id="adminTabInvitations" class="admin-tab-content" style="display:none;">
@@ -232,7 +250,7 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
     content,
     scripts: `<script>window.ADMIN_TABS = ${JSON.stringify(ADMIN_TABS)};</script>
 <script src="/js/study-badges.js?v=2"></script>
-<script src="/js/admin.js?v=17"></script>
+<script src="/js/admin.js?v=18"></script>
 <script>
 (function () {
   var form     = document.getElementById('directInviteForm');
@@ -604,6 +622,8 @@ router.get('/api/admin/members', requireAuth, requireAdmin, (req, res) => {
       email:            u.email || '',
       role:             u.role === 'admin' ? 'Admin' : 'Member',
       isActive:         u.isActive !== false,
+      comped:           u.comped === true,
+      lastLogin:        u.lastLogin || null,
       accountStatus:    u.needsSetup ? 'Pending setup' : 'Active',
       studiesCompleted: stats.studiesCompleted || 0,
       dialogueSessions: stats.dialogueSessions || 0,
@@ -638,6 +658,29 @@ router.post('/api/admin/members/:id/reinstate', requireAuth, requireAdmin, (req,
   users[idx].isActive = true;
   writeJSON(USERS_PATH, users);
   res.json({ success: true });
+});
+
+// ─── Comp toggle (billing groundwork) ────────────────────────────────────────
+// Sets/clears the `comped` flag on a user record. Purely additive and inert:
+// nothing in login, presence, or study flows reads `comped` yet — this is
+// groundwork for future billing. Both routes use the whole-object rewrite idiom
+// (readJSON → mutate one field → writeJSON), so every other field is preserved.
+router.post('/api/admin/members/:id/comp', requireAuth, requireAdmin, (req, res) => {
+  const users = readJSON(USERS_PATH);
+  const idx   = users.findIndex(u => u.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ success: false, error: 'Member not found.' });
+  users[idx].comped = true;
+  writeJSON(USERS_PATH, users);
+  res.json({ success: true, comped: true });
+});
+
+router.post('/api/admin/members/:id/uncomp', requireAuth, requireAdmin, (req, res) => {
+  const users = readJSON(USERS_PATH);
+  const idx   = users.findIndex(u => u.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ success: false, error: 'Member not found.' });
+  users[idx].comped = false;
+  writeJSON(USERS_PATH, users);
+  res.json({ success: true, comped: false });
 });
 
 // ─── POST /api/admin/reset-my-tours ──────────────────────────────────────────
