@@ -272,13 +272,16 @@ function buildContent() {
       </p>
       <p class="copy-body">
         <strong>A word from us, personally.</strong> We built Iron &amp; Ink because we
-        use it ourselves &mdash; for our own study, in our own walk with the Lord. It
-        has been a genuine help: a tool that has deepened our reading, sharpened our
-        thinking, and driven us back to the text again and again. We do not offer it as
-        flawless. Like any study aid, it can err, and we expect you to read it as a
-        Berean reads &mdash; with Scripture as the final word and your own discernment
-        fully engaged. But used that way, with the Bible open and the heart prayerful,
-        we have found it to be a faithful servant of serious study.
+        use it ourselves, and we did not come to it lightly. We have watched closely to
+        see whether its studies would hold the line &mdash; whether the doctrine would
+        stay true to the Reformed confession or drift, as so much teaching does, toward
+        other traditions. It has held. Study after study has come back faithful to the
+        doctrines of grace, grounded in the confessions we love. And because our system
+        never lets the AI write the words of Scripture itself &mdash; inserting only
+        verified text &mdash; the Bible you read here remains the Bible, untouched. We
+        do not claim the tool is beyond all error; no tool is. But on the things that
+        matter most &mdash; the fidelity of the doctrine and the integrity of the Word
+        &mdash; we have found it faithful, and we have built it to stay that way.
       </p>
       <p class="copy-body">
         <strong>Your discernment is essential.</strong> No tool &mdash; human or
