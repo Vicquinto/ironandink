@@ -243,8 +243,15 @@ router.get('/', (req, res) => {
     /* Same parchment card, palette and faces as the core three; the lighter read
        comes from a smaller heading (0.95rem vs 1.4rem), smaller/tighter body, a
        2-up grid instead of full-width stacked entries, and no gold dividers. */
+    /* .features-inner's 56px vertical padding is calibrated for the tall core
+       panel; against this panel's much shorter grid it took up a quarter of the
+       panel's height, reading as an empty expanse of parchment under the last
+       row. Trim it (symmetrically — it was never lopsided) so the panel hugs the
+       compact grid, which also reinforces the lighter treatment. */
     .features-inner.tier-two {
       margin-top: 40px;
+      padding-top: 40px;
+      padding-bottom: 40px;
     }
 
     .tier-grid {
