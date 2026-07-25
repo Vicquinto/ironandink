@@ -4,6 +4,7 @@ const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
 const { VERSES } = require('./dashboard'); // reuse the Verse-of-the-Day pool for the patience loading screen
 const { assertNoEsvText } = require('./esvGuard');
 const { injectVerses } = require('../lib/asv');
+const { logEvent } = require('../lib/usageLog');
 const { aiLimiter } = require('../middleware/rateLimit');
 
 const router = express.Router();
@@ -629,6 +630,8 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
       // never model-generated verse text.
       const content = injectVerses(message.content[0].text);
       console.log(`[study-gen] DONE total time=${Date.now() - reqStart}ms`);
+      const su = req.session.user || {};
+      logEvent(su.id || req.session.userId, su.fullName, 'study_generated', { topic: topic.trim(), studyType: resolvedStudyType });
       return res.json({ success: true, content, topic: topic.trim(), translation, studyLength, studyLevel: resolvedStudyLevel, studyType: resolvedStudyType });
     } catch (err) {
       if (isContentFilterError(err)) {

@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
 const path = require('path');
+const { logEvent } = require('../lib/usageLog');
 
 const router = express.Router();
 const USERS_PATH = path.join(__dirname, '../data/users.json');
@@ -83,6 +84,7 @@ router.post('/api/login', async (req, res) => {
 
   // Additive usage stamp — does not alter the session snapshot above or the response.
   stampLastLogin(user.id);
+  logEvent(user.id, user.fullName, 'login', {});
 
   return res.json({ success: true, redirect: '/dashboard' });
 });
@@ -129,6 +131,7 @@ router.post('/api/setup-password', async (req, res) => {
   // Capture the first login too, via the same shared helper (separate whole-object
   // write; setup-password is a rare first-run path so the extra write is negligible).
   stampLastLogin(users[idx].id);
+  logEvent(users[idx].id, users[idx].fullName, 'login', {});
 
   return res.json({ success: true, redirect: '/dashboard' });
 });

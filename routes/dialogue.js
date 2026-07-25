@@ -6,6 +6,7 @@ const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
 const { assertNoEsvText } = require('./esvGuard');
 const { injectVerses } = require('../lib/asv');
+const { logEvent } = require('../lib/usageLog');
 
 const router         = express.Router();
 
@@ -187,6 +188,13 @@ router.post('/api/dialogue/exchange', requireAuth, async (req, res) => {
 
   if (!topic || !topic.trim()) {
     return res.status(400).json({ error: 'Topic is required.' });
+  }
+
+  // A session "begins" on the opening exchange only — subsequent turns reuse the
+  // same handler with isOpening false, so gating here yields one event per session.
+  if (isOpening) {
+    const du = req.session.user || {};
+    logEvent(du.id || req.session.userId, du.fullName, 'dialogue_started', {});
   }
 
   // Fetch linked study content when requested

@@ -1139,6 +1139,122 @@
     }).join('');
   }
 
+  // ── Usage report (historical) ─────────────────────────────────────────────
+  // Live presence above stays exactly as Phase 1 built it. These controls only
+  // touch the historical log via GET /api/admin/usage-report (download) and, for
+  // "Generate & Archive", POST .../archive (trim) — and ONLY after the download
+  // has succeeded, so a failed report can never trim the log.
+  var usageReportFrom   = document.getElementById('usageReportFrom');
+  var usageReportTo     = document.getElementById('usageReportTo');
+  var usageReportBtn    = document.getElementById('usageReportBtn');
+  var usageArchiveBtn   = document.getElementById('usageArchiveBtn');
+  var usageReportStatus = document.getElementById('usageReportStatus');
+
+  function localDateStr(d) {
+    var y = d.getFullYear();
+    var m = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
+
+  // Default to the last 30 days; the admin can clear either field for "all time".
+  if (usageReportFrom && usageReportTo) {
+    var today = new Date();
+    var ago   = new Date();
+    ago.setDate(ago.getDate() - 30);
+    usageReportFrom.value = localDateStr(ago);
+    usageReportTo.value   = localDateStr(today);
+  }
+
+  function setReportStatus(msg) {
+    if (!usageReportStatus) return;
+    usageReportStatus.textContent = msg;
+    usageReportStatus.style.display = msg ? 'block' : 'none';
+  }
+
+  // Fetches the workbook as a blob and triggers a browser download. Resolves only
+  // when the file has been received in full (res.ok + blob); throws otherwise, so
+  // callers can safely gate the archive-trim on a resolved promise.
+  async function downloadReport(from, to) {
+    var qs = [];
+    if (from) qs.push('from=' + encodeURIComponent(from));
+    if (to)   qs.push('to=' + encodeURIComponent(to));
+    var url = '/api/admin/usage-report' + (qs.length ? '?' + qs.join('&') : '');
+    var res = await fetch(url);
+    if (!res.ok) throw new Error('Report request failed (' + res.status + ')');
+    var blob = await res.blob();
+    var objUrl = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = objUrl;
+    a.download = 'iron-ink-usage-' + (from || 'all') + '-to-' + (to || 'all') + '.xlsx';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(objUrl); }, 4000);
+    return true;
+  }
+
+  if (usageReportBtn) {
+    usageReportBtn.addEventListener('click', async function () {
+      var from = usageReportFrom ? usageReportFrom.value : '';
+      var to   = usageReportTo   ? usageReportTo.value   : '';
+      usageReportBtn.disabled = true;
+      setReportStatus('Generating report…');
+      try {
+        await downloadReport(from, to);
+        setReportStatus('Report downloaded (' + (from || 'all') + ' to ' + (to || 'all') + ').');
+        showToast('Report downloaded.');
+      } catch (err) {
+        setReportStatus('Error: ' + err.message);
+        showToast('Report failed.', true);
+      }
+      usageReportBtn.disabled = false;
+    });
+  }
+
+  if (usageArchiveBtn) {
+    usageArchiveBtn.addEventListener('click', function () {
+      var from = usageReportFrom ? usageReportFrom.value : '';
+      var to   = usageReportTo   ? usageReportTo.value   : '';
+      var rangeLabel = (from || 'all') + ' to ' + (to || 'all');
+      showConfirm(
+        'Generate the report for ' + rangeLabel + ' and then remove those events from the raw log? ' +
+        'Events outside this range are kept. Make sure the download completes.',
+        'Generate & Archive',
+        async function () {
+          usageArchiveBtn.disabled = true;
+          if (usageReportBtn) usageReportBtn.disabled = true;
+          setReportStatus('Generating report…');
+          try {
+            // 1) Download first. If this throws, we never reach the trim.
+            await downloadReport(from, to);
+            setReportStatus('Report downloaded — archiving…');
+            // 2) Only now trim the SAME range server-side.
+            var res  = await fetch('/api/admin/usage-report/archive', {
+              method:  'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body:    JSON.stringify({ from: from, to: to }),
+            });
+            var data = await res.json();
+            if (data.success) {
+              setReportStatus('Archived: removed ' + data.removed + ' event' +
+                (data.removed === 1 ? '' : 's') + ', ' + data.remaining + ' remaining in the log.');
+              showToast('Report saved and log trimmed.');
+            } else {
+              setReportStatus('Downloaded, but archive failed: ' + (data.error || 'unknown') + '. Log left intact.');
+              showToast('Archive failed — log left intact.', true);
+            }
+          } catch (err) {
+            setReportStatus('Error: ' + err.message + '. Log left intact.');
+            showToast('Report failed — log left intact.', true);
+          }
+          usageArchiveBtn.disabled = false;
+          if (usageReportBtn) usageReportBtn.disabled = false;
+        }
+      );
+    });
+  }
+
   loadPending();
   loadPublished();
 })();

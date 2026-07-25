@@ -4,6 +4,7 @@ const { requireAuth, renderLayout }  = require('./layout');
 const { getDailyDevotional, getDevotionalArchive } = require('./dashboard');
 const { assertNoEsvText } = require('./esvGuard');
 const { injectVerses } = require('../lib/asv');
+const { logEvent } = require('../lib/usageLog');
 
 const router = express.Router();
 
@@ -13,6 +14,12 @@ router.get('/devotional', requireAuth, async (req, res) => {
     Promise.resolve(getDevotionalArchive()),
   ]);
   const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+  // Log the open only when a real devotional was actually served to the member.
+  if (devotionalContent) {
+    const dv = req.session.user || {};
+    logEvent(dv.id || req.session.userId, dv.fullName, 'devotional_read', {});
+  }
 
   const content = `
     <div class="page-header">

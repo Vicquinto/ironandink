@@ -3,6 +3,7 @@ const fs             = require('fs');
 const path           = require('path');
 const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
+const { logEvent } = require('../lib/usageLog');
 
 const router     = express.Router();
 const ROOMS_PATH = path.join(__dirname, '../data/rooms.json');
@@ -143,6 +144,10 @@ router.get('/room/:code', requireAuth, (req, res) => {
     const idx = rooms.findIndex(r => r.code === room.code);
     rooms[idx] = room;
     writeRooms(rooms);
+    // First-time join only (guarded by the includes check above), so a member
+    // re-opening a room they're already in does not re-log. Authed HTTP layer —
+    // userId comes from the session, not the display-name-only socket path.
+    logEvent(userId, userName, 'room_joined', { code: room.code });
   }
 
   const isPaused   = (room.status || 'active') === 'paused';

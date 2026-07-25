@@ -3,8 +3,10 @@ const fs       = require('fs');
 const path     = require('path');
 const { randomUUID } = require('crypto');
 const sgMail   = require('@sendgrid/mail');
+const ExcelJS  = require('exceljs');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
 const { listDevotionals, deleteDevotional, clearAllDevotionals } = require('./dashboard');
+const { readEvents, writeEvents } = require('../lib/usageLog');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
 
@@ -176,6 +178,24 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
         </div>
         <div id="usageOnlineList" class="article-list-container"></div>
         <p id="usageOnlineEmpty" class="writing-empty" style="display:none;">No one is currently online.</p>
+
+        <div class="admin-usage-report" style="background:var(--card-bg); border:1px solid rgba(160,132,92,0.25); border-radius:6px; padding:18px 20px; margin-top:32px;">
+          <h3 class="community-section-label" style="margin-bottom:8px;">Usage Report</h3>
+          <p style="font-size:0.82rem; color:var(--dark-cream); margin-bottom:14px; line-height:1.5; max-width:70ch;">Download historical activity as an Excel workbook (Summary, By Member, Activity Log). Leave both dates blank for all time. "Generate &amp; Archive" downloads the report and then removes exactly the events it covered from the raw log, keeping everything outside the range.</p>
+          <div style="display:flex; gap:14px; align-items:flex-end; flex-wrap:wrap;">
+            <div>
+              <label style="display:block; font-size:0.75rem; color:var(--dark-cream); margin-bottom:5px; text-transform:uppercase; letter-spacing:0.05em;">From</label>
+              <input class="form-input" type="date" id="usageReportFrom" style="width:auto;">
+            </div>
+            <div>
+              <label style="display:block; font-size:0.75rem; color:var(--dark-cream); margin-bottom:5px; text-transform:uppercase; letter-spacing:0.05em;">To</label>
+              <input class="form-input" type="date" id="usageReportTo" style="width:auto;">
+            </div>
+            <button class="btn-primary" id="usageReportBtn" style="margin-bottom:0; white-space:nowrap;">Generate Report</button>
+            <button class="btn-warm" id="usageArchiveBtn" style="white-space:nowrap;">Generate &amp; Archive</button>
+          </div>
+          <p id="usageReportStatus" style="font-size:0.82rem; color:var(--dark-cream); margin-top:12px; display:none;"></p>
+        </div>
       </div>
 
       <div id="adminTabInvitations" class="admin-tab-content" style="display:none;">
@@ -250,7 +270,7 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
     content,
     scripts: `<script>window.ADMIN_TABS = ${JSON.stringify(ADMIN_TABS)};</script>
 <script src="/js/study-badges.js?v=2"></script>
-<script src="/js/admin.js?v=18"></script>
+<script src="/js/admin.js?v=19"></script>
 <script>
 (function () {
   var form     = document.getElementById('directInviteForm');
@@ -737,6 +757,197 @@ router.delete('/api/admin/devotionals/:date', requireAuth, requireAdmin, (req, r
 router.delete('/api/admin/devotionals', requireAuth, requireAdmin, (req, res) => {
   const removed = clearAllDevotionals();
   res.json({ success: true, removed });
+});
+
+// ─── Usage report (Phase 2) ──────────────────────────────────────────────────
+// Historical usage lives silently in data/usage_events.json (written by
+// lib/usageLog). Nothing surfaces it live — it is only ever read here, on demand,
+// as a downloadable Excel workbook. The live-presence surfaces from Phase 1 are
+// untouched by any of this.
+
+// Event types captured in Phase 2, in display order. Kept here as the single
+// source of truth for both aggregation and the report columns.
+const USAGE_TYPES = [
+  { key: 'login',            label: 'Logins' },
+  { key: 'study_generated',  label: 'Studies' },
+  { key: 'dialogue_started', label: 'Dialogues' },
+  { key: 'article_written',  label: 'Articles' },
+  { key: 'room_joined',      label: 'Room Joins' },
+  { key: 'devotional_read',  label: 'Devotionals' },
+];
+
+const TYPE_LABEL = {
+  login: 'Login', study_generated: 'Study Generated', dialogue_started: 'Dialogue Started',
+  article_written: 'Article Written', room_joined: 'Room Joined', devotional_read: 'Devotional Read',
+};
+
+// Inclusive whole-day range filter. `from`/`to` are 'YYYY-MM-DD' (or '') and are
+// compared against the calendar-date portion of each event's ISO timestamp, so
+// the predicate is deterministic and identical wherever it is called. This exact
+// function scopes BOTH the report and the archive-trim, which is what makes the
+// trim safe: the set removed is byte-for-byte the set reported.
+function filterEventsByRange(events, from, to) {
+  return events.filter(function (ev) {
+    const d = (ev && ev.at ? String(ev.at) : '').slice(0, 10);
+    if (!d) return false;
+    if (from && d < from) return false;
+    if (to   && d > to)   return false;
+    return true;
+  });
+}
+
+// Human-readable timestamp for cells — stored as text so no spreadsheet timezone
+// reinterpretation occurs. e.g. "Jul 24, 2026, 5:30 PM".
+function fmtStamp(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d)) return String(iso);
+  return d.toLocaleString('en-US', {
+    year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
+  });
+}
+
+// A readable one-line rendering of an event's meta for the Activity Log sheet.
+function metaText(ev) {
+  const m = (ev && ev.meta) || {};
+  if (ev.type === 'study_generated') {
+    return [m.topic, m.studyType ? '(' + m.studyType + ')' : ''].filter(Boolean).join(' ');
+  }
+  if (ev.type === 'room_joined') {
+    return m.code ? 'Room ' + m.code : '';
+  }
+  return '';
+}
+
+// GET /api/admin/usage-report?from=YYYY-MM-DD&to=YYYY-MM-DD
+// Streams an .xlsx. Read-only — never mutates the log.
+router.get('/api/admin/usage-report', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const from = (req.query.from || '').slice(0, 10);
+    const to   = (req.query.to   || '').slice(0, 10);
+
+    const all      = readEvents();
+    const filtered = filterEventsByRange(all, from, to);
+
+    // ── Aggregate in JavaScript (no spreadsheet formulas) ──
+    const totals  = {};
+    USAGE_TYPES.forEach(function (t) { totals[t.key] = 0; });
+
+    const members = {}; // key: userId (or name) → per-member tallies
+    filtered.forEach(function (ev) {
+      if (totals[ev.type] !== undefined) totals[ev.type]++;
+      const key = ev.userId || ('name:' + (ev.fullName || 'Unknown'));
+      if (!members[key]) {
+        members[key] = { name: ev.fullName || 'Unknown', lastAt: null };
+        USAGE_TYPES.forEach(function (t) { members[key][t.key] = 0; });
+      }
+      const mem = members[key];
+      if (mem[ev.type] !== undefined) mem[ev.type]++;
+      if (!mem.lastAt || ev.at > mem.lastAt) { mem.lastAt = ev.at; mem.name = ev.fullName || mem.name; }
+    });
+
+    const memberRows = Object.keys(members).map(function (k) { return members[k]; })
+      .sort(function (a, b) { return (b.login - a.login) || String(b.lastAt).localeCompare(String(a.lastAt)); });
+
+    const logRows = filtered.slice().sort(function (a, b) {
+      return String(b.at).localeCompare(String(a.at)); // newest first
+    });
+
+    // ── Build workbook ──
+    const wb = new ExcelJS.Workbook();
+    wb.creator = 'Iron & Ink';
+    const ARIAL = { name: 'Arial', size: 11 };
+    const HEADER = { name: 'Arial', size: 11, bold: true };
+
+    function styleHeader(ws) {
+      ws.getRow(1).font = HEADER;
+      ws.getRow(1).alignment = { vertical: 'middle' };
+    }
+
+    // Sheet 1 — Summary
+    const s1 = wb.addWorksheet('Summary');
+    s1.columns = [
+      { header: 'Metric', key: 'metric', width: 32, style: { font: ARIAL } },
+      { header: 'Value',  key: 'value',  width: 40, style: { font: ARIAL } },
+    ];
+    styleHeader(s1);
+    s1.addRow({ metric: 'Date range', value: (from || 'all') + ' to ' + (to || 'all') });
+    s1.addRow({ metric: 'Report generated', value: fmtStamp(new Date().toISOString()) });
+    s1.addRow({ metric: 'Total events', value: filtered.length });
+    s1.addRow({ metric: 'Distinct active members', value: memberRows.length });
+    s1.addRow({ metric: '', value: '' });
+    USAGE_TYPES.forEach(function (t) { s1.addRow({ metric: t.label, value: totals[t.key] }); });
+
+    // Sheet 2 — By Member
+    const s2 = wb.addWorksheet('By Member');
+    s2.columns = [
+      { header: 'Member',      key: 'name',              width: 26, style: { font: ARIAL } },
+      { header: 'Logins',      key: 'login',             width: 10, style: { font: ARIAL } },
+      { header: 'Studies',     key: 'study_generated',   width: 10, style: { font: ARIAL } },
+      { header: 'Dialogues',   key: 'dialogue_started',  width: 11, style: { font: ARIAL } },
+      { header: 'Articles',    key: 'article_written',   width: 10, style: { font: ARIAL } },
+      { header: 'Room Joins',  key: 'room_joined',       width: 12, style: { font: ARIAL } },
+      { header: 'Devotionals', key: 'devotional_read',   width: 13, style: { font: ARIAL } },
+      { header: 'Last Active', key: 'lastActive',        width: 24, style: { font: ARIAL } },
+    ];
+    styleHeader(s2);
+    memberRows.forEach(function (m) {
+      s2.addRow({
+        name: m.name, login: m.login, study_generated: m.study_generated,
+        dialogue_started: m.dialogue_started, article_written: m.article_written,
+        room_joined: m.room_joined, devotional_read: m.devotional_read,
+        lastActive: fmtStamp(m.lastAt),
+      });
+    });
+
+    // Sheet 3 — Activity Log
+    const s3 = wb.addWorksheet('Activity Log');
+    s3.columns = [
+      { header: 'Timestamp',  key: 'ts',    width: 24, style: { font: ARIAL } },
+      { header: 'Member',     key: 'name',  width: 26, style: { font: ARIAL } },
+      { header: 'Event',      key: 'type',  width: 20, style: { font: ARIAL } },
+      { header: 'Details',    key: 'meta',  width: 44, style: { font: ARIAL } },
+    ];
+    styleHeader(s3);
+    logRows.forEach(function (ev) {
+      s3.addRow({
+        ts: fmtStamp(ev.at), name: ev.fullName || 'Unknown',
+        type: TYPE_LABEL[ev.type] || ev.type, meta: metaText(ev),
+      });
+    });
+
+    const fname = 'iron-ink-usage-' + (from || 'all') + '-to-' + (to || 'all') + '.xlsx';
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename="' + fname + '"');
+    await wb.xlsx.write(res);
+    res.end();
+  } catch (err) {
+    console.error('[usage-report] failed:', err.message);
+    if (!res.headersSent) res.status(500).json({ success: false, error: 'Could not generate report.' });
+  }
+});
+
+// POST /api/admin/usage-report/archive  { from, to }
+// Trims the raw log AFTER a successful download. Removes ONLY the events that fall
+// within the same range the report covered — matched by the identical
+// filterEventsByRange predicate AND then by id — so anything outside the range is
+// provably preserved. The client only calls this once the .xlsx has downloaded.
+router.post('/api/admin/usage-report/archive', requireAuth, requireAdmin, (req, res) => {
+  try {
+    const from = ((req.body && req.body.from) || '').slice(0, 10);
+    const to   = ((req.body && req.body.to)   || '').slice(0, 10);
+
+    const all       = readEvents();
+    const toRemove  = filterEventsByRange(all, from, to);
+    const removeIds = new Set(toRemove.map(function (e) { return e.id; }));
+    const remaining = all.filter(function (e) { return !removeIds.has(e.id); });
+
+    writeEvents(remaining);
+    res.json({ success: true, removed: toRemove.length, remaining: remaining.length });
+  } catch (err) {
+    console.error('[usage-report archive] failed:', err.message);
+    res.status(500).json({ success: false, error: 'Could not archive events.' });
+  }
 });
 
 module.exports = router;

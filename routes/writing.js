@@ -6,6 +6,7 @@ const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
 const { assertNoEsvText } = require('./esvGuard');
 const { injectVerses } = require('../lib/asv');
+const { logEvent } = require('../lib/usageLog');
 
 const router       = express.Router();
 
@@ -229,6 +230,8 @@ router.post('/api/articles', requireAuth, (req, res) => {
   const articles = readArticles();
   articles.push(article);
   writeArticles(articles);
+  const wu = req.session.user || {};
+  logEvent(wu.id || req.session.userId, wu.fullName, 'article_written', {});
   res.json({ success: true, article });
 });
 
