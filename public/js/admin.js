@@ -1149,6 +1149,8 @@
   var usageReportBtn    = document.getElementById('usageReportBtn');
   var usageArchiveBtn   = document.getElementById('usageArchiveBtn');
   var usageReportStatus = document.getElementById('usageReportStatus');
+  var usageAllTime      = document.getElementById('usageAllTime');
+  var usageClearBtn     = document.getElementById('usageClearBtn');
 
   function localDateStr(d) {
     var y = d.getFullYear();
@@ -1157,13 +1159,43 @@
     return y + '-' + m + '-' + day;
   }
 
-  // Default to the last 30 days; the admin can clear either field for "all time".
+  // Default to the last 30 days; the admin can Clear the fields or tick All Time.
   if (usageReportFrom && usageReportTo) {
     var today = new Date();
     var ago   = new Date();
     ago.setDate(ago.getDate() - 30);
     usageReportFrom.value = localDateStr(ago);
     usageReportTo.value   = localDateStr(today);
+  }
+
+  // The single source of truth for the range that gets sent. When "All Time" is
+  // checked, both bounds are empty — the endpoint treats empty from/to as all
+  // events — so we never depend on manually clearing the finicky date inputs.
+  function currentRange() {
+    if (usageAllTime && usageAllTime.checked) return { from: '', to: '' };
+    return {
+      from: usageReportFrom ? usageReportFrom.value : '',
+      to:   usageReportTo   ? usageReportTo.value   : '',
+    };
+  }
+
+  // All Time disables (greys) the date inputs to make the mode obvious.
+  function syncAllTime() {
+    var on = !!(usageAllTime && usageAllTime.checked);
+    if (usageReportFrom) { usageReportFrom.disabled = on; usageReportFrom.style.opacity = on ? '0.5' : ''; }
+    if (usageReportTo)   { usageReportTo.disabled   = on; usageReportTo.style.opacity   = on ? '0.5' : ''; }
+  }
+  if (usageAllTime) usageAllTime.addEventListener('change', syncAllTime);
+
+  // Clear resets the date inputs to empty and unticks All Time — a quick way back
+  // to a blank, hand-editable range.
+  if (usageClearBtn) {
+    usageClearBtn.addEventListener('click', function () {
+      if (usageReportFrom) usageReportFrom.value = '';
+      if (usageReportTo)   usageReportTo.value   = '';
+      if (usageAllTime)    usageAllTime.checked   = false;
+      syncAllTime();
+    });
   }
 
   function setReportStatus(msg) {
@@ -1196,8 +1228,8 @@
 
   if (usageReportBtn) {
     usageReportBtn.addEventListener('click', async function () {
-      var from = usageReportFrom ? usageReportFrom.value : '';
-      var to   = usageReportTo   ? usageReportTo.value   : '';
+      var r = currentRange();
+      var from = r.from, to = r.to;
       usageReportBtn.disabled = true;
       setReportStatus('Generating report…');
       try {
@@ -1214,8 +1246,8 @@
 
   if (usageArchiveBtn) {
     usageArchiveBtn.addEventListener('click', function () {
-      var from = usageReportFrom ? usageReportFrom.value : '';
-      var to   = usageReportTo   ? usageReportTo.value   : '';
+      var r = currentRange();
+      var from = r.from, to = r.to;
       var rangeLabel = (from || 'all') + ' to ' + (to || 'all');
       showConfirm(
         'Generate the report for ' + rangeLabel + ' and then remove those events from the raw log? ' +

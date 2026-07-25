@@ -181,7 +181,7 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
 
         <div class="admin-usage-report" style="background:var(--card-bg); border:1px solid rgba(160,132,92,0.25); border-radius:6px; padding:18px 20px; margin-top:32px;">
           <h3 class="community-section-label" style="margin-bottom:8px;">Usage Report</h3>
-          <p style="font-size:0.82rem; color:var(--dark-cream); margin-bottom:14px; line-height:1.5; max-width:70ch;">Download historical activity as an Excel workbook (Summary, By Member, Activity Log). Leave both dates blank for all time. "Generate &amp; Archive" downloads the report and then removes exactly the events it covered from the raw log, keeping everything outside the range.</p>
+          <p style="font-size:0.82rem; color:var(--dark-cream); margin-bottom:14px; line-height:1.5; max-width:70ch;">Download historical activity as an Excel workbook (Summary, By Member, Activity Log). Dates are US Mountain Time (America/Denver); pick a From/To range, or check "All Time" for every event. "Generate &amp; Archive" downloads the report and then removes exactly the events it covered from the raw log, keeping everything outside the range.</p>
           <div style="display:flex; gap:14px; align-items:flex-end; flex-wrap:wrap;">
             <div>
               <label style="display:block; font-size:0.75rem; color:var(--dark-cream); margin-bottom:5px; text-transform:uppercase; letter-spacing:0.05em;">From</label>
@@ -191,8 +191,12 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
               <label style="display:block; font-size:0.75rem; color:var(--dark-cream); margin-bottom:5px; text-transform:uppercase; letter-spacing:0.05em;">To</label>
               <input class="form-input" type="date" id="usageReportTo" style="width:auto;">
             </div>
+            <button class="btn-warm" id="usageClearBtn" type="button" style="margin-bottom:0; white-space:nowrap;">Clear</button>
+            <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; color:var(--dark-cream); white-space:nowrap; margin-bottom:9px; cursor:pointer;">
+              <input type="checkbox" id="usageAllTime"> All Time
+            </label>
             <button class="btn-primary" id="usageReportBtn" style="margin-bottom:0; white-space:nowrap;">Generate Report</button>
-            <button class="btn-warm" id="usageArchiveBtn" style="white-space:nowrap;">Generate &amp; Archive</button>
+            <button class="btn-warm" id="usageArchiveBtn" style="margin-bottom:0; white-space:nowrap;">Generate &amp; Archive</button>
           </div>
           <p id="usageReportStatus" style="font-size:0.82rem; color:var(--dark-cream); margin-top:12px; display:none;"></p>
         </div>
@@ -270,7 +274,7 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
     content,
     scripts: `<script>window.ADMIN_TABS = ${JSON.stringify(ADMIN_TABS)};</script>
 <script src="/js/study-badges.js?v=2"></script>
-<script src="/js/admin.js?v=19"></script>
+<script src="/js/admin.js?v=20"></script>
 <script>
 (function () {
   var form     = document.getElementById('directInviteForm');
@@ -781,14 +785,35 @@ const TYPE_LABEL = {
   article_written: 'Article Written', room_joined: 'Room Joined', devotional_read: 'Devotional Read',
 };
 
-// Inclusive whole-day range filter. `from`/`to` are 'YYYY-MM-DD' (or '') and are
-// compared against the calendar-date portion of each event's ISO timestamp, so
-// the predicate is deterministic and identical wherever it is called. This exact
-// function scopes BOTH the report and the archive-trim, which is what makes the
-// trim safe: the set removed is byte-for-byte the set reported.
+// Events are stored in UTC ISO (correct). The admin, however, thinks and picks
+// dates in their local calendar — US Mountain Time. All report DISPLAY and
+// FILTERING is done in this zone so an evening event doesn't slip onto the next
+// UTC day and get missed. Storage is untouched. Configurable, defaulting to
+// America/Denver (honors daylight saving automatically via Intl).
+const REPORT_TIMEZONE = 'America/Denver';
+
+// Convert a UTC ISO timestamp to its calendar date ('YYYY-MM-DD') in `tz`.
+// en-CA formats as YYYY-MM-DD; formatToParts avoids any locale-string ambiguity.
+function localDateInTz(iso, tz) {
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit',
+  }).formatToParts(d);
+  const get = (t) => (parts.find((p) => p.type === t) || {}).value || '';
+  return get('year') + '-' + get('month') + '-' + get('day');
+}
+
+// Inclusive whole-day range filter, TIMEZONE-AWARE. `from`/`to` are the admin's
+// local 'YYYY-MM-DD' bounds (or ''); an event is included if its timestamp,
+// converted to REPORT_TIMEZONE, has a calendar date within [from, to] inclusive.
+// This exact function scopes BOTH the report and the archive-trim — they call the
+// identical predicate — which is what makes the trim provably scoped to exactly
+// what the report covered.
 function filterEventsByRange(events, from, to) {
   return events.filter(function (ev) {
-    const d = (ev && ev.at ? String(ev.at) : '').slice(0, 10);
+    if (!ev || !ev.at) return false;
+    const d = localDateInTz(ev.at, REPORT_TIMEZONE);
     if (!d) return false;
     if (from && d < from) return false;
     if (to   && d > to)   return false;
@@ -796,13 +821,15 @@ function filterEventsByRange(events, from, to) {
   });
 }
 
-// Human-readable timestamp for cells — stored as text so no spreadsheet timezone
-// reinterpretation occurs. e.g. "Jul 24, 2026, 5:30 PM".
+// Human-readable timestamp for cells, rendered in REPORT_TIMEZONE (local Mountain
+// time), stored as text so no spreadsheet reinterpretation occurs. e.g.
+// "Jul 24, 2026, 6:00 PM".
 function fmtStamp(iso) {
   if (!iso) return '';
   const d = new Date(iso);
   if (isNaN(d)) return String(iso);
   return d.toLocaleString('en-US', {
+    timeZone: REPORT_TIMEZONE,
     year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
   });
 }
@@ -871,7 +898,8 @@ router.get('/api/admin/usage-report', requireAuth, requireAdmin, async (req, res
       { header: 'Value',  key: 'value',  width: 40, style: { font: ARIAL } },
     ];
     styleHeader(s1);
-    s1.addRow({ metric: 'Date range', value: (from || 'all') + ' to ' + (to || 'all') });
+    s1.addRow({ metric: 'Date range (local)', value: (from || 'all') + ' to ' + (to || 'all') });
+    s1.addRow({ metric: 'Timezone', value: REPORT_TIMEZONE + ' (US Mountain)' });
     s1.addRow({ metric: 'Report generated', value: fmtStamp(new Date().toISOString()) });
     s1.addRow({ metric: 'Total events', value: filtered.length });
     s1.addRow({ metric: 'Distinct active members', value: memberRows.length });
