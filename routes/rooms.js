@@ -217,7 +217,11 @@ router.get('/room/:code', requireAuth, (req, res) => {
     (function () {
       var socket = io();
       function joinRoom() {
-        socket.emit('join-room', { roomCode: window.ROOM_CODE, name: window.CURRENT_USER ? window.CURRENT_USER.name : '' });
+        // Paused view carries identity too, so a paused occupant is deduped by
+        // userId and named correctly in active members' live list. This stripped
+        // view renders no members UI itself, so it only sends presence, never
+        // consumes it.
+        socket.emit('join-room', { roomCode: window.ROOM_CODE, name: window.CURRENT_USER ? window.CURRENT_USER.name : '', userId: window.CURRENT_USER ? window.CURRENT_USER.id : '' });
       }
       joinRoom();
       socket.on('connect', function () { joinRoom(); });
@@ -356,7 +360,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
   <script src="/js/study-badges.js?v=2"></script>
   <script src="/js/render-markdown.js?v=1"></script>
   <script src="/js/enhance-further-studies.js?v=2"></script>
-  <script src="/js/room.js?v=24"></script>
+  <script src="/js/room.js?v=25"></script>
   <script src="/js/library.js?v=57"></script>`,
   }));
 });
@@ -687,5 +691,8 @@ router.get('/api/rooms/:code/members', requireAuth, (req, res) => {
 // result through the same choke point the typed-chat endpoint uses.
 router.appendChatEntry = appendChatEntry;
 router.makeChatId      = makeChatId;
+// Exposed so server.js's live-presence helper can resolve a room's host (to mark
+// isHost) when computing occupants from the socket adapter.
+router.readRooms       = readRooms;
 
 module.exports = router;

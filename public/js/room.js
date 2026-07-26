@@ -69,6 +69,7 @@
     socket.emit('join-room', {
       roomCode: roomCode,
       name:     window.CURRENT_USER ? window.CURRENT_USER.name : '',
+      userId:   window.CURRENT_USER ? window.CURRENT_USER.id : '',
     });
   }
 
@@ -93,8 +94,15 @@
   });
 
 
+  // Live occupancy: the server recomputes from the adapter room and pushes this
+  // on every join and leave. Drives both the count and the "In this room" list.
+  socket.on('room-presence', function (data) {
+    renderPresence(data && data.occupants);
+  });
+
   socket.on('room-member-joined', function (data) {
-    loadMembersList();
+    // The list itself refreshes via 'room-presence'; this handler only owns the
+    // arrival toast + chime.
     var joinerName = (data && data.name) ? data.name : 'A new member';
     showToast(joinerName + ' joined the room.');
     playJoinChime();
@@ -123,7 +131,6 @@
 
   socket.on('room-chat-message', function (data) {
     appendChatMessage(data.senderName, data.message, data.id);
-    loadMembersList();
   });
 
   socket.on('room-tooltip-broadcast', function (data) {
@@ -159,36 +166,25 @@
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
-  // ── Members list ──────────────────────────────────────────────────────────
-  function loadMembersList() {
-    fetch('/api/rooms/' + encodeURIComponent(roomCode) + '/members')
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        if (!data.success) return;
-        var container = document.getElementById('roomMembersBadges');
-        if (!container) return;
-        container.innerHTML = ' ' + (data.members || []).map(function (m) {
-          return '<span style="background:#f5ede0;border:1px solid #c4a882;border-radius:12px;padding:2px 10px;font-size:0.8rem;margin-right:4px;display:inline-block;">' +
-            (m.isHost ? '&#9679; ' : '') + escHtml(m.name) +
-          '</span>';
-        }).join('');
-      })
-      .catch(function () {});
-  }
-
-  // ── Member count ───────────────────────────────────────────────────────────
-  function loadMemberCount() {
-    fetch('/api/rooms/list')
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        if (!data.success) return;
-        var room = (data.rooms || []).find(function (r) { return r.code === roomCode; });
-        if (room && membersLabel) {
-          var lc = typeof room.liveCount === 'number' ? room.liveCount : 0;
-          membersLabel.textContent = lc + ' member' + (lc !== 1 ? 's' : '');
-        }
-      })
-      .catch(function () {});
+  // ── Live occupancy (count + "In this room" list) ────────────────────────────
+  // Both are driven by the server's 'room-presence' event, which the server
+  // recomputes from the Socket.IO adapter room and pushes on every join AND
+  // leave. The count and the list therefore always reflect who is socket-
+  // connected right now — no fire-once fetch, no stale persisted roster. (The
+  // persisted room.members roster and its /members endpoint remain, unused here.)
+  function renderPresence(occupants) {
+    occupants = occupants || [];
+    if (membersLabel) {
+      membersLabel.textContent = occupants.length + ' member' + (occupants.length !== 1 ? 's' : '');
+    }
+    var container = document.getElementById('roomMembersBadges');
+    if (container) {
+      container.innerHTML = ' ' + occupants.map(function (m) {
+        return '<span style="background:#f5ede0;border:1px solid #c4a882;border-radius:12px;padding:2px 10px;font-size:0.8rem;margin-right:4px;display:inline-block;">' +
+          (m.isHost ? '&#9679; ' : '') + escHtml(m.name || 'Guest') +
+        '</span>';
+      }).join('');
+    }
   }
 
   // ── Load from Library ──────────────────────────────────────────────────────
@@ -642,8 +638,9 @@
   }
 
   // ── Init ───────────────────────────────────────────────────────────────────
-  loadMemberCount();
-  loadMembersList();
+  // Occupancy populates itself: joinRoom() (above) emits 'join-room', the server
+  // replies with a 'room-presence' broadcast, and the handler fills the count and
+  // the list. Nothing to fetch here.
 
   if (window.ROOM_STUDY && window.ROOM_STUDY.content) {
     displayStudy(window.ROOM_STUDY);

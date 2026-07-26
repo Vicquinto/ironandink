@@ -447,14 +447,69 @@ const userSockets = new Map();
 app.locals.io          = io;
 app.locals.userSockets = userSockets;
 
+// ── Live room occupancy ──────────────────────────────────────────────────────
+// Single source of truth for "who is socket-connected to room X right now": the
+// Socket.IO adapter room (auto-maintained on join AND disconnect), paired with
+// the identity each socket retained at join time (socket.data). Deduped by
+// userId — one member may hold several sockets (multiple tabs / reconnects) yet
+// counts once. isHost is resolved against the persisted room.host. Returns
+// [{ userId, name, isHost }].
+function computeRoomOccupants(code) {
+  const ids  = io.sockets.adapter.rooms.get(code);   // Set<socketId> or undefined
+  if (!ids) return [];
+
+  let hostId = null;
+  try {
+    const room = roomsRoutes.readRooms().find(r => r.code === code);
+    if (room) hostId = room.host;
+  } catch { /* no rooms file / parse error → nobody flagged host, count still holds */ }
+
+  const byUser = new Map();   // userId → { userId, name, isHost }
+  ids.forEach((sid) => {
+    const s = io.sockets.sockets.get(sid);
+    if (!s || !s.data) return;
+    // Key on userId when known; fall back to the socket id so an unidentified
+    // socket (e.g. an older client that sent no userId) still counts as one
+    // occupant rather than collapsing all such sockets into a single entry.
+    const key = s.data.userId || ('sock:' + sid);
+    if (byUser.has(key)) return;
+    byUser.set(key, {
+      userId: s.data.userId || null,
+      name:   s.data.name || 'Guest',
+      isHost: !!(hostId && s.data.userId && s.data.userId === hostId),
+    });
+  });
+  return Array.from(byUser.values());
+}
+
+// Recompute and push the live occupant list to everyone in the room. Called on
+// both edges — join and disconnect — so the count and the "In this room" list
+// stay in step with actual presence.
+function broadcastRoomPresence(code) {
+  if (!code) return;
+  io.to(code).emit('room-presence', { roomCode: code, occupants: computeRoomOccupants(code) });
+}
+
 io.on('connection', (socket) => {
   // ── Live Room handlers (unchanged) ─────────────────────────────────────
   socket.on('join-room', (payload) => {
-    const code = typeof payload === 'string' ? payload : (payload && payload.roomCode) || '';
-    const name = (payload && payload.name) ? String(payload.name) : '';
+    const code   = typeof payload === 'string' ? payload : (payload && payload.roomCode) || '';
+    const name   = (payload && payload.name) ? String(payload.name) : '';
+    const userId = (payload && payload.userId) ? String(payload.userId) : '';
     console.log('join-room received: ' + code + (name ? ' (' + name + ')' : ''));
+    if (!code) return;
     socket.join(code);
+    // Retain identity on the socket so the adapter room can be resolved to named
+    // occupants (here and in the disconnect handler). socket.data survives for
+    // the socket's lifetime and is cleared automatically on disconnect.
+    socket.data.roomCode = code;
+    socket.data.name     = name;
+    socket.data.userId   = userId;
+    // Existing transient toast (kept): tell others a specific person arrived.
     socket.to(code).emit('room-member-joined', { roomCode: code, name });
+    // New: push the full live occupant list to the whole room (joiner included),
+    // so every client's count and "In this room" list reflect this join at once.
+    broadcastRoomPresence(code);
   });
 
   socket.on('room-study-result', ({ roomCode, data }) => {
@@ -534,6 +589,13 @@ io.on('connection', (socket) => {
           broadcastPresence(io, userSockets);
         }
       }
+    }
+    // Live-room leave half: by the time this fires, Socket.IO has already removed
+    // this socket from its adapter rooms, so recomputing occupants for the room
+    // it was in yields the post-leave list — which we push so leavers disappear
+    // live for everyone still present.
+    if (socket.data && socket.data.roomCode) {
+      broadcastRoomPresence(socket.data.roomCode);
     }
     console.log(`Socket disconnected: ${socket.id}`);
   });
