@@ -349,7 +349,7 @@ router.get('/', (req, res) => {
         alongside others who hold the same confession.
       </p>
       <div class="hero-buttons">
-        <a href="#features" class="btn-hero-primary">See what's inside</a>
+        <a href="#features" class="btn-hero-primary">See how it works</a>
         <a href="/login" class="btn-hero-secondary">Sign In</a>
       </div>
       <a href="#features" class="hero-scroll-cue" aria-label="Scroll down to see more">
