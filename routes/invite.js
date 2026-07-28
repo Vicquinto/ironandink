@@ -4,6 +4,10 @@ const fs       = require('fs');
 const path     = require('path');
 const { randomUUID } = require('crypto');
 const sgMail   = require('@sendgrid/mail');
+// Shared invite provisioning — the same create-record + email-link logic the
+// admin approve button uses. The submit handler auto-invites through this so the
+// two paths can never drift. See lib/invites.js.
+const { createAndSendInvite, findActiveInvite } = require('../lib/invites');
 
 const router = express.Router();
 
@@ -17,28 +21,52 @@ const USERS_PATH           = path.join(__dirname, '../data/users.json');
 const INVITES_PATH         = path.join(__dirname, '../data/invites.json');
 const INVITE_REQUESTS_PATH = path.join(__dirname, '../data/invite_requests.json');
 
-// Best-effort admin notification when a new invite request lands. Reuses the
-// same SendGrid setup as the invite/registration emails. Fully self-contained
-// and swallows its own errors so a send failure can never break submission.
-async function sendInviteRequestNotification(reqName, reqEmail) {
+// The six doctrinal statements, mapped from their stored keys to the human
+// labels used in the admin notification email. Order here is the order shown.
+const DOCTRINE_LABELS = [
+  ['scriptureAuthority',    'Authority of Scripture'],
+  ['totalDepravity',        'Total Depravity'],
+  ['unconditionalElection', 'Unconditional Election'],
+  ['particularAtonement',   'Particular Atonement'],
+  ['irresistibleGrace',     'Irresistible Grace'],
+  ['perseverance',          'Perseverance of the Saints'],
+];
+
+// Informational "new member" email to the admin — the permanent pushed record of
+// a member who was auto-invited. Carries the applicant's full application: their
+// stated reason and all six doctrinal answers. Best-effort and fully
+// self-contained: swallows its own errors so a send failure can never block or
+// fail the applicant's invite.
+async function sendNewMemberNotification(record) {
   if (!process.env.SENDGRID_API_KEY) {
-    console.warn('[inviteRequestNotify] SENDGRID_API_KEY not set — skipping email');
+    console.warn('[newMemberNotify] SENDGRID_API_KEY not set — skipping email');
     return;
   }
+  const reason      = record.reason && record.reason.trim() ? record.reason.trim() : '(none given)';
+  const doctrines   = record.doctrines || {};
+  const answersText = DOCTRINE_LABELS.map(([key, label]) => `- ${label}: ${doctrines[key] || '(no answer)'}`).join('\n');
+  const answersHtml = DOCTRINE_LABELS.map(([key, label]) =>
+    `<li><strong>${label}:</strong> ${escHtml(doctrines[key] || '(no answer)')}</li>`).join('');
   try {
     await sgMail.send({
       to:   ADMIN_NOTIFY_EMAIL,
       from: { email: process.env.SENDGRID_FROM_EMAIL, name: 'Iron & Ink' },
-      subject: 'New Iron & Ink invitation request',
-      text: `A new invitation request has come in.\n\nName: ${reqName}\nEmail: ${reqEmail}\n\nReview it in the Admin panel.\n\nSoli Deo Gloria,\nIron & Ink`,
-      html: `<p>A new invitation request has come in.</p>
-<p><strong>Name:</strong> ${reqName}<br><strong>Email:</strong> ${reqEmail}</p>
-<p>Review it in the Admin panel.</p>
+      subject: `New Iron & Ink member: ${record.name}`,
+      text: `${record.name} (${record.email}) just requested an invitation and was automatically invited.\n\n` +
+        `Reason for joining:\n${reason}\n\n` +
+        `Doctrinal responses:\n${answersText}\n\n` +
+        `Submitted: ${record.submittedAt}\n\n` +
+        `Soli Deo Gloria,\nIron & Ink`,
+      html: `<p><strong>${escHtml(record.name)}</strong> (${escHtml(record.email)}) just requested an invitation and was automatically invited.</p>
+<p><strong>Reason for joining:</strong><br>${escHtml(reason).replace(/\n/g, '<br>')}</p>
+<p><strong>Doctrinal responses:</strong></p>
+<ul>${answersHtml}</ul>
+<p><strong>Submitted:</strong> ${escHtml(record.submittedAt)}</p>
 <p><em>Soli Deo Gloria,</em><br>Iron &amp; Ink</p>`,
     });
-    console.log('[inviteRequestNotify] sent to', ADMIN_NOTIFY_EMAIL);
+    console.log('[newMemberNotify] sent to', ADMIN_NOTIFY_EMAIL);
   } catch (err) {
-    console.error('[inviteRequestNotify] failed:', err.message);
+    console.error('[newMemberNotify] failed:', err.message);
   }
 }
 
@@ -193,7 +221,9 @@ router.get('/invite-request', (req, res) => {
     <div class="pub-card">
       <div class="error-msg" id="errMsg"></div>
       <div id="successBox" style="display:none;" class="success-box">
-        Your request has been received. The administrator will review it and send you an invitation if approved.
+        Your invitation is on its way &mdash; check your email for the link to create your account.
+        It can take a minute, so please check your spam folder if you don&rsquo;t see it.
+        The link is valid for 48 hours.
       </div>
       <div id="stepContent"></div>
     </div>
@@ -486,7 +516,11 @@ router.get('/invite-request', (req, res) => {
 });
 
 // ─── POST /api/invite-request ─────────────────────────────────────────────────
-router.post('/api/invite-request', (req, res) => {
+// Auto-invite on submission: the applicant is emailed their invite link IMMEDIATELY
+// via the shared createAndSendInvite (the same path the admin approve button uses).
+// No manual approval. The request record is still persisted for admin visibility,
+// flagged auto-invited so it drops out of the pending queue.
+router.post('/api/invite-request', async (req, res) => {
   const { name, email, reason, doctrines, wishToJoin } = req.body;
   if (!name || !email) {
     return res.status(400).json({ success: false, error: 'Name and email are required.' });
@@ -506,21 +540,36 @@ router.post('/api/invite-request', (req, res) => {
     return res.status(400).json({ success: false, error: 'Invalid submission.' });
   }
 
-  const requests = readJSON(INVITE_REQUESTS_PATH);
-  const existing = requests.find(r => r.email.toLowerCase() === email.toLowerCase() && r.status === 'pending');
-  if (existing) {
-    return res.json({ success: false, error: 'A request from this email is already pending.' });
+  const normEmail = email.trim().toLowerCase();
+
+  // ── Duplicate / abuse checks BEFORE sending, centralized here ──────────────
+  // a. Already a member → do not invite. Gentle nudge, no over-disclosure.
+  const users = readJSON(USERS_PATH);
+  if (users.find(u => u.email && u.email.toLowerCase() === normEmail)) {
+    return res.json({
+      success: false,
+      error:   'It looks like you already have an account. Please sign in, or reset your password if you’ve forgotten it.',
+    });
   }
+  // b. A live (un-used, un-expired) invite already exists → don't mint a second.
+  if (findActiveInvite(normEmail)) {
+    return res.json({
+      success: false,
+      error:   'Your invitation was already sent — the link is valid for 48 hours, so please check your email (including spam).',
+    });
+  }
+
   const record = {
     id:          randomUUID(),
     name:        name.trim(),
-    email:       email.trim().toLowerCase(),
+    email:       normEmail,
     reason:      (reason || '').trim(),
     doctrines:   cleanDoctrines,
     wishToJoin:  'Yes',
     status:      'pending',
     submittedAt: new Date().toISOString(),
   };
+  const requests = readJSON(INVITE_REQUESTS_PATH);
   requests.push(record);
   console.log('[invite-request] writing to', INVITE_REQUESTS_PATH);
   try {
@@ -530,10 +579,46 @@ router.post('/api/invite-request', (req, res) => {
     return res.status(500).json({ success: false, error: 'Failed to save request: ' + err.message });
   }
 
-  // Best-effort: notify the admin by email. Fire-and-forget with its own catch
-  // so a SendGrid outage never delays or fails the saved request / confirmation.
-  sendInviteRequestNotification(record.name, record.email)
-    .catch(err => console.error('[inviteRequestNotify] unexpected:', err.message));
+  // ── Auto-invite: create the invite record + email the link to the applicant ─
+  const host      = req.get('host') || 'localhost:4000';
+  const protocol  = req.secure ? 'https' : 'http';
+  let emailSent = false;
+  try {
+    ({ emailSent } = await createAndSendInvite(record.email, record.name, { host, protocol }));
+  } catch (err) {
+    console.error('[invite-request] createAndSendInvite failed:', err.message);
+    emailSent = false;
+  }
+
+  // Flag the saved request with the outcome. status:'auto-invited' drops it out of
+  // the admin pending queue (which filters status==='pending'); these surface in
+  // the invites/sent view instead.
+  record.status    = 'auto-invited';
+  record.autoInvited = true;
+  record.invitedAt = new Date().toISOString();
+  record.emailSent = emailSent;
+  try {
+    writeJSON(INVITE_REQUESTS_PATH, requests);
+  } catch (err) {
+    console.error('[invite-request] writeJSON (flag) failed:', err);
+  }
+
+  if (!emailSent) {
+    // Keep the flagged record; tell the applicant plainly rather than falsely
+    // reporting success. Best-effort admin heads-up about the failure.
+    sendNewMemberNotification(record)
+      .catch(err => console.error('[newMemberNotify] unexpected:', err.message));
+    return res.json({
+      success: false,
+      error:   `Something went wrong sending your invitation. Please contact ${ADMIN_NOTIFY_EMAIL} and we’ll get you set up.`,
+    });
+  }
+
+  // Best-effort admin notification carrying the applicant's full application.
+  // Fire-and-forget with its own catch so a SendGrid outage never delays or fails
+  // the applicant's confirmation.
+  sendNewMemberNotification(record)
+    .catch(err => console.error('[newMemberNotify] unexpected:', err.message));
 
   res.json({ success: true });
 });

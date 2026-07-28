@@ -1,37 +1,14 @@
 const express  = require('express');
 const fs       = require('fs');
 const path     = require('path');
-const { randomUUID } = require('crypto');
-const sgMail   = require('@sendgrid/mail');
 const ExcelJS  = require('exceljs');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
 const { listDevotionals, deleteDevotional, clearAllDevotionals } = require('./dashboard');
 const { readEvents, writeEvents } = require('../lib/usageLog');
-
-sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
-
-async function sendInviteEmail(toEmail, toName, inviteUrl) {
-  if (!process.env.SENDGRID_API_KEY) {
-    console.warn('[sendInviteEmail] SENDGRID_API_KEY not set — skipping email');
-    return;
-  }
-  try {
-    await sgMail.send({
-      to:   { email: toEmail, name: toName },
-      from: { email: process.env.SENDGRID_FROM_EMAIL, name: 'Iron & Ink' },
-      subject: "You're invited to Iron & Ink",
-      text: `${toName},\n\nYour invitation to Iron & Ink has been approved. Click the link below to set up your account and begin your study.\n\n${inviteUrl}\n\nThis link expires in 48 hours.\n\nSoli Deo Gloria,\nIron & Ink`,
-      html: `<p>${toName},</p>
-<p>Your invitation to Iron &amp; Ink has been approved. Click the link below to set up your account and begin your study.</p>
-<p><a href="${inviteUrl}">${inviteUrl}</a></p>
-<p>This link expires in 48 hours.</p>
-<p><em>Soli Deo Gloria,</em><br>Iron &amp; Ink</p>`,
-    });
-    console.log('[sendInviteEmail] sent to', toEmail);
-  } catch (err) {
-    console.error('[sendInviteEmail] failed for', toEmail, ':', err.message);
-  }
-}
+// Invite provisioning (create record + email link) lives in one shared module so
+// the admin approve/send buttons and the auto-invite-on-submission path can never
+// drift apart. See lib/invites.js.
+const { createAndSendInvite, findActiveInvite } = require('../lib/invites');
 
 const router               = express.Router();
 const ARTICLES_PATH        = path.join(__dirname, '../data/articles.json');
@@ -505,38 +482,22 @@ router.patch('/api/admin/studies/:id/unshare', requireAuth, requireAdmin, (req, 
 });
 
 // ─── POST /api/admin/invite/send ─────────────────────────────────────────────
-router.post('/api/admin/invite/send', requireAuth, requireAdmin, (req, res) => {
+router.post('/api/admin/invite/send', requireAuth, requireAdmin, async (req, res) => {
   const { name, email } = req.body;
   if (!name || !email) {
     return res.status(400).json({ success: false, error: 'Name and email are required.' });
   }
 
-  const token   = randomUUID();
-  const now     = new Date();
-  const expires = new Date(now.getTime() + 48 * 60 * 60 * 1000);
-
-  const invites  = readJSON(INVITES_PATH);
-  const existing = invites.find(i => i.email.toLowerCase() === email.trim().toLowerCase() && !i.used);
-  if (existing) {
+  // Preserve today's guard: refuse a second active (un-used, un-expired) invite
+  // for the same email. findActiveInvite lives in lib/invites.js alongside the
+  // create/send logic so this check stays consistent everywhere.
+  if (findActiveInvite(email)) {
     return res.json({ success: false, error: 'An active invite for this email already exists.' });
   }
 
-  invites.push({
-    id:        randomUUID(),
-    token,
-    email:     email.trim().toLowerCase(),
-    name:      name.trim(),
-    createdAt: now.toISOString(),
-    expiresAt: expires.toISOString(),
-    used:      false,
-  });
-  writeJSON(INVITES_PATH, invites);
-
-  const host      = req.get('host') || 'localhost:4000';
-  const protocol  = req.secure ? 'https' : 'http';
-  const inviteUrl = `${protocol}://${host}/register?token=${token}`;
-
-  sendInviteEmail(email.trim().toLowerCase(), name.trim(), inviteUrl);
+  const host     = req.get('host') || 'localhost:4000';
+  const protocol = req.secure ? 'https' : 'http';
+  const { inviteUrl } = await createAndSendInvite(email, name, { host, protocol });
 
   res.json({ success: true, inviteUrl });
 });
@@ -550,37 +511,19 @@ router.get('/api/admin/invite-requests', requireAuth, requireAdmin, (req, res) =
 });
 
 // ─── POST /api/admin/invite-requests/:id/invite ───────────────────────────────
-router.post('/api/admin/invite-requests/:id/invite', requireAuth, requireAdmin, (req, res) => {
+router.post('/api/admin/invite-requests/:id/invite', requireAuth, requireAdmin, async (req, res) => {
   const requests = readJSON(INVITE_REQUESTS_PATH);
   const idx      = requests.findIndex(r => r.id === req.params.id);
   if (idx === -1) return res.status(404).json({ success: false, error: 'Request not found.' });
 
-  const record  = requests[idx];
-  const token   = randomUUID();
-  const now     = new Date();
-  const expires = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+  const record   = requests[idx];
+  const host     = req.get('host') || 'localhost:4000';
+  const protocol = req.secure ? 'https' : 'http';
+  const { inviteUrl } = await createAndSendInvite(record.email, record.name, { host, protocol });
 
-  const invites = readJSON(INVITES_PATH);
-  invites.push({
-    id:        randomUUID(),
-    token,
-    email:     record.email,
-    name:      record.name,
-    createdAt: now.toISOString(),
-    expiresAt: expires.toISOString(),
-    used:      false,
-  });
-  writeJSON(INVITES_PATH, invites);
-
-  requests[idx].status   = 'invited';
-  requests[idx].invitedAt = now.toISOString();
+  requests[idx].status    = 'invited';
+  requests[idx].invitedAt = new Date().toISOString();
   writeJSON(INVITE_REQUESTS_PATH, requests);
-
-  const host      = req.get('host') || 'localhost:4000';
-  const protocol  = req.secure ? 'https' : 'http';
-  const inviteUrl = `${protocol}://${host}/register?token=${token}`;
-
-  sendInviteEmail(record.email, record.name, inviteUrl);
 
   res.json({ success: true, inviteUrl });
 });
