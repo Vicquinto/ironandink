@@ -212,7 +212,7 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
           <button class="btn-warm" id="copyInviteLinkBtn" style="margin-top:12px; font-size:0.78rem; padding:6px 14px;">Copy Link</button>
         </div>
 
-        <h3 class="community-section-label" style="margin-top:32px; margin-bottom:16px;">Sent Invites</h3>
+        <h3 id="sentInviteHeader" class="community-section-label" style="margin-top:32px; margin-bottom:16px;">Sent Invites</h3>
         <div id="sentInviteList" class="article-list-container"></div>
         <p id="sentInviteEmpty" class="writing-empty" style="display:none;">No invites sent yet.</p>
       </div>
@@ -251,7 +251,7 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
     content,
     scripts: `<script>window.ADMIN_TABS = ${JSON.stringify(ADMIN_TABS)};</script>
 <script src="/js/study-badges.js?v=2"></script>
-<script src="/js/admin.js?v=20"></script>
+<script src="/js/admin.js?v=21"></script>
 <script>
 (function () {
   var form     = document.getElementById('directInviteForm');
@@ -540,10 +540,42 @@ router.post('/api/admin/invite-requests/:id/decline', requireAuth, requireAdmin,
 });
 
 // ─── GET /api/admin/invites ───────────────────────────────────────────────────
+// Newest-first list of sent invites, each enriched with the applicant's original
+// application (reason + doctrinal answers) joined from invite_requests.json by
+// lowercase email. This is the reliable record of a signup — it replaces the
+// unreliable notification email. Join in memory; no schema change.
 router.get('/api/admin/invites', requireAuth, requireAdmin, (req, res) => {
-  const invites = readJSON(INVITES_PATH)
+  const invites  = readJSON(INVITES_PATH)
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  res.json({ success: true, invites });
+  const requests = readJSON(INVITE_REQUESTS_PATH);
+
+  // email (lowercase) → most-recent matching request. A member may have submitted
+  // more than once over time, so keep the latest by submittedAt.
+  const reqByEmail = new Map();
+  for (const r of requests) {
+    if (!r || !r.email) continue;
+    const key  = r.email.toLowerCase();
+    const prev = reqByEmail.get(key);
+    if (!prev || new Date(r.submittedAt) > new Date(prev.submittedAt)) {
+      reqByEmail.set(key, r);
+    }
+  }
+
+  const enriched = invites.map(i => {
+    const r = i.email ? reqByEmail.get(i.email.toLowerCase()) : null;
+    return {
+      ...i,
+      application: r ? {
+        reason:      r.reason || '',
+        doctrines:   r.doctrines || null,
+        submittedAt: r.submittedAt || null,
+        autoInvited: r.autoInvited === true,
+        invitedAt:   r.invitedAt || null,
+      } : null,
+    };
+  });
+
+  res.json({ success: true, invites: enriched });
 });
 
 // ─── DELETE /api/admin/invites/:id ───────────────────────────────────────────

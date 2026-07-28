@@ -39,6 +39,7 @@
   var inviteRequestEmpty = document.getElementById('inviteRequestEmpty');
   var sentInviteList     = document.getElementById('sentInviteList');
   var sentInviteEmpty    = document.getElementById('sentInviteEmpty');
+  var sentInviteHeader   = document.getElementById('sentInviteHeader');
 
   document.body.insertAdjacentHTML('beforeend',
     '<div id="inviteConfirmModal" class="invite-confirm-overlay" style="display:none;">' +
@@ -71,6 +72,19 @@
 
   if (sentInviteList) {
     sentInviteList.addEventListener('click', async function (e) {
+      // Application accordion toggle — mirrors the Footprint show/hide pattern.
+      var appBtn = e.target.closest('[data-toggle-application]');
+      if (appBtn) {
+        var appId = appBtn.getAttribute('data-toggle-application');
+        var box   = sentInviteList.querySelector('[data-application="' + appId + '"]');
+        if (box) {
+          var open = box.style.display === 'block';
+          box.style.display = open ? 'none' : 'block';
+          appBtn.textContent = open ? 'Application ▾' : 'Hide Application ▴';
+        }
+        return;
+      }
+
       var btn = e.target.closest('[data-delete-invite]');
       if (!btn) return;
       var id = btn.getAttribute('data-delete-invite');
@@ -630,23 +644,66 @@
     }
   }
 
+  // A signup counts as "new" if it was invited (or, failing that, created) within
+  // the last 7 days. Purely time-derived at render — no seen/unseen state stored.
+  var NEW_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+  function isRecentInvite(i) {
+    var stamp = (i.application && i.application.invitedAt) || i.createdAt;
+    if (!stamp) return false;
+    var t = new Date(stamp).getTime();
+    if (isNaN(t)) return false;
+    return (Date.now() - t) < NEW_WINDOW_MS;
+  }
+
+  function applicationDetailHtml(app, id) {
+    if (!app) {
+      return '<div class="admin-application" data-application="' + esc(id) + '" ' +
+        'style="display:none; margin-top:10px; padding:10px 13px; background:rgba(160,132,92,0.06); ' +
+        'border:1px solid rgba(160,132,92,0.22); border-radius:5px; font-size:0.82rem; ' +
+        'color:var(--warm-brown); font-style:italic;">No application on file.</div>';
+    }
+    var reason = app.reason && app.reason.trim()
+      ? '<p style="font-size:0.85rem; color:var(--dark-cream); margin:0 0 4px; line-height:1.55; font-style:italic;">"' + esc(app.reason) + '"</p>'
+      : '<p style="font-size:0.82rem; color:var(--warm-brown); margin:0; font-style:italic;">No reason given.</p>';
+    return '<div class="admin-application" data-application="' + esc(id) + '" ' +
+      'style="display:none; margin-top:10px; padding:12px 14px; background:rgba(160,132,92,0.06); ' +
+      'border:1px solid rgba(160,132,92,0.22); border-radius:5px;">' +
+      '<div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--warm-brown); margin-bottom:6px;">Reason for joining</div>' +
+      reason +
+      renderDoctrineAnswers(app.doctrines) +
+    '</div>';
+  }
+
   function renderSentInvites(invites) {
     if (!invites.length) {
-      if (sentInviteEmpty) sentInviteEmpty.style.display = 'block';
-      if (sentInviteList)  sentInviteList.innerHTML = '';
+      if (sentInviteEmpty)  sentInviteEmpty.style.display = 'block';
+      if (sentInviteList)   sentInviteList.innerHTML = '';
+      if (sentInviteHeader) sentInviteHeader.textContent = 'Sent Invites';
       return;
     }
     if (sentInviteEmpty) sentInviteEmpty.style.display = 'none';
+
+    var newCount = 0;
 
     sentInviteList.innerHTML = invites.map(function (i) {
       var usedLabel  = i.used ? 'Used' : 'Pending';
       var usedClass  = i.used ? 'status-published' : 'status-pending';
       var tokenShort = i.token ? i.token.substring(0, 8) + '…' : '';
       var expired    = !i.used && new Date(i.expiresAt) < new Date();
+      var isNew      = isRecentInvite(i);
+      if (isNew) newCount++;
+      var newPill    = isNew
+        ? '<span class="article-status-badge status-pending" style="margin-right:6px;">New</span>'
+        : '';
+      var appBtn     = i.application
+        ? '<button class="btn-warm" data-toggle-application="' + esc(i.id) + '" style="font-size:0.82rem; padding:6px 14px;">Application ▾</button>'
+        : '';
       return '<div class="article-card">' +
         '<div class="article-card-header">' +
           '<span class="article-card-title">' + esc(i.name) + '</span>' +
-          '<span class="article-status-badge ' + usedClass + '">' + (expired && !i.used ? 'Expired' : usedLabel) + '</span>' +
+          '<span>' + newPill +
+            '<span class="article-status-badge ' + usedClass + '">' + (expired && !i.used ? 'Expired' : usedLabel) + '</span>' +
+          '</span>' +
         '</div>' +
         '<div class="article-card-meta">' +
           '<span class="community-card-author">' + esc(i.email) + '</span>' +
@@ -654,11 +711,19 @@
           '<span class="article-card-date">Expires ' + fmtDate(i.expiresAt) + '</span>' +
           '<span style="font-family:\'Courier New\',monospace; font-size:0.95rem; color:var(--warm-brown);">' + esc(tokenShort) + '</span>' +
         '</div>' +
-        '<div style="padding:6px 12px 10px; display:flex; justify-content:flex-end;">' +
+        applicationDetailHtml(i.application, i.id) +
+        '<div style="padding:6px 12px 10px; display:flex; justify-content:space-between; align-items:center; gap:10px;">' +
+          '<span>' + appBtn + '</span>' +
           '<button class="btn-discard" data-delete-invite="' + esc(i.id) + '">Delete</button>' +
         '</div>' +
       '</div>';
     }).join('');
+
+    if (sentInviteHeader) {
+      sentInviteHeader.textContent = newCount
+        ? 'Sent Invites (' + newCount + ' new this week)'
+        : 'Sent Invites';
+    }
   }
 
   // ── Content management: studies + footprint ───────────────────────────────
