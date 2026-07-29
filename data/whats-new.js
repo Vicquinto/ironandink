@@ -18,6 +18,16 @@
 
 const WHATS_NEW = [
   {
+    date:  'July 28, 2026',
+    title: 'A sharper focus for Live Study Rooms',
+    body: `We've refined Live Study Rooms around one purpose: working through Scripture together. A host can bring in a study from the Community or your Library and lead the group through it, shared notes and tooltip cards stay with the room, and you can now see exactly who's in the room with you in real time.`,
+  },
+  {
+    date:  'July 28, 2026',
+    title: 'Where we stand on AI',
+    body: `We've written a plain, pastoral account of how Iron & Ink uses AI — and the safeguards that keep Scripture itself untouched by it. You'll find it on the About page under "Where We Stand on AI." It's built for Bereans: test everything, hold fast to what is good. The tool serves the study; the study serves the soul.`,
+  },
+  {
     date:  'July 20, 2026',
     title: 'Book studies',
     body: `A new study type: Book. Give it a book of the Bible and it lays out the essentials — who wrote it, when and why, its structure, major themes, and the real debates surrounding it — then points you toward chapters and themes worth studying next. A whole book can now grow into a study tree.`,
@@ -88,6 +98,10 @@ Subject — a study of a specific person, place, or thing in Scripture. Whether 
 // When an item ships, move it into WHATS_NEW above with a date.
 
 const COMING_SOON = [
+  {
+    title: 'Children\'s studies',
+    body: `A study type made for the youngest in the household — the same Reformed depth, told simply and warmly, so parents can lead their children through Scripture together. Coming soon.`,
+  },
   {
     title: 'Study tools in Scripture reading',
     body: `We're bringing the tooltip tools you use throughout Iron & Ink — Define, Explore, and more — into the Scripture reader. We're also working on approvals to offer additional translations, including the NASB, LSB, NKJV, NIV, and CSB, and we hope to make these available soon.`,
