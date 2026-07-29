@@ -18,6 +18,11 @@
 
 const WHATS_NEW = [
   {
+    date:  'July 29, 2026',
+    title: 'Children\'s studies are here',
+    body: `For the children in your home, Study now offers a Children's telling. Choose "Children's" as your study level, and any passage becomes a warm, faithful story — written for ages six to ten, and told as a story rather than a study: no outlines or sections, just Scripture told simply and reverently, pointing to Jesus wherever the passage truly leads. Each one closes with a short "For grown-ups" note: a question to ask your child, and a little prayer to pray together. Read it at bedtime, or gather the family around it.`,
+  },
+  {
     date:  'July 28, 2026',
     title: 'A sharper focus for Live Study Rooms',
     body: `We've refined Live Study Rooms around one purpose: working through Scripture together. A host can bring in a study from the Community or your Library and lead the group through it, shared notes and tooltip cards stay with the room, and you can now see exactly who's in the room with you in real time.`,
@@ -98,10 +103,6 @@ Subject — a study of a specific person, place, or thing in Scripture. Whether 
 // When an item ships, move it into WHATS_NEW above with a date.
 
 const COMING_SOON = [
-  {
-    title: 'Children\'s studies',
-    body: `A study type made for the youngest in the household — the same Reformed depth, told simply and warmly, so parents can lead their children through Scripture together. Coming soon.`,
-  },
   {
     title: 'Study tools in Scripture reading',
     body: `We're bringing the tooltip tools you use throughout Iron & Ink — Define, Explore, and more — into the Scripture reader. We're also working on approvals to offer additional translations, including the NASB, LSB, NKJV, NIV, and CSB, and we hope to make these available soon.`,

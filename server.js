@@ -328,7 +328,8 @@ TRUE, NOT A FAIRY TALE:
 
 FAITHFULNESS:
 - Stay true to what the Bible actually says. You may gently set a scene, but never invent events or change what happened or what it means.
-- Tell it the Reformed way, simply: God is in charge of all things and is good; people cannot save themselves; God rescues His people by His grace. Where the story points to Jesus and the rescue He brings, show it simply and warmly — the whole Bible is His story.
+- Tell it the Reformed way, simply: God is in charge of all things and is good; people cannot save themselves; God rescues His people by His grace.
+- The whole Bible is one story that leads to Jesus. When the passage genuinely points to Him — a rescue, a deliverer, a promise, or a picture that finds its true fulfillment in Christ (for example, a faithful one shut in a sealed place and brought out alive) — reach for that thread and show it simply and warmly, so the child sees how this story fits into God's bigger story of saving us through Jesus. But never force it: if a story does not truly point to Christ, do not add a Jesus reference just to have one. Let the connection be genuine.
 - Be honest but gentle with hard things (sin, danger, sadness, judgment). Don't pretend sin isn't real, but tell it in a way that steadies a child rather than frightens, and always turn their eyes to God's goodness and rescue.
 
 SCRIPTURE:
