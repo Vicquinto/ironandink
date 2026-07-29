@@ -62,17 +62,42 @@
       studyLevelSelect.value = window.USER_STUDY_LEVEL || 'journeyman';
     };
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', seedStudyLevel);
+      document.addEventListener('DOMContentLoaded', function () { seedStudyLevel(); updateStoryModeUI(); });
     } else {
       seedStudyLevel();
+      updateStoryModeUI();
     }
     studyLevelSelect.addEventListener('change', function () {
+      updateStoryModeUI();
       fetch('/api/settings/study-level', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ studyLevel: studyLevelSelect.value }),
       });
     });
+  }
+
+  // ── Children's = STORY MODE ─────────────────────────────────────────────────
+  // Children's overrides the study type entirely (the server builds a narrative
+  // prompt and ignores whichever type card is selected). Reflect that here: dim the
+  // type picker and show a short "Told as a story." note. Purely cosmetic — the
+  // server enforces the override regardless of what the client shows.
+  var storyModeNote = null;
+  function updateStoryModeUI() {
+    if (!studyLevelSelect) return;
+    var isChildren = studyLevelSelect.value === 'children';
+    if (studyTypePicker) {
+      studyTypePicker.style.opacity       = isChildren ? '0.45' : '';
+      studyTypePicker.style.pointerEvents = isChildren ? 'none' : '';
+      studyTypePicker.setAttribute('aria-disabled', isChildren ? 'true' : 'false');
+      if (isChildren && !storyModeNote) {
+        storyModeNote = document.createElement('p');
+        storyModeNote.className = 'study-story-mode-note';
+        storyModeNote.textContent = 'Told as a story.';
+        studyTypePicker.parentNode.insertBefore(storyModeNote, studyTypePicker.nextSibling);
+      }
+      if (storyModeNote) storyModeNote.style.display = isChildren ? '' : 'none';
+    }
   }
 
   // ── Study-type picker — Doctrinal (default) / Explore / Historical / Scripture ──

@@ -94,6 +94,7 @@ router.get('/settings', requireAuth, (req, res) => {
         <div class="form-group">
           <label class="form-label">Writing Register</label>
           <select class="form-select" id="studyLevel">
+            <option value="children"${sel(s.studyLevel || 'journeyman', 'children')}>Children&#39;s</option>
             <option value="foundations"${sel(s.studyLevel || 'journeyman', 'foundations')}>Apprentice</option>
             <option value="journeyman"${sel(s.studyLevel || 'journeyman', 'journeyman')}>Journeyman</option>
             <option value="scholar"${sel(s.studyLevel || 'journeyman', 'scholar')}>Scholar</option>
@@ -219,7 +220,7 @@ router.post('/api/settings/preferences', requireAuth, (req, res) => {
 // POST /api/settings/study-level — lightweight single-field save used by the study-page selector
 router.post('/api/settings/study-level', requireAuth, (req, res) => {
   const { studyLevel } = req.body;
-  if (!['foundations', 'journeyman', 'scholar'].includes(studyLevel)) {
+  if (!['children', 'foundations', 'journeyman', 'scholar'].includes(studyLevel)) {
     return res.status(400).json({ success: false, error: 'Invalid level.' });
   }
   const users = readUsers();

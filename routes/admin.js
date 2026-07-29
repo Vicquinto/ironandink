@@ -250,7 +250,7 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
     title:         'Admin Panel',
     content,
     scripts: `<script>window.ADMIN_TABS = ${JSON.stringify(ADMIN_TABS)};</script>
-<script src="/js/study-badges.js?v=2"></script>
+<script src="/js/study-badges.js?v=3"></script>
 <script src="/js/admin.js?v=21"></script>
 <script>
 (function () {

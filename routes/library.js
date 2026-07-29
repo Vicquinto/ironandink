@@ -124,7 +124,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/study-badges.js?v=2"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/library.js?v=57"></script>',
+    scripts: '<script src="/js/study-badges.js?v=3"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/library.js?v=57"></script>',
   }));
 });
 
@@ -147,7 +147,7 @@ router.post('/api/library/save', requireAuth, (req, res) => {
     : (tags || '').split(',').map(t => t.trim()).filter(Boolean);
 
   const userSettings = req.session.user && req.session.user.settings;
-  const validLevels  = ['foundations', 'journeyman', 'scholar'];
+  const validLevels  = ['children', 'foundations', 'journeyman', 'scholar'];
   const validTypes   = ['doctrinal', 'explore', 'historical', 'scripture', 'open', 'people', 'pathway', 'book'];
   const now          = new Date().toISOString();
   const isShared     = shared === true;

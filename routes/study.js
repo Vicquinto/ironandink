@@ -19,6 +19,11 @@ const STUDY_LEVEL_INSTRUCTIONS = {
   foundations: "WRITING REGISTER: FOUNDATIONAL. Write for a reader who is new to this topic, in patient, accessible prose that explains its reasoning step by step rather than assuming familiarity with how these arguments typically run. TERMINOLOGY: assume very little theological vocabulary — nearly every specialized term (theological, confessional, or original-language) must be carried in plain language the first time it appears, per the Core Governing Principle; err strongly toward carrying a term rather than assuming it. DEPTH OF ENTRY: teach at the introductory stratum — this is the intro course, not the graduate seminar taught slowly. Assume NO prior theological training. Establish the core, settled doctrine itself: what it is and why it matters. Do NOT open advanced intramural debates, contested edge cases, lapsarian-type controversies, or scholarly nuances that assume a foundation the reader does not yet have — those belong at the Standard and Advanced levels. This is NOT about producing less content or a narrower study: the study is still complete, whole, and satisfying; it simply enters the material at the foundational stratum. RESOLVE WHAT YOU RAISE: whatever hard questions the study does raise must still be fully resolved in-line and never left dangling, per the Core Governing Principle — but at this level, do not RAISE the advanced debates in the first place.",
   journeyman:  "WRITING REGISTER: STANDARD. Write in normal prose for a capable adult reader with some working theological vocabulary and familiarity with how Reformed argumentation typically proceeds. TERMINOLOGY: do NOT assume fluency with confessional or historical-theological shorthand — terms such as 'confessionally Reformed,' 'the affections,' 'federal headship,' 'covenant of grace,' 'common grace,' and similar specialized or confessional language must still be carried plainly the first time they appear, per the Core Governing Principle; these are specialized, not basic. You may move briskly past genuinely common terms, but when in doubt, carry it. DEPTH OF ENTRY: teach at the intermediate stratum. Assume the foundational doctrine is already in place, and build its main contours and most important nuances on top of it: introduce the significant distinctions and debates that matter for a real understanding of the subject — but do not go exhaustively into every scholarly controversy or fine edge case (those belong at the Advanced level). The study remains complete and whole; it simply enters above the introductory stratum. RESOLVE WHAT YOU RAISE: every hard question and objection the study raises must be resolved in-line, never deferred to the reader, per the Core Governing Principle.",
   scholar:     "WRITING REGISTER: ADVANCED. Write in sophisticated prose for a reader comfortable with theological vocabulary, confessional language, and the typical shape of Reformed exegetical and doctrinal argument; you need not pause for common terms. TERMINOLOGY: assume comfort with standard theological, confessional, and exegetical vocabulary, but still carry genuinely rare, technical, or contested terms the first time they appear, per the Core Governing Principle — fluency is not omniscience. DEPTH OF ENTRY: teach at the advanced stratum — the graduate seminar. Assume the foundation and the main contours are already known, and go to the full depth of the subject: the intramural debates, the historical development, the contested edges, and the hard nuances. RESOLVE WHAT YOU RAISE: every hard question and objection the study raises must be resolved in-line, never deferred to the reader, per the Core Governing Principle.",
+  // Children's is a STORY MODE, not a writing register. This entry exists only so the
+  // resolve gate below accepts studyLevel='children'; the actual system prompt is built
+  // in the special-case branch (CORE + children story prompt) and this register text is
+  // NOT appended for children. See the systemPrompt assembly below.
+  children:    "WRITING REGISTER: CHILDREN'S STORY. Write for a young child (roughly ages 4 to 10) as a warm, gentle storyteller — but the full story-mode instructions govern this level and are supplied separately.",
 };
 
 function getStudyLevelInstruction(settings) {
@@ -174,6 +179,7 @@ router.get('/study', requireAuth, (req, res) => {
       <div class="study-level-field" id="studyLevelField">
         <label class="form-label" for="studyLevelSelect">Study Level</label>
         <select id="studyLevelSelect" class="study-level-select" title="Writing register">
+          <option value="children">Children&#39;s</option>
           <option value="foundations">Apprentice</option>
           <option value="journeyman">Journeyman</option>
           <option value="scholar">Scholar</option>
@@ -262,7 +268,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study-badges.js?v=2"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/study.js?v=20"></script><script src="/js/library.js?v=57"></script>
+    scripts: `<script src="/js/study-badges.js?v=3"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/study.js?v=21"></script><script src="/js/library.js?v=57"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};
@@ -567,6 +573,7 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
     IRON_INK_PEOPLE_PROMPT,
     IRON_INK_PATHWAY_PROMPT,
     IRON_INK_BOOK_PROMPT,
+    children: IRON_INK_CHILDREN_STORY_PROMPT,
   } = req.app.locals.prompts;
 
   // Study-type → prompt map. Doctrinal is the default (unchanged legacy behavior).
@@ -588,13 +595,24 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
     : ((userSettings && userSettings.studyLevel) || 'journeyman');
   const studyLevelInstruction = STUDY_LEVEL_INSTRUCTIONS[resolvedStudyLevel] || STUDY_LEVEL_INSTRUCTIONS.journeyman;
 
-  // Depth rule: the writing register (studyLevel) applies to every type EXCEPT
-  // explore (doctrinal, historical, scripture, and open all get the level prefix).
+  // Children's is a STORY MODE, not a writing register. When selected it OVERRIDES the
+  // study type entirely: the system prompt is CORE + the children story prompt alone —
+  // the chosen type prompt and the level register are both dropped, so a Children's
+  // study is always a narrative regardless of which type card was selected. Modeled on
+  // the explore special-case below.
+  //
+  // Depth rule (non-children): the writing register (studyLevel) applies to every type
+  // EXCEPT explore (doctrinal, historical, scripture, and open all get the level prefix).
   // Explore has no depth dial by design, so it alone gets no level-register prefix —
   // its system prompt is CORE + the Explore prompt alone.
-  const systemPrompt = (resolvedStudyType === 'explore')
-    ? IRON_INK_CORE_PROMPT + '\n\n' + studyPrompt
-    : studyLevelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + studyPrompt;
+  let systemPrompt;
+  if (resolvedStudyLevel === 'children') {
+    systemPrompt = IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_CHILDREN_STORY_PROMPT;
+  } else if (resolvedStudyType === 'explore') {
+    systemPrompt = IRON_INK_CORE_PROMPT + '\n\n' + studyPrompt;
+  } else {
+    systemPrompt = studyLevelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + studyPrompt;
+  }
 
   const reqStart = Date.now();
   console.log(`[study-gen] START topic="${topic.trim()}" type="${resolvedStudyType}" level="${resolvedStudyLevel}" time=${new Date().toISOString()}`);

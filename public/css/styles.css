@@ -2441,6 +2441,21 @@ body {
   color: var(--text);
   border: 1px solid rgba(160,132,92,0.5);
 }
+/* Children's — story mode. A soft, warm sage-green, distinct from the brown
+   register ladder so a Children's study reads as its own gentle thing. */
+.study-level-badge-children {
+  background: rgba(122,150,110,0.14);
+  color: #4f6b45;
+  border: 1px solid rgba(122,150,110,0.4);
+}
+/* "Told as a story." note under the (dimmed) type picker while Children's is selected. */
+.study-story-mode-note {
+  margin: 0.35rem 0 0.75rem;
+  color: #4f6b45;
+  font-style: italic;
+  font-size: 0.85rem;
+  letter-spacing: 0.01em;
+}
 
 /* Study-type badge — same footprint as the level badge, distinct accent per type */
 .study-type-badge {

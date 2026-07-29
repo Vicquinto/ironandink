@@ -21,7 +21,7 @@
   // Writing-level pill. Renders nothing for a missing/unknown level — it never
   // fabricates one, so a study saved without a level simply carries no level badge.
   global.studyLevelBadge = function studyLevelBadge(level) {
-    var labels = { foundations: 'APPRENTICE', journeyman: 'JOURNEYMAN', scholar: 'SCHOLAR' };
+    var labels = { children: 'CHILDREN’S', foundations: 'APPRENTICE', journeyman: 'JOURNEYMAN', scholar: 'SCHOLAR' };
     var label  = labels[level];
     if (!label) return '';
     return '<span class="study-level-badge study-level-badge-' + level + '">' + label + '</span>';
