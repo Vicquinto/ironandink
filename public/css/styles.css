@@ -1211,7 +1211,7 @@ body {
 }
 .topic-category.open .topic-cat-body { display: flex; }
 
-.topic-item {
+.topic-item, .story-item {
   background: #DDD0B0;
   border: 1px solid #A0845C;
   color: #1E1208;
@@ -1222,7 +1222,7 @@ body {
   cursor: pointer;
   transition: background 0.13s, color 0.13s, border-color 0.13s;
 }
-.topic-item:hover {
+.topic-item:hover, .story-item:hover {
   background: rgba(160,132,92,0.12);
   color: var(--accent);
   border-color: var(--accent);

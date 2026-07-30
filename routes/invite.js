@@ -83,7 +83,7 @@ function writeJSON(p, data) {
 
 function publicStyles() {
   return `
-    <link rel="stylesheet" href="/css/styles.css?v=70">
+    <link rel="stylesheet" href="/css/styles.css?v=71">
     <style>
       body { display:flex; align-items:center; justify-content:center; min-height:100vh; }
       .pub-container { width:100%; max-width:480px; padding:24px; }
