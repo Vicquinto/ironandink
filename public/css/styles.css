@@ -470,6 +470,24 @@ body {
 
 .btn-primary:hover { background: #6B4226; }
 
+/* Generate "ready" cue — set when a curated topic or story is loaded into the box
+   but not yet generated. A gentle gold glow (site gold #A0845C = rgb 160,132,92)
+   with a brief one-time pulse that settles into a soft resting ring. Noticeable,
+   not loud. Removed once generation starts or the user types their own topic. */
+.btn-primary.is-ready {
+  box-shadow: 0 0 0 3px rgba(160,132,92,0.35), 0 0 12px 2px rgba(160,132,92,0.28);
+  animation: generateReadyPulse 0.9s ease-out 1;
+}
+@keyframes generateReadyPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(160,132,92,0.55), 0 0 0 0 rgba(160,132,92,0); }
+  60%  { box-shadow: 0 0 0 7px rgba(160,132,92,0),   0 0 16px 4px rgba(160,132,92,0.45); }
+  100% { box-shadow: 0 0 0 3px rgba(160,132,92,0.35), 0 0 12px 2px rgba(160,132,92,0.28); }
+}
+/* Reduced motion: keep the static soft glow, drop the pulse animation. */
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary.is-ready { animation: none; }
+}
+
 /* ─── SETTINGS ──────────────────────────────────────────────────────── */
 
 .settings-section {

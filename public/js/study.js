@@ -229,11 +229,27 @@
     });
   });
 
+  // ── Generate "ready" cue ─────────────────────────────────────────────────
+  // When a curated topic or story is loaded into the box (but not yet generated),
+  // draw the eye to Generate with a gentle glow + one-time pulse. Re-triggering the
+  // pulse requires removing the class, forcing reflow, then re-adding it — so tapping
+  // a second story re-cues rather than sitting statically lit.
+  function markGenerateReady() {
+    if (!generateBtn) return;
+    generateBtn.classList.remove('is-ready');
+    void generateBtn.offsetWidth; // force reflow so the keyframe restarts
+    generateBtn.classList.add('is-ready');
+  }
+  function clearGenerateReady() {
+    if (generateBtn) generateBtn.classList.remove('is-ready');
+  }
+
   // ── Topic item click — populate input only, do not generate ──────────────
   document.querySelectorAll('.topic-item').forEach(function (btn) {
     btn.addEventListener('click', function () {
       clearPendingLineage(); // picking a curated topic is a fresh, non-branch intent
       topicInput.value = btn.dataset.topic;
+      markGenerateReady();
       generateBtn.focus();
     });
   });
@@ -245,6 +261,7 @@
     btn.addEventListener('click', function () {
       clearPendingLineage(); // picking a story is a fresh, non-branch intent
       topicInput.value = btn.dataset.topic;
+      markGenerateReady();
       generateBtn.focus();
     });
   });
@@ -253,6 +270,7 @@
   generateBtn.addEventListener('click', function () {
     var topic = topicInput.value.trim();
     if (!topic) { topicInput.focus(); return; }
+    clearGenerateReady(); // generation started — drop the "loaded" cue
     generateGuide(topic);
   });
 
@@ -262,6 +280,10 @@
       if (topic) generateGuide(topic);
     }
   });
+
+  // Once the user starts typing their own topic, the "loaded a curated topic" cue
+  // no longer applies — drop it.
+  topicInput.addEventListener('input', clearGenerateReady);
 
   // ── Further Studies → clickable branch suggestions ───────────────────────────
   // The anchor-matching / button-building core now lives in the shared module
@@ -673,6 +695,7 @@
 
   // ── Guide generation ───────────────────────────────────────────────────────
   async function generateGuide(topic) {
+    clearGenerateReady(); // generation started — drop any "loaded" cue (covers Enter / branch paths)
     studyGenerated = false;
     savedStudyId   = null;
     // Reset the save button in case a prior draft left it in the "saved" state.
