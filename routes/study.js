@@ -6,6 +6,7 @@ const { assertNoEsvText } = require('./esvGuard');
 const { injectVerses } = require('../lib/asv');
 const { logEvent } = require('../lib/usageLog');
 const { aiLimiter } = require('../middleware/rateLimit');
+const STORY_GROUPS = require('../data/childrens-stories');
 
 const router = express.Router();
 
@@ -130,6 +131,26 @@ function buildTopicBrowser() {
     </div>`).join('');
 }
 
+// Children's story shelf — twin of buildTopicBrowser() using the SAME accordion
+// markup (.topic-category / .topic-cat-header / .topic-cat-body) so it reuses the
+// existing CSS and the existing .topic-cat-header accordion click handler. The
+// leaf buttons carry a DISTINCT class (.story-item) so they get the Children's
+// fill+focus handler, not the adult .topic-item handler. Groups render collapsed.
+function buildStoryBrowser() {
+  return STORY_GROUPS.map((grp, i) => `
+    <div class="topic-category" id="story-cat-${i}">
+      <button class="topic-cat-header" data-idx="story-${i}">
+        <span class="topic-cat-name">${grp.name}</span>
+        <span class="topic-cat-chevron">&#9660;</span>
+      </button>
+      <div class="topic-cat-body">
+        ${grp.stories.map(s => `
+          <button class="story-item" data-topic="${s.replace(/"/g, '&quot;')}">${s}</button>
+        `).join('')}
+      </div>
+    </div>`).join('');
+}
+
 // ─── GET /study ──────────────────────────────────────────────────────────────
 router.get('/study', requireAuth, (req, res) => {
   const content = `
@@ -188,6 +209,11 @@ router.get('/study', requireAuth, (req, res) => {
       <button id="generateBtn" class="btn-primary">Generate Study</button>
       <button id="appointedStudyBtn" class="btn-warm">Appointed Study</button>
       <button id="suggestTypeBtn" class="btn-warm" disabled>Suggest a study type</button>
+    </div>
+
+    <div id="childrensStoryPicker" class="topic-browser" style="display:none;">
+      <p class="topic-browser-label">Browse Bible stories &#8212; tap a group, then tap a story:</p>
+      ${buildStoryBrowser()}
     </div>
 
     <div class="study-length-picker" id="studyLengthPicker" aria-label="Study length" style="display:none;">
@@ -268,7 +294,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study-badges.js?v=3"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/study.js?v=21"></script><script src="/js/library.js?v=57"></script>
+    scripts: `<script src="/js/study-badges.js?v=3"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/study.js?v=22"></script><script src="/js/library.js?v=57"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};

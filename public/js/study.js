@@ -43,6 +43,7 @@
   const confirmSaveBtn  = document.getElementById('confirmSaveBtn');
   const cancelSaveBtn   = document.getElementById('cancelSaveBtn');
   const topicBrowser    = document.getElementById('topicBrowser');
+  const childrensStoryPicker = document.getElementById('childrensStoryPicker');
   const stars           = document.querySelectorAll('.star');
   const fontDecBtn        = document.getElementById('fontDecBtn');
   const fontResetBtn      = document.getElementById('fontResetBtn');
@@ -83,6 +84,26 @@
   // type picker and show a short "Told as a story." note. Purely cosmetic — the
   // server enforces the override regardless of what the client shows.
   var storyModeNote = null;
+
+  // Which "shelf" shows in the input/browser state: the Children's story picker
+  // when Children's is selected, the adult curated topic browser otherwise. Called
+  // both from updateStoryModeUI (live select change) and from showState('browser'),
+  // so the two never drift out of sync.
+  function applyBrowserVisibility() {
+    var isChildren = studyLevelSelect && studyLevelSelect.value === 'children';
+    if (childrensStoryPicker) childrensStoryPicker.style.display = isChildren ? 'block' : 'none';
+    if (topicBrowser)         topicBrowser.style.display        = isChildren ? 'none'  : 'block';
+  }
+
+  // True only when the input/browser screen is showing (no loading, guide, or save
+  // panel up). Guards the live swap so changing the level while a guide is open
+  // doesn't yank the browser back over it.
+  function onBrowserScreen() {
+    return (!studyLoading || studyLoading.style.display === 'none') &&
+           (!guideArea    || guideArea.style.display    === 'none') &&
+           (!savePanel    || savePanel.style.display    === 'none');
+  }
+
   function updateStoryModeUI() {
     if (!studyLevelSelect) return;
     var isChildren = studyLevelSelect.value === 'children';
@@ -98,6 +119,9 @@
       }
       if (storyModeNote) storyModeNote.style.display = isChildren ? '' : 'none';
     }
+    // Swap the story shelf for the adult browser (only while the browser screen is
+    // up, so it doesn't pop open over a study in progress).
+    if (onBrowserScreen()) applyBrowserVisibility();
   }
 
   // ── Study-type picker — Doctrinal (default) / Explore / Historical / Scripture ──
@@ -209,6 +233,17 @@
   document.querySelectorAll('.topic-item').forEach(function (btn) {
     btn.addEventListener('click', function () {
       clearPendingLineage(); // picking a curated topic is a fresh, non-branch intent
+      topicInput.value = btn.dataset.topic;
+      generateBtn.focus();
+    });
+  });
+
+  // ── Story item click (Children's story shelf) — fill + focus, no auto-generate.
+  // Same behavior as .topic-item; studyLevel:'children' rides along automatically
+  // since the generate payload reads the live level select.
+  document.querySelectorAll('.story-item').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      clearPendingLineage(); // picking a story is a fresh, non-branch intent
       topicInput.value = btn.dataset.topic;
       generateBtn.focus();
     });
@@ -711,6 +746,7 @@
     guideArea.style.display    = 'none';
     savePanel.style.display    = 'none';
     topicBrowser.style.display = 'none';
+    if (childrensStoryPicker) childrensStoryPicker.style.display = 'none';
     stopVerseRotation(); // stop the loading-screen verse rotator on any state change
 
     if (state === 'loading') {
@@ -721,7 +757,9 @@
     } else if (state === 'save') {
       savePanel.style.display    = 'block';
     } else {
-      topicBrowser.style.display = 'block';
+      // Browser state: show the Children's story shelf or the adult topic browser,
+      // whichever matches the current level.
+      applyBrowserVisibility();
     }
   }
 
