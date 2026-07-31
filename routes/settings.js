@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const fs = require('fs');
 const path = require('path');
 const { requireAuth, renderLayout } = require('./layout');
+const { BILLING_ENABLED, getEntitlements } = require('../lib/entitlements');
 
 const router = express.Router();
 const USERS_PATH = path.join(__dirname, '../data/users.json');
@@ -18,11 +19,43 @@ router.get('/settings', requireAuth, (req, res) => {
   const user = req.session.user;
   const s = user.settings || {};
 
+  // ── Plan section (dark unless BILLING_ENABLED=true) ─────────────────────────
+  // Reads the FRESH member record for tier + meter (never the session snapshot).
+  // When billing is off this produces an empty string, leaving Settings unchanged.
+  let planSection = '';
+  if (BILLING_ENABLED) {
+    let fresh = null;
+    try { fresh = readUsers().find(u => u.id === req.session.userId); } catch { /* fall through */ }
+    const ent = getEntitlements(fresh);
+    let tierLabel, detail, cta;
+    if (ent.tier === 'comp') {
+      tierLabel = 'Complimentary';
+      detail = 'You have full member access at no charge. Grace upon grace.';
+      cta = '';
+    } else if (ent.tier === 'paid') {
+      tierLabel = 'Member';
+      detail = 'Unlimited studies and the ability to host your own Live Rooms.';
+      cta = `<a class="btn-primary" href="/api/billing/portal">Manage subscription</a>`;
+    } else {
+      tierLabel = 'Free';
+      detail = `${ent.studiesUsed} of ${ent.studyLimit} free studies used this month.`;
+      cta = `<a class="btn-primary" href="/pricing">Go unlimited &amp; host your own Live Rooms</a>`;
+    }
+    planSection = `
+    <div class="settings-section">
+      <div class="settings-section-title">Plan</div>
+      <p style="font-size:0.95rem;color:var(--text);margin-bottom:6px;"><strong>${tierLabel}</strong></p>
+      <p style="font-size:0.9rem;color:var(--text-muted);margin-bottom:${cta ? '16px' : '0'};">${detail}</p>
+      ${cta}
+    </div>`;
+  }
+
   const content = `
     <div class="page-header">
       <h2 class="page-title">Settings</h2>
       <p class="page-subtitle">Manage your profile and preferences.</p>
     </div>
+${planSection}
 
     <div class="settings-section">
       <div class="settings-section-title">Profile</div>

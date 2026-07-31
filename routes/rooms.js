@@ -4,6 +4,7 @@ const path           = require('path');
 const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
 const { logEvent } = require('../lib/usageLog');
+const { getEntitlements } = require('../lib/entitlements');
 
 const router     = express.Router();
 const ROOMS_PATH = path.join(__dirname, '../data/rooms.json');
@@ -511,6 +512,16 @@ router.post('/api/rooms/create', requireAuth, (req, res) => {
   const userId = req.session.userId;
   const users  = readUsers();
   const host   = users.find(u => u.id === userId);
+
+  // ── Live Rooms host gate (dark unless BILLING_ENABLED=true) ─────────────────
+  // Joining a room (GET /room/:code) is never gated — free members study
+  // alongside others. Only HOSTING/CREATING is the paid action. When billing is
+  // off, canHostLiveRooms is always true and this never fires.
+  const ent = getEntitlements(host);
+  if (ent.billingEnabled && !ent.canHostLiveRooms) {
+    return res.status(402).json({ success: false, error: 'host_subscription_required', upgradeUrl: '/pricing' });
+  }
+
   const rooms  = readRooms();
 
   let code;

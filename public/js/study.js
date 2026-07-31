@@ -718,6 +718,22 @@
       });
       var data = await res.json();
 
+      // Free-tier paywall (inert while billing is dark — the 402 never fires then).
+      // A friendly upgrade prompt instead of the generic error toast.
+      if (res.status === 402 && data && data.error === 'free_limit_reached') {
+        showState('browser');
+        var msg = (data.message || "You've used your free studies this month.")
+          + ' Upgrade for unlimited studies and to host your own Live Rooms.';
+        if (typeof showConfirm === 'function') {
+          showConfirm(msg, 'Upgrade',
+            function () { window.location.href = (data.upgradeUrl || '/pricing'); },
+            function () {});
+        } else {
+          window.location.href = (data.upgradeUrl || '/pricing');
+        }
+        return;
+      }
+
       if (!data.success) throw new Error(data.error || 'Generation failed.');
 
       currentGuide = { studyLength: selectedLength, studyType: selectedType, ...data };

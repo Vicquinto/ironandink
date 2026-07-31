@@ -346,6 +346,12 @@ Write nothing else — no study sections, background, or extra questions. A stor
 // Expose prompts to all route handlers via req.app.locals.prompts
 app.locals.prompts = { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT, IRON_INK_EXPLORE_PROMPT, IRON_INK_HISTORICAL_PROMPT, IRON_INK_SCRIPTURE_PROMPT, IRON_INK_OPEN_PROMPT, IRON_INK_PEOPLE_PROMPT, IRON_INK_PATHWAY_PROMPT, IRON_INK_BOOK_PROMPT, IRON_INK_DIALOGUE_PROMPT, IRON_INK_WRITING_PROMPT, children: IRON_INK_CHILDREN_STORY_PROMPT };
 
+// Stripe webhook needs the RAW request body for signature verification, so it MUST
+// be registered BEFORE the global express.json() parser. Dormant while dark: the
+// handler returns 200 immediately when BILLING_ENABLED is false.
+const billing = require('./routes/billing');
+app.post('/webhooks/stripe', express.raw({ type: 'application/json' }), billing.stripeWebhookHandler);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -422,6 +428,8 @@ app.use('/', whatsNewRoutes);
 app.use('/', believeRoutes);
 app.use('/', messagesRoutes);
 app.use('/', presenceRoutes);
+app.use('/', require('./routes/pricing'));
+app.use('/api/billing', billing.router);
 
 // ─── Placeholder Sections (unbuilt) ──────────────────────────────────────
 const placeholders = [];

@@ -1,14 +1,25 @@
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const Anthropic = require('@anthropic-ai/sdk');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
 const { VERSES } = require('./dashboard'); // reuse the Verse-of-the-Day pool for the patience loading screen
 const { assertNoEsvText } = require('./esvGuard');
 const { injectVerses } = require('../lib/asv');
 const { logEvent } = require('../lib/usageLog');
+const { getEntitlements, recordStudy } = require('../lib/entitlements');
 const { aiLimiter } = require('../middleware/rateLimit');
 const STORY_GROUPS = require('../data/childrens-stories');
 
 const router = express.Router();
+
+// Whole-file read/modify/write over data/users.json — same idiom as the other
+// route files (settings.js, rooms.js). Used only by the billing meter below; the
+// rest of this file continues to rely on the session snapshot. Entitlement checks
+// deliberately read the FRESH record here, never req.session.user.
+const USERS_PATH = path.join(__dirname, '../data/users.json');
+function readUsers() { return JSON.parse(fs.readFileSync(USERS_PATH, 'utf8')); }
+function writeUsers(u) { fs.writeFileSync(USERS_PATH, JSON.stringify(u, null, 2)); }
 
 const STUDY_LENGTH_CONFIG = {
   Short:    { wordCount: 800,  maxTokens: 1600 },
@@ -294,7 +305,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study-badges.js?v=3"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/study.js?v=23"></script><script src="/js/library.js?v=57"></script>
+    scripts: `<script src="/js/study-badges.js?v=3"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/study.js?v=24"></script><script src="/js/library.js?v=57"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};
@@ -640,6 +651,22 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
     systemPrompt = studyLevelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + studyPrompt;
   }
 
+  // ── Free-tier meter (dark unless BILLING_ENABLED=true) ──────────────────────
+  // Read the FRESH member record (never the stale session snapshot) and block an
+  // over-limit free member BEFORE any token spend. When billing is off,
+  // getEntitlements returns tier 'unlimited' and this never fires.
+  const freshUser = readUsers().find(u => u.id === req.session.userId);
+  const ent = getEntitlements(freshUser);
+  if (ent.billingEnabled && ent.tier === 'free' && ent.studiesRemaining <= 0) {
+    return res.status(402).json({
+      success: false,
+      error: 'free_limit_reached',
+      message: `You've used all ${ent.studyLimit} of your free studies this month.`,
+      studyLimit: ent.studyLimit,
+      upgradeUrl: '/pricing',
+    });
+  }
+
   const reqStart = Date.now();
   console.log(`[study-gen] START topic="${topic.trim()}" type="${resolvedStudyType}" level="${resolvedStudyLevel}" time=${new Date().toISOString()}`);
 
@@ -676,7 +703,30 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
       console.log(`[study-gen] DONE total time=${Date.now() - reqStart}ms`);
       const su = req.session.user || {};
       logEvent(su.id || req.session.userId, su.fullName, 'study_generated', { topic: topic.trim(), studyType: resolvedStudyType });
-      return res.json({ success: true, content, topic: topic.trim(), translation, studyLength, studyLevel: resolvedStudyLevel, studyType: resolvedStudyType });
+
+      // ── Meter increment (dark unless BILLING_ENABLED=true) ──────────────────
+      // Count this successful generation ONLY when the member is actually being
+      // metered (billing on + free tier). Fresh read -> mutate one field -> write,
+      // so no other field is clobbered. Comp/paid/flag-off members are never
+      // metered, so this is a no-op for them. Report remaining back to the client.
+      let studiesRemaining;
+      try {
+        const usersNow = readUsers();
+        const idx = usersNow.findIndex(u => u.id === req.session.userId);
+        if (idx !== -1) {
+          const entNow = getEntitlements(usersNow[idx]);
+          if (entNow.billingEnabled && entNow.tier === 'free') {
+            recordStudy(usersNow[idx]);
+            writeUsers(usersNow);
+            studiesRemaining = getEntitlements(usersNow[idx]).studiesRemaining;
+          }
+        }
+      } catch (meterErr) {
+        // Metering must never break a successful generation — log and move on.
+        console.error('[study-gen] meter increment failed:', meterErr.message);
+      }
+
+      return res.json({ success: true, content, topic: topic.trim(), translation, studyLength, studyLevel: resolvedStudyLevel, studyType: resolvedStudyType, ...(studiesRemaining !== undefined ? { studiesRemaining } : {}) });
     } catch (err) {
       if (isContentFilterError(err)) {
         console.log(`[study-gen] API call ${attempt} finished in ${Date.now() - attemptStart}ms — filtered`);

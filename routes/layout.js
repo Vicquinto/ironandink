@@ -1,5 +1,6 @@
 const fs   = require('fs');
 const path = require('path');
+const { BILLING_ENABLED } = require('../lib/entitlements');
 const USERS_PATH_L    = path.join(__dirname, '../data/users.json');
 const MESSAGES_PATH_L = path.join(__dirname, '../data/messages.json');
 const INVITE_REQUESTS_PATH_L = path.join(__dirname, '../data/invite_requests.json');
@@ -130,6 +131,10 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
         ${isAdmin ? `<a href="/admin" class="nav-item admin-link${activeSection === 'admin' ? ' active' : ''}">
           <span class="nav-icon" style="position:relative;">&#9873;${pendingInvites > 0 ? `<span class="sidebar-dm-badge">${pendingInvites > 99 ? '99+' : pendingInvites}</span>` : ''}</span>
           <span class="nav-label">Admin</span>
+        </a>` : ''}
+        ${BILLING_ENABLED ? `<a href="/pricing" class="nav-item upgrade-link${activeSection === 'pricing' ? ' active' : ''}">
+          <span class="nav-icon">&#9733;</span>
+          <span class="nav-label">Upgrade</span>
         </a>` : ''}
         <a href="/what-we-believe" class="nav-item believe-link${activeSection === 'believe' ? ' active' : ''}">
           <span class="nav-icon">&#10013;</span>
