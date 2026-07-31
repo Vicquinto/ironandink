@@ -6,9 +6,22 @@ const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
 const { assertNoEsvText } = require('./esvGuard');
 const { injectVerses, SCRIPTURE_RULE } = require('../lib/asv');
+const { getEntitlements } = require('../lib/entitlements');
 
 const router     = express.Router();
 const SELAH_PATH = path.join(__dirname, '../data/selah.json');
+
+// ── Member-only gate (dark unless BILLING_ENABLED=true) ──────────────────────
+// Selah (private prayer, meditation & journal) is a paid-tier feature. Enforce at
+// the authenticated HTTP layer using the FRESH users.json record. Returns true
+// only for a real free member with billing on — always false while dark, so
+// today's behavior is unchanged.
+const ENT_USERS_PATH = path.join(__dirname, '../data/users.json');
+function readUsersEnt() { return JSON.parse(fs.readFileSync(ENT_USERS_PATH, 'utf8')); }
+function memberGated(req) {
+  const ent = getEntitlements(readUsersEnt().find(u => u.id === req.session.userId));
+  return ent.billingEnabled && !ent.canUseMemberFeatures;
+}
 
 function readEntries() {
   try {
@@ -23,6 +36,7 @@ function writeEntries(entries) {
 
 // ─── GET /selah ──────────────────────────────────────────────────────────────
 router.get('/selah', requireAuth, (req, res) => {
+  if (memberGated(req)) return res.redirect('/pricing?from=selah');
   const userId  = req.session.userId;
   const entries = readEntries()
     .filter(e => e.userId === userId)
@@ -83,6 +97,7 @@ const VALID_CATEGORIES = ['Prayer', 'Meditation', 'Journal'];
 
 // ─── POST /api/selah/save ────────────────────────────────────────────────────
 router.post('/api/selah/save', requireAuth, (req, res) => {
+  if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
   const { title, content, reflectionText, category } = req.body;
   if (!content || !String(content).trim()) {
     return res.status(400).json({ success: false, error: 'Entry content is required.' });
@@ -129,6 +144,7 @@ router.delete('/api/selah/entry/:id', requireAuth, (req, res) => {
 
 // ─── POST /api/selah/reflect ─────────────────────────────────────────────────
 router.post('/api/selah/reflect', requireAuth, async (req, res) => {
+  if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
   const { content } = req.body;
   if (!content || !String(content).trim()) {
     return res.status(400).json({ success: false, error: 'Nothing to reflect on.' });

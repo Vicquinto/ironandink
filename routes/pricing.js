@@ -33,6 +33,30 @@ router.get('/pricing', (req, res) => {
   const m = PRICING.monthly;
   const a = PRICING.annual;
 
+  // Both columns render from the SAME ordered row list so the eye compares
+  // row-by-row. Included => maroon check; member-only on the Free column => a
+  // muted grey dash (reads as "available above", not a hard "no"); the two study
+  // rows show quantities.
+  const CHECK = '<span class="feat-check">&#10003;</span>';
+  const DASH  = '<span class="feat-dash">&ndash;</span>';
+  const ROWS = [
+    { label: 'Bible studies',                                          free: `${FREE_STUDY_LIMIT} / month`, member: 'Unlimited' },
+    { label: "Children&#39;s studies",                                 free: 'within your 5',               member: 'Unlimited' },
+    { label: 'Full Scripture',                                         free: CHECK,                         member: CHECK },
+    { label: 'Join any Live Room',                                     free: CHECK,                         member: CHECK },
+    { label: 'Dialogue',                                               free: DASH,                          member: CHECK },
+    { label: 'Article &amp; writing',                                  free: DASH,                          member: CHECK },
+    { label: 'Selah &mdash; private prayer, meditation &amp; journal', free: DASH,                          member: CHECK },
+    { label: 'Host &amp; lead your own Live Rooms',                    free: DASH,                          member: CHECK },
+  ];
+  function rowsFor(col) {
+    return ROWS.map(r => {
+      const val   = r[col];
+      const muted = val === DASH;
+      return `<li class="feat-row${muted ? ' feat-row--muted' : ''}"><span class="feat-name">${r.label}</span><span class="feat-val">${val}</span></li>`;
+    }).join('');
+  }
+
   const content = `
     <div class="pricing-card">
       <div class="pricing-site-name">Iron &amp; Ink</div>
@@ -46,10 +70,9 @@ router.get('/pricing', (req, res) => {
         <div class="plan">
           <div class="plan-name">Free</div>
           <div class="plan-price"><span class="plan-amount">$0</span></div>
+          <div class="plan-alt" aria-hidden="true">&nbsp;</div>
           <ul class="plan-features">
-            <li>Up to <strong>${FREE_STUDY_LIMIT} studies each month</strong></li>
-            <li>Full Scripture &amp; every free feature</li>
-            <li><strong>Join</strong> any Live Room to study alongside others</li>
+            ${rowsFor('free')}
           </ul>
           <div class="plan-cta plan-cta--muted">Your current home</div>
         </div>
@@ -61,9 +84,7 @@ router.get('/pricing', (req, res) => {
           </div>
           <div class="plan-alt">or ${a.amount}/${a.per}</div>
           <ul class="plan-features">
-            <li><strong>Unlimited</strong> study generation</li>
-            <li>Everything in Free</li>
-            <li><strong>Host and lead</strong> your own Live Rooms</li>
+            ${rowsFor('member')}
           </ul>
           <div class="plan-cta">
             ${subscribeButton(m.key)}
@@ -109,8 +130,13 @@ router.get('/pricing', (req, res) => {
     .plan-per { font-size: 0.95rem; color: var(--text); }
     .plan-alt { font-size: 0.9rem; color: var(--warm-brown); margin-bottom: 18px; }
     .plan-features { list-style: none; padding: 0; margin: 12px 0 24px; }
-    .plan-features li { font-size: 1rem; line-height: 1.5; color: var(--text); padding: 7px 0 7px 22px; position: relative; }
-    .plan-features li::before { content: '\\2713'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+    .feat-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 9px 0; border-bottom: 1px solid rgba(92,26,40,0.10); font-size: 0.98rem; line-height: 1.35; }
+    .feat-row:last-child { border-bottom: none; }
+    .feat-name { color: var(--text); }
+    .feat-val { color: var(--text); font-weight: 600; white-space: nowrap; text-align: right; }
+    .feat-row--muted .feat-name, .feat-row--muted .feat-val { color: var(--warm-brown); opacity: 0.65; font-weight: 400; }
+    .feat-check { color: var(--accent); font-weight: 700; }
+    .feat-dash { color: var(--warm-brown); }
     .plan-cta { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
     .plan-cta--muted { color: var(--warm-brown); font-style: italic; font-size: 0.9rem; }
     .pricing-btn { display: inline-block; text-align: center; background: var(--accent); color: #E8D9B8 !important; border: none; padding: 12px 18px; font-size: 1rem; font-family: 'EB Garamond', Georgia, serif; border-radius: 4px; cursor: pointer; letter-spacing: 0.03em; text-decoration: none; transition: background 0.15s; }

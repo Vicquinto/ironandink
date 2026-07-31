@@ -7,8 +7,21 @@ const { requireAuth, renderLayout } = require('./layout');
 const { assertNoEsvText } = require('./esvGuard');
 const { injectVerses } = require('../lib/asv');
 const { logEvent } = require('../lib/usageLog');
+const { getEntitlements } = require('../lib/entitlements');
 
 const router         = express.Router();
+
+// ── Member-only gate (dark unless BILLING_ENABLED=true) ──────────────────────
+// Dialogue is a paid-tier feature. Enforce at the authenticated HTTP layer using
+// the FRESH users.json record (never client identity). Returns true when a real
+// free member should be blocked; always false while billing is dark, so today's
+// behavior is unchanged. Same throwing readUsers idiom as study.js / rooms.js.
+const ENT_USERS_PATH = path.join(__dirname, '../data/users.json');
+function readUsersEnt() { return JSON.parse(fs.readFileSync(ENT_USERS_PATH, 'utf8')); }
+function memberGated(req) {
+  const ent = getEntitlements(readUsersEnt().find(u => u.id === req.session.userId));
+  return ent.billingEnabled && !ent.canUseMemberFeatures;
+}
 
 const STUDY_LEVEL_INSTRUCTIONS = {
   foundations: "WRITING REGISTER: FOUNDATIONAL. Write for a reader who is new to this topic and may not yet have much theological vocabulary. Define theological terms in plain language as you introduce them. Take time to explain reasoning step by step rather than assuming familiarity with how these arguments typically run. This does NOT mean simplifying the actual content, shortening the study, or omitting hard questions — every hard question must still be fully resolved per the Core Governing Principle. It means writing with more patience and more explanation for someone earlier in their theological reading, while still producing a real, substantive, adult treatment of the subject.\n\nIMPORTANT — patience is not the same as expansiveness: do not use this lower assumed-background level as license to cover MORE ground, explore MORE tangents, or include MORE separate word-studies than you would at Standard or Advanced. If a single original-language term is genuinely the key to understanding a passage, you may briefly explain it in plain terms — but do not stack multiple etymological or word-study asides within a single thread or section just because the register is more patient. The goal is the SAME scope explained more gently, not a more thorough or more exhaustive treatment. If you find yourself adding a third or fourth separate term-by-term breakdown within one section, stop and ask whether that's actually necessary for a reader new to the topic, or whether it's scope creep.",
@@ -49,6 +62,7 @@ function fmtDate(iso) {
 
 // ─── GET /dialogue ────────────────────────────────────────────────────────────
 router.get('/dialogue', requireAuth, (req, res) => {
+  if (memberGated(req)) return res.redirect('/pricing?from=dialogue');
   const studiesRaw = (() => {
     try {
       if (!fs.existsSync(STUDIES_PATH)) return [];
@@ -184,6 +198,7 @@ router.get('/dialogue', requireAuth, (req, res) => {
 
 // ─── POST /api/dialogue/exchange (streaming SSE) ──────────────────────────────
 router.post('/api/dialogue/exchange', requireAuth, async (req, res) => {
+  if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
   const { messages, topic, adversarialPosition, linkedStudyId, isOpening } = req.body;
 
   if (!topic || !topic.trim()) {
@@ -323,6 +338,7 @@ router.post('/api/dialogue/exchange', requireAuth, async (req, res) => {
 
 // ─── POST /api/dialogue/save ──────────────────────────────────────────────────
 router.post('/api/dialogue/save', requireAuth, (req, res) => {
+  if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
   const { topic, adversarialPosition, linkedStudyId, transcript } = req.body;
 
   if (!topic || !transcript || !transcript.length) {
@@ -348,6 +364,7 @@ router.post('/api/dialogue/save', requireAuth, (req, res) => {
 
 // ─── POST /api/dialogue/gaps ──────────────────────────────────────────────────
 router.post('/api/dialogue/gaps', requireAuth, async (req, res) => {
+  if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
   const { transcript, topic, adversarialPosition } = req.body;
 
   const { IRON_INK_CORE_PROMPT } = req.app.locals.prompts;

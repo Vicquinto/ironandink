@@ -7,8 +7,22 @@ const { requireAuth, renderLayout } = require('./layout');
 const { assertNoEsvText } = require('./esvGuard');
 const { injectVerses } = require('../lib/asv');
 const { logEvent } = require('../lib/usageLog');
+const { getEntitlements } = require('../lib/entitlements');
 
 const router       = express.Router();
+
+// ── Member-only gate (dark unless BILLING_ENABLED=true) ──────────────────────
+// Article / writing is a paid-tier feature — this covers both the Writing composer
+// (/writing) and the My Articles library (/my-articles), plus the generate/save
+// endpoints. Enforce at the authenticated HTTP layer from the FRESH users.json
+// record. Returns true only for a real free member with billing on; always false
+// while dark, so today's behavior and nav are unchanged.
+const ENT_USERS_PATH = path.join(__dirname, '../data/users.json');
+function readUsersEnt() { return JSON.parse(fs.readFileSync(ENT_USERS_PATH, 'utf8')); }
+function memberGated(req) {
+  const ent = getEntitlements(readUsersEnt().find(u => u.id === req.session.userId));
+  return ent.billingEnabled && !ent.canUseMemberFeatures;
+}
 
 const STUDY_LEVEL_INSTRUCTIONS = {
   foundations: "WRITING REGISTER: FOUNDATIONAL. Write for a reader who is new to this topic and may not yet have much theological vocabulary. Define theological terms in plain language as you introduce them. Take time to explain reasoning step by step rather than assuming familiarity with how these arguments typically run. This does NOT mean simplifying the actual content, shortening the study, or omitting hard questions — every hard question must still be fully resolved per the Core Governing Principle. It means writing with more patience and more explanation for someone earlier in their theological reading, while still producing a real, substantive, adult treatment of the subject.\n\nIMPORTANT — patience is not the same as expansiveness: do not use this lower assumed-background level as license to cover MORE ground, explore MORE tangents, or include MORE separate word-studies than you would at Standard or Advanced. If a single original-language term is genuinely the key to understanding a passage, you may briefly explain it in plain terms — but do not stack multiple etymological or word-study asides within a single thread or section just because the register is more patient. The goal is the SAME scope explained more gently, not a more thorough or more exhaustive treatment. If you find yourself adding a third or fourth separate term-by-term breakdown within one section, stop and ask whether that's actually necessary for a reader new to the topic, or whether it's scope creep.",
@@ -35,6 +49,7 @@ function writeArticles(data) {
 
 // ─── GET /writing ─────────────────────────────────────────────────────────────
 router.get('/writing', requireAuth, (req, res) => {
+  if (memberGated(req)) return res.redirect('/pricing?from=article');
   const content = `
     <div id="writingMain">
       <div class="page-header">
@@ -159,6 +174,7 @@ router.get('/writing', requireAuth, (req, res) => {
 
 // ─── GET /my-articles ─────────────────────────────────────────────────────────
 router.get('/my-articles', requireAuth, (req, res) => {
+  if (memberGated(req)) return res.redirect('/pricing?from=article');
   const content = `
     <div class="page-header">
       <h2 class="page-title">My Articles</h2>
@@ -208,6 +224,7 @@ router.get('/api/articles/:id', requireAuth, (req, res) => {
 
 // ─── POST /api/articles ───────────────────────────────────────────────────────
 router.post('/api/articles', requireAuth, (req, res) => {
+  if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
   const { title, content, tier, form, answers, status } = req.body;
   if (!title) return res.status(400).json({ success: false, error: 'Title is required.' });
 
@@ -237,6 +254,7 @@ router.post('/api/articles', requireAuth, (req, res) => {
 
 // ─── PUT /api/articles/:id ────────────────────────────────────────────────────
 router.put('/api/articles/:id', requireAuth, (req, res) => {
+  if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
   const articles = readArticles();
   const idx      = articles.findIndex(a => a.id === req.params.id && a.userId === req.session.userId);
   if (idx === -1) return res.status(404).json({ success: false, error: 'Article not found.' });
@@ -259,6 +277,7 @@ router.put('/api/articles/:id', requireAuth, (req, res) => {
 
 // ─── PATCH /api/articles/:id/submit — Submit for review ──────────────────────
 router.patch('/api/articles/:id/submit', requireAuth, (req, res) => {
+  if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
   const articles = readArticles();
   const idx      = articles.findIndex(a => a.id === req.params.id && a.userId === req.session.userId);
   if (idx === -1) return res.status(404).json({ success: false, error: 'Article not found.' });
@@ -285,6 +304,7 @@ router.delete('/api/articles/:id', requireAuth, (req, res) => {
 
 // ─── POST /api/writing/generate ───────────────────────────────────────────────
 router.post('/api/writing/generate', requireAuth, async (req, res) => {
+  if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
   const { tier, answers, topic, form } = req.body;
   if (!tier || !answers) {
     return res.status(400).json({ success: false, error: 'Tier and answers are required.' });

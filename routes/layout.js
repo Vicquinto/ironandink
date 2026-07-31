@@ -1,6 +1,6 @@
 const fs   = require('fs');
 const path = require('path');
-const { BILLING_ENABLED } = require('../lib/entitlements');
+const { BILLING_ENABLED, getEntitlements } = require('../lib/entitlements');
 const USERS_PATH_L    = path.join(__dirname, '../data/users.json');
 const MESSAGES_PATH_L = path.join(__dirname, '../data/messages.json');
 const INVITE_REQUESTS_PATH_L = path.join(__dirname, '../data/invite_requests.json');
@@ -65,6 +65,22 @@ function getPendingInviteCount() {
   } catch { return 0; }
 }
 
+// True only when billing is ON and this member lacks member features (a real free
+// member). Always false while dark, so the nav renders byte-for-byte as today.
+// Fails safe to false (unlocked) on any read error — never lock the nav on a hiccup.
+function isMemberLocked(req) {
+  if (!BILLING_ENABLED) return false;
+  if (!req.session || !req.session.userId) return false;
+  try {
+    const users = JSON.parse(fs.readFileSync(USERS_PATH_L, 'utf8'));
+    const ent = getEntitlements(users.find(u => u.id === req.session.userId));
+    return ent.billingEnabled && !ent.canUseMemberFeatures;
+  } catch { return false; }
+}
+
+// Member-only nav items and the /pricing?from= tag each links to when locked.
+const MEMBER_LOCKED_NAV = { dialogue: 'dialogue', writing: 'article', 'my-articles': 'article', selah: 'selah' };
+
 function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   const navItems = [
     { id: 'dashboard',   label: 'Dashboard',   href: '/dashboard',   icon: '&#9685;' },
@@ -87,16 +103,26 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   const userId      = req.session ? req.session.userId : '';
   const dmUnread    = getDmUnreadCount(userId);
   const pendingInvites = isAdmin ? getPendingInviteCount() : 0;
+  const memberLocked   = isMemberLocked(req);
 
   const navHTML = navItems.map(item => {
     const isMessages = item.id === 'messages';
+    // Member-only lock (dark => never applies; nav is identical to today). A locked
+    // item advertises the upgrade: it keeps its icon and label, gains a muted
+    // "Member" badge, and points at /pricing?from=<feature> instead of the feature.
+    const lockFrom = memberLocked ? MEMBER_LOCKED_NAV[item.id] : undefined;
+    const isLocked = !!lockFrom;
+    const href     = isLocked ? `/pricing?from=${lockFrom}` : item.href;
+    const lockBadge = isLocked
+      ? ` <span class="nav-member-badge" style="margin-left:6px;font-size:0.6rem;letter-spacing:0.06em;text-transform:uppercase;color:#A0845C;border:1px solid rgba(160,132,92,0.5);border-radius:3px;padding:1px 5px;vertical-align:middle;white-space:nowrap;">Member</span>`
+      : '';
     const badgeHtml  = isMessages
       ? `<span id="dmBadge" class="sidebar-dm-badge" style="display:none;"></span>`
       : '';
     return `
-        <a href="${item.href}" class="nav-item${item.id === activeSection ? ' active' : ''}">
+        <a href="${href}" class="nav-item${item.id === activeSection ? ' active' : ''}${isLocked ? ' nav-item-locked' : ''}">
           <span class="nav-icon"${isMessages ? ' style="position:relative;"' : ''}>${item.icon}${badgeHtml}</span>
-          <span class="nav-label">${item.label}</span>
+          <span class="nav-label">${item.label}${lockBadge}</span>
         </a>`;
   }).join('');
 
