@@ -429,6 +429,9 @@ app.use('/', believeRoutes);
 app.use('/', messagesRoutes);
 app.use('/', presenceRoutes);
 app.use('/', require('./routes/pricing'));
+app.use('/', require('./routes/cancellation-refund'));
+app.use('/', require('./routes/privacy'));
+app.use('/', require('./routes/terms'));
 app.use('/api/billing', billing.router);
 
 // ─── Placeholder Sections (unbuilt) ──────────────────────────────────────

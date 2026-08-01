@@ -449,6 +449,12 @@ router.get('/', (req, res) => {
       <a href="/dedication" style="color:inherit; text-decoration:none;">Dedication</a>
       &nbsp;&middot;&nbsp;
       <a href="/what-we-believe" style="color:inherit; text-decoration:none;">What We Believe</a>
+      &nbsp;&middot;&nbsp;
+      <a href="/terms" style="color:inherit; text-decoration:none;">Terms</a>
+      &nbsp;&middot;&nbsp;
+      <a href="/privacy" style="color:inherit; text-decoration:none;">Privacy</a>
+      &nbsp;&middot;&nbsp;
+      <a href="/cancellation-refund" style="color:inherit; text-decoration:none;">Cancellation &amp; Refund</a>
     </footer>
   </div>
 </body>

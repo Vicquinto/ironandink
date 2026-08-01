@@ -93,6 +93,13 @@ router.get('/pricing', (req, res) => {
         </div>
       </div>
 
+      <p class="pricing-legal">
+        Before subscribing, please review our
+        <a href="/terms">Terms of Service</a>,
+        <a href="/privacy">Privacy Policy</a>, and
+        <a href="/cancellation-refund">Cancellation &amp; Refund Policy</a>.
+      </p>
+
       <p class="pricing-hardship">
         If cost is a genuine barrier, write to us at
         <a href="mailto:contact@ironandinktheology.com">contact@ironandinktheology.com</a>
@@ -144,7 +151,10 @@ router.get('/pricing', (req, res) => {
     .pricing-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
     .pricing-btn--ghost { background: transparent; color: var(--accent) !important; border: 1px solid var(--accent); font-size: 0.9rem; }
     .pricing-btn--ghost:hover:not([disabled]) { background: rgba(92,26,40,0.08); }
-    .pricing-hardship { margin-top: 32px; font-size: 0.95rem; line-height: 1.6; color: var(--warm-brown); font-style: italic; text-align: center; }
+    .pricing-legal { margin-top: 24px; font-size: 0.85rem; line-height: 1.6; color: var(--warm-brown); text-align: center; }
+    .pricing-legal a { color: var(--accent); text-decoration: none; }
+    .pricing-legal a:hover { text-decoration: underline; }
+    .pricing-hardship { margin-top: 20px; font-size: 0.95rem; line-height: 1.6; color: var(--warm-brown); font-style: italic; text-align: center; }
     .pricing-hardship a { color: var(--accent); text-decoration: none; }
     .pricing-back { margin-top: 28px; font-size: 0.9rem; }
     .pricing-back a { color: var(--accent); text-decoration: none; }
