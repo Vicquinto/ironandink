@@ -188,7 +188,7 @@ router.get('/terms', (req, res) => {
       <p class="copy-body">
         Questions about these Terms can be sent to
         <a href="mailto:contact@ironandinktheology.com">contact@ironandinktheology.com</a>, or by mail to
-        1633 Main Street, Ste A, PMB# 196, Billings, MT 59105.
+        PO Box 625, Roundup, MT 59072.
       </p>
 
       <div class="copy-back">

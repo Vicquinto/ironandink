@@ -128,7 +128,7 @@ router.get('/privacy', (req, res) => {
 
       <p class="copy-body">
         <strong>11. Contact us.</strong> <a href="mailto:contact@ironandinktheology.com">contact@ironandinktheology.com</a>
-        &middot; 1633 Main Street, Ste A, PMB# 196, Billings, MT 59105
+        &middot; PO Box 625, Roundup, MT 59072
       </p>
 
       <div class="copy-back">
