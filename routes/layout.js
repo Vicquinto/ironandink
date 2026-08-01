@@ -170,18 +170,6 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
           <span class="nav-icon">&#169;</span>
           <span class="nav-label">Copyright</span>
         </a>
-        <a href="/terms" class="nav-item terms-link">
-          <span class="nav-icon">&#167;</span>
-          <span class="nav-label">Terms</span>
-        </a>
-        <a href="/privacy" class="nav-item privacy-link">
-          <span class="nav-icon">&#182;</span>
-          <span class="nav-label">Privacy</span>
-        </a>
-        <a href="/cancellation-refund" class="nav-item refund-link">
-          <span class="nav-icon">&#8634;</span>
-          <span class="nav-label">Cancellation &amp; Refund</span>
-        </a>
         <a href="/help" class="nav-item help-link${activeSection === 'help' ? ' active' : ''}">
           <span class="nav-icon">&#9432;</span>
           <span class="nav-label">Help</span>

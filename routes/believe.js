@@ -304,6 +304,28 @@ function buildContent() {
       <p class="copy-body"><em>Soli Deo Gloria.</em></p>
     </div>
 
+    <!-- ── Policies (always visible, independent of the active tab) ── -->
+    <style>
+      .believe-policies { margin-top: 40px; text-align: center; }
+      .believe-policies-rule { border: none; border-top: 1px solid rgba(92,26,40,0.2); margin: 0 auto 20px; max-width: 320px; }
+      .believe-policies-label { display: block; font-family: 'Cinzel', serif; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--warm-brown); margin-bottom: 10px; }
+      .believe-policies-links { font-size: 0.9rem; color: var(--warm-brown); line-height: 1.9; }
+      .believe-policies-links a { color: var(--accent); text-decoration: none; }
+      .believe-policies-links a:hover { text-decoration: underline; }
+      .believe-policies-sep { margin: 0 8px; color: rgba(92,26,40,0.35); }
+    </style>
+    <div class="believe-policies">
+      <hr class="believe-policies-rule">
+      <span class="believe-policies-label">Policies</span>
+      <div class="believe-policies-links">
+        <a href="/terms">Terms of Service</a>
+        <span class="believe-policies-sep">&middot;</span>
+        <a href="/privacy">Privacy Policy</a>
+        <span class="believe-policies-sep">&middot;</span>
+        <a href="/cancellation-refund">Cancellation &amp; Refund</a>
+      </div>
+    </div>
+
   </div>`;
 }
 
