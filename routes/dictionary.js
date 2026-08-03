@@ -6,6 +6,7 @@ const Anthropic = require('@anthropic-ai/sdk');
 const { requireAuth } = require('./layout');
 const { assertNoEsvText } = require('./esvGuard');
 const { injectVerses, SCRIPTURE_RULE } = require('../lib/asv');
+const eastons = require('../lib/eastons');
 
 const router = express.Router();
 
@@ -94,20 +95,41 @@ router.post('/api/dictionary/define', requireAuth, async (req, res) => {
   const cleanTerm = term.trim();
   const key       = cleanTerm.toLowerCase();
 
+  // 1. Easton's Bible Dictionary (offline, PRIMARY). Public-domain text, so it is
+  //    safe on every path including the offline-only Scripture reader — it never
+  //    involves an AI call. Handles single words and exact multi-word headwords
+  //    (e.g. "Holy Ghost", "familiar spirit"). A miss returns null and we fall
+  //    through to the general dictionary below.
+  const eastonsHit = eastons.lookup(cleanTerm);
+  if (eastonsHit) {
+    // Show provenance; note the headword when plural-normalization redirected us
+    // to a different base word (e.g. "Angels" → "Angel") so the reader knows.
+    let sourceLabel = "Easton's Bible Dictionary";
+    if (eastonsHit.word && eastonsHit.word.toLowerCase() !== key) {
+      sourceLabel += ` (s.v. ${eastonsHit.word})`;
+    }
+    return res.json({
+      term:       cleanTerm,
+      definition: eastons.toMarkdown(eastonsHit),
+      source:     'eastons',
+      sourceLabel,
+    });
+  }
+
   // Offline-only path (Scripture ESV reader): the selection may be ESV-licensed
-  // text, which must NEVER reach Anthropic. Resolve via the local Webster's index
-  // → dictionaryapi.dev ONLY, and never fall back to the AI on this path. A miss
-  // returns a gracious not-found, not an error. The client already reduces the
-  // selection to a single word; this branch is the server half of the leash, so
-  // even a phrase arriving here can only 404 out of dictionaryapi.dev — it can
-  // never reach Anthropic.
+  // text, which must NEVER reach Anthropic. Easton's is already tried above; now
+  // Webster's index → dictionaryapi.dev ONLY, and never fall back to the AI on
+  // this path. A miss returns a gracious not-found, not an error. The client
+  // already reduces the selection to a single word; this branch is the server
+  // half of the leash, so even a phrase arriving here can only 404 out of
+  // dictionaryapi.dev — it can never reach Anthropic.
   if (offlineOnly) {
     if (dictReady && websterIndex[key]) {
-      return res.json({ term: cleanTerm, definition: websterIndex[key], source: 'dictionary' });
+      return res.json({ term: cleanTerm, definition: websterIndex[key], source: 'dictionary', sourceLabel: "Webster's Dictionary" });
     }
     try {
       const definition = await fetchDictionaryApi(cleanTerm);
-      return res.json({ term: cleanTerm, definition, source: 'dictionary' });
+      return res.json({ term: cleanTerm, definition, source: 'dictionary', sourceLabel: 'Dictionary' });
     } catch {
       return res.json({ notFound: true, message: `No definition found for “${cleanTerm}”.` });
     }
@@ -117,7 +139,7 @@ router.post('/api/dictionary/define', requireAuth, async (req, res) => {
   if (isMultiWord(cleanTerm)) {
     try {
       const definition = await fetchAnthropicDefinition(cleanTerm, PROMPT_THEOLOGICAL);
-      return res.json({ term: cleanTerm, definition, source: 'theological' });
+      return res.json({ term: cleanTerm, definition, source: 'theological', sourceLabel: 'Iron & Ink (AI, Reformed context)' });
     } catch (err) {
       console.error('[Dict] Anthropic error:', err.message);
       return res.json({ error: 'Definition unavailable. Try again.' });
@@ -126,17 +148,17 @@ router.post('/api/dictionary/define', requireAuth, async (req, res) => {
 
   // Single word → Webster's local index first (falls through if still loading)
   if (dictReady && websterIndex[key]) {
-    return res.json({ term: cleanTerm, definition: websterIndex[key], source: 'dictionary' });
+    return res.json({ term: cleanTerm, definition: websterIndex[key], source: 'dictionary', sourceLabel: "Webster's Dictionary" });
   }
 
   // Not in Webster's → free Dictionary API, then Anthropic plain-English fallback
   try {
     const definition = await fetchDictionaryApi(cleanTerm);
-    return res.json({ term: cleanTerm, definition, source: 'dictionary' });
+    return res.json({ term: cleanTerm, definition, source: 'dictionary', sourceLabel: 'Dictionary' });
   } catch {
     try {
       const definition = await fetchAnthropicDefinition(cleanTerm, PROMPT_COMMON);
-      return res.json({ term: cleanTerm, definition, source: 'dictionary' });
+      return res.json({ term: cleanTerm, definition, source: 'dictionary', sourceLabel: 'Iron & Ink (AI)' });
     } catch (err) {
       console.error('[Dict] Anthropic error:', err.message);
       return res.json({ error: 'Definition unavailable. Try again.' });

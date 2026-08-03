@@ -2457,7 +2457,12 @@
         } else if (data.error) {
           body.innerHTML = '<span style="color:#5a0a0a;font-style:italic;">' + esc(data.error) + '</span>';
         } else {
-          body.innerHTML = renderMarkdown(data.definition);
+          // Provenance caption (Accordance-style): show which source answered —
+          // Easton's Bible Dictionary, Webster's, etc. — beneath the definition.
+          var srcHtml = data.sourceLabel
+            ? '<div class="ucp-src" style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(107,66,38,0.2);font-size:0.72rem;color:#6B4226;opacity:0.85;font-style:italic;">' + esc(data.sourceLabel) + '</div>'
+            : '';
+          body.innerHTML = renderMarkdown(data.definition) + srcHtml;
           ucpShowAnswerFooter(
             { quote: anchored ? term : null, question: null, content: data.definition,
               source: 'define', occurrence: anchored ? ucpOccurrence : null },
