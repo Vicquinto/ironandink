@@ -86,13 +86,32 @@ async function fetchAnthropicDefinition(term, system) {
 
 // ─── POST /api/dictionary/define ─────────────────────────────────────────────
 router.post('/api/dictionary/define', requireAuth, async (req, res) => {
-  const { term } = req.body;
+  const { term, offlineOnly } = req.body;
   if (!term || !term.trim()) {
     return res.status(400).json({ error: 'Term is required.' });
   }
 
   const cleanTerm = term.trim();
   const key       = cleanTerm.toLowerCase();
+
+  // Offline-only path (Scripture ESV reader): the selection may be ESV-licensed
+  // text, which must NEVER reach Anthropic. Resolve via the local Webster's index
+  // → dictionaryapi.dev ONLY, and never fall back to the AI on this path. A miss
+  // returns a gracious not-found, not an error. The client already reduces the
+  // selection to a single word; this branch is the server half of the leash, so
+  // even a phrase arriving here can only 404 out of dictionaryapi.dev — it can
+  // never reach Anthropic.
+  if (offlineOnly) {
+    if (dictReady && websterIndex[key]) {
+      return res.json({ term: cleanTerm, definition: websterIndex[key], source: 'dictionary' });
+    }
+    try {
+      const definition = await fetchDictionaryApi(cleanTerm);
+      return res.json({ term: cleanTerm, definition, source: 'dictionary' });
+    } catch {
+      return res.json({ notFound: true, message: `No definition found for “${cleanTerm}”.` });
+    }
+  }
 
   // Multi-word phrase → Anthropic (Reformed theological context)
   if (isMultiWord(cleanTerm)) {

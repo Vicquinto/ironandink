@@ -2292,7 +2292,13 @@
   function applyEsvLock() {
     if (!ucpEl) return;
     var lock = ucpEsvLocked;
-    ucpEl.querySelector('.ucp-define-btn').style.display  = lock ? 'none' : '';
+    // Scripture ESV compliance. Explore and the free-form ask both forward text to
+    // Anthropic, so both stay hidden under the lock. Verse Lookup is swapped OUT
+    // for Define in the locked reader: Define stays visible but is leashed to an
+    // OFFLINE-only lookup that never reaches AI (see ucpDefine). Off the Scripture
+    // reader nothing is locked, so the full button set shows exactly as before.
+    ucpEl.querySelector('.ucp-define-btn').style.display  = '';                   // Define always available
+    ucpEl.querySelector('.ucp-verse-btn').style.display   = lock ? 'none' : '';   // hidden in Scripture (swapped for Define)
     ucpEl.querySelector('.ucp-explore-btn').style.display = lock ? 'none' : '';
     ucpEl.querySelector('.ucp-input-row').style.display   = lock ? 'none' : '';
   }
@@ -2413,25 +2419,42 @@
   }
 
   function ucpDefine() {
-    if (ucpEsvLocked) return;                    // ESV backstop
     var term = ucpActionText();
     if (!term) { ucpNotice('Type a word to define.'); return; }
+
+    // Scripture ESV compliance: in the ESV-locked reader Define is permitted ONLY
+    // as an OFFLINE lookup that never reaches Anthropic. A phrase would trigger the
+    // server's AI fallback, so reduce the selection to a SINGLE word and flag the
+    // request offlineOnly — the phrase itself never leaves the client. The server
+    // enforces the same leash (belt and suspenders). Off the reader (no lock),
+    // Define keeps its full normal chain unchanged.
+    var offlineOnly = !!ucpEsvLocked;
+    if (offlineOnly) {
+      var word = (term.trim().split(/\s+/)[0] || '').replace(/^[^A-Za-z]+|[^A-Za-z]+$/g, '');
+      if (!word) { ucpNotice('Select a single word to define.'); return; }
+      term = word;                               // first word only — the phrase is never sent
+    }
     ucpClearNotice();
     // The trigger decides: a grounded panel defined the selection, so the pin
     // anchors to it — for every action, for the whole session. An ungrounded
     // panel defined a typed term, which has no reliable occurrence in the study,
-    // so it pins as a free note.
-    var anchored = ucpGrounded && !!ucpSelection;
+    // so it pins as a free note. The ESV-locked reader takes no notes at all, so
+    // its answer stays unanchored (there is no pin/Notepad/sidebar path here).
+    var anchored = ucpGrounded && !!ucpSelection && !offlineOnly;
     var msg  = ucpAppendMsg('assistant', '<span class="up-loading">Looking up definition…</span>', 'Definition');
     var body = msg.querySelector('.ucp-msg-body');
     fetch('/api/dictionary/define', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ term: term }),
+      body:    JSON.stringify({ term: term, offlineOnly: offlineOnly }),
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {
-        if (data.error) {
+        if (data.notFound) {
+          // Gracious miss, not an error — and on the offline path no AI was called.
+          body.innerHTML = '<span style="color:#6B4226;font-style:italic;">' +
+            esc(data.message || ('No definition found for “' + term + '”.')) + '</span>';
+        } else if (data.error) {
           body.innerHTML = '<span style="color:#5a0a0a;font-style:italic;">' + esc(data.error) + '</span>';
         } else {
           body.innerHTML = renderMarkdown(data.definition);
