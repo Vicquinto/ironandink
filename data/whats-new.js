@@ -18,6 +18,13 @@
 
 const WHATS_NEW = [
   {
+    date:  'August 8, 2026',
+    title: 'Smoother sidebar navigation',
+    body:  `The sidebar now moves as one — scroll it top to bottom in a single, gentle motion, with every page just a glance away. When there's more below the fold, a soft fade at the edge lets you know there's further to go.
+
+A small refinement, but one that makes finding your way around Iron & Ink feel a little more effortless.`
+  },
+  {
     date:  'July 29, 2026',
     title: 'Children\'s studies are here',
     body: `For the children in your home, Study now offers a Children's telling. Choose "Children's" as your study level, and any passage becomes a warm, faithful story — written for ages six to ten, and told as a story rather than a study: no outlines or sections, just Scripture told simply and reverently, pointing to Jesus wherever the passage truly leads. Each one closes with a short "For grown-ups" note: a question to ask your child, and a little prayer to pray together. Read it at bedtime, or gather the family around it.`,
