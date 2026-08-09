@@ -175,16 +175,29 @@ body {
 
 .sidebar-nav-wrap.has-below::after { opacity: 1; }
 
-.sidebar-nav {
+/* Single unified scroller: nav + footer scroll together as one unit. The fade
+   above lives on the non-scrolling .sidebar-nav-wrap so it stays pinned to the
+   visible bottom edge while this element's content scrolls under it. */
+.sidebar-scroll {
   flex: 1;
-  padding: 10px 0;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  scrollbar-width: thin;                                  /* Firefox: always-slim bar */
+  scrollbar-color: rgba(160,132,92,0.3) transparent;
 }
 
-.sidebar-nav::-webkit-scrollbar { width: 4px; }
-.sidebar-nav::-webkit-scrollbar-track { background: transparent; }
-.sidebar-nav::-webkit-scrollbar-thumb { background: rgba(160,132,92,0.2); border-radius: 2px; }
+.sidebar-nav {
+  padding: 10px 0;
+  overflow-x: hidden;
+  flex-shrink: 0;   /* keep natural height so the scroller overflows instead of squashing */
+}
+
+.sidebar-scroll::-webkit-scrollbar { width: 6px; }
+.sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+.sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(160,132,92,0.2); border-radius: 3px; }
 
 .nav-item {
   display: flex;
@@ -279,7 +292,8 @@ body {
 .sidebar-footer {
   border-top: 1px solid rgba(160,132,92,0.13);
   padding: 8px 0;
-  flex-shrink: 0;
+  margin-top: auto;   /* bottom-anchored when content fits; flows into scroll when it doesn't */
+  flex-shrink: 0;     /* keep natural height so the scroller overflows instead of squashing */
 }
 
 .logout-link {
@@ -4182,7 +4196,7 @@ body {
 .sidebar-header { border-bottom-color: rgba(160,132,92,0.18); }
 .sidebar-footer  { border-top-color:   rgba(160,132,92,0.15); }
 
-.sidebar-nav::-webkit-scrollbar-thumb { background: rgba(160,132,92,0.22); }
+.sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(160,132,92,0.22); }
 
 .logo-title    { color: #E8D9B8; }
 .logo-tagline  { color: #A0845C; font-style: italic; }

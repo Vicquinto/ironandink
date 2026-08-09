@@ -149,35 +149,37 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
         <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">&#9776;</button>
       </div>
       <div class="sidebar-nav-wrap" id="sidebarNavWrap">
-        <nav class="sidebar-nav" id="sidebarNav">
-          ${navHTML}
-        </nav>
-      </div>
-      <div class="sidebar-footer">
-        ${isAdmin ? `<a href="/admin" class="nav-item admin-link${activeSection === 'admin' ? ' active' : ''}">
-          <span class="nav-icon" style="position:relative;">&#9873;${pendingInvites > 0 ? `<span class="sidebar-dm-badge">${pendingInvites > 99 ? '99+' : pendingInvites}</span>` : ''}</span>
-          <span class="nav-label">Admin</span>
-        </a>` : ''}
-        ${BILLING_ENABLED ? `<a href="/pricing" class="nav-item upgrade-link${activeSection === 'pricing' ? ' active' : ''}">
-          <span class="nav-icon">&#9733;</span>
-          <span class="nav-label">Upgrade</span>
-        </a>` : ''}
-        <a href="/what-we-believe" class="nav-item believe-link${activeSection === 'believe' ? ' active' : ''}">
-          <span class="nav-icon">&#10013;</span>
-          <span class="nav-label">About</span>
-        </a>
-        <a href="/copyright" class="nav-item copyright-link">
-          <span class="nav-icon">&#169;</span>
-          <span class="nav-label">Copyright</span>
-        </a>
-        <a href="/help" class="nav-item help-link${activeSection === 'help' ? ' active' : ''}">
-          <span class="nav-icon">&#9432;</span>
-          <span class="nav-label">Help</span>
-        </a>
-        <a href="/logout" class="logout-link">
-          <span class="nav-icon">&#8617;</span>
-          <span class="nav-label">Logout</span>
-        </a>
+        <div class="sidebar-scroll" id="sidebarScroll">
+          <nav class="sidebar-nav" id="sidebarNav">
+            ${navHTML}
+          </nav>
+          <div class="sidebar-footer">
+            ${isAdmin ? `<a href="/admin" class="nav-item admin-link${activeSection === 'admin' ? ' active' : ''}">
+              <span class="nav-icon" style="position:relative;">&#9873;${pendingInvites > 0 ? `<span class="sidebar-dm-badge">${pendingInvites > 99 ? '99+' : pendingInvites}</span>` : ''}</span>
+              <span class="nav-label">Admin</span>
+            </a>` : ''}
+            ${BILLING_ENABLED ? `<a href="/pricing" class="nav-item upgrade-link${activeSection === 'pricing' ? ' active' : ''}">
+              <span class="nav-icon">&#9733;</span>
+              <span class="nav-label">Upgrade</span>
+            </a>` : ''}
+            <a href="/what-we-believe" class="nav-item believe-link${activeSection === 'believe' ? ' active' : ''}">
+              <span class="nav-icon">&#10013;</span>
+              <span class="nav-label">About</span>
+            </a>
+            <a href="/copyright" class="nav-item copyright-link">
+              <span class="nav-icon">&#169;</span>
+              <span class="nav-label">Copyright</span>
+            </a>
+            <a href="/help" class="nav-item help-link${activeSection === 'help' ? ' active' : ''}">
+              <span class="nav-icon">&#9432;</span>
+              <span class="nav-label">Help</span>
+            </a>
+            <a href="/logout" class="logout-link">
+              <span class="nav-icon">&#8617;</span>
+              <span class="nav-label">Logout</span>
+            </a>
+          </div>
+        </div>
       </div>
     </aside>
     <main class="main-content" id="mainContent">
@@ -203,18 +205,18 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   <script>
   (function () {
     function updateSidebarFade() {
-      var nav  = document.getElementById('sidebarNav');
-      var wrap = document.getElementById('sidebarNavWrap');
-      if (!nav || !wrap) return;
-      var overflows = nav.scrollHeight > nav.clientHeight;
-      var atBottom  = nav.scrollTop + nav.clientHeight >= nav.scrollHeight - 1;
+      var scroller = document.getElementById('sidebarScroll');
+      var wrap     = document.getElementById('sidebarNavWrap');
+      if (!scroller || !wrap) return;
+      var overflows = scroller.scrollHeight > scroller.clientHeight;
+      var atBottom  = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 1;
       wrap.classList.toggle('has-below', overflows && !atBottom);
     }
     document.addEventListener('DOMContentLoaded', function () {
-      var nav = document.getElementById('sidebarNav');
-      if (!nav) return;
+      var scroller = document.getElementById('sidebarScroll');
+      if (!scroller) return;
       updateSidebarFade();
-      nav.addEventListener('scroll', updateSidebarFade, { passive: true });
+      scroller.addEventListener('scroll', updateSidebarFade, { passive: true });
       window.addEventListener('resize', updateSidebarFade);
     });
   })();
