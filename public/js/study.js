@@ -654,6 +654,7 @@
   // script-tag ordering irrelevant.
   var verseTextEl  = document.getElementById('studyVerseText');
   var verseRefEl   = document.getElementById('studyVerseRef');
+  var verseCopyEl  = document.getElementById('studyVerseCopyright');
   var verseRotator = document.getElementById('studyVerseRotator');
   var verseTimer   = null;
   var lastVerseIdx = -1;
@@ -674,7 +675,14 @@
     if (verseRotator) verseRotator.classList.remove('is-visible');
     setTimeout(function () {
       verseTextEl.textContent = '“' + v.text + '”';
-      if (verseRefEl) verseRefEl.textContent = v.ref + ' — American Standard Version';
+      // Label matches the source actually served (NASB 1995 primary, ASV fallback),
+      // with the Lockman notice shown only when NASB text is displayed.
+      var source = v.source || 'ASV';
+      if (verseRefEl) verseRefEl.textContent = v.ref + ' — ' + source;
+      if (verseCopyEl) {
+        verseCopyEl.textContent = (source === 'NASB 1995' && window.NASB_ATTRIBUTION)
+          ? window.NASB_ATTRIBUTION : '';
+      }
       if (verseRotator) verseRotator.classList.add('is-visible');
     }, 200);
   }

@@ -391,6 +391,15 @@ body {
   color: var(--accent);
 }
 
+.verse-copyright {
+  margin-top: 8px;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--warm-brown);
+  opacity: 0.75;
+  font-style: italic;
+}
+
 /* ─── STAT CARDS ────────────────────────────────────────────────────── */
 
 .stat-cards {
@@ -860,6 +869,16 @@ body {
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
+
+.study-verse-copyright {
+  margin-top: 8px;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: var(--warm-brown, #6b5a44);
+  opacity: 0.7;
+  font-style: italic;
+}
+.study-verse-copyright:empty { display: none; }
 
 .btn-stop {
   background: transparent;

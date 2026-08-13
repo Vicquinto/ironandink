@@ -4,7 +4,7 @@ const path      = require('path');
 const Anthropic = require('@anthropic-ai/sdk');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
 const { renderDashboardPanel: renderWhatsNewPanel } = require('./whats-new');
-const { injectWithAttribution, lookupAsv: asvLookup } = require('../lib/asv');
+const { injectWithAttribution, resolve, NASB_ATTRIBUTION } = require('../lib/asv');
 
 const router          = express.Router();
 const STUDIES_PATH    = path.join(__dirname, '../data/studies.json');
@@ -108,8 +108,23 @@ const RAW_VERSES = [
   { text: "Contend earnestly for the faith which was once for all handed down to the saints.", ref: "Jude 3" },
 ];
 
-// Real, verified ASV text keyed off each ref — no unverified/mislabeled verses.
-const VERSES = RAW_VERSES.map(v => ({ ref: v.ref, text: asvLookup(v.ref) || v.text }));
+// Resolve one raw entry against the unified resolver — NASB 1995 primary, ASV
+// silent fallback — exactly like every other Scripture surface. Returns { ref,
+// text, source } so the label and attribution always match the text actually
+// shown. `ref` is the source of truth; the baked literal text is a last-resort
+// fallback (all refs currently resolve, so it is effectively never used). Resolved
+// at CALL time (not module load) so it reflects the current NASB cache state.
+function resolveVerse(raw) {
+  const r = resolve(raw.ref);
+  return r
+    ? { ref: raw.ref, text: r.text, source: r.source }
+    : { ref: raw.ref, text: raw.text, source: 'ASV' };
+}
+
+// The full pool, resolved — reused by the study loading screen (see routes/study.js).
+function getVersePool() {
+  return RAW_VERSES.map(resolveVerse);
+}
 
 function getDayOfYear() {
   const now   = new Date();
@@ -119,7 +134,8 @@ function getDayOfYear() {
 }
 
 function getVerseOfTheDay() {
-  return VERSES[(getDayOfYear() - 1) % VERSES.length];
+  const raw = RAW_VERSES[(getDayOfYear() - 1) % RAW_VERSES.length];
+  return resolveVerse(raw);
 }
 
 function getStudiesCount(userId) {
@@ -386,7 +402,8 @@ router.get('/dashboard', requireAuth, (req, res) => {
     <div class="verse-card">
       <div class="verse-label">Verse of the Day</div>
       <div class="verse-text">"${verse.text}"</div>
-      <div class="verse-ref">${verse.ref} — American Standard Version</div>
+      <div class="verse-ref">${verse.ref} — ${verse.source}</div>
+      ${verse.source === 'NASB 1995' ? `<div class="verse-copyright">${NASB_ATTRIBUTION}</div>` : ''}
     </div>
 
     <div class="stat-cards">
@@ -430,4 +447,4 @@ router.get('/dashboard', requireAuth, (req, res) => {
   res.send(renderLayout({ req, activeSection: 'dashboard', title: 'Dashboard', content, scripts }));
 });
 
-module.exports = { router, getDailyDevotional, getDevotionalArchive, ensureTodaysDevotional, VERSES, listDevotionals, deleteDevotional, clearAllDevotionals };
+module.exports = { router, getDailyDevotional, getDevotionalArchive, ensureTodaysDevotional, getVersePool, listDevotionals, deleteDevotional, clearAllDevotionals };
