@@ -4,8 +4,7 @@ const path      = require('path');
 const Anthropic = require('@anthropic-ai/sdk');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
 const { renderDashboardPanel: renderWhatsNewPanel } = require('./whats-new');
-const { assertNoEsvText } = require('./esvGuard');
-const { injectVerses, lookup: asvLookup } = require('../lib/asv');
+const { injectWithAttribution, lookupAsv: asvLookup } = require('../lib/asv');
 
 const router          = express.Router();
 const STUDIES_PATH    = path.join(__dirname, '../data/studies.json');
@@ -303,10 +302,6 @@ A brief closing prayer (3–5 sentences) addressed directly to God. Let it be co
 Tone: warm but serious. Reformed and confessional.`;
 
   try {
-    // Crossway ESV compliance: the devotional prompt carries only instructions and
-    // passage references (verse text is inserted post-generation from ASV, never
-    // fetched). Guard defensively so ESV text can never enter this prompt.
-    assertNoEsvText('dashboard/devotional', systemPrompt, userPrompt);
     const client  = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const message = await client.messages.create({
       model:      'claude-sonnet-4-6',
@@ -314,8 +309,10 @@ Tone: warm but serious. Reformed and confessional.`;
       system:     systemPrompt,
       messages:   [{ role: 'user', content: userPrompt }],
     });
-    // Replace {{verse:...}} markers with verified ASV text before caching/returning.
-    const content = injectVerses(message.content[0].text);
+    // Replace {{verse:...}} markers with verified verse text (NASB primary, ASV
+    // fallback) before caching/returning; append the Lockman notice if NASB text
+    // was injected. The model never writes Scripture.
+    const content = injectWithAttribution(message.content[0].text);
 
     const passageRef = extractPassageRef(content);
     if (passageRef) {

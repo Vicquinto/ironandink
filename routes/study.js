@@ -4,8 +4,7 @@ const path = require('path');
 const Anthropic = require('@anthropic-ai/sdk');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
 const { VERSES } = require('./dashboard'); // reuse the Verse-of-the-Day pool for the patience loading screen
-const { assertNoEsvText } = require('./esvGuard');
-const { injectVerses } = require('../lib/asv');
+const { injectWithAttribution } = require('../lib/asv');
 const { logEvent } = require('../lib/usageLog');
 const { getEntitlements, recordStudy } = require('../lib/entitlements');
 const { aiLimiter } = require('../middleware/rateLimit');
@@ -305,7 +304,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study-badges.js?v=3"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/study.js?v=24"></script><script src="/js/library.js?v=59"></script>
+    scripts: `<script src="/js/study-badges.js?v=3"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/study.js?v=24"></script><script src="/js/library.js?v=60"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};
@@ -593,10 +592,12 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
   }
 
   const userSettings  = req.session.user && req.session.user.settings;
-  // All study Scripture is verified ASV, inserted by the server from data/asv.json
-  // via {{verse:...}} markers — the model never writes verse text — so the study's
-  // translation label is always ASV regardless of any legacy per-user preference.
-  const translation   = 'ASV';
+  // All study Scripture is verified text inserted by the server via {{verse:...}}
+  // markers (NASB 1995 primary from the local cache, ASV as a silent per-verse
+  // fallback) — the model never writes verse text. New studies carry the NASB 1995
+  // label; a rare fully-ASV-fallback study still shows this label, but its per-verse
+  // block citations read (ASV) where the fallback actually occurred.
+  const translation   = 'NASB 1995';
   // Length tier system suspended — tiers kept in STUDY_LENGTH_CONFIG but bypassed for now
   const studyLength   = STUDY_LENGTH_CONFIG[length] ? length : 'Short';
 
@@ -671,7 +672,7 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
   console.log(`[study-gen] START topic="${topic.trim()}" type="${resolvedStudyType}" level="${resolvedStudyLevel}" time=${new Date().toISOString()}`);
 
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-  const userMessage = `Generate a Reformed theological study guide on the following topic from a biblical and confessional perspective: ${topic.trim()}\n\nRemember: do not write any Bible verse text yourself. Quote Scripture only by emitting {{verse:Book Chapter:Verse}} markers; the system inserts the verified ASV text.`;
+  const userMessage = `Generate a Reformed theological study guide on the following topic from a biblical and confessional perspective: ${topic.trim()}\n\nRemember: do not write any Bible verse text yourself. Quote Scripture only by emitting {{verse:Book Chapter:Verse}} markers; the system inserts the verified verse text.`;
 
   // The content filter blocks the specific generated OUTPUT, which differs on
   // every call — so a fresh regeneration usually passes. Retry up to 3 times
@@ -682,10 +683,6 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
     const attemptStart = Date.now();
     try {
       console.log(`[study-gen] Calling Anthropic API — attempt ${attempt} time=${new Date().toISOString()}`);
-      // Crossway ESV compliance: the study prompt carries only the topic and
-      // instructions (verse text is inserted post-generation from ASV, never
-      // fetched), but guard defensively so ESV text can never enter this prompt.
-      assertNoEsvText('study/generate', systemPrompt, userMessage);
       const message = await client.messages.create({
         model:      'claude-sonnet-4-6',
         max_tokens: 8000,
@@ -695,11 +692,12 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
       console.log(`[study-gen] API call ${attempt} finished in ${Date.now() - attemptStart}ms — success`);
       console.log(`[study-gen] stop_reason: ${message.stop_reason}`);
 
-      // Replace every {{verse:...}} marker with real, verified ASV text from
-      // data/asv.json. The model never writes Scripture; all verse text is
-      // inserted here. Unresolvable markers collapse to the plain reference —
-      // never model-generated verse text.
-      const content = injectVerses(message.content[0].text);
+      // Replace every {{verse:...}} marker with real, verified verse text — NASB
+      // 1995 from the local cache, ASV as a silent per-verse fallback. The model
+      // never writes Scripture; all verse text is inserted here. Unresolvable
+      // markers collapse to the plain reference — never model-generated verse
+      // text. The Lockman notice is appended when NASB text was injected.
+      const content = injectWithAttribution(message.content[0].text);
       console.log(`[study-gen] DONE total time=${Date.now() - reqStart}ms`);
       const su = req.session.user || {};
       logEvent(su.id || req.session.userId, su.fullName, 'study_generated', { topic: topic.trim(), studyType: resolvedStudyType });
@@ -833,8 +831,6 @@ router.post('/api/study/suggest-type', requireAuth, aiLimiter, async (req, res) 
   const userMessage = `Topic: ${cleanTopic}`;
 
   try {
-    assertNoEsvText('study/suggest-type', systemPrompt, userMessage);
-
     const client  = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const message = await client.messages.create({
       model:      'claude-haiku-4-5-20251001',
@@ -866,10 +862,6 @@ router.post('/api/study/suggest-type', requireAuth, aiLimiter, async (req, res) 
     return res.json({ success: true, type, reason });
 
   } catch (err) {
-    if (err && err.code === 'ESV_TEXT_BLOCKED') {
-      console.error('ESV guard:', err.message);
-      return res.status(422).json({ success: false, error: 'That selection cannot be sent to the AI.' });
-    }
     console.error('[study/suggest-type]', err.message);
     return res.status(500).json({ success: false, error: 'Could not suggest a type. Please try again.' });
   }

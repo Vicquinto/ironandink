@@ -21,3 +21,9 @@ data/selah.json
 data/notepads.json
 data/presence.json
 data/password_resets.json
+
+# Licensed NASB 1995 text — regenerable cache fetched from API.Bible, never committed
+data/nasb-cache.json
+
+# Local review artifact (generated diff) — not part of the codebase
+nasb.diff

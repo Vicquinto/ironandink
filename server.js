@@ -36,6 +36,7 @@ const messagesRoutes      = require('./routes/messages');
 const { router: presenceRoutes, broadcastPresence, savePresenceStatus } = require('./routes/presence');
 const { requireAuth, renderLayout } = require('./routes/layout');
 const { SCRIPTURE_RULE } = require('./lib/asv');
+const nasb = require('./lib/nasb');
 
 const app  = express();
 const PORT = process.env.PORT || 4000;
@@ -471,6 +472,29 @@ cron.schedule('0 4 * * *', async () => {
   }
 }, { timezone: 'America/Denver' });
 console.log('[devotional-cron] scheduled daily at 04:00 America/Denver');
+
+// ─── Scheduled NASB cache refresh ───────────────────────────────────────────
+// NASB 1995 verse text is licensed (Lockman) and cached locally (data/nasb-cache
+// .json), fetched on demand from API.Bible. Lockman/API.Bible permit caching for
+// up to 30 days; refreshStale() re-fetches any CACHED chapter whose fetchedAt is
+// older than 25 days (lib/nasb.REFRESH_AFTER_DAYS), keeping every cached verse
+// comfortably inside that ceiling. It does NOT cold-fill the canon — that is the
+// manual `npm run warm-nasb` script's job. Runs monthly at 03:00 on the 1st. The
+// worst-case call volume (all 1,189 chapters) stays far under the 5,000/month
+// free-tier cap. Never throws into the scheduler.
+cron.schedule('0 3 1 * *', async () => {
+  try {
+    if (!process.env.API_BIBLE_KEY) {
+      console.warn('[nasb-cron] API_BIBLE_KEY not set — skipping refresh');
+      return;
+    }
+    const { stale, refreshed, failed } = await nasb.refreshStale();
+    console.log(`[nasb-cron] refresh done — stale:${stale} refreshed:${refreshed} failed:${failed}`);
+  } catch (err) {
+    console.error('[nasb-cron] unexpected error:', err && err.message ? err.message : err);
+  }
+}, { timezone: 'America/Denver' });
+console.log('[nasb-cron] scheduled monthly at 03:00 on the 1st, America/Denver');
 
 // ─── Start ────────────────────────────────────────────────────────────────
 const http = require('http');

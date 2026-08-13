@@ -4,8 +4,7 @@ const fs        = require('fs');
 const path      = require('path');
 const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
-const { assertNoEsvText } = require('./esvGuard');
-const { injectVerses } = require('../lib/asv');
+const { injectVersesTracked, NASB_ATTRIBUTION_MD } = require('../lib/asv');
 const { logEvent } = require('../lib/usageLog');
 const { getEntitlements } = require('../lib/entitlements');
 
@@ -250,21 +249,6 @@ router.post('/api/dialogue/exchange', requireAuth, async (req, res) => {
     ];
   }
 
-  // Crossway ESV compliance: never send ESV-licensed text to Anthropic. Checked
-  // before SSE headers are flushed so a block returns a normal JSON error. Guards
-  // the dialogue transcript / linked study content (defensive).
-  try {
-    assertNoEsvText('dialogue/stream', systemPrompt, apiMessages);
-  } catch (err) {
-    console.error('ESV guard:', err.message);
-    return res.status(err && err.code === 'ESV_TEXT_BLOCKED' ? 422 : 500).json({
-      success: false,
-      error: err && err.code === 'ESV_TEXT_BLOCKED'
-        ? 'ESV Scripture text cannot be sent to the AI.'
-        : 'Failed to start dialogue. Please try again.',
-    });
-  }
-
   // Set SSE headers
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -288,15 +272,19 @@ router.post('/api/dialogue/exchange', requireAuth, async (req, res) => {
     });
 
     // Marker-safe streaming: the model may emit {{verse:...}} markers, which must
-    // become real ASV text and must never be split across SSE chunks. Buffer the
-    // stream, hold back any in-progress marker (an unclosed "{{" or a trailing
-    // "{"), inject completed markers, and emit only the safe prefix.
+    // become real verse text (NASB primary, ASV fallback) and must never be split
+    // across SSE chunks. Buffer the stream, hold back any in-progress marker (an
+    // unclosed "{{" or a trailing "{"), inject completed markers, and emit only the
+    // safe prefix.
     let buf = '';
     // injectVerses picks the block or inline verse form by whether a marker
     // starts its line. Each flush hands it only a slice of the response, so
     // track whether that slice itself begins a line — otherwise a marker at
     // slice[0] that is really mid-sentence would be injected as a blockquote.
     let atLineStart = true;
+    // Track whether any NASB verse was injected across the whole turn, so the
+    // Lockman notice is appended ONCE at the end (not per slice).
+    let usedNasb = false;
     function flush(final) {
       if (closed || res.writableEnded) { buf = ''; return; }
       let cut = buf.length;
@@ -306,7 +294,8 @@ router.post('/api/dialogue/exchange', requireAuth, async (req, res) => {
         else if (buf.endsWith('{')) cut = buf.length - 1;                    // lone trailing brace
       }
       const slice = buf.slice(0, cut);
-      const emit  = injectVerses(slice, atLineStart);
+      const { text: emit, sources } = injectVersesTracked(slice, atLineStart);
+      if (sources.nasb) usedNasb = true;
       buf = buf.slice(cut);
       if (slice) atLineStart = slice.endsWith('\n');
       if (emit) res.write(`data: ${JSON.stringify({ text: emit })}\n\n`);
@@ -322,6 +311,8 @@ router.post('/api/dialogue/exchange', requireAuth, async (req, res) => {
 
     if (!closed && !res.writableEnded) {
       flush(true);
+      // Append the Lockman notice as a trailing slice when this turn quoted NASB.
+      if (usedNasb) res.write(`data: ${JSON.stringify({ text: NASB_ATTRIBUTION_MD })}\n\n`);
       res.write('data: [DONE]\n\n');
       res.end();
     }
@@ -378,9 +369,6 @@ router.post('/api/dialogue/gaps', requireAuth, async (req, res) => {
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
   try {
-    // Crossway ESV compliance: never send ESV-licensed text to Anthropic (defensive —
-    // the transcript is user/model dialogue that could contain pasted ESV text).
-    assertNoEsvText('dialogue/feedback', IRON_INK_CORE_PROMPT, userPrompt);
     const message = await client.messages.create({
       model:      'claude-opus-4-8',
       max_tokens: 400,
@@ -394,13 +382,18 @@ router.post('/api/dialogue/gaps', requireAuth, async (req, res) => {
     const parsed = JSON.parse(jsonMatch[0]);
 
     // Accept the new three-part shape, and fall back to the old key names
-    // (summary/studyNext) so a stale or partial response still renders.
-    // Inject verified ASV for any {{verse:...}} marker in the feedback fields.
+    // (summary/studyNext) so a stale or partial response still renders. Inject
+    // verified verse text (NASB primary, ASV fallback) for any {{verse:...}}
+    // marker; if any field quoted NASB, append the Lockman notice once to growth.
+    const s = injectVersesTracked(parsed.strengths || '');
+    const g = injectVersesTracked(parsed.growth    || parsed.summary   || '');
+    const n = injectVersesTracked(parsed.nextTopic || parsed.studyNext || '');
+    const usedNasb = s.sources.nasb || g.sources.nasb || n.sources.nasb;
     res.json({
       success:   true,
-      strengths: injectVerses(parsed.strengths || ''),
-      growth:    injectVerses(parsed.growth    || parsed.summary   || ''),
-      nextTopic: injectVerses(parsed.nextTopic || parsed.studyNext || ''),
+      strengths: s.text,
+      growth:    usedNasb ? g.text + NASB_ATTRIBUTION_MD : g.text,
+      nextTopic: n.text,
     });
   } catch (err) {
     console.error('[Dialogue/gaps]', err.message);

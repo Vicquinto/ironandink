@@ -702,7 +702,7 @@ router.get('/register', (req, res) => {
         <div class="form-group">
           <label class="form-label">Preferred Bible Translation</label>
           <select class="form-select" id="translation" disabled>
-            <option value="ASV" selected>American Standard Version (ASV, 1901)</option>
+            <option value="NASB 1995" selected>New American Standard Bible (NASB, 1995)</option>
           </select>
         </div>
         <div class="form-group">
@@ -807,7 +807,7 @@ router.post('/api/register', async (req, res) => {
       role:         'user',
       needsSetup:   false,
       settings: {
-        translation: translation || 'ASV',
+        translation: translation || 'NASB 1995',
         tradition:   tradition   || 'Reformed/Calvinist',
       },
       // Explicit false flags for every guided-tour page so first-time tours

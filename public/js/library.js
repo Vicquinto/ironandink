@@ -1277,18 +1277,6 @@
     if (footer) footer.style.display = 'none';
   }
 
-  // ── Crossway ESV compliance ─────────────────────────────────────────────────
-  // ESV text is served on the Scripture reader when ESV_API_KEY is set
-  // (window.SCRIPTURE_IS_ESV). Such text must NEVER be sent to the Anthropic API.
-  // Define and Explore forward the raw selection to Anthropic-backed endpoints, so
-  // both are withheld for an ESV Scripture selection. Verse Lookup is unaffected —
-  // it only queries the ESV API (Crossway → user), never Anthropic. There is no
-  // clean "reference only" substitute for an arbitrary sub-verse highlight, so the
-  // compliant behaviour is to withhold the AI actions here, not to send a ref.
-  function esvLockedSelection() {
-    return _inScripture && !!window.SCRIPTURE_IS_ESV;
-  }
-
   // ── Show unified popup ─────────────────────────────────────────────────────
   function showUp(text, rect) {
     upEl.querySelector('.up-preview').textContent =
@@ -1315,14 +1303,6 @@
     // reader, or a freshly generated study that can be saved on demand.
     var noteBtn = upEl.querySelector('.up-note-btn');
     if (noteBtn) noteBtn.style.display = canTakeNotes() ? '' : 'none';
-
-    // Crossway ESV compliance: withhold the Anthropic-backed actions (Define,
-    // Explore) for an ESV Scripture selection so ESV text can't reach Anthropic.
-    var esvLocked  = esvLockedSelection();
-    var defineBtn  = upEl.querySelector('.up-define-btn');
-    var exploreBtn = upEl.querySelector('.up-ai-btn');
-    if (defineBtn)  defineBtn.style.display  = esvLocked ? 'none' : '';
-    if (exploreBtn) exploreBtn.style.display = esvLocked ? 'none' : '';
 
     // Measure collapsed height before committing to a position. display:flex (not
     // block) so the panel is a flex column — header/actions/footer fixed, the
@@ -1651,9 +1631,6 @@
   });
 
   upEl.querySelector('.up-define-btn').addEventListener('click', function () {
-    // Crossway ESV compliance backstop: never send an ESV Scripture selection to
-    // the Anthropic-backed define endpoint (button is also hidden in this case).
-    if (esvLockedSelection()) return;
     upEl.querySelector('.up-content').style.display     = 'flex';
     upEl.querySelector('.up-define-pane').style.display = 'flex';
     upEl.querySelector('.up-ai-pane').style.display     = 'none';
@@ -1694,9 +1671,6 @@
   });
 
   upEl.querySelector('.up-ai-btn').addEventListener('click', function () {
-    // Crossway ESV compliance backstop: never open Explore for an ESV Scripture
-    // selection (the button is also hidden in this case).
-    if (esvLockedSelection()) return;
     upEl.querySelector('.up-content').style.display     = 'flex';
     upEl.querySelector('.up-define-pane').style.display = 'none';
     upEl.querySelector('.up-verse-pane').style.display  = 'none';
@@ -1762,9 +1736,6 @@
   });
 
   async function doInlineAsk(question) {
-    // Crossway ESV compliance backstop: an ESV Scripture selection must never be
-    // sent as highlightedText to the Anthropic-backed /api/library/ask endpoint.
-    if (esvLockedSelection()) return;
     var askBtn = upEl.querySelector('.up-ai-ask-btn');
     var resp   = upEl.querySelector('.up-ai-response');
     askBtn.disabled    = true;
@@ -2138,7 +2109,6 @@
   var ucpSelection        = '';
   var ucpOccurrence       = null;
   var ucpGrounded         = false;
-  var ucpEsvLocked        = false;   // persists for the whole grounded conversation
   var ucpLookupOnly       = false;
   var ucpPendingBroadcast = null;
   var ucpLastPin          = null;    // pin payload for the most recent answer
@@ -2234,9 +2204,6 @@
     ucpOccurrence = (typeof occurrence === 'number') ? occurrence : null;
     ucpTopic      = ctx ? ctx.topic : '';
     ucpLookupOnly = !!(ctx && ctx.lookupOnly);
-    // ESV lock is captured ONCE, here, and stored in panel state — it persists
-    // for the entire grounded conversation (never re-evaluated per action).
-    ucpEsvLocked  = !!(ctx && ctx.inScripture && window.SCRIPTURE_IS_ESV);
     // Keep the shared module flags in sync so canTakeNotes()/ensureNotepadCtx()
     // (which read _lookupOnly) resolve correctly for this grounding.
     _lookupOnly   = ucpLookupOnly;
@@ -2246,12 +2213,9 @@
     ucpEl.querySelector('.ucp-context').style.display = '';
     ucpEl.querySelector('.ucp-selection').textContent =
       selText.length > 160 ? selText.slice(0, 160) + '…' : selText;
-    applyEsvLock();
     ucpUpdateNoteBtn();
     centerUnifiedPanel();
-    if (!ucpEsvLocked) {
-      setTimeout(function () { ucpEl.querySelector('.ucp-input').focus(); }, 40);
-    }
+    setTimeout(function () { ucpEl.querySelector('.ucp-input').focus(); }, 40);
   }
 
   // Ungrounded open: Ctrl+Alt+T, no selection. Inherits only the study topic.
@@ -2263,13 +2227,11 @@
     ucpOccurrence = null;
     ucpTopic      = ctx ? ctx.topic : '';
     ucpLookupOnly = !!(ctx && ctx.lookupOnly);
-    ucpEsvLocked  = false;                 // no selection → nothing ESV to withhold
     _lookupOnly   = ucpLookupOnly;
     _inScripture  = !!(ctx && ctx.inScripture);
 
     ucpResetConversation();
     ucpEl.querySelector('.ucp-context').style.display = 'none';
-    applyEsvLock();
     ucpUpdateNoteBtn();
     centerUnifiedPanel();
     setTimeout(function () { ucpEl.querySelector('.ucp-input').focus(); }, 40);
@@ -2282,25 +2244,6 @@
   function toggleUnifiedUngrounded() {
     if (ucpEl && ucpEl.style.display !== 'none') closeUnifiedPanel();
     else openUnifiedUngrounded();
-  }
-
-  // ESV compliance: an ESV Scripture selection must never reach Anthropic. While
-  // the panel is grounded in one, withhold Define, Explore and the ask input for
-  // the WHOLE conversation. Verse Lookup only queries the ESV API, so it stays.
-  // Because ucpEsvLocked lives in panel state (set once at open), the lock does
-  // not lapse after the first action.
-  function applyEsvLock() {
-    if (!ucpEl) return;
-    var lock = ucpEsvLocked;
-    // Scripture ESV compliance. Explore and the free-form ask both forward text to
-    // Anthropic, so both stay hidden under the lock. Verse Lookup is swapped OUT
-    // for Define in the locked reader: Define stays visible but is leashed to an
-    // OFFLINE-only lookup that never reaches AI (see ucpDefine). Off the Scripture
-    // reader nothing is locked, so the full button set shows exactly as before.
-    ucpEl.querySelector('.ucp-define-btn').style.display  = '';                   // Define always available
-    ucpEl.querySelector('.ucp-verse-btn').style.display   = lock ? 'none' : '';   // hidden in Scripture (swapped for Define)
-    ucpEl.querySelector('.ucp-explore-btn').style.display = lock ? 'none' : '';
-    ucpEl.querySelector('.ucp-input-row').style.display   = lock ? 'none' : '';
   }
 
   function ucpAppendMsg(kind, bodyHtml, labelOverride) {
@@ -2422,31 +2365,18 @@
     var term = ucpActionText();
     if (!term) { ucpNotice('Type a word to define.'); return; }
 
-    // Scripture ESV compliance: in the ESV-locked reader Define is permitted ONLY
-    // as an OFFLINE lookup that never reaches Anthropic. A phrase would trigger the
-    // server's AI fallback, so reduce the selection to a SINGLE word and flag the
-    // request offlineOnly — the phrase itself never leaves the client. The server
-    // enforces the same leash (belt and suspenders). Off the reader (no lock),
-    // Define keeps its full normal chain unchanged.
-    var offlineOnly = !!ucpEsvLocked;
-    if (offlineOnly) {
-      var word = (term.trim().split(/\s+/)[0] || '').replace(/^[^A-Za-z]+|[^A-Za-z]+$/g, '');
-      if (!word) { ucpNotice('Select a single word to define.'); return; }
-      term = word;                               // first word only — the phrase is never sent
-    }
     ucpClearNotice();
     // The trigger decides: a grounded panel defined the selection, so the pin
     // anchors to it — for every action, for the whole session. An ungrounded
     // panel defined a typed term, which has no reliable occurrence in the study,
-    // so it pins as a free note. The ESV-locked reader takes no notes at all, so
-    // its answer stays unanchored (there is no pin/Notepad/sidebar path here).
-    var anchored = ucpGrounded && !!ucpSelection && !offlineOnly;
+    // so it pins as a free note.
+    var anchored = ucpGrounded && !!ucpSelection;
     var msg  = ucpAppendMsg('assistant', '<span class="up-loading">Looking up definition…</span>', 'Definition');
     var body = msg.querySelector('.ucp-msg-body');
     fetch('/api/dictionary/define', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ term: term, offlineOnly: offlineOnly }),
+      body:    JSON.stringify({ term: term }),
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {
@@ -2476,8 +2406,7 @@
   }
 
   function ucpVerse() {
-    // Verse Lookup only queries the ESV/Bible API (never Anthropic), so it stays
-    // permitted even under the ESV lock.
+    // Verse Lookup resolves locally (NASB primary, ASV fallback) — no external API.
     var ref = ucpActionText();
     if (!ref) { ucpNotice('Type a verse reference to look up.'); return; }
     ucpClearNotice();
@@ -2577,7 +2506,6 @@
   // ucpGrounded), and an empty input explores the selection itself. Ungrounded,
   // it asks the typed text; nothing to act on → inline notice.
   function ucpExplore() {
-    if (ucpEsvLocked) return;
     var input = ucpEl.querySelector('.ucp-input');
     var typed = input.value.trim();
     if (typed) {
@@ -2603,7 +2531,6 @@
   // grounded → selection preamble (mirrors the old #inlineChatModal); ungrounded →
   // topic-only preamble (mirrors #askAiPanel). Later turns are pure history mode.
   function ucpRunAsk(q) {
-    if (ucpEsvLocked) return;                    // asking would resend the ESV selection
     q = (q || '').trim();
     if (!q) return;
     ucpClearNotice();

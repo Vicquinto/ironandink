@@ -103,21 +103,23 @@ router.get('/copyright', (req, res) => {
       <div class="copy-site-name">Iron &amp; Ink</div>
       <h1 class="copy-page-title">Copyright &amp; Credits</h1>
 
-      <div class="copy-section-heading">English Standard Version (ESV)</div>
+      <div class="copy-section-heading">New American Standard Bible (NASB 1995)</div>
       <p class="copy-body">
-        Scripture quotations are from the ESV&reg; Bible (The Holy Bible, English Standard Version&reg;),
-        copyright &copy; 2001 by Crossway, a publishing ministry of Good News Publishers.
-        Used by permission. All rights reserved.
+        Scripture quotations are taken from the <strong>New American Standard Bible&reg;</strong> (NASB),
+        Copyright &copy; 1995 by The Lockman Foundation. All rights reserved. Used by permission.
+        <a href="https://www.lockman.org" target="_blank" rel="noopener">lockman.org</a>
       </p>
 
       <hr class="copy-rule">
 
       <div class="copy-section-heading">Primary Translation</div>
       <p class="copy-body">
-        Iron &amp; Ink uses the <strong>American Standard Version (ASV, 1901, public domain)</strong> as its
-        Scripture text for all study content, devotionals, and AI-generated theological material — the
-        verified verse text is inserted by the system, never produced by the AI model.
-        The ESV is made available as a secondary reference through the Crossway ESV API.
+        Iron &amp; Ink uses the <strong>New American Standard Bible (NASB, 1995)</strong> as its primary
+        Scripture text for the reader, study content, devotionals, and AI-generated theological material.
+        Every verse is verified text inserted by the system &mdash; never produced by the AI model. Where a
+        NASB verse is momentarily unavailable, the system silently falls back to the
+        <strong>American Standard Version (ASV, 1901, public domain)</strong> so Scripture always displays;
+        such verses are labeled ASV at the point of quotation.
       </p>
 
       <hr class="copy-rule">

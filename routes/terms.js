@@ -109,10 +109,11 @@ router.get('/terms', (req, res) => {
 
       <div class="copy-section-heading">7. Scripture quotations</div>
       <p class="copy-body">
-        Scripture quotations within the Service are drawn from licensed translations, including the English
-        Standard Version (ESV), used by permission. Those quotations remain subject to the terms of their
-        respective publishers, and your right to use them extends only to your personal and small-group
-        study through the Service.
+        Scripture quotations within the Service are taken from the New American Standard Bible&reg; (NASB),
+        Copyright &copy; 1995 by The Lockman Foundation, used by permission, with the American Standard
+        Version (ASV, 1901, public domain) as a fallback. Those quotations remain subject to the terms of
+        their respective publishers, and your right to use them extends only to your personal and
+        small-group study through the Service.
       </p>
 
       <div class="copy-section-heading">8. Our content and your license to use it</div>

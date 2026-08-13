@@ -5,8 +5,7 @@ const Anthropic = require('@anthropic-ai/sdk');
 const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
 const notepadRoutes = require('./notepad');
-const { assertNoEsvText } = require('./esvGuard');
-const { injectVerses } = require('../lib/asv');
+const { injectWithAttribution, resolve, NASB_ATTRIBUTION } = require('../lib/asv');
 
 const router      = express.Router();
 const STUDIES_PATH = path.join(__dirname, '../data/studies.json');
@@ -124,7 +123,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/study-badges.js?v=3"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/library.js?v=59"></script>',
+    scripts: '<script src="/js/study-badges.js?v=3"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/library.js?v=60"></script>',
   }));
 });
 
@@ -290,11 +289,6 @@ router.post('/api/library/ask', requireAuth, async (req, res) => {
   }
 
   try {
-    // Crossway ESV compliance: ESV text must NEVER be sent to Anthropic. This is
-    // the highlight→Explore vector (a Scripture-reader selection arrives as
-    // highlightedText). The client already withholds Explore for ESV selections;
-    // this backstops any ESV text that still carries its copyright notice.
-    assertNoEsvText('library/ask', systemPrompt, messages);
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const message = await client.messages.create({
       model:      'claude-sonnet-4-6',
@@ -303,13 +297,10 @@ router.post('/api/library/ask', requireAuth, async (req, res) => {
       messages,
     });
     // Inline answers use the core prompt, so the model quotes Scripture via
-    // {{verse:...}} markers too — insert the verified ASV text before returning.
-    res.json({ success: true, answer: injectVerses(message.content[0].text) });
+    // {{verse:...}} markers too — insert the verified verse text (NASB primary,
+    // ASV fallback) and append the Lockman notice when NASB text appears.
+    res.json({ success: true, answer: injectWithAttribution(message.content[0].text) });
   } catch (err) {
-    if (err && err.code === 'ESV_TEXT_BLOCKED') {
-      console.error('ESV guard:', err.message);
-      return res.status(422).json({ success: false, error: 'ESV Scripture text cannot be sent to the AI. Try selecting from a study instead.' });
-    }
     console.error('Inline ask error:', err.message);
     res.status(500).json({ success: false, error: 'Failed to get answer. Please try again.' });
   }
@@ -324,42 +315,19 @@ router.post('/api/library/verse', requireAuth, async (req, res) => {
 
   const ref = String(reference).trim();
 
-  // Primary: ESV API (requires ESV_API_KEY in .env)
-  if (process.env.ESV_API_KEY) {
-    try {
-      const url = 'https://api.esv.org/v3/passage/text/?' + new URLSearchParams({
-        q:                           ref,
-        'include-headings':          false,
-        'include-footnotes':         false,
-        'include-verse-numbers':     true,
-        'include-short-copyright':   false,
-        'include-passage-references': false,
-      });
-      const esvRes = await fetch(url, {
-        headers: { Authorization: `Token ${process.env.ESV_API_KEY}` },
-      });
-      const data = await esvRes.json();
-      const text = data.passages && data.passages[0] ? data.passages[0].trim() : null;
-      if (text) {
-        const verse = text + '\n\nESV® Bible, Copyright © 2001 by Crossway';
-        return res.json({ success: true, verse, source: 'esv' });
-      }
-    } catch (err) {
-      console.error('ESV API error:', err.message);
-    }
+  // Local, offline lookup: NASB (primary, from the on-demand cache) with a silent
+  // ASV fallback — the same resolver the injection pipeline uses. No external Bible
+  // API. When the resolved text is NASB, append the Lockman notice; an ASV fallback
+  // gets the public-domain ASV note. Unresolvable → a gracious not-found.
+  const r = resolve(ref);
+  if (r) {
+    const notice = r.source === 'NASB 1995'
+      ? NASB_ATTRIBUTION
+      : 'American Standard Version (1901, public domain)';
+    const verse = '“' + r.text + '” — ' + ref + '\n\n' + notice;
+    return res.json({ success: true, verse, source: r.source });
   }
-
-  // Fallback: bible-api.com — World English Bible, public domain, no key needed
-  try {
-    const encodedRef = encodeURIComponent(ref);
-    const apiRes = await fetch(`https://bible-api.com/${encodedRef}?translation=web`);
-    const data   = await apiRes.json();
-    if (data.text) return res.json({ success: true, verse: data.text.trim() });
-    return res.json({ success: false, error: 'Verse not found. Check the reference format (e.g. John 3:16).' });
-  } catch (err) {
-    console.error('Bible API fallback error:', err.message);
-    res.status(500).json({ success: false, error: 'Failed to look up verse. Please try again.' });
-  }
+  return res.json({ success: false, error: 'Verse not found. Check the reference format (e.g. John 3:16).' });
 });
 
 module.exports = router;

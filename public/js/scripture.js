@@ -1,8 +1,6 @@
 (function () {
   'use strict';
 
-  var ESV_COPYRIGHT = 'ESV® Bible, Copyright © 2001 by Crossway';
-
   // ── Chapter reader ──────────────────────────────────────────────────────────
 
   var bookSelect    = document.getElementById('bookSelect');
@@ -30,32 +28,18 @@
     }
   }
 
-  function renderEsv(bookName, chapter, text) {
+  // Render a chapter: NASB 1995 (primary) or ASV (silent fallback), with the
+  // source-appropriate copyright notice the server supplies. Both translations use
+  // the same numbered-verse markup.
+  function renderChapter(bookName, chapter, verses, copyright) {
     heading.textContent = bookName + ' ' + chapter;
-    var paragraphs = text.trim().split(/\n\s*\n/);
-    var html = paragraphs.map(function (para) {
-      return '<p class="scripture-verse">' +
-        para.trim()
-          .replace(/\[(\d+)\]/g, '<sup class="verse-num">$1</sup>')
-          .replace(/\n/g, ' ') +
-        '</p>';
-    }).join('');
-    html += '<p class="scripture-copyright">' + ESV_COPYRIGHT + '</p>';
-    body.innerHTML = html;
-    var v = pendingScrollVerse;
-    pendingScrollVerse = null;
-    if (v !== null) {
-      setTimeout(function () { scrollToVerse(v); }, 80);
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }
-
-  function renderKjv(bookName, chapter, verses) {
-    heading.textContent = bookName + ' ' + chapter;
-    body.innerHTML = verses.map(function (v) {
+    var html = (verses || []).map(function (v) {
       return '<p class="scripture-verse"><sup class="verse-num">' + v.verse + '</sup>' + v.text + '</p>';
     }).join('');
+    if (copyright) {
+      html += '<p class="scripture-copyright">' + copyright + '</p>';
+    }
+    body.innerHTML = html;
     var v = pendingScrollVerse;
     pendingScrollVerse = null;
     if (v !== null) {
@@ -71,11 +55,7 @@
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (data.success) {
-          if (data.source === 'esv') {
-            renderEsv(data.book, data.chapter, data.text);
-          } else {
-            renderKjv(data.book, data.chapter, data.verses);
-          }
+          renderChapter(data.book, data.chapter, data.verses, data.copyright);
         } else {
           body.innerHTML = '<p class="scripture-loading">Failed to load chapter.</p>';
         }

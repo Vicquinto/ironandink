@@ -4,8 +4,7 @@ const fs        = require('fs');
 const path      = require('path');
 const Anthropic = require('@anthropic-ai/sdk');
 const { requireAuth } = require('./layout');
-const { assertNoEsvText } = require('./esvGuard');
-const { injectVerses, SCRIPTURE_RULE } = require('../lib/asv');
+const { injectWithAttribution, SCRIPTURE_RULE } = require('../lib/asv');
 const eastons = require('../lib/eastons');
 
 const router = express.Router();
@@ -70,10 +69,6 @@ const PROMPT_COMMON =
   "No theology. No philosophy. No examples. One sentence only.\n\n" + SCRIPTURE_RULE;
 
 async function fetchAnthropicDefinition(term, system) {
-  // Crossway ESV compliance: ESV text must NEVER be sent to Anthropic. This is
-  // the highlight→Define vector (a Scripture-reader selection arrives as `term`).
-  // The client withholds Define for ESV selections; this is the server backstop.
-  assertNoEsvText('dictionary/define', term);
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const message = await client.messages.create({
     model:      'claude-sonnet-4-6',
@@ -81,13 +76,14 @@ async function fetchAnthropicDefinition(term, system) {
     system,
     messages:   [{ role: 'user', content: 'Define: ' + term }],
   });
-  // Insert verified ASV for any {{verse:...}} marker the definition emits.
-  return injectVerses(message.content[0].text.trim());
+  // Insert verified verse text (NASB primary, ASV fallback) for any {{verse:...}}
+  // marker the definition emits, with the Lockman notice when NASB text appears.
+  return injectWithAttribution(message.content[0].text.trim());
 }
 
 // ─── POST /api/dictionary/define ─────────────────────────────────────────────
 router.post('/api/dictionary/define', requireAuth, async (req, res) => {
-  const { term, offlineOnly } = req.body;
+  const { term } = req.body;
   if (!term || !term.trim()) {
     return res.status(400).json({ error: 'Term is required.' });
   }
@@ -114,25 +110,6 @@ router.post('/api/dictionary/define', requireAuth, async (req, res) => {
       source:     'eastons',
       sourceLabel,
     });
-  }
-
-  // Offline-only path (Scripture ESV reader): the selection may be ESV-licensed
-  // text, which must NEVER reach Anthropic. Easton's is already tried above; now
-  // Webster's index → dictionaryapi.dev ONLY, and never fall back to the AI on
-  // this path. A miss returns a gracious not-found, not an error. The client
-  // already reduces the selection to a single word; this branch is the server
-  // half of the leash, so even a phrase arriving here can only 404 out of
-  // dictionaryapi.dev — it can never reach Anthropic.
-  if (offlineOnly) {
-    if (dictReady && websterIndex[key]) {
-      return res.json({ term: cleanTerm, definition: websterIndex[key], source: 'dictionary', sourceLabel: "Webster's Dictionary" });
-    }
-    try {
-      const definition = await fetchDictionaryApi(cleanTerm);
-      return res.json({ term: cleanTerm, definition, source: 'dictionary', sourceLabel: 'Dictionary' });
-    } catch {
-      return res.json({ notFound: true, message: `No definition found for “${cleanTerm}”.` });
-    }
   }
 
   // Multi-word phrase → Anthropic (Reformed theological context)

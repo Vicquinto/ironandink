@@ -4,8 +4,7 @@ const fs         = require('fs');
 const path       = require('path');
 const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
-const { assertNoEsvText } = require('./esvGuard');
-const { injectVerses } = require('../lib/asv');
+const { injectWithAttribution } = require('../lib/asv');
 const { logEvent } = require('../lib/usageLog');
 const { getEntitlements } = require('../lib/entitlements');
 
@@ -347,9 +346,6 @@ Generate the ${tierLabel} now.`;
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
   try {
-    // Crossway ESV compliance: never send ESV-licensed text to Anthropic. A user
-    // could paste ESV text into an answer field; this blocks notice-bearing text.
-    assertNoEsvText('writing/generate', systemPrompt, userPrompt);
     const message = await client.messages.create({
       model,
       max_tokens: tokens,
@@ -358,13 +354,10 @@ Generate the ${tierLabel} now.`;
     });
 
     // Core-prompt output quotes Scripture via {{verse:...}} markers — insert the
-    // verified ASV text before returning the article.
-    res.json({ success: true, content: injectVerses(message.content[0].text) });
+    // verified verse text (NASB primary, ASV fallback) and append the Lockman
+    // notice when NASB text appears.
+    res.json({ success: true, content: injectWithAttribution(message.content[0].text) });
   } catch (err) {
-    if (err && err.code === 'ESV_TEXT_BLOCKED') {
-      console.error('ESV guard:', err.message);
-      return res.status(422).json({ success: false, error: 'ESV Scripture text cannot be sent to the AI. Reference the passage instead of pasting ESV text.' });
-    }
     console.error('[Writing/generate]', err.message);
     res.status(500).json({ success: false, error: err.message });
   }

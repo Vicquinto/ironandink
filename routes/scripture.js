@@ -2,13 +2,23 @@ const express = require('express');
 const fs      = require('fs');
 const path    = require('path');
 const { requireAuth, renderLayout } = require('./layout');
+const nasb = require('../lib/nasb');
+const { chapterVerses: asvChapterVerses, NASB_ATTRIBUTION } = require('../lib/asv');
 
 const router       = express.Router();
 const KJV_PATH     = path.join(__dirname, '../data/kjv.json');
 const TRACKER_PATH = path.join(__dirname, '../data/reading_tracker.json');
 
-const ESV_COPYRIGHT = 'ESV® Bible, Copyright © 2001 by Crossway';
+// Public-domain fallback notice, shown when a chapter resolved to ASV (NASB not
+// cached and API.Bible unreachable) so Scripture never fails to display.
+const ASV_COPYRIGHT = 'American Standard Version (1901, public domain)';
 
+// data/kjv.json is retained ONLY as the reader's book/chapter SKELETON — book
+// names, abbreviations, and chapter counts for the navigation dropdowns. Its KJV
+// verse text is NEVER displayed; verse text now comes from NASB 1995 (lib/nasb,
+// on-demand cache) with a silent ASV fallback (lib/asv). The book names in
+// data/kjv.json are the canonical names that key both data/asv.json and the NASB
+// cache, so a book resolves across all three by name.
 let _bible = null;
 function getBible() {
   // Lazy-load once. Strip a leading UTF-8 BOM (U+FEFF) before parsing: JSON.parse
@@ -33,48 +43,41 @@ function writeTracker(data) {
   fs.writeFileSync(TRACKER_PATH, JSON.stringify(data, null, 2));
 }
 
-function cleanText(text) {
-  return text.replace(/\{[^}]*\}/g, '').replace(/\s+/g, ' ').trim();
+// Resolve a chapter to verse text: NASB 1995 (cached, lazily fetched) as primary,
+// ASV as the silent fallback. Returns { verses:[{verse,text}], source, copyright }.
+// Never fetches ESV. Never fails for a valid canonical book/chapter — ASV backs it.
+async function resolveChapter(bookName, chapterNum) {
+  const { map, source } = await nasb.ensureChapter(bookName, chapterNum);
+  if (map && source) {
+    const verses = Object.keys(map)
+      .map(Number)
+      .filter(n => Number.isFinite(n))
+      .sort((a, b) => a - b)
+      .map(n => ({ verse: n, text: String(map[String(n)]).trim() }));
+    if (verses.length) {
+      return { verses, source, copyright: NASB_ATTRIBUTION };
+    }
+  }
+  const asvVerses = asvChapterVerses(bookName, chapterNum) || [];
+  return { verses: asvVerses, source: 'ASV', copyright: ASV_COPYRIGHT };
 }
 
-function renderKjvVerses(verses) {
+// Server-side render of a chapter body (verses + copyright footer), matching the
+// markup the client produces so the SSR initial paint and later client renders
+// are identical.
+function renderVerses(verses) {
   return verses.map(v =>
     `<p class="scripture-verse"><sup class="verse-num">${v.verse}</sup>${v.text}</p>`
   ).join('\n        ');
 }
-
-function renderEsvText(text) {
-  const paragraphs = text.trim().split(/\n\s*\n/);
-  return paragraphs.map(para => {
-    const html = para.trim()
-      .replace(/\[(\d+)\]/g, '<sup class="verse-num">$1</sup>')
-      .replace(/\n/g, ' ');
-    return `<p class="scripture-verse">${html}</p>`;
-  }).join('\n        ') +
-    `\n        <p class="scripture-copyright">${ESV_COPYRIGHT}</p>`;
-}
-
-async function fetchEsvChapter(bookName, chapterNum) {
-  const url = 'https://api.esv.org/v3/passage/text/?' + new URLSearchParams({
-    q:                            `${bookName} ${chapterNum}`,
-    'include-headings':           false,
-    'include-footnotes':          false,
-    'include-verse-numbers':      true,
-    'include-short-copyright':    false,
-    'include-passage-references': false,
-  });
-  const esvRes = await fetch(url, {
-    headers: { Authorization: `Token ${process.env.ESV_API_KEY}` },
-  });
-  const data = await esvRes.json();
-  return (data.passages && data.passages[0]) ? data.passages[0].trim() : null;
+function renderChapterBody(verses, copyright) {
+  return renderVerses(verses) + `\n        <p class="scripture-copyright">${copyright}</p>`;
 }
 
 // ─── GET /scripture ──────────────────────────────────────────────────────────
 router.get('/scripture', requireAuth, async (req, res) => {
   const bible     = getBible();
   const firstBook = bible[0];
-  const usingEsv  = !!process.env.ESV_API_KEY;
 
   const bookOptions = bible.map(b =>
     `<option value="${b.abbrev}" data-chapters="${b.chapters.length}"${b.abbrev === 'gn' ? ' selected' : ''}>${b.name}</option>`
@@ -84,26 +87,11 @@ router.get('/scripture', requireAuth, async (req, res) => {
     `<option value="${i + 1}"${i === 0 ? ' selected' : ''}>${i + 1}</option>`
   ).join('\n        ');
 
-  let initBody;
+  // Initial paint: Genesis 1, NASB 1995 (cached/lazily fetched) with ASV fallback.
+  const initChapter = await resolveChapter(firstBook.name, 1);
+  const initBody    = renderChapterBody(initChapter.verses, initChapter.copyright);
 
-  if (usingEsv) {
-    try {
-      const esvText = await fetchEsvChapter('Genesis', 1);
-      if (esvText) initBody = renderEsvText(esvText);
-    } catch (err) {
-      console.error('ESV initial load error:', err.message);
-    }
-  }
-
-  if (!initBody) {
-    const initVerses = firstBook.chapters[0].map((text, i) => ({
-      verse: i + 1,
-      text:  cleanText(text),
-    }));
-    initBody = renderKjvVerses(initVerses);
-  }
-
-  const subtitle  = usingEsv ? 'English Standard Version' : 'King James Version';
+  const subtitle  = 'New American Standard Bible 1995';
   const bookNames = JSON.stringify(bible.map(b => b.name));
 
   const content = `
@@ -175,7 +163,7 @@ router.get('/scripture', requireAuth, async (req, res) => {
     activeSection: 'scripture',
     title:         'Scripture',
     content,
-    scripts:       `<script>window.SCRIPTURE_IS_ESV = ${usingEsv};</script><script src="/js/study-badges.js?v=3"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/scripture.js?v=7"></script><script src="/js/library.js?v=59"></script>`,
+    scripts:       `<script src="/js/study-badges.js?v=3"></script><script src="/js/render-markdown.js?v=1"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/scripture.js?v=8"></script><script src="/js/library.js?v=60"></script>`,
   }));
 });
 
@@ -191,22 +179,15 @@ router.get('/api/scripture/:abbrev/:chapter', requireAuth, async (req, res) => {
     return res.status(404).json({ success: false, error: 'Chapter not found.' });
   }
 
-  if (process.env.ESV_API_KEY) {
-    try {
-      const text = await fetchEsvChapter(book.name, idx + 1);
-      if (text) {
-        return res.json({ success: true, book: book.name, chapter: idx + 1, text, source: 'esv' });
-      }
-    } catch (err) {
-      console.error('ESV API error:', err.message);
-    }
+  // NASB 1995 (cached, lazily fetched) with a silent ASV fallback. book.name is the
+  // canonical name shared by the NASB cache and data/asv.json.
+  try {
+    const { verses, source, copyright } = await resolveChapter(book.name, idx + 1);
+    res.json({ success: true, book: book.name, chapter: idx + 1, verses, source, copyright });
+  } catch (err) {
+    console.error('[scripture] chapter load error:', err.message);
+    res.status(500).json({ success: false, error: 'Failed to load chapter.' });
   }
-
-  const verses = book.chapters[idx].map((text, i) => ({
-    verse: i + 1,
-    text:  cleanText(text),
-  }));
-  res.json({ success: true, book: book.name, chapter: idx + 1, verses, source: 'kjv' });
 });
 
 // ─── GET /api/reading/tracker ────────────────────────────────────────────────

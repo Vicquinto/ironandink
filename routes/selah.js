@@ -4,8 +4,7 @@ const path           = require('path');
 const Anthropic      = require('@anthropic-ai/sdk');
 const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
-const { assertNoEsvText } = require('./esvGuard');
-const { injectVerses, SCRIPTURE_RULE } = require('../lib/asv');
+const { injectWithAttribution, SCRIPTURE_RULE } = require('../lib/asv');
 const { getEntitlements } = require('../lib/entitlements');
 
 const router     = express.Router();
@@ -162,9 +161,6 @@ router.post('/api/selah/reflect', requireAuth, async (req, res) => {
     SCRIPTURE_RULE;
 
   try {
-    // Crossway ESV compliance: never send ESV-licensed text to Anthropic (defensive —
-    // the journal entry is free text a user could paste ESV into).
-    assertNoEsvText('selah/reflect', systemPrompt, String(content).trim());
     const client  = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const message = await client.messages.create({
       model:      'claude-sonnet-4-6',
@@ -172,13 +168,10 @@ router.post('/api/selah/reflect', requireAuth, async (req, res) => {
       system:     systemPrompt,
       messages:   [{ role: 'user', content: String(content).trim() }],
     });
-    // Replace any {{verse:...}} markers with verified ASV before returning.
-    res.json({ success: true, reflection: injectVerses(message.content[0].text) });
+    // Replace any {{verse:...}} markers with verified verse text (NASB primary,
+    // ASV fallback) and append the Lockman notice when NASB text appears.
+    res.json({ success: true, reflection: injectWithAttribution(message.content[0].text) });
   } catch (err) {
-    if (err && err.code === 'ESV_TEXT_BLOCKED') {
-      console.error('ESV guard:', err.message);
-      return res.status(422).json({ success: false, error: 'ESV Scripture text cannot be sent to the AI.' });
-    }
     console.error('Selah reflect error:', err.message);
     res.status(500).json({ success: false, error: 'Failed to generate reflection. Please try again.' });
   }

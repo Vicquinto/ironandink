@@ -2,8 +2,7 @@ const express   = require('express');
 const Anthropic = require('@anthropic-ai/sdk');
 const { requireAuth, renderLayout }  = require('./layout');
 const { getDailyDevotional, getDevotionalArchive } = require('./dashboard');
-const { assertNoEsvText } = require('./esvGuard');
-const { injectVerses } = require('../lib/asv');
+const { injectWithAttribution } = require('../lib/asv');
 const { logEvent } = require('../lib/usageLog');
 
 const router = express.Router();
@@ -251,8 +250,6 @@ router.post('/api/devotional/ask', requireAuth, async (req, res) => {
     'Keep responses focused — 3–5 sentences for simple questions, more thorough for deep theological ones.';
 
   try {
-    // Crossway ESV compliance: never send ESV-licensed text to Anthropic (defensive).
-    assertNoEsvText('devotional/ask', systemPrompt, history);
     const client  = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const message = await client.messages.create({
       model:      'claude-sonnet-4-6',
@@ -261,13 +258,10 @@ router.post('/api/devotional/ask', requireAuth, async (req, res) => {
       messages:   history,
     });
     // Core-prompt answers quote Scripture via {{verse:...}} markers — insert the
-    // verified ASV text before returning.
-    res.json({ success: true, answer: injectVerses(message.content[0].text) });
+    // verified verse text (NASB primary, ASV fallback) and append the Lockman
+    // notice when NASB text appears.
+    res.json({ success: true, answer: injectWithAttribution(message.content[0].text) });
   } catch (err) {
-    if (err && err.code === 'ESV_TEXT_BLOCKED') {
-      console.error('ESV guard:', err.message);
-      return res.status(422).json({ success: false, error: 'ESV Scripture text cannot be sent to the AI.' });
-    }
     console.error('Devotional ask error:', err.message);
     res.status(500).json({ success: false, error: 'Failed to get answer. Please try again.' });
   }
