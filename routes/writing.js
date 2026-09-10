@@ -79,6 +79,10 @@ router.get('/writing', requireAuth, (req, res) => {
               <button class="btn-primary" id="conversationSendBtn">Send</button>
               <button class="btn-stop" id="conversationStopBtn" style="display:none;">Stop</button>
             </div>
+            <!-- Tier 3 only: primary action to write a full draft from the
+                 conversation into the article pane. Shown/hidden client-side by
+                 selectedTier. -->
+            <button class="btn-draft-it" id="conversationDraftBtn" style="display:none;">Draft it into the article &#8594;</button>
           </div>
         </div>
 

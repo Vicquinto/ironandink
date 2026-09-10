@@ -50,6 +50,7 @@
   var conversationInput    = document.getElementById('conversationInput');
   var conversationSendBtn  = document.getElementById('conversationSendBtn');
   var conversationStopBtn  = document.getElementById('conversationStopBtn');
+  var conversationDraftBtn = document.getElementById('conversationDraftBtn');
 
   // ── State control ─────────────────────────────────────────────────────────
   function showState(state) {
@@ -213,6 +214,11 @@
     editorContent.value = article.content;
     setTierBadge(article.tier, article.form || 'article');
     updateWordCount();
+    // Reopening a saved article: no live conversation (that's the door flow).
+    // Stop any stream from a prior session and show the inert conversation shell
+    // so no stale bubbles or Tier 3 draft button linger. (Transcript restore is 4B.)
+    abortWritingConversation();
+    resetConversationPane();
     showState('editor');
   }
 
@@ -268,7 +274,7 @@
     // Leaving the editor: kill any in-progress conversation stream and reset
     // conversation state so nothing keeps streaming after the writer is gone.
     abortWritingConversation();
-    conversationHistory = [];
+    resetConversationPane();
     currentArticleId     = null;
     currentArticleStatus = 'Draft';
     selectedTier         = 0;
@@ -347,6 +353,49 @@
 
   // Clone of Dialogue's streamExchange — POSTs to /api/writing/converse and streams
   // the assistant turn into a new bubble. Returns the full accumulated text.
+  // Shared SSE reader (extracted so the chat turn and the Tier 3 full-draft
+   // both use the identical parse loop). Reads the response body, splits on
+   // '\n\n', handles 'data:' lines, '[DONE]' ends, parsed.text accumulates and
+   // fires onText(fullText), parsed.error throws, SyntaxError from partial JSON
+   // is swallowed. Returns the full accumulated text. The server has already
+   // resolved every {{verse:...}} marker into verified text before it streams,
+   // so `fullText` is always clean — no raw markers can arrive here.
+  async function pumpSSE(response, onText) {
+    var reader   = response.body.getReader();
+    var decoder  = new TextDecoder();
+    var buffer   = '';
+    var fullText = '';
+
+    while (true) {
+      var chunk = await reader.read();
+      if (chunk.done) break;
+
+      buffer += decoder.decode(chunk.value, { stream: true });
+      var parts = buffer.split('\n\n');
+      buffer = parts.pop();
+
+      for (var i = 0; i < parts.length; i++) {
+        var lines = parts[i].split('\n');
+        for (var j = 0; j < lines.length; j++) {
+          if (!lines[j].startsWith('data: ')) continue;
+          var data = lines[j].slice(6);
+          if (data === '[DONE]') break;
+          try {
+            var parsed = JSON.parse(data);
+            if (parsed.error) throw new Error(parsed.error);
+            if (parsed.text) {
+              fullText += parsed.text;
+              if (onText) onText(fullText);
+            }
+          } catch (e) {
+            if (!(e instanceof SyntaxError)) throw e;
+          }
+        }
+      }
+    }
+    return fullText;
+  }
+
   async function streamWritingExchange(isOpening) {
     writingAbortController = new AbortController();
     var msgEl = null;
@@ -368,41 +417,14 @@
 
       msgEl = createCompanionMsg();
 
-      var reader   = response.body.getReader();
-      var decoder  = new TextDecoder();
-      var buffer   = '';
-      var fullText = '';
-
-      while (true) {
-        var chunk = await reader.read();
-        if (chunk.done) break;
-
-        buffer += decoder.decode(chunk.value, { stream: true });
-        var parts = buffer.split('\n\n');
-        buffer = parts.pop();
-
-        for (var i = 0; i < parts.length; i++) {
-          var lines = parts[i].split('\n');
-          for (var j = 0; j < lines.length; j++) {
-            if (!lines[j].startsWith('data: ')) continue;
-            var data = lines[j].slice(6);
-            if (data === '[DONE]') break;
-            try {
-              var parsed = JSON.parse(data);
-              if (parsed.error) throw new Error(parsed.error);
-              if (parsed.text) {
-                fullText += parsed.text;
-                msgEl.querySelector('.msg-content').innerHTML = renderConvText(fullText);
-                conversationMessages.scrollTop = conversationMessages.scrollHeight;
-              }
-            } catch (e) {
-              if (!(e instanceof SyntaxError)) throw e;
-            }
-          }
-        }
-      }
+      var fullText = await pumpSSE(response, function (full) {
+        msgEl.querySelector('.msg-content').innerHTML = renderConvText(full);
+        conversationMessages.scrollTop = conversationMessages.scrollHeight;
+      });
 
       msgEl.classList.remove('streaming');
+      // Completed companion message → offer to add its clean prose to the draft.
+      attachAddToDraft(msgEl, fullText);
       return fullText;
 
     } catch (err) {
@@ -411,10 +433,111 @@
     }
   }
 
+  // ── Conversation → article bridge (Step 4A) ────────────────────────────────
+
+  // Append clean text to #editorContent: two newlines then the text when the
+  // draft already has content, else just the text. `text` is the message's
+  // accumulated stream text — markdown with verse markers ALREADY resolved to
+  // verified text by the server — so nothing raw can reach the editor.
+  function appendToDraft(text) {
+    if (!text) return;
+    var cur = editorContent.value.replace(/\s+$/, '');
+    editorContent.value = cur ? cur + '\n\n' + text : text;
+    updateWordCount();
+    showToast('Added to draft');
+  }
+
+  // Attach a small "+ Add to draft" control to a COMPLETED companion message.
+  // Never on the streaming-in-progress state, never on user messages. Shown for
+  // every tier (Tier 1 keep-a-phrase, Tier 2 build, Tier 3 grab-a-passage).
+  function attachAddToDraft(msgEl, text) {
+    if (!msgEl || !text) return;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'add-to-draft-btn';
+    btn.textContent = '+ Add to draft';
+    btn.addEventListener('click', function () { appendToDraft(text); });
+    msgEl.appendChild(btn);
+  }
+
+  // Tier 3 primary action: write a full draft FROM the conversation INTO the
+  // article pane. Implemented WITHOUT touching any endpoint — it reuses the
+  // existing /api/writing/converse stream, sending the current history plus a
+  // one-off "write the full draft now" instruction, and streams the reply into
+  // #editorContent instead of the chat. The one-off instruction is NOT persisted
+  // to conversationHistory, so the visible conversation stays clean.
+  async function draftIntoArticle() {
+    if (isConverseGenerating) return;
+    if (editorContent.value.trim()) {
+      showConfirm('Replace the current draft with a full draft written from your conversation?', 'Replace', runDraftIntoArticle);
+    } else {
+      runDraftIntoArticle();
+    }
+  }
+
+  async function runDraftIntoArticle() {
+    setConverseGenerating(true);
+    if (conversationDraftBtn) conversationDraftBtn.disabled = true;
+    editorContent.value = '';           // Tier 3 = "write me the whole thing" → replace
+    updateWordCount();
+    writingAbortController = new AbortController();
+
+    var draftForm   = selectedForm || 'article';
+    var instruction = 'Please write the full, complete draft now — the entire ' + draftForm +
+      ' — using everything we have discussed. Return the finished prose only, ready to read.';
+    var messages    = conversationHistory.concat([{ role: 'user', content: instruction }]);
+
+    try {
+      var response = await fetch('/api/writing/converse', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          messages:  messages,
+          tier:      selectedTier,
+          form:      selectedForm,
+          isOpening: false,
+        }),
+        signal: writingAbortController.signal,
+      });
+
+      if (!response.ok) throw new Error('Server error ' + response.status);
+
+      var fullText = await pumpSSE(response, function (full) {
+        editorContent.value = full;     // stream progressively into the article
+        updateWordCount();
+        editorContent.scrollTop = editorContent.scrollHeight;
+      });
+
+      if (!editorTitle.value.trim()) {
+        editorTitle.value = extractTitleFromContent(fullText, '');
+      }
+      updateWordCount();
+      showToast('Draft written into the article.');
+    } catch (err) {
+      if (err.name !== 'AbortError') showToast('Error: ' + err.message, true);
+    } finally {
+      setConverseGenerating(false);
+      if (conversationDraftBtn) conversationDraftBtn.disabled = false;
+    }
+  }
+
+  // Reset the conversation pane to its inert placeholder + hide Tier 3 action.
+  // Used when leaving/reopening so a stale conversation or draft button doesn't
+  // linger (e.g. opening an existing article, which has no live conversation).
+  function resetConversationPane() {
+    conversationHistory = [];
+    if (conversationMessages) conversationMessages.innerHTML =
+      '<p class="conversation-empty">Your conversation will appear here.</p>';
+    if (conversationDraftBtn) conversationDraftBtn.style.display = 'none';
+  }
+
   // Opening turn — the companion greets the writer when they land in the editor.
   async function openWritingConversation() {
     conversationHistory = [];
     conversationMessages.innerHTML = '';   // drop the static placeholder
+    // Tier 3 gets the "Draft it into the article" primary action; Tiers 1-2 rely
+    // on the per-message "+ Add to draft" control instead.
+    if (conversationDraftBtn) conversationDraftBtn.style.display = (selectedTier === 3) ? 'block' : 'none';
     setConverseGenerating(true);
     try {
       var greeting = await streamWritingExchange(true);
@@ -470,6 +593,8 @@
       if (writingAbortController) writingAbortController.abort();
     });
   }
+
+  if (conversationDraftBtn) conversationDraftBtn.addEventListener('click', draftIntoArticle);
 
   // ── Article list (Draft only) ─────────────────────────────────────────────
   async function loadArticleList() {

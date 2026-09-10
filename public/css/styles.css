@@ -2698,6 +2698,52 @@ body {
   padding-right: 4px;
 }
 
+/* Per-message "add to draft" — small, unobtrusive link under a completed
+   companion message (Step 4A). Sits as a flex child under .msg-content in the
+   left-aligned engine bubble. */
+.add-to-draft-btn {
+  align-self: flex-start;
+  margin-top: 2px;
+  background: none;
+  border: none;
+  color: var(--warm-brown);
+  font-family: Georgia, serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  padding: 2px 0;
+  opacity: 0.72;
+  transition: color 0.15s, opacity 0.15s;
+}
+.add-to-draft-btn:hover {
+  color: var(--accent);
+  opacity: 1;
+}
+
+/* Tier 3 "Draft it into the article" — a secondary full-width action below the
+   conversation input. */
+.btn-draft-it {
+  width: 100%;
+  background: rgba(160,132,92,0.12);
+  border: 1px solid rgba(160,132,92,0.3);
+  color: var(--accent);
+  font-family: Georgia, serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  padding: 9px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-draft-it:hover {
+  background: rgba(160,132,92,0.2);
+  border-color: var(--accent);
+}
+.btn-draft-it:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Responsive: below ~900px the two panes can't sit side by side. Stack them —
    conversation on top (bounded height so it still scrolls internally), editor
    below in natural flow. This is a graceful degrade only; a polished mobile
