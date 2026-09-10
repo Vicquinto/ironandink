@@ -8,6 +8,13 @@
   var currentArticleId     = null;
   var currentArticleStatus = 'Draft';
 
+  // ── Conversation state (Step 3) ───────────────────────────────────────────
+  // Mirrors Dialogue's streaming client. conversationHistory is the running
+  // [{role, content}] array sent to /api/writing/converse each turn.
+  var conversationHistory     = [];
+  var writingAbortController  = null;
+  var isConverseGenerating    = false;
+
   // NOTE (redesign): the five defining questions and their generate step were
   // removed from the live flow. Picking a "door" now lands the user in the blank
   // editor; AI generation is being rebuilt as a conversation in a later phase.
@@ -38,15 +45,11 @@
   var startOverBtn      = document.getElementById('startOverBtn');
   var writingLoadingText = document.getElementById('writingLoadingText');
 
-  // Conversation pane refs (Step 2 shell). Grabbed now for convenience; NO
-  // behavior is wired to them yet — Send/Stop/input/messages are inert until
-  // Step 3 hooks up /api/writing/converse. Referenced with a void to keep them
-  // live without triggering unused-var noise.
+  // Conversation pane refs (wired in the "Writing conversation" section below).
   var conversationMessages = document.getElementById('conversationMessages');
   var conversationInput    = document.getElementById('conversationInput');
   var conversationSendBtn  = document.getElementById('conversationSendBtn');
   var conversationStopBtn  = document.getElementById('conversationStopBtn');
-  void conversationMessages; void conversationInput; void conversationSendBtn; void conversationStopBtn;
 
   // ── State control ─────────────────────────────────────────────────────────
   function showState(state) {
@@ -139,7 +142,10 @@
     setTierBadge(selectedTier, selectedForm);
     updateWordCount();
     showState('editor');
-    editorTitle.focus();
+    // Left pane: greet the writer and ask what they want to write. Fire-and-forget
+    // async (mirrors Dialogue's getOpeningChallenge call); the right-pane editor
+    // stays independently usable while the opening turn streams in.
+    openWritingConversation();
   });
 
   // ── Generate (DORMANT) ──────────────────────────────────────────────────────
@@ -259,6 +265,10 @@
 
   // ── Start Over ────────────────────────────────────────────────────────────
   startOverBtn.addEventListener('click', function () {
+    // Leaving the editor: kill any in-progress conversation stream and reset
+    // conversation state so nothing keeps streaming after the writer is gone.
+    abortWritingConversation();
+    conversationHistory = [];
     currentArticleId     = null;
     currentArticleStatus = 'Draft';
     selectedTier         = 0;
@@ -271,6 +281,195 @@
     showState('main');
     if (window.history.replaceState) window.history.replaceState({}, '', '/writing');
   });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // ── Writing conversation (LEFT pane) ──────────────────────────────────────
+  // Streaming client cloned from Dialogue (public/js/dialogue.js): streamExchange
+  // / setGenerating / createStreamingMsg / renderText. Talks to
+  // /api/writing/converse. Conversation only — nothing here touches the right-pane
+  // editor (that's Step 4).
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // Minimal inline-markdown renderer — clone of Dialogue's renderText (escape
+  // first, then bold/italic, then newlines → <br>).
+  function renderConvText(text) {
+    return String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g,     '<em>$1</em>')
+      .replace(/\n\n/g, '<br><br>')
+      .replace(/\n/g,   '<br>');
+  }
+
+  // Streaming assistant bubble (mirrors createStreamingMsg; role label "Companion").
+  function createCompanionMsg() {
+    var div = document.createElement('div');
+    div.className = 'chat-msg engine-msg streaming';
+    div.innerHTML =
+      '<div class="msg-role">Companion</div>' +
+      '<div class="msg-content"></div>';
+    conversationMessages.appendChild(div);
+    conversationMessages.scrollTop = conversationMessages.scrollHeight;
+    return div;
+  }
+
+  // Writer's own turn (mirrors addUserMessage; role label "You").
+  function addConversationUserMessage(text) {
+    var div = document.createElement('div');
+    div.className = 'chat-msg user-msg';
+    div.innerHTML =
+      '<div class="msg-role">You</div>' +
+      '<div class="msg-content">' + esc(text) + '</div>';
+    conversationMessages.appendChild(div);
+    conversationMessages.scrollTop = conversationMessages.scrollHeight;
+  }
+
+  // Mirror of Dialogue's setGenerating for the conversation controls.
+  function setConverseGenerating(val) {
+    isConverseGenerating = val;
+    if (conversationStopBtn) conversationStopBtn.style.display = val ? 'inline-block' : 'none';
+    if (conversationSendBtn) conversationSendBtn.disabled = val;
+    if (conversationInput)   conversationInput.disabled   = val;
+    if (!val) writingAbortController = null;
+  }
+
+  // Abort any in-progress stream and reset generating state (used on Start Over
+  // and the Stop button).
+  function abortWritingConversation() {
+    if (writingAbortController) {
+      try { writingAbortController.abort(); } catch (e) {}
+    }
+    setConverseGenerating(false);
+  }
+
+  // Clone of Dialogue's streamExchange — POSTs to /api/writing/converse and streams
+  // the assistant turn into a new bubble. Returns the full accumulated text.
+  async function streamWritingExchange(isOpening) {
+    writingAbortController = new AbortController();
+    var msgEl = null;
+
+    try {
+      var response = await fetch('/api/writing/converse', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          messages:  conversationHistory,
+          tier:      selectedTier,
+          form:      selectedForm,
+          isOpening: isOpening,
+        }),
+        signal: writingAbortController.signal,
+      });
+
+      if (!response.ok) throw new Error('Server error ' + response.status);
+
+      msgEl = createCompanionMsg();
+
+      var reader   = response.body.getReader();
+      var decoder  = new TextDecoder();
+      var buffer   = '';
+      var fullText = '';
+
+      while (true) {
+        var chunk = await reader.read();
+        if (chunk.done) break;
+
+        buffer += decoder.decode(chunk.value, { stream: true });
+        var parts = buffer.split('\n\n');
+        buffer = parts.pop();
+
+        for (var i = 0; i < parts.length; i++) {
+          var lines = parts[i].split('\n');
+          for (var j = 0; j < lines.length; j++) {
+            if (!lines[j].startsWith('data: ')) continue;
+            var data = lines[j].slice(6);
+            if (data === '[DONE]') break;
+            try {
+              var parsed = JSON.parse(data);
+              if (parsed.error) throw new Error(parsed.error);
+              if (parsed.text) {
+                fullText += parsed.text;
+                msgEl.querySelector('.msg-content').innerHTML = renderConvText(fullText);
+                conversationMessages.scrollTop = conversationMessages.scrollHeight;
+              }
+            } catch (e) {
+              if (!(e instanceof SyntaxError)) throw e;
+            }
+          }
+        }
+      }
+
+      msgEl.classList.remove('streaming');
+      return fullText;
+
+    } catch (err) {
+      if (msgEl) msgEl.remove();
+      throw err;
+    }
+  }
+
+  // Opening turn — the companion greets the writer when they land in the editor.
+  async function openWritingConversation() {
+    conversationHistory = [];
+    conversationMessages.innerHTML = '';   // drop the static placeholder
+    setConverseGenerating(true);
+    try {
+      var greeting = await streamWritingExchange(true);
+      if (greeting) conversationHistory.push({ role: 'assistant', content: greeting });
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        showToast('The companion could not be reached. You can still write on the right.', true);
+      }
+    } finally {
+      setConverseGenerating(false);
+    }
+  }
+
+  // Send handler — the writer's turn, then the streamed reply.
+  async function sendWritingMessage() {
+    if (isConverseGenerating) return;
+    var text = conversationInput.value.trim();
+    if (!text) { conversationInput.focus(); return; }
+
+    addConversationUserMessage(text);
+    conversationHistory.push({ role: 'user', content: text });
+    conversationInput.value = '';
+
+    setConverseGenerating(true);
+    try {
+      var reply = await streamWritingExchange(false);
+      if (reply) conversationHistory.push({ role: 'assistant', content: reply });
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        conversationHistory.pop();   // drop the unanswered user turn, quietly
+      } else {
+        showToast('Error: ' + err.message, true);
+      }
+    } finally {
+      setConverseGenerating(false);
+    }
+  }
+
+  // ── Conversation controls ──────────────────────────────────────────────────
+  if (conversationSendBtn) conversationSendBtn.addEventListener('click', sendWritingMessage);
+
+  if (conversationInput) {
+    conversationInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendWritingMessage();
+      }
+    });
+  }
+
+  if (conversationStopBtn) {
+    conversationStopBtn.addEventListener('click', function () {
+      if (writingAbortController) writingAbortController.abort();
+    });
+  }
 
   // ── Article list (Draft only) ─────────────────────────────────────────────
   async function loadArticleList() {
