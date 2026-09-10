@@ -4,31 +4,14 @@
   // ── State ─────────────────────────────────────────────────────────────────
   var selectedTier         = 0;
   var selectedForm         = '';
-  var answers              = ['', '', '', '', ''];
-  var currentQ             = 0;
+  var answers              = [];
   var currentArticleId     = null;
   var currentArticleStatus = 'Draft';
 
-  var QUESTIONS_BASE = [
-    'What is the central doctrinal claim of this piece? State it in one sentence.',
-    'What are your two or three primary scripture arguments for this claim? Give the passages and a brief statement of what each one establishes.',
-    'Who is your intended reader — a skeptic, a curious believer, a fellow Reformed student? How does that shape your tone?',
-    'What is the strongest objection your reader will raise? How will you answer it?',
-  ];
-
-  function getQ5() {
-    if (selectedForm === 'sermon') {
-      return 'What is the one thing you want your listener to walk away changed by? What do you want them to do, feel, or believe differently when they leave?';
-    }
-    if (selectedForm === 'letter') {
-      return 'Who specifically are you writing to, and what is the one thing you most want them to understand or feel by the end of this letter?';
-    }
-    return 'How does this doctrine connect to the life of the believer? Where does this end in worship and doxology?';
-  }
-
-  function getQuestions() {
-    return QUESTIONS_BASE.concat([getQ5()]);
-  }
+  // NOTE (redesign): the five defining questions and their generate step were
+  // removed from the live flow. Picking a "door" now lands the user in the blank
+  // editor; AI generation is being rebuilt as a conversation in a later phase.
+  // `generateArticle()` below is left defined but is no longer called by anything.
 
   // ── DOM refs ──────────────────────────────────────────────────────────────
   var writingMain     = document.getElementById('writingMain');
@@ -40,17 +23,11 @@
 
   var wModalStep0           = document.getElementById('wModalStep0');
   var wModalStep1           = document.getElementById('wModalStep1');
-  var wModalStep2           = document.getElementById('wModalStep2');
   var formContinueBtn       = document.getElementById('formContinueBtn');
   var cancelFormModalBtn    = document.getElementById('cancelFormModalBtn');
   var tierContinueBtn       = document.getElementById('tierContinueBtn');
-  var cancelWritingModalBtn = document.getElementById('cancelWritingModalBtn');
+  var doorsBackBtn          = document.getElementById('doorsBackBtn');
   var closeWritingModalBtn  = document.getElementById('closeWritingModalBtn');
-
-  var questionNum     = document.getElementById('questionNum');
-  var questionText    = document.getElementById('questionText');
-  var questionAnswer  = document.getElementById('questionAnswer');
-  var questionNextBtn = document.getElementById('questionNextBtn');
 
   var editorTitle       = document.getElementById('editorTitle');
   var editorContent     = document.getElementById('editorContent');
@@ -98,15 +75,21 @@
     tierContinueBtn.disabled = true;
     wModalStep0.style.display = 'block';
     wModalStep1.style.display = 'none';
-    wModalStep2.style.display = 'none';
     showState('modal');
   });
 
   // ── Close / cancel modal ──────────────────────────────────────────────────
   function closeModal() { showState('main'); }
-  if (cancelFormModalBtn)    cancelFormModalBtn.addEventListener('click', closeModal);
-  if (cancelWritingModalBtn) cancelWritingModalBtn.addEventListener('click', closeModal);
+  if (cancelFormModalBtn) cancelFormModalBtn.addEventListener('click', closeModal);
   closeWritingModalBtn.addEventListener('click', closeModal);
+
+  // Back from the "Where would you like to begin?" doors → genre picker (Step 0).
+  if (doorsBackBtn) {
+    doorsBackBtn.addEventListener('click', function () {
+      wModalStep1.style.display = 'none';
+      wModalStep0.style.display = 'block';
+    });
+  }
 
   // ── Form selection (Step 0) ───────────────────────────────────────────────
   document.querySelectorAll('input[name="writingForm"]').forEach(function (radio) {
@@ -132,41 +115,26 @@
     });
   });
 
+  // ── Doors → blank editor ──────────────────────────────────────────────────
+  // New flow: choosing a "how to begin" door skips the old questions/generate
+  // step and drops the user straight into a blank editor, carrying the selected
+  // genre (selectedForm) and door (selectedTier) through for the badge + save.
   tierContinueBtn.addEventListener('click', function () {
     if (!selectedTier) return;
-    answers  = ['', '', '', '', ''];
-    currentQ = 0;
-    wModalStep1.style.display = 'none';
-    wModalStep2.style.display = 'block';
-    showQuestion(0);
+    currentArticleId     = null;
+    currentArticleStatus = 'Draft';
+    answers              = [];
+    editorTitle.value    = '';
+    editorContent.value  = '';
+    setTierBadge(selectedTier, selectedForm);
+    updateWordCount();
+    showState('editor');
+    editorTitle.focus();
   });
 
-  // ── Question flow (Step 2) ────────────────────────────────────────────────
-  function showQuestion(index) {
-    var questions = getQuestions();
-    currentQ = index;
-    questionNum.textContent  = index + 1;
-    questionText.textContent = questions[index];
-    questionAnswer.value     = answers[index] || '';
-    questionNextBtn.disabled = questionAnswer.value.trim() === '';
-    questionNextBtn.textContent = index === 4 ? 'Generate' : 'Next';
-    questionAnswer.focus();
-  }
-
-  questionAnswer.addEventListener('input', function () {
-    questionNextBtn.disabled = questionAnswer.value.trim() === '';
-  });
-
-  questionNextBtn.addEventListener('click', function () {
-    answers[currentQ] = questionAnswer.value.trim();
-    if (currentQ < 4) {
-      showQuestion(currentQ + 1);
-    } else {
-      generateArticle();
-    }
-  });
-
-  // ── Generate ──────────────────────────────────────────────────────────────
+  // ── Generate (DORMANT) ──────────────────────────────────────────────────────
+  // No longer reached from the live flow — retained for the upcoming conversation
+  // rebuild. Left intact so the generator wiring is easy to restore.
   async function generateArticle() {
     var labels = { 1: 'Preparing your outline…', 2: 'Preparing your draft…', 3: 'Preparing your article…' };
     writingLoadingText.textContent = labels[selectedTier] || 'Generating…';

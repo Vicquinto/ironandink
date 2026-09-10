@@ -121,42 +121,39 @@ router.get('/writing', requireAuth, (req, res) => {
         </div>
 
         <div id="wModalStep1" style="display:none;">
-          <h3 class="writing-modal-title">Choose your writing mode</h3>
-          <div class="tier-options">
-            <label class="tier-option">
+          <h3 class="writing-modal-title">Where would you like to begin?</h3>
+          <div class="form-options">
+            <label class="form-option">
               <input type="radio" name="writingTier" value="1">
-              <div class="tier-option-body">
-                <div class="tier-option-label">Tier 1 &mdash; Full Scaffold</div>
-                <div class="tier-option-desc">"I will answer five questions. You give me an outline. I write every word."</div>
+              <div class="form-option-body">
+                <div class="form-option-text">
+                  <div class="form-option-label">I&#8217;ll write it &mdash; think it through with me.</div>
+                  <div class="form-option-desc">You do the writing. I&#8217;ll help you find the idea, develop it, and sharpen it as you go.</div>
+                </div>
               </div>
             </label>
-            <label class="tier-option">
+            <label class="form-option">
               <input type="radio" name="writingTier" value="2">
-              <div class="tier-option-body">
-                <div class="tier-option-label">Tier 2 &mdash; Guided Draft</div>
-                <div class="tier-option-desc">"I will answer five questions. You write a first draft in my voice. I edit and own it."</div>
+              <div class="form-option-body">
+                <div class="form-option-text">
+                  <div class="form-option-label">Let&#8217;s write it together.</div>
+                  <div class="form-option-desc">We build it side by side, trading lines and shaping it as we talk.</div>
+                </div>
               </div>
             </label>
-            <label class="tier-option">
+            <label class="form-option">
               <input type="radio" name="writingTier" value="3">
-              <div class="tier-option-body">
-                <div class="tier-option-label">Tier 3 &mdash; Full Ghostwrite</div>
-                <div class="tier-option-desc">"I will answer five questions. You write a complete publishable article. I review and publish."</div>
+              <div class="form-option-body">
+                <div class="form-option-text">
+                  <div class="form-option-label">Help me get a full draft down.</div>
+                  <div class="form-option-desc">Give me your direction and I&#8217;ll draft it. You steer and refine from there.</div>
+                </div>
               </div>
             </label>
           </div>
           <div class="writing-modal-footer">
             <button class="btn-primary" id="tierContinueBtn" disabled>Continue</button>
-            <button class="btn-discard" id="cancelWritingModalBtn">Cancel</button>
-          </div>
-        </div>
-
-        <div id="wModalStep2" style="display:none;">
-          <div class="question-progress">Question <span id="questionNum">1</span> of 5</div>
-          <p id="questionText" class="question-text"></p>
-          <textarea id="questionAnswer" class="chat-textarea" rows="4" placeholder="Your answer&#8230;"></textarea>
-          <div class="writing-modal-footer">
-            <button class="btn-primary" id="questionNextBtn" disabled>Next</button>
+            <button class="btn-discard" id="doorsBackBtn">Back</button>
           </div>
         </div>
       </div>
