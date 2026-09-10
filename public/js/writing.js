@@ -38,6 +38,16 @@
   var startOverBtn      = document.getElementById('startOverBtn');
   var writingLoadingText = document.getElementById('writingLoadingText');
 
+  // Conversation pane refs (Step 2 shell). Grabbed now for convenience; NO
+  // behavior is wired to them yet — Send/Stop/input/messages are inert until
+  // Step 3 hooks up /api/writing/converse. Referenced with a void to keep them
+  // live without triggering unused-var noise.
+  var conversationMessages = document.getElementById('conversationMessages');
+  var conversationInput    = document.getElementById('conversationInput');
+  var conversationSendBtn  = document.getElementById('conversationSendBtn');
+  var conversationStopBtn  = document.getElementById('conversationStopBtn');
+  void conversationMessages; void conversationInput; void conversationSendBtn; void conversationStopBtn;
+
   // ── State control ─────────────────────────────────────────────────────────
   function showState(state) {
     writingMain.style.display    = 'none';

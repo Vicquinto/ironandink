@@ -59,19 +59,45 @@ router.get('/writing', requireAuth, (req, res) => {
       <div id="articleList" class="article-list-container"></div>
     </div>
 
+    <!-- Two-pane writing workspace. #writingEditor stays the show/hide toggle
+         (showState('editor') sets its display); the flex row lives on the inner
+         .writing-workspace so an inline display:block on the wrapper can't
+         collapse the split. LEFT = conversation shell (inert in Step 2 — no
+         behavior wired yet, that's Step 3). RIGHT = the existing editor, moved
+         verbatim into #writingEditorPane. -->
     <div id="writingEditor" style="display:none;">
-      <div class="editor-topbar">
-        <div class="editor-meta-row">
-          <span id="editorTierBadge" class="tier-badge-main"></span>
-          <span id="editorWordCount" class="word-count-display">0 words</span>
+      <div class="writing-workspace">
+
+        <div id="writingConversation" class="writing-conversation">
+          <div class="conversation-header">Writing companion</div>
+          <div id="conversationMessages" class="chat-messages">
+            <p class="conversation-empty">Your conversation will appear here.</p>
+          </div>
+          <div class="chat-input-area">
+            <textarea id="conversationInput" class="chat-textarea" rows="3" placeholder="Type your message&#8230;"></textarea>
+            <div class="chat-input-actions">
+              <button class="btn-primary" id="conversationSendBtn">Send</button>
+              <button class="btn-stop" id="conversationStopBtn" style="display:none;">Stop</button>
+            </div>
+          </div>
         </div>
-        <button class="btn-end-session" id="startOverBtn">&#8592; Start Over</button>
-      </div>
-      <input type="text" id="editorTitle" class="editor-title-input" placeholder="Article title&#8230;">
-      <textarea id="editorContent" class="editor-content-textarea" placeholder="Your article will appear here&#8230;"></textarea>
-      <div class="editor-action-row">
-        <button class="btn-primary" id="saveDraftBtn">Save Draft</button>
-        <button class="btn-warm" id="markCompleteBtn">Mark Complete</button>
+
+        <div id="writingEditorPane" class="writing-editor-pane">
+          <div class="editor-topbar">
+            <div class="editor-meta-row">
+              <span id="editorTierBadge" class="tier-badge-main"></span>
+              <span id="editorWordCount" class="word-count-display">0 words</span>
+            </div>
+            <button class="btn-end-session" id="startOverBtn">&#8592; Start Over</button>
+          </div>
+          <input type="text" id="editorTitle" class="editor-title-input" placeholder="Article title&#8230;">
+          <textarea id="editorContent" class="editor-content-textarea" placeholder="Your article will appear here&#8230;"></textarea>
+          <div class="editor-action-row">
+            <button class="btn-primary" id="saveDraftBtn">Save Draft</button>
+            <button class="btn-warm" id="markCompleteBtn">Mark Complete</button>
+          </div>
+        </div>
+
       </div>
     </div>
 
