@@ -4,7 +4,7 @@ const fs         = require('fs');
 const path       = require('path');
 const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
-const { injectWithAttribution } = require('../lib/asv');
+const { injectWithAttribution, injectVersesTracked, NASB_ATTRIBUTION_MD } = require('../lib/asv');
 const { logEvent } = require('../lib/usageLog');
 const { getEntitlements } = require('../lib/entitlements');
 
@@ -357,6 +357,126 @@ Generate the ${tierLabel} now.`;
   } catch (err) {
     console.error('[Writing/generate]', err.message);
     res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ─── POST /api/writing/converse (streaming SSE) ───────────────────────────────
+// Live writing-conversation engine for the split-screen composer. Modeled on the
+// marker-safe streaming in POST /api/dialogue/exchange — but this conversation
+// STAYS in the Reformed frame (Core prompt included) and keeps the Scripture rule,
+// unlike Dialogue which deliberately excludes the Core prompt. Purely additive:
+// the blocking /api/writing/generate route above is untouched.
+router.post('/api/writing/converse', requireAuth, async (req, res) => {
+  if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
+  const { messages, tier, form, isOpening } = req.body;
+
+  const { IRON_INK_CORE_PROMPT, IRON_INK_WRITING_PROMPT } = req.app.locals.prompts;
+  const userSettings = req.session.user && req.session.user.settings;
+  const studyLevelInstruction = getStudyLevelInstruction(userSettings);
+
+  // Same form instructions as /api/writing/generate — kept identical on purpose.
+  const formInstructions = {
+    article: 'This is an article or essay. Structure it with a clear introduction, logical argument movements, objection and answer, and a doxological conclusion. It is written to be read, not heard.',
+    sermon:  'This is a sermon or exhortation. Structure it with a compelling opening, expository body with clear movements, at least one illustration prompt [ILLUSTRATION: describe what kind of illustration would work here], and a direct application landing that tells the listener what to do or believe. Use repetition deliberately. Write for the ear, not the eye. End with a call to the congregation.',
+    letter:  'This is a personal doctrinal letter to a specific person. Open by addressing them directly by their relationship to the writer (friend, sister, neighbor — whatever was stated in Q3/Q5). Write in a warm but doctrinally serious pastoral voice. Do not structure it like an essay — let it read like a genuine letter. Close with an expression of care and a prayer or blessing.',
+  };
+  const formInstruction = formInstructions[form] || formInstructions.article;
+
+  // Posture by tier (which "door" the member picked). Governs how much the engine
+  // writes vs. draws out — the theology always comes from the member.
+  const postureInstructions = {
+    1: "You are a writing companion in a live conversation. The member is writing this piece themselves — you do NOT write the article for them. Your role is to help them find their idea, develop it, test it against Scripture and sound doctrine, and sharpen their thinking through questions and discussion. Draw the theology out of THEM. Ask good questions. Offer angles and push gently on weak points. Never hand them finished prose to paste — the writing is theirs. Keep replies conversational and fairly short, like a thoughtful writing partner talking, not an essay.",
+    2: "You are a writing companion collaborating in a live conversation. You and the member build this piece together, trading ideas and lines as you talk. When it helps, you may offer a sentence, a paragraph, or a passage they can use — but keep it collaborative, checking direction with them rather than running ahead. Draw their theology out and build on it; do not import doctrine they did not affirm. Keep replies conversational.",
+    3: "You are a writing companion in a live conversation, helping the member get a full draft down. Talk with them to understand what they want, then offer substantial drafted prose they can use, refining it as they steer. Still draw the core theology from what they tell you rather than importing your own positions. Keep the conversation natural — discuss, then draft, then refine.",
+  };
+  const postureInstruction = postureInstructions[tier] || postureInstructions[1];
+
+  const systemPrompt = studyLevelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_WRITING_PROMPT + '\n\n' + formInstruction + '\n\n' + postureInstruction;
+
+  // Build API messages — must always start with 'user'.
+  let apiMessages;
+  if (isOpening) {
+    apiMessages = [{
+      role: 'user',
+      content: 'Begin a writing session. The member wants to write a ' + (form || 'article') + '. Greet them warmly and briefly, and ask what is on their heart to write about (or, if they are not sure yet, help them find a direction). Keep it short and inviting.'
+    }];
+  } else {
+    const hist = Array.isArray(messages) ? messages : [];
+    // No adversarial framing to restate — the history speaks for itself. Guard
+    // only against a history that doesn't open on a user turn.
+    apiMessages = (hist[0] && hist[0].role === 'user')
+      ? hist
+      : [{ role: 'user', content: '(continue)' }, ...hist];
+  }
+
+  // Set SSE headers
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders();
+
+  const model  = tier === 3 ? 'claude-opus-4-8' : 'claude-sonnet-4-6';
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  let closed = false;
+
+  try {
+    const stream = client.messages.stream({
+      model,
+      max_tokens: 1500,
+      system:     systemPrompt,
+      messages:   apiMessages,
+    });
+
+    req.on('close', () => {
+      closed = true;
+      try { stream.abort(); } catch {}
+    });
+
+    // Marker-safe streaming (identical to Dialogue): the model may emit
+    // {{verse:...}} markers that must become real verse text (NASB primary, ASV
+    // fallback) and must never split across SSE chunks. Buffer, hold back any
+    // in-progress marker, inject completed markers, emit only the safe prefix.
+    let buf = '';
+    let atLineStart = true;
+    let usedNasb = false;
+    function flush(final) {
+      if (closed || res.writableEnded) { buf = ''; return; }
+      let cut = buf.length;
+      if (!final) {
+        const open = buf.lastIndexOf('{{');
+        if (open !== -1 && buf.indexOf('}}', open) === -1) cut = open;      // unclosed marker
+        else if (buf.endsWith('{')) cut = buf.length - 1;                    // lone trailing brace
+      }
+      const slice = buf.slice(0, cut);
+      const { text: emit, sources } = injectVersesTracked(slice, atLineStart);
+      if (sources.nasb) usedNasb = true;
+      buf = buf.slice(cut);
+      if (slice) atLineStart = slice.endsWith('\n');
+      if (emit) res.write(`data: ${JSON.stringify({ text: emit })}\n\n`);
+    }
+
+    stream.on('text', (text) => {
+      if (closed || res.writableEnded) return;
+      buf += text;
+      flush(false);
+    });
+
+    await stream.done();
+
+    if (!closed && !res.writableEnded) {
+      flush(true);
+      if (usedNasb) res.write(`data: ${JSON.stringify({ text: NASB_ATTRIBUTION_MD })}\n\n`);
+      res.write('data: [DONE]\n\n');
+      res.end();
+    }
+  } catch (err) {
+    if (!res.writableEnded) {
+      if (!closed) {
+        console.error('[Writing/converse] API error — status:', err.status, '| type:', err.error?.type, '| message:', err.message);
+        res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+      }
+      res.end();
+    }
   }
 });
 
