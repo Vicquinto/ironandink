@@ -240,48 +240,80 @@
   saveDraftBtn.addEventListener('click',    function () { saveArticle('Draft'); });
   markCompleteBtn.addEventListener('click', function () { saveArticle('Complete'); });
 
-  async function saveArticle(status) {
-    var title   = editorTitle.value.trim();
-    var content = editorContent.value;
-    if (!title) { editorTitle.focus(); showToast('Please add a title.', true); return; }
-
+  // Shared network save — the single path to /api/articles used by BOTH the manual
+  // save and the silent auto-save. PUTs the existing record when currentArticleId
+  // is set, else POSTs a new one; on success updates currentArticleId/Status and
+  // the saved snapshot. NO UI side effects (no toast, no list reload) — callers add
+  // those. Reads content/tier/form/answers/conversation live; title + status come
+  // from the caller. Throws on failure so callers decide how loud to be.
+  async function persistArticle(opts) {
     var body = {
-      title,
-      content,
+      title:   opts.title,
+      content: editorContent.value,
       tier:    selectedTier,
       form:    selectedForm,
       answers: { q1: answers[0], q2: answers[1], q3: answers[2], q4: answers[3], q5: answers[4] },
-      status,
+      status:  opts.status,
       conversation: conversationHistory,
     };
 
+    var res;
+    if (currentArticleId) {
+      res = await fetch('/api/articles/' + encodeURIComponent(currentArticleId), {
+        method:  'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(body),
+      });
+    } else {
+      res = await fetch('/api/articles', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(body),
+      });
+    }
+    var data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Save failed.');
+    currentArticleId     = data.article.id;
+    currentArticleStatus = data.article.status;
+    syncSavedSnapshot();
+    return data.article;
+  }
+
+  // Manual save (Save Draft / Mark Complete): requires a real title, then the
+  // usual toast + list reload on Complete.
+  async function saveArticle(status) {
+    var title = editorTitle.value.trim();
+    if (!title) { editorTitle.focus(); showToast('Please add a title.', true); return; }
     try {
-      var res, data;
-      if (currentArticleId) {
-        res  = await fetch('/api/articles/' + encodeURIComponent(currentArticleId), {
-          method:  'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify(body),
-        });
-      } else {
-        res  = await fetch('/api/articles', {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify(body),
-        });
-      }
-      data = await res.json();
-      if (data.success) {
-        currentArticleId     = data.article.id;
-        currentArticleStatus = data.article.status;
-        syncSavedSnapshot();
-        showToast(status === 'Complete' ? 'Marked complete.' : 'Draft saved.');
-        if (status === 'Complete') loadArticleList();
-      } else {
-        showToast('Error: ' + (data.error || 'Save failed.'), true);
-      }
+      await persistArticle({ title: title, status: status });
+      showToast(status === 'Complete' ? 'Marked complete.' : 'Draft saved.');
+      if (status === 'Complete') loadArticleList();
     } catch (err) {
       showToast('Error: ' + err.message, true);
+    }
+  }
+
+  // Silent background auto-save. Best-effort: no toast, no UI change, failures
+  // swallowed (writer can still save manually). Preserves the loaded article's
+  // status so it NEVER downgrades a Complete/Pending/Published record to Draft
+  // (currentArticleStatus is 'Draft' for a fresh draft). Uses an 'Untitled draft'
+  // placeholder in the SAVED record when the title box is empty — without touching
+  // the visible #editorTitle field, which the writer still sees blank to fill in.
+  // The in-flight flag stops overlapping saves from firing in quick succession.
+  var isAutoSaving = false;
+  async function autoSaveDraft() {
+    if (isAutoSaving) return;
+    isAutoSaving = true;
+    var title  = editorTitle.value.trim() || 'Untitled draft';
+    var status = currentArticleStatus || 'Draft';   // preserve status; never downgrade
+    try {
+      await persistArticle({ title: title, status: status });
+    } catch (err) {
+      if (window.console && console.warn) {
+        console.warn('Writing auto-save failed (will retry on next change):', err && err.message);
+      }
+    } finally {
+      isAutoSaving = false;
     }
   }
 
@@ -502,6 +534,7 @@
     editorContent.value = cur ? cur + '\n\n' + text : text;
     updateWordCount();
     showToast('Added to draft');
+    autoSaveDraft();   // preserve the article-pane change silently
   }
 
   // Attach a small "+ Add to draft" control to a COMPLETED companion message.
@@ -570,6 +603,7 @@
       }
       updateWordCount();
       showToast('Draft written into the article.');
+      autoSaveDraft();   // preserve the drafted-in article content silently
     } catch (err) {
       if (err.name !== 'AbortError') showToast('Error: ' + err.message, true);
     } finally {
@@ -653,7 +687,12 @@
     setConverseGenerating(true);
     try {
       var reply = await streamWritingExchange(false);
-      if (reply) conversationHistory.push({ role: 'assistant', content: reply });
+      if (reply) {
+        conversationHistory.push({ role: 'assistant', content: reply });
+        // First completed exchange creates the draft record; later ones update it.
+        // (Opening greeting alone never reaches here, so it never creates a draft.)
+        autoSaveDraft();
+      }
     } catch (err) {
       if (err.name === 'AbortError') {
         conversationHistory.pop();   // drop the unanswered user turn, quietly
