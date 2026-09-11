@@ -92,7 +92,10 @@ router.get('/writing', requireAuth, (req, res) => {
               <span id="editorTierBadge" class="tier-badge-main"></span>
               <span id="editorWordCount" class="word-count-display">0 words</span>
             </div>
-            <button class="btn-end-session" id="startOverBtn">&#8592; Start Over</button>
+            <div class="editor-topbar-actions">
+              <button class="btn-end-session" id="clearBoardBtn">Clear Board</button>
+              <button class="btn-end-session" id="backBtn">&#8592; Back</button>
+            </div>
           </div>
           <input type="text" id="editorTitle" class="editor-title-input" placeholder="Article title&#8230;">
           <textarea id="editorContent" class="editor-content-textarea" placeholder="Your article will appear here&#8230;"></textarea>

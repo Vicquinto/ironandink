@@ -8,6 +8,12 @@
   var currentArticleId     = null;
   var currentArticleStatus = 'Draft';
 
+  // Snapshot of the editor as of the last clean point (blank editor, loaded
+  // article, or successful save). The "Back" guard compares the live editor to
+  // this to detect unsaved work. Kept in sync via syncSavedSnapshot().
+  var lastSavedTitle       = '';
+  var lastSavedContent     = '';
+
   // ── Conversation state (Step 3) ───────────────────────────────────────────
   // Mirrors Dialogue's streaming client. conversationHistory is the running
   // [{role, content}] array sent to /api/writing/converse each turn.
@@ -42,7 +48,8 @@
   var editorWordCount   = document.getElementById('editorWordCount');
   var saveDraftBtn      = document.getElementById('saveDraftBtn');
   var markCompleteBtn   = document.getElementById('markCompleteBtn');
-  var startOverBtn      = document.getElementById('startOverBtn');
+  var clearBoardBtn     = document.getElementById('clearBoardBtn');
+  var backBtn           = document.getElementById('backBtn');
   var writingLoadingText = document.getElementById('writingLoadingText');
 
   // Conversation pane refs (wired in the "Writing conversation" section below).
@@ -140,6 +147,7 @@
     answers              = [];
     editorTitle.value    = '';
     editorContent.value  = '';
+    syncSavedSnapshot();
     setTierBadge(selectedTier, selectedForm);
     updateWordCount();
     showState('editor');
@@ -212,6 +220,7 @@
     }
     editorTitle.value   = article.title;
     editorContent.value = article.content;
+    syncSavedSnapshot();
     setTierBadge(article.tier, article.form || 'article');
     updateWordCount();
     // Reopening a saved article: no live conversation (that's the door flow).
@@ -259,6 +268,7 @@
       if (data.success) {
         currentArticleId     = data.article.id;
         currentArticleStatus = data.article.status;
+        syncSavedSnapshot();
         showToast(status === 'Complete' ? 'Marked complete.' : 'Draft saved.');
         if (status === 'Complete') loadArticleList();
       } else {
@@ -269,10 +279,26 @@
     }
   }
 
-  // ── Start Over ────────────────────────────────────────────────────────────
-  startOverBtn.addEventListener('click', function () {
-    // Leaving the editor: kill any in-progress conversation stream and reset
-    // conversation state so nothing keeps streaming after the writer is gone.
+  // ── Clear Board / Back ─────────────────────────────────────────────────────
+  // Records the editor's current title/content as the "clean" baseline. Called at
+  // every point the editor is set to a known-saved state (blank editor, loaded
+  // article, successful save) so editorIsDirty() reflects real unsaved work.
+  function syncSavedSnapshot() {
+    lastSavedTitle   = editorTitle.value;
+    lastSavedContent = editorContent.value;
+  }
+
+  // Unsaved-work check: the live editor differs from the last clean snapshot.
+  // Catches a brand-new never-saved draft AND edits made after a save.
+  function editorIsDirty() {
+    return editorTitle.value !== lastSavedTitle ||
+           editorContent.value !== lastSavedContent;
+  }
+
+  // Leave the two-pane workspace and return to the doors/genre flow. Same cleanup
+  // the old "Start Over" did: kill any in-progress conversation stream and reset
+  // conversation + editor state so nothing keeps streaming after the writer is gone.
+  function leaveWorkspace() {
     abortWritingConversation();
     resetConversationPane();
     currentArticleId     = null;
@@ -282,10 +308,35 @@
     answers              = ['', '', '', '', ''];
     editorTitle.value    = '';
     editorContent.value  = '';
+    syncSavedSnapshot();
     updateWordCount();
     loadArticleList();
     showState('main');
     if (window.history.replaceState) window.history.replaceState({}, '', '/writing');
+  }
+
+  // Clear Board: empty ONLY the article pane (title, body, word count) after a
+  // warning. The conversation pane, history, companion, and tier badge are left
+  // untouched — the writer stays in the two-pane view with a blank article.
+  clearBoardBtn.addEventListener('click', function () {
+    showConfirm(
+      "Clear the board? This will erase your current draft. This can't be undone.",
+      'Clear Board',
+      function () {
+        editorTitle.value   = '';
+        editorContent.value = '';
+        updateWordCount();
+      }
+    );
+  });
+
+  // Back: leave the workspace, warning first if there's unsaved draft content.
+  backBtn.addEventListener('click', function () {
+    if (editorIsDirty()) {
+      showConfirm('You have an unsaved draft. Leave without saving?', 'Leave', leaveWorkspace);
+    } else {
+      leaveWorkspace();
+    }
   });
 
   // ══════════════════════════════════════════════════════════════════════════

@@ -2593,6 +2593,14 @@ body {
   gap: 14px;
 }
 
+/* Groups the topbar's right-side buttons (Clear Board / Back) so the topbar's
+   space-between keeps the meta row left and the actions together on the right. */
+.editor-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .word-count-display {
   font-size: 0.9rem;
   color: var(--warm-brown);
