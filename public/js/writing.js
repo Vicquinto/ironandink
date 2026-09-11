@@ -223,11 +223,16 @@
     syncSavedSnapshot();
     setTierBadge(article.tier, article.form || 'article');
     updateWordCount();
-    // Reopening a saved article: no live conversation (that's the door flow).
-    // Stop any stream from a prior session and show the inert conversation shell
-    // so no stale bubbles or Tier 3 draft button linger. (Transcript restore is 4B.)
+    // Reopening a saved article: stop any stream from a prior session, then either
+    // restore the saved transcript (Step 4B) or, for old records with none, show
+    // the inert conversation shell. Never re-greet — greeting is the doors path only.
     abortWritingConversation();
-    resetConversationPane();
+    var savedConvo = Array.isArray(article.conversation) ? article.conversation : [];
+    if (savedConvo.length) {
+      restoreConversation(savedConvo);
+    } else {
+      resetConversationPane();
+    }
     showState('editor');
   }
 
@@ -247,6 +252,7 @@
       form:    selectedForm,
       answers: { q1: answers[0], q2: answers[1], q3: answers[2], q4: answers[3], q5: answers[4] },
       status,
+      conversation: conversationHistory,
     };
 
     try {
@@ -580,6 +586,38 @@
     if (conversationMessages) conversationMessages.innerHTML =
       '<p class="conversation-empty">Your conversation will appear here.</p>';
     if (conversationDraftBtn) conversationDraftBtn.style.display = 'none';
+  }
+
+  // Restore a saved transcript into the conversation pane (Step 4B). Re-renders
+  // each stored turn as a completed (non-streaming) bubble so a reopened article
+  // resumes exactly where it left off. Does NOT greet — greeting is only for the
+  // fresh doors path (openWritingConversation). `history` must be a non-empty
+  // [{role, content}] array; selectedTier/selectedForm are already set by the
+  // caller from the loaded article, so the Tier 3 button + next-turn tier posture
+  // are correct.
+  function restoreConversation(history) {
+    conversationHistory = history;
+    conversationMessages.innerHTML = '';   // drop the placeholder / any stale bubbles
+    // Tier 3 gets the "Draft it into the article" action; hidden for Tiers 1-2.
+    if (conversationDraftBtn) conversationDraftBtn.style.display = (selectedTier === 3) ? 'block' : 'none';
+    history.forEach(function (m) {
+      if (!m || !m.content) return;
+      if (m.role === 'user') {
+        addConversationUserMessage(m.content);
+      } else if (m.role === 'assistant') {
+        // Completed companion bubble — mirrors createCompanionMsg but not
+        // streaming: content is set directly via renderConvText.
+        var div = document.createElement('div');
+        div.className = 'chat-msg engine-msg';
+        div.innerHTML =
+          '<div class="msg-role">Companion</div>' +
+          '<div class="msg-content">' + renderConvText(m.content) + '</div>';
+        conversationMessages.appendChild(div);
+        // Restored companion messages behave like live ones: offer add-to-draft.
+        attachAddToDraft(div, m.content);
+      }
+    });
+    conversationMessages.scrollTop = conversationMessages.scrollHeight;
   }
 
   // Opening turn — the companion greets the writer when they land in the editor.
