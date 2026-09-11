@@ -74,7 +74,6 @@
       return '<div class="article-card">' +
         '<div class="article-card-header">' +
           '<span class="article-card-title">' + esc(a.title) + '</span>' +
-          '<button class="card-delete-btn article-delete-btn" data-id="' + esc(a.id) + '" title="Delete">&#10005;</button>' +
         '</div>' +
         '<div class="article-card-meta">' +
           '<span class="tier-badge-sm">Tier ' + a.tier + '</span>' +
@@ -88,6 +87,7 @@
           '<button class="btn-warm article-open-btn" data-id="' + esc(a.id) + '" ' +
             'style="font-size:0.82rem; padding:7px 18px;">Open</button>' +
           submitBtn +
+          '<button class="btn-delete-article article-delete-btn" data-id="' + esc(a.id) + '">Delete</button>' +
         '</div>' +
       '</div>';
     }).join('');
@@ -130,11 +130,11 @@
     articleList.querySelectorAll('.article-delete-btn').forEach(function (btn) {
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
-        showConfirm('Delete this article? This cannot be undone.', 'Delete', async function () {
+        showConfirm("Delete this article? This can't be undone.", 'Delete', async function () {
           try {
             var res  = await fetch('/api/articles/' + encodeURIComponent(btn.dataset.id), { method: 'DELETE' });
             var data = await res.json();
-            if (data.success) loadArticles();
+            if (data.success) { showToast('Article deleted.'); loadArticles(); }
             else showToast('Delete failed.', true);
           } catch (err) {
             showToast('Error: ' + err.message, true);

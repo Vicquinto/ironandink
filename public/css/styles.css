@@ -3011,6 +3011,28 @@ body {
   color: var(--bg);
 }
 
+/* Destructive card action — a clearly-visible, deliberate Delete button (replaces
+   the old faint "✕"). Matches the Open/Submit sizing but in a muted dark-red so it
+   reads as destructive without shouting; fills solid red on hover. */
+.btn-delete-article {
+  background: transparent;
+  border: 1px solid rgba(122,30,30,0.55);
+  color: #7a1e1e;
+  font-family: Georgia, serif;
+  font-size: 0.82rem;
+  padding: 7px 18px;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.btn-delete-article:hover {
+  background: #7a1e1e;
+  border-color: #7a1e1e;
+  color: var(--bg);
+}
+
 .pending-label {
   font-size: 0.78rem;
   color: #5C1A28;
