@@ -265,6 +265,10 @@
     } else {
       resetConversationPane();
     }
+    // Restore any unsent companion-input draft captured by the debounced save, so the
+    // writer sees their in-progress message again. Set unconditionally (to '' when the
+    // record has none) so a prior article's unsent text never bleeds across.
+    if (conversationInput) conversationInput.value = article.pendingMessage || '';
     showState('editor');
   }
 
@@ -287,6 +291,10 @@
       answers: { q1: answers[0], q2: answers[1], q3: answers[2], q4: answers[3], q5: answers[4] },
       status:  opts.status,
       conversation: conversationHistory,
+      // In-progress, unsent companion input — read live so every save (event-based
+      // or debounced) captures whatever is currently typed but not yet sent. After
+      // sendWritingMessage clears the input, the next save naturally persists ''.
+      pendingMessage: (conversationInput && conversationInput.value) || '',
     };
 
     var res;
@@ -1103,6 +1111,36 @@
   }
 
   editorContent.addEventListener('input', updateWordCount);
+
+  // ── Debounced save-on-typing-pause ─────────────────────────────────────────
+  // Closes the gap the event-based autoSaveDraft() leaves open: text typed into the
+  // article body or the companion input — but not yet committed by a completed
+  // exchange, add-to-draft, or Tier 3 draft-in — was never captured. These fire a
+  // silent save 2s after typing stops, reusing the same save path. The isAutoSaving
+  // in-flight guard already prevents overlap with the event-based triggers, so no
+  // new guard is needed. Completely silent — no toast, no UI change.
+  var editorSaveDebounceTimer = null;
+  var inputSaveDebounceTimer  = null;
+  var SAVE_DEBOUNCE_MS = 2000;
+
+  editorContent.addEventListener('input', function () {
+    if (editorSaveDebounceTimer) clearTimeout(editorSaveDebounceTimer);
+    editorSaveDebounceTimer = setTimeout(function () {
+      if (!editorContent.value.trim()) return;   // nothing in the body to save
+      autoSaveDraft();
+    }, SAVE_DEBOUNCE_MS);
+  });
+
+  if (conversationInput) {
+    conversationInput.addEventListener('input', function () {
+      if (inputSaveDebounceTimer) clearTimeout(inputSaveDebounceTimer);
+      inputSaveDebounceTimer = setTimeout(function () {
+        if (!conversationInput.value.trim()) return;   // no unsent text to capture
+        // persistArticle reads conversationInput.value live as pendingMessage.
+        autoSaveDraft();
+      }, SAVE_DEBOUNCE_MS);
+    });
+  }
 
   function extractTitleFromContent(content, fallback) {
     var match = String(content).match(/^#\s+(.+)$/m);

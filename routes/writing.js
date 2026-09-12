@@ -295,7 +295,7 @@ router.get('/api/articles/:id', requireAuth, (req, res) => {
 // ─── POST /api/articles ───────────────────────────────────────────────────────
 router.post('/api/articles', requireAuth, (req, res) => {
   if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
-  const { title, content, tier, form, answers, status, conversation } = req.body;
+  const { title, content, tier, form, answers, status, conversation, pendingMessage } = req.body;
   if (!title) return res.status(400).json({ success: false, error: 'Title is required.' });
 
   const now          = new Date().toISOString();
@@ -310,6 +310,7 @@ router.post('/api/articles', requireAuth, (req, res) => {
     answers:    answers || {},
     status:     status || 'Draft',
     conversation: conversation || [],
+    pendingMessage: pendingMessage || '',
     studyLevel: (userSettings && userSettings.studyLevel) || 'journeyman',
     createdAt:  now,
     updatedAt:  now,
@@ -330,7 +331,7 @@ router.put('/api/articles/:id', requireAuth, (req, res) => {
   const idx      = articles.findIndex(a => a.id === req.params.id && a.userId === req.session.userId);
   if (idx === -1) return res.status(404).json({ success: false, error: 'Article not found.' });
 
-  const { title, content, tier, form, answers, status, conversation } = req.body;
+  const { title, content, tier, form, answers, status, conversation, pendingMessage } = req.body;
   articles[idx] = {
     ...articles[idx],
     title:     title !== undefined ? title.trim() : articles[idx].title,
@@ -340,6 +341,7 @@ router.put('/api/articles/:id', requireAuth, (req, res) => {
     answers:   answers || articles[idx].answers,
     status:    status  || articles[idx].status,
     conversation: conversation !== undefined ? conversation : (articles[idx].conversation || []),
+    pendingMessage: pendingMessage !== undefined ? pendingMessage : (articles[idx].pendingMessage || ''),
     updatedAt: new Date().toISOString(),
   };
 
