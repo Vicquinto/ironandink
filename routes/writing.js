@@ -99,8 +99,7 @@ router.get('/writing', requireAuth, (req, res) => {
                 <button class="guide-font-btn guide-font-btn-md" id="editorFontReset" title="Reset text size" aria-label="Reset text size">A</button>
                 <button class="guide-font-btn guide-font-btn-lg" id="editorFontInc" title="Larger text" aria-label="Larger text">A+</button>
               </span>
-              <button class="guide-print-btn" id="editorDownloadBtn" title="Download as Markdown (.md)">&#8681; Download</button>
-              <button class="guide-print-btn" id="editorPrintBtn" title="Print article">Print</button>
+              <button class="guide-print-btn" id="editorPrintBtn" title="Print or Save as PDF">Print / Download</button>
             </div>
             <div class="editor-topbar-actions">
               <button class="btn-end-session" id="clearBoardBtn">Clear Board</button>

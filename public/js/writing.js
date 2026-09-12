@@ -959,7 +959,6 @@
   var editorFontDec   = document.getElementById('editorFontDec');
   var editorFontReset = document.getElementById('editorFontReset');
   var editorFontInc   = document.getElementById('editorFontInc');
-  var editorDownloadBtn = document.getElementById('editorDownloadBtn');
   var editorPrintBtn    = document.getElementById('editorPrintBtn');
 
   function loadEditorFont() {
@@ -988,60 +987,48 @@
   if (editorFontReset) editorFontReset.addEventListener('click', function () { applyEditorFontSize(EFONT_DEFAULT); });
   if (editorFontInc)   editorFontInc.addEventListener('click',   function () { applyEditorFontSize(editorFontSize + EFONT_STEP); });
 
-  // Filesystem-safe name from the title; falls back to "untitled".
-  function sanitizeFilename(name) {
-    var base = String(name || '').trim()
-      .replace(/[^\w\s-]/g, '')   // drop punctuation/symbols
-      .replace(/\s+/g, '-')       // spaces → hyphens
-      .replace(/-+/g, '-')        // collapse runs
-      .replace(/^-+|-+$/g, '');   // trim hyphens
-    return base || 'untitled';
+  // Print / Download — one control. Reuses the app's shared print mechanism (the
+  // same one the Library uses: a body-level #printArea shown by the global
+  // `@media print` styles when body.is-printing is set). window.print() opens the
+  // browser dialog, from which the user prints OR chooses "Save as PDF". No popup
+  // window, so nothing to be blocked; the markdown/.md download was removed.
+  var writingPrintArea = document.getElementById('printArea');
+  if (!writingPrintArea) {
+    writingPrintArea = document.createElement('div');
+    writingPrintArea.id = 'printArea';
+    writingPrintArea.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(writingPrintArea);
   }
 
-  // Download the current article as Markdown (.md) — the portable, paste-anywhere
-  // option. Title becomes a `# ` heading atop the body so the file is complete.
-  function downloadArticle() {
-    var title = editorTitle.value.trim();
-    var body  = editorContent.value;
-    if (!title && !body.trim()) { showToast('Nothing to download yet.'); return; }
-    var md = title ? ('# ' + title + '\n\n' + body) : body;
-    var blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
-    var url  = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = sanitizeFilename(title) + '.md';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  // Build clean print HTML: title as <h1>, body as escaped paragraphs (blank lines
+  // split paragraphs, single newlines become <br>). The global #printArea @media
+  // print rules (Georgia 12pt, styled headings/paragraphs) do the visual work.
+  function buildPrintHtml(title, body) {
+    var html = title ? ('<h1>' + esc(title) + '</h1>') : '';
+    var paras = String(body).split(/\n{2,}/);
+    for (var i = 0; i < paras.length; i++) {
+      var p = paras[i].replace(/\s+$/, '');
+      if (!p.trim()) continue;
+      html += '<p>' + esc(p).replace(/\n/g, '<br>') + '</p>';
+    }
+    return html;
   }
 
-  // Print — opens the browser print dialog with the article in a clean print
-  // window (title as heading, body as wrapped text). Content built client-side.
   function printArticle() {
     var title = editorTitle.value.trim();
     var body  = editorContent.value;
     if (!title && !body.trim()) { showToast('Nothing to print yet.'); return; }
-    var w = window.open('', '_blank');
-    if (!w) { showToast('Allow pop-ups to print.', true); return; }
-    var html =
-      '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' +
-      esc(title || 'Article') + '</title>' +
-      '<style>body{font-family:Georgia,serif;color:#1E1208;line-height:1.7;' +
-      'max-width:680px;margin:40px auto;padding:0 24px;}' +
-      'h1{font-size:1.6rem;color:#5C1A28;font-weight:normal;margin-bottom:24px;}' +
-      '.body{white-space:pre-wrap;font-size:1rem;}</style></head><body>' +
-      (title ? '<h1>' + esc(title) + '</h1>' : '') +
-      '<div class="body">' + esc(body) + '</div></body></html>';
-    w.document.open();
-    w.document.write(html);
-    w.document.close();
-    w.focus();
-    w.print();
+    writingPrintArea.innerHTML = buildPrintHtml(title, body);
+    document.body.classList.add('is-printing');
+    window.print();
   }
 
-  if (editorDownloadBtn) editorDownloadBtn.addEventListener('click', downloadArticle);
-  if (editorPrintBtn)    editorPrintBtn.addEventListener('click', printArticle);
+  window.addEventListener('afterprint', function () {
+    document.body.classList.remove('is-printing');
+    if (writingPrintArea) writingPrintArea.innerHTML = '';
+  });
+
+  if (editorPrintBtn) editorPrintBtn.addEventListener('click', printArticle);
 
   // ── Article list (Draft only) ─────────────────────────────────────────────
   async function loadArticleList() {
