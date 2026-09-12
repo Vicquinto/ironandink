@@ -515,4 +515,123 @@ router.post('/api/writing/converse', requireAuth, async (req, res) => {
   }
 });
 
+// ─── POST /api/writing/restyle (streaming SSE) ────────────────────────────────
+// Writing Types engine. One-shot transform: takes the current article draft and
+// rewrites it in one of six voices, preserving the writer's theology and meaning.
+// Cloned from POST /api/writing/converse — identical SSE + marker-safe flush() +
+// injectVersesTracked + req.on('close')/abort + usedNasb/NASB_ATTRIBUTION_MD +
+// [DONE] + error handling. Differences: body is { draft, style, form }, a single
+// user turn (no conversation history), style-specific prompt, opus + 4000 tokens.
+// Purely additive: /converse and /generate are untouched.
+router.post('/api/writing/restyle', requireAuth, async (req, res) => {
+  if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
+  const { draft, style, form } = req.body;
+
+  // Validate before opening the stream — nothing to rewrite means no request.
+  if (!draft || !String(draft).trim()) {
+    return res.status(400).json({ success: false, error: 'No draft to restyle.' });
+  }
+
+  const {
+    IRON_INK_CORE_PROMPT, IRON_INK_WRITING_PROMPT,
+    IRON_INK_STYLE_WARMER, IRON_INK_STYLE_ENCOURAGING, IRON_INK_STYLE_CONVICTION,
+    IRON_INK_STYLE_RESPOND, IRON_INK_STYLE_LYRICAL, IRON_INK_STYLE_PLAINER,
+  } = req.app.locals.prompts;
+  const userSettings = req.session.user && req.session.user.settings;
+  const studyLevelInstruction = getStudyLevelInstruction(userSettings);
+
+  // Same form instructions as /api/writing/converse — kept identical on purpose.
+  const formInstructions = {
+    article: 'This is an article or essay. Structure it with a clear introduction, logical argument movements, objection and answer, and a doxological conclusion. It is written to be read, not heard.',
+    sermon:  'This is a sermon or exhortation. Structure it with a compelling opening, expository body with clear movements, at least one illustration prompt [ILLUSTRATION: describe what kind of illustration would work here], and a direct application landing that tells the listener what to do or believe. Use repetition deliberately. Write for the ear, not the eye. End with a call to the congregation.',
+    letter:  'This is a personal doctrinal letter to a specific person. Open by addressing them directly by their relationship to the writer (friend, sister, neighbor — whatever was stated in Q3/Q5). Write in a warm but doctrinally serious pastoral voice. Do not structure it like an essay — let it read like a genuine letter. Close with an expression of care and a prayer or blessing.',
+  };
+  const formInstruction = formInstructions[form] || formInstructions.article;
+
+  // Select the restyle instruction by style key; default to warmer if unrecognized.
+  const styleInstructions = {
+    warmer:      IRON_INK_STYLE_WARMER,
+    encouraging: IRON_INK_STYLE_ENCOURAGING,
+    conviction:  IRON_INK_STYLE_CONVICTION,
+    respond:     IRON_INK_STYLE_RESPOND,
+    lyrical:     IRON_INK_STYLE_LYRICAL,
+    plainer:     IRON_INK_STYLE_PLAINER,
+  };
+  const styleInstruction = styleInstructions[style] || IRON_INK_STYLE_WARMER;
+
+  const systemPrompt = studyLevelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_WRITING_PROMPT + '\n\n' + formInstruction + '\n\n' + styleInstruction;
+
+  // One-shot transform — a single user turn carrying the draft to rewrite. No
+  // conversation history; the style instruction lives in the system prompt.
+  const apiMessages = [{ role: 'user', content: 'Here is the draft to rewrite:\n\n' + draft }];
+
+  // Set SSE headers
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders();
+
+  const model  = 'claude-opus-4-8';   // quality-sensitive rewrite — stronger model
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  let closed = false;
+
+  try {
+    const stream = client.messages.stream({
+      model,
+      max_tokens: 4000,               // drafts can be long
+      system:     systemPrompt,
+      messages:   apiMessages,
+    });
+
+    req.on('close', () => {
+      closed = true;
+      try { stream.abort(); } catch {}
+    });
+
+    // Marker-safe streaming (identical to converse): hold back any in-progress
+    // {{verse:...}} marker, inject completed markers, emit only the safe prefix.
+    let buf = '';
+    let atLineStart = true;
+    let usedNasb = false;
+    function flush(final) {
+      if (closed || res.writableEnded) { buf = ''; return; }
+      let cut = buf.length;
+      if (!final) {
+        const open = buf.lastIndexOf('{{');
+        if (open !== -1 && buf.indexOf('}}', open) === -1) cut = open;      // unclosed marker
+        else if (buf.endsWith('{')) cut = buf.length - 1;                    // lone trailing brace
+      }
+      const slice = buf.slice(0, cut);
+      const { text: emit, sources } = injectVersesTracked(slice, atLineStart);
+      if (sources.nasb) usedNasb = true;
+      buf = buf.slice(cut);
+      if (slice) atLineStart = slice.endsWith('\n');
+      if (emit) res.write(`data: ${JSON.stringify({ text: emit })}\n\n`);
+    }
+
+    stream.on('text', (text) => {
+      if (closed || res.writableEnded) return;
+      buf += text;
+      flush(false);
+    });
+
+    await stream.done();
+
+    if (!closed && !res.writableEnded) {
+      flush(true);
+      if (usedNasb) res.write(`data: ${JSON.stringify({ text: NASB_ATTRIBUTION_MD })}\n\n`);
+      res.write('data: [DONE]\n\n');
+      res.end();
+    }
+  } catch (err) {
+    if (!res.writableEnded) {
+      if (!closed) {
+        console.error('[Writing/restyle] API error — status:', err.status, '| type:', err.error?.type, '| message:', err.message);
+        res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+      }
+      res.end();
+    }
+  }
+});
+
 module.exports = router;

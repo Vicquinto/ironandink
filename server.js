@@ -316,6 +316,38 @@ WHAT NEVER CHANGES:
 ` + SCRIPTURE_RULE + `
 
 When the article quotes Scripture, emit a {{verse:Book Chapter:Verse}} marker where the verse text belongs; never write the verse text yourself.`;
+
+// ─── Writing Types — restyle instructions ──────────────────────────────────
+// Each rewrites a supplied draft in one voice, WITHOUT changing the writer's
+// theology or meaning. Used only by POST /api/writing/restyle, layered after the
+// Core + Writing prompts (so the confessional frame + Scripture rule still hold).
+// The doctrinal BOUNDARY on each is a hard constraint, not a suggestion. The
+// closing line is identical on all six on purpose.
+const STYLE_RESTYLE_CLOSING = `Preserve the writer's theology and meaning exactly — change only the voice, never the doctrine. When the draft quotes Scripture, emit a {{verse:Book Chapter:Verse}} marker where the verse belongs; never write verse text yourself. Return only the rewritten prose.`;
+
+const IRON_INK_STYLE_WARMER = `Rewrite the draft below in a warmer voice. Soften the temperature so a person, not a lecture, is speaking — more human, more near. BOUNDARY: warmth must never cost precision. Do not soften any hard doctrine into a comfortable half-truth, do not blur a sharp distinction to make it feel nicer, do not trade clarity for coziness. Every doctrinal claim must remain exactly as true as before — only more humanly said.
+
+` + STYLE_RESTYLE_CLOSING;
+
+const IRON_INK_STYLE_ENCOURAGING = `Rewrite the draft below to encourage a hurting reader — someone in grief, doubt, fear, or discouragement — leaning into hope and what is sure. BOUNDARY: comfort here is comfort grounded in truth, never comfort that evades it. Never reach for false consolations ('everything happens for a reason,' 'they're in a better place' as mere sentiment, 'God wanted another angel'). Console only with what is true and sure: the sovereignty of God over suffering, the resurrection, Christ's own grief and victory, the sure promises. Refuse any comfort that would collapse under theological scrutiny.
+
+` + STYLE_RESTYLE_CLOSING;
+
+const IRON_INK_STYLE_CONVICTION = `Rewrite the draft below with conviction — declarative, confident, unafraid, removing tentative hedging and qualifiers so the truth stands up straight. BOUNDARY: conviction must never curdle into harshness, arrogance, or condemnation. The force comes from confidence in God's truth, not the writer's ego or contempt for those who disagree. Speak boldly in love; never bludgeon, sneer, or write people off. Boldness for the truth, never a cudgel against people.
+
+` + STYLE_RESTYLE_CLOSING;
+
+const IRON_INK_STYLE_RESPOND = `Rewrite the draft below to build toward a call to respond — add or strengthen the 'therefore,' pressing the truth onto the reader's life and summoning them to do, believe, repent of, or embrace it. BOUNDARY (most important): the call is to respond to God's grace, never a manipulation of the will, and must never imply the response itself saves. This is a Reformed frame — salvation is God's sovereign work, not conjured by emotional altar-call pressure. Summon to repentance, faith, obedience, worship as the fitting response to what God has done and commanded — without emotional coercion, without works-righteousness, without implying the sinner saves himself by his decision. The summons is real and urgent, but the power is God's and the ground is grace.
+
+` + STYLE_RESTYLE_CLOSING;
+
+const IRON_INK_STYLE_LYRICAL = `Rewrite the draft below more lyrically — add beauty, rhythm, imagery, and cadence so the language stirs as well as informs, fitting for doxology and the glory of God. BOUNDARY: beauty must never cost clarity or truth. Do not drift into vague, pretty fog where doctrine goes soft-focus. The imagery must serve the truth, not obscure it, and must never pull meaning off-center or introduce anything Scripture does not say for the sake of the music. If stripping the beauty away would reveal the doctrine is no longer precisely true, you have gone too far. Beautiful and exact.
+
+` + STYLE_RESTYLE_CLOSING;
+
+const IRON_INK_STYLE_PLAINER = `Rewrite the draft below more plainly — strip ornament, cut overwriting, clear clutter so the meaning stands plain and unmissable, in short words and direct sentences. BOUNDARY: plainness must not flatten reverence or shave off necessary truth. Plain is not casual or irreverent; simple is not reductive. Do not cut a needed qualification and leave a claim incomplete or misleading, and do not make the sacred sound flippant. The truth must end up clearer AND still whole.
+
+` + STYLE_RESTYLE_CLOSING;
 const IRON_INK_CHILDREN_STORY_PROMPT = `You are telling a true story from God's Word to a school-age child, roughly ages 6 to 10. Your purpose is to help a child know God and love Him through a warm, faithful telling of Scripture. This is a STORY, not a lesson or a study.
 
 VOICE:
@@ -345,7 +377,7 @@ Write nothing else — no study sections, background, or extra questions. A stor
 // ──────────────────────────────────────────────────────────────────────────
 
 // Expose prompts to all route handlers via req.app.locals.prompts
-app.locals.prompts = { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT, IRON_INK_EXPLORE_PROMPT, IRON_INK_HISTORICAL_PROMPT, IRON_INK_SCRIPTURE_PROMPT, IRON_INK_OPEN_PROMPT, IRON_INK_PEOPLE_PROMPT, IRON_INK_PATHWAY_PROMPT, IRON_INK_BOOK_PROMPT, IRON_INK_DIALOGUE_PROMPT, IRON_INK_WRITING_PROMPT, children: IRON_INK_CHILDREN_STORY_PROMPT };
+app.locals.prompts = { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT, IRON_INK_EXPLORE_PROMPT, IRON_INK_HISTORICAL_PROMPT, IRON_INK_SCRIPTURE_PROMPT, IRON_INK_OPEN_PROMPT, IRON_INK_PEOPLE_PROMPT, IRON_INK_PATHWAY_PROMPT, IRON_INK_BOOK_PROMPT, IRON_INK_DIALOGUE_PROMPT, IRON_INK_WRITING_PROMPT, IRON_INK_STYLE_WARMER, IRON_INK_STYLE_ENCOURAGING, IRON_INK_STYLE_CONVICTION, IRON_INK_STYLE_RESPOND, IRON_INK_STYLE_LYRICAL, IRON_INK_STYLE_PLAINER, children: IRON_INK_CHILDREN_STORY_PROMPT };
 
 // Stripe webhook needs the RAW request body for signature verification, so it MUST
 // be registered BEFORE the global express.json() parser. Dormant while dark: the
@@ -667,4 +699,4 @@ httpServer.listen(PORT, () => {
   if (process.send) process.send('ready');
 });
 
-module.exports = { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT, IRON_INK_EXPLORE_PROMPT, IRON_INK_HISTORICAL_PROMPT, IRON_INK_SCRIPTURE_PROMPT, IRON_INK_OPEN_PROMPT, IRON_INK_PEOPLE_PROMPT, IRON_INK_PATHWAY_PROMPT, IRON_INK_BOOK_PROMPT, IRON_INK_DIALOGUE_PROMPT, IRON_INK_WRITING_PROMPT };
+module.exports = { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT, IRON_INK_EXPLORE_PROMPT, IRON_INK_HISTORICAL_PROMPT, IRON_INK_SCRIPTURE_PROMPT, IRON_INK_OPEN_PROMPT, IRON_INK_PEOPLE_PROMPT, IRON_INK_PATHWAY_PROMPT, IRON_INK_BOOK_PROMPT, IRON_INK_DIALOGUE_PROMPT, IRON_INK_WRITING_PROMPT, IRON_INK_STYLE_WARMER, IRON_INK_STYLE_ENCOURAGING, IRON_INK_STYLE_CONVICTION, IRON_INK_STYLE_RESPOND, IRON_INK_STYLE_LYRICAL, IRON_INK_STYLE_PLAINER };
