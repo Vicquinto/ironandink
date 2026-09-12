@@ -2653,6 +2653,146 @@ body {
   align-items: center;
 }
 
+/* ─── WRITING TYPES — restyle picker / preview overlay / undo ─────────────── */
+
+/* Anchors the popover picker to the Restyle button. */
+.restyle-menu-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+/* Popover menu — opens above the button, on the cream surface with a soft lift. */
+.restyle-picker {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  z-index: 1100;
+  min-width: 224px;
+  background: var(--bg);
+  border: 1px solid rgba(160,132,92,0.4);
+  border-radius: 6px;
+  box-shadow: 0 8px 26px rgba(30,18,8,0.28);
+  padding: 8px;
+}
+
+.restyle-picker-title {
+  font-size: 0.78rem;
+  color: var(--warm-brown);
+  font-style: italic;
+  letter-spacing: 0.03em;
+  padding: 4px 8px 8px;
+  border-bottom: 1px solid rgba(160,132,92,0.18);
+  margin-bottom: 6px;
+}
+
+.restyle-picker-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: Georgia, serif;
+  font-size: 0.9rem;
+  padding: 9px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: background 0.12s, color 0.12s;
+}
+.restyle-picker-item:hover {
+  background: rgba(160,132,92,0.14);
+}
+
+/* Genre default — a highlighted "suggested" item; all six stay selectable. */
+.restyle-picker-item.is-suggested {
+  background: rgba(92,26,40,0.08);
+  color: var(--accent);
+}
+.restyle-picker-item.is-suggested::after {
+  content: 'suggested';
+  float: right;
+  font-size: 0.66rem;
+  font-style: italic;
+  color: var(--warm-brown);
+  letter-spacing: 0.04em;
+  margin-left: 10px;
+  opacity: 0.85;
+}
+
+/* Undo affordance — subtle, secondary; shown only after an Accept. */
+.restyle-undo-btn {
+  font-size: 0.82rem;
+  padding: 8px 16px;
+  opacity: 0.85;
+}
+.restyle-undo-btn:hover { opacity: 1; }
+
+/* Preview overlay — centered modal above the workspace with a backdrop. */
+.restyle-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(107,66,38,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: 40px 20px;
+}
+
+.restyle-overlay-card {
+  background: var(--bg);
+  border: 1px solid rgba(160,132,92,0.3);
+  border-radius: 8px;
+  width: 100%;
+  max-width: 720px;
+  max-height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
+  padding: 26px 32px 24px;
+}
+
+.restyle-overlay-header {
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(160,132,92,0.18);
+  margin-bottom: 18px;
+  flex-shrink: 0;
+}
+
+.restyle-overlay-title {
+  font-size: 1.15rem;
+  color: var(--accent);
+  font-weight: normal;
+  letter-spacing: 0.03em;
+}
+
+/* Scrollable body — the restyled text streams in here. */
+.restyle-preview-content {
+  flex: 1;
+  overflow-y: auto;
+  color: var(--text);
+  font-family: Georgia, serif;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  padding-right: 6px;
+  min-height: 140px;
+}
+
+.restyle-overlay-footer {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding-top: 18px;
+  border-top: 1px solid rgba(160,132,92,0.18);
+  margin-top: 18px;
+  flex-shrink: 0;
+}
+
+.restyle-overlay-footer .btn-primary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 /* ─── WRITING TWO-PANE WORKSPACE ─────────────────────────────────────────── */
 /* Split composer: conversation LEFT (~40%), editor RIGHT (~60%). The row lives
    here (not on #writingEditor) so the wrapper's inline display toggle can't

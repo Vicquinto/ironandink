@@ -21,6 +21,16 @@
   var writingAbortController  = null;
   var isConverseGenerating    = false;
 
+  // ── Writing Types (restyle) state (Phase B) ────────────────────────────────
+  // restyleUndoBuffer holds the pre-Accept { content, title } for a single step
+  // of undo. isRestyling gates overlapping streams; restyleAbortController backs
+  // the Stop button. restylePreviewText accumulates the streamed rewrite (raw
+  // text, verses already resolved server-side) — this is what Accept swaps in.
+  var restyleUndoBuffer      = null;
+  var isRestyling            = false;
+  var restyleAbortController = null;
+  var restylePreviewText     = '';
+
   // NOTE (redesign): the five defining questions and their generate step were
   // removed from the live flow. Picking a "door" now lands the user in the blank
   // editor; AI generation is being rebuilt as a conversation in a later phase.
@@ -58,6 +68,24 @@
   var conversationSendBtn  = document.getElementById('conversationSendBtn');
   var conversationStopBtn  = document.getElementById('conversationStopBtn');
   var conversationDraftBtn = document.getElementById('conversationDraftBtn');
+
+  // Restyle (Writing Types) refs.
+  var restyleBtn            = document.getElementById('restyleBtn');
+  var restylePicker         = document.getElementById('restylePicker');
+  var restyleUndoBtn        = document.getElementById('restyleUndoBtn');
+  var restyleOverlay        = document.getElementById('restyleOverlay');
+  var restyleOverlayTitle   = document.getElementById('restyleOverlayTitle');
+  var restylePreviewContent = document.getElementById('restylePreviewContent');
+  var restyleAcceptBtn      = document.getElementById('restyleAcceptBtn');
+  var restyleDiscardBtn     = document.getElementById('restyleDiscardBtn');
+  var restyleStopBtn        = document.getElementById('restyleStopBtn');
+
+  // Human labels + genre-default suggestions (soft clay — all six stay selectable).
+  var RESTYLE_LABELS = {
+    warmer: 'Warmer', encouraging: 'Encouraging', conviction: 'With Conviction',
+    respond: 'Call to Respond', lyrical: 'More Lyrical', plainer: 'Plainer',
+  };
+  var RESTYLE_FORM_DEFAULT = { article: 'conviction', sermon: 'respond', letter: 'warmer' };
 
   // ── State control ─────────────────────────────────────────────────────────
   function showState(state) {
@@ -227,6 +255,10 @@
     // restore the saved transcript (Step 4B) or, for old records with none, show
     // the inert conversation shell. Never re-greet — greeting is the doors path only.
     abortWritingConversation();
+    // Loading a different article: kill any restyle preview and drop the undo
+    // buffer — undo must never revert across articles.
+    abortRestyle();
+    clearRestyleUndo();
     var savedConvo = Array.isArray(article.conversation) ? article.conversation : [];
     if (savedConvo.length) {
       restoreConversation(savedConvo);
@@ -339,6 +371,8 @@
   function leaveWorkspace() {
     abortWritingConversation();
     resetConversationPane();
+    abortRestyle();
+    clearRestyleUndo();
     currentArticleId     = null;
     currentArticleStatus = 'Draft';
     selectedTier         = 0;
@@ -364,6 +398,7 @@
         editorTitle.value   = '';
         editorContent.value = '';
         updateWordCount();
+        clearRestyleUndo();   // the pre-restyle draft is gone; nothing to undo to
       }
     );
   });
@@ -428,6 +463,8 @@
     if (conversationStopBtn) conversationStopBtn.style.display = val ? 'inline-block' : 'none';
     if (conversationSendBtn) conversationSendBtn.disabled = val;
     if (conversationInput)   conversationInput.disabled   = val;
+    // No overlapping streams: block Restyle while a conversation / Tier 3 draft runs.
+    if (restyleBtn)          restyleBtn.disabled          = val;
     if (!val) writingAbortController = null;
   }
 
@@ -723,6 +760,187 @@
   }
 
   if (conversationDraftBtn) conversationDraftBtn.addEventListener('click', draftIntoArticle);
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // ── Writing Types: restyle picker / preview / accept / undo (Phase B) ─────
+  // Client for POST /api/writing/restyle. The overlay PREVIEWS a rewritten draft
+  // without touching the live #editorContent — only Accept swaps it in (capturing
+  // a one-step undo buffer first). Reuses pumpSSE + renderConvText from above.
+  // ══════════════════════════════════════════════════════════════════════════
+
+  function isPickerOpen() {
+    return !!restylePicker && restylePicker.style.display !== 'none';
+  }
+
+  function openRestylePicker() {
+    if (!restylePicker) return;
+    // Highlight the genre default; every item stays selectable.
+    var suggested = RESTYLE_FORM_DEFAULT[selectedForm] || '';
+    restylePicker.querySelectorAll('.restyle-picker-item').forEach(function (b) {
+      b.classList.toggle('is-suggested', b.getAttribute('data-style') === suggested);
+    });
+    restylePicker.style.display = 'block';
+  }
+
+  function closeRestylePicker() {
+    if (restylePicker) restylePicker.style.display = 'none';
+  }
+
+  // Abort any in-progress restyle stream and tear down the picker + overlay.
+  // Used when leaving/reopening so nothing keeps streaming after the writer moves on.
+  function abortRestyle() {
+    if (restyleAbortController) { try { restyleAbortController.abort(); } catch (e) {} }
+    isRestyling = false;
+    closeRestylePicker();
+    closeRestyleOverlay();
+  }
+
+  // Clear the one-step undo buffer and hide its button. Called on every point the
+  // writer moves on (Back, Clear Board, load another article, accept a new restyle).
+  function clearRestyleUndo() {
+    restyleUndoBuffer = null;
+    if (restyleUndoBtn) restyleUndoBtn.style.display = 'none';
+  }
+
+  // Restyle button → toggle the picker. Guards: no draft, or a stream in progress.
+  if (restyleBtn) {
+    restyleBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (isConverseGenerating) { showToast('Finish the current writing first.', true); return; }
+      if (!editorContent.value.trim()) { showToast('Write something first, then restyle it.'); return; }
+      if (isPickerOpen()) { closeRestylePicker(); return; }
+      openRestylePicker();
+    });
+  }
+
+  // Click-outside + Escape close the picker.
+  document.addEventListener('click', function (e) {
+    if (!isPickerOpen()) return;
+    if (restylePicker.contains(e.target) || (restyleBtn && restyleBtn.contains(e.target))) return;
+    closeRestylePicker();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && isPickerOpen()) closeRestylePicker();
+  });
+
+  // Pick a style → close picker, open overlay, stream the rewrite.
+  if (restylePicker) {
+    restylePicker.querySelectorAll('.restyle-picker-item').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var style = btn.getAttribute('data-style');
+        closeRestylePicker();
+        startRestyle(style);
+      });
+    });
+  }
+
+  function openRestyleOverlay(styleLabel) {
+    restylePreviewText = '';
+    if (restylePreviewContent) restylePreviewContent.innerHTML = '';
+    if (restyleOverlayTitle)   restyleOverlayTitle.textContent = 'Restyled — ' + styleLabel;
+    if (restyleAcceptBtn)      restyleAcceptBtn.disabled = true;   // enabled when stream completes
+    if (restyleDiscardBtn)     restyleDiscardBtn.disabled = false;
+    if (restyleStopBtn)        restyleStopBtn.style.display = 'inline-block';
+    if (restyleOverlay)        restyleOverlay.style.display = 'flex';
+  }
+
+  function closeRestyleOverlay() {
+    if (restyleOverlay)        restyleOverlay.style.display = 'none';
+    if (restylePreviewContent) restylePreviewContent.innerHTML = '';
+    if (restyleStopBtn)        restyleStopBtn.style.display = 'none';
+    restylePreviewText = '';
+  }
+
+  // Stream a restyle into the overlay preview. The live #editorContent is NOT
+  // touched here — the draft underneath stays exactly as it was.
+  async function startRestyle(style) {
+    if (isRestyling) return;
+    if (isConverseGenerating) { showToast('Finish the current writing first.', true); return; }
+    var draft = editorContent.value;
+    if (!draft.trim()) { showToast('Write something first, then restyle it.'); return; }
+
+    var label = RESTYLE_LABELS[style] || RESTYLE_LABELS.warmer;
+    openRestyleOverlay(label);
+    isRestyling = true;
+    restyleAbortController = new AbortController();
+
+    try {
+      var response = await fetch('/api/writing/restyle', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ draft: draft, style: style, form: selectedForm }),
+        signal:  restyleAbortController.signal,
+      });
+      if (!response.ok) throw new Error('Server error ' + response.status);
+
+      restylePreviewText = await pumpSSE(response, function (full) {
+        restylePreviewText = full;
+        if (restylePreviewContent) {
+          restylePreviewContent.innerHTML = renderConvText(full);
+          restylePreviewContent.scrollTop = restylePreviewContent.scrollHeight;
+        }
+      });
+
+      isRestyling = false;
+      if (restyleStopBtn)   restyleStopBtn.style.display = 'none';
+      if (restyleAcceptBtn) restyleAcceptBtn.disabled = false;   // ready to accept
+    } catch (err) {
+      isRestyling = false;
+      closeRestyleOverlay();                 // abort (Stop) or error → draft untouched
+      if (err.name !== 'AbortError') showToast('Error: ' + err.message, true);
+    } finally {
+      restyleAbortController = null;
+    }
+  }
+
+  // Stop → abort the stream; the catch closes the overlay quietly. Draft untouched.
+  if (restyleStopBtn) {
+    restyleStopBtn.addEventListener('click', function () {
+      if (restyleAbortController) restyleAbortController.abort();
+    });
+  }
+
+  // Discard → close overlay, draft untouched, nothing saved. Aborts first if mid-stream.
+  if (restyleDiscardBtn) {
+    restyleDiscardBtn.addEventListener('click', function () {
+      if (isRestyling && restyleAbortController) { restyleAbortController.abort(); return; }
+      closeRestyleOverlay();
+    });
+  }
+
+  // Accept → capture the pre-restyle draft for one-step undo, swap in the styled
+  // text, save, and reveal Undo. Only after the stream has finished.
+  if (restyleAcceptBtn) {
+    restyleAcceptBtn.addEventListener('click', function () {
+      if (isRestyling) return;
+      var styled = restylePreviewText;
+      if (!styled || !styled.trim()) { closeRestyleOverlay(); return; }
+      restyleUndoBuffer = { content: editorContent.value, title: editorTitle.value };
+      editorContent.value = styled;
+      updateWordCount();
+      closeRestyleOverlay();
+      if (restyleUndoBtn) restyleUndoBtn.style.display = 'inline-block';
+      autoSaveDraft();                       // styled version now persists
+      showToast('Restyled. You can undo this once.');
+    });
+  }
+
+  // Undo restyle → revert to the captured pre-restyle draft (one step only), then
+  // re-save so the server matches. Buffer is single-use.
+  if (restyleUndoBtn) {
+    restyleUndoBtn.addEventListener('click', function () {
+      if (!restyleUndoBuffer) return;
+      editorContent.value = restyleUndoBuffer.content;
+      if (restyleUndoBuffer.title !== undefined && restyleUndoBuffer.title !== editorTitle.value) {
+        editorTitle.value = restyleUndoBuffer.title;
+      }
+      updateWordCount();
+      clearRestyleUndo();
+      autoSaveDraft();
+      showToast('Restyle undone.');
+    });
+  }
 
   // ── Article list (Draft only) ─────────────────────────────────────────────
   async function loadArticleList() {

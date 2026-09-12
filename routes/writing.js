@@ -102,9 +102,41 @@ router.get('/writing', requireAuth, (req, res) => {
           <div class="editor-action-row">
             <button class="btn-primary" id="saveDraftBtn">Save Draft</button>
             <button class="btn-warm" id="markCompleteBtn">Mark Complete</button>
+            <!-- Writing Types (Phase B): Restyle button + its popover picker.
+                 The wrap is position:relative so the picker anchors to the button. -->
+            <div class="restyle-menu-wrap">
+              <button class="btn-warm" id="restyleBtn">Restyle</button>
+              <div id="restylePicker" class="restyle-picker" style="display:none;">
+                <div class="restyle-picker-title">Rewrite in a different voice</div>
+                <button class="restyle-picker-item" data-style="warmer">Warmer</button>
+                <button class="restyle-picker-item" data-style="encouraging">Encouraging</button>
+                <button class="restyle-picker-item" data-style="conviction">With Conviction</button>
+                <button class="restyle-picker-item" data-style="respond">Call to Respond</button>
+                <button class="restyle-picker-item" data-style="lyrical">More Lyrical</button>
+                <button class="restyle-picker-item" data-style="plainer">Plainer</button>
+              </div>
+            </div>
+            <!-- One-step undo: shown only after an Accept, hidden otherwise. -->
+            <button class="btn-warm restyle-undo-btn" id="restyleUndoBtn" style="display:none;">&#8630; Undo restyle</button>
           </div>
         </div>
 
+      </div>
+
+      <!-- Writing Types preview overlay. Streams the restyled draft WITHOUT
+           touching the live editor; Accept swaps it in, Discard/Stop leave it. -->
+      <div id="restyleOverlay" class="restyle-overlay" style="display:none;">
+        <div class="restyle-overlay-card">
+          <div class="restyle-overlay-header">
+            <h3 class="restyle-overlay-title" id="restyleOverlayTitle">Restyled</h3>
+          </div>
+          <div id="restylePreviewContent" class="restyle-preview-content"></div>
+          <div class="restyle-overlay-footer">
+            <button class="btn-primary" id="restyleAcceptBtn">Accept</button>
+            <button class="btn-warm" id="restyleDiscardBtn">Discard</button>
+            <button class="btn-stop" id="restyleStopBtn" style="display:none;">Stop</button>
+          </div>
+        </div>
       </div>
     </div>
 
