@@ -2591,6 +2591,16 @@ body {
   display: flex;
   align-items: center;
   gap: 14px;
+  flex-wrap: wrap;
+}
+
+/* Phase C zoom controls — small A−/A/A+ group in the meta row. Buttons reuse
+   .guide-font-btn (from the reading view); this only sets their spacing so they
+   sit as one tight, secondary cluster next to the word count. */
+.editor-zoom {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* Groups the topbar's right-side buttons (Clear Board / Back) so the topbar's

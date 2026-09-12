@@ -91,6 +91,16 @@ router.get('/writing', requireAuth, (req, res) => {
             <div class="editor-meta-row">
               <span id="editorTierBadge" class="tier-badge-main"></span>
               <span id="editorWordCount" class="word-count-display">0 words</span>
+              <!-- Whiteboard conveniences (Phase C): display-only text zoom +
+                   client-side download/print. Reuses the reading-view font-btn
+                   styling. These never alter saved content. -->
+              <span class="editor-zoom" role="group" aria-label="Text size">
+                <button class="guide-font-btn guide-font-btn-sm" id="editorFontDec" title="Smaller text" aria-label="Smaller text">A&#8722;</button>
+                <button class="guide-font-btn guide-font-btn-md" id="editorFontReset" title="Reset text size" aria-label="Reset text size">A</button>
+                <button class="guide-font-btn guide-font-btn-lg" id="editorFontInc" title="Larger text" aria-label="Larger text">A+</button>
+              </span>
+              <button class="guide-print-btn" id="editorDownloadBtn" title="Download as Markdown (.md)">&#8681; Download</button>
+              <button class="guide-print-btn" id="editorPrintBtn" title="Print article">Print</button>
             </div>
             <div class="editor-topbar-actions">
               <button class="btn-end-session" id="clearBoardBtn">Clear Board</button>

@@ -942,6 +942,107 @@
     });
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // ── Whiteboard conveniences: text zoom + download/print (Phase C) ─────────
+  // Display + export only. Zoom changes how #editorContent is SHOWN (its inline
+  // fontSize), never its .value — saved content is untouched. Download/print
+  // build the file client-side from the live title + body; no server round-trip.
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // Bounds mirror the My Articles reading view (12–28) for consistency; default
+  // ~= the textarea's resting size. Persistence follows the reading view (which
+  // uses localStorage and works) but is wrapped in try/catch — localStorage is
+  // unavailable/throws in some contexts, so zoom degrades to in-memory silently.
+  var EFONT_DEFAULT = 15, EFONT_MIN = 12, EFONT_MAX = 28, EFONT_STEP = 2;
+  var EFONT_KEY = 'ironink_editor_font_size';
+
+  var editorFontDec   = document.getElementById('editorFontDec');
+  var editorFontReset = document.getElementById('editorFontReset');
+  var editorFontInc   = document.getElementById('editorFontInc');
+  var editorDownloadBtn = document.getElementById('editorDownloadBtn');
+  var editorPrintBtn    = document.getElementById('editorPrintBtn');
+
+  function loadEditorFont() {
+    try {
+      var v = parseInt(localStorage.getItem(EFONT_KEY), 10);
+      if (v) return Math.min(EFONT_MAX, Math.max(EFONT_MIN, v));
+    } catch (e) {}
+    return EFONT_DEFAULT;
+  }
+  function saveEditorFont(v) {
+    try { localStorage.setItem(EFONT_KEY, v); } catch (e) {}
+  }
+
+  var editorFontSize = loadEditorFont();
+
+  // Display-only zoom: sets the textarea's shown font size. Never touches .value.
+  function applyEditorFontSize(size) {
+    editorFontSize = Math.min(EFONT_MAX, Math.max(EFONT_MIN, size));
+    if (editorContent) editorContent.style.fontSize = editorFontSize + 'px';
+    saveEditorFont(editorFontSize);
+  }
+
+  applyEditorFontSize(editorFontSize);
+
+  if (editorFontDec)   editorFontDec.addEventListener('click',   function () { applyEditorFontSize(editorFontSize - EFONT_STEP); });
+  if (editorFontReset) editorFontReset.addEventListener('click', function () { applyEditorFontSize(EFONT_DEFAULT); });
+  if (editorFontInc)   editorFontInc.addEventListener('click',   function () { applyEditorFontSize(editorFontSize + EFONT_STEP); });
+
+  // Filesystem-safe name from the title; falls back to "untitled".
+  function sanitizeFilename(name) {
+    var base = String(name || '').trim()
+      .replace(/[^\w\s-]/g, '')   // drop punctuation/symbols
+      .replace(/\s+/g, '-')       // spaces → hyphens
+      .replace(/-+/g, '-')        // collapse runs
+      .replace(/^-+|-+$/g, '');   // trim hyphens
+    return base || 'untitled';
+  }
+
+  // Download the current article as Markdown (.md) — the portable, paste-anywhere
+  // option. Title becomes a `# ` heading atop the body so the file is complete.
+  function downloadArticle() {
+    var title = editorTitle.value.trim();
+    var body  = editorContent.value;
+    if (!title && !body.trim()) { showToast('Nothing to download yet.'); return; }
+    var md = title ? ('# ' + title + '\n\n' + body) : body;
+    var blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+    var url  = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = sanitizeFilename(title) + '.md';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  // Print — opens the browser print dialog with the article in a clean print
+  // window (title as heading, body as wrapped text). Content built client-side.
+  function printArticle() {
+    var title = editorTitle.value.trim();
+    var body  = editorContent.value;
+    if (!title && !body.trim()) { showToast('Nothing to print yet.'); return; }
+    var w = window.open('', '_blank');
+    if (!w) { showToast('Allow pop-ups to print.', true); return; }
+    var html =
+      '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' +
+      esc(title || 'Article') + '</title>' +
+      '<style>body{font-family:Georgia,serif;color:#1E1208;line-height:1.7;' +
+      'max-width:680px;margin:40px auto;padding:0 24px;}' +
+      'h1{font-size:1.6rem;color:#5C1A28;font-weight:normal;margin-bottom:24px;}' +
+      '.body{white-space:pre-wrap;font-size:1rem;}</style></head><body>' +
+      (title ? '<h1>' + esc(title) + '</h1>' : '') +
+      '<div class="body">' + esc(body) + '</div></body></html>';
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    w.print();
+  }
+
+  if (editorDownloadBtn) editorDownloadBtn.addEventListener('click', downloadArticle);
+  if (editorPrintBtn)    editorPrintBtn.addEventListener('click', printArticle);
+
   // ── Article list (Draft only) ─────────────────────────────────────────────
   async function loadArticleList() {
     try {
