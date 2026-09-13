@@ -1054,7 +1054,7 @@
     try {
       var res  = await fetch('/api/articles');
       var data = await res.json();
-      var drafts = (data.articles || []).filter(function (a) { return a.status === 'Draft'; });
+      var drafts = (data.articles || []).filter(function (a) { return a.status === 'Draft' && !a.deleted; });
       renderArticleList(drafts);
     } catch (err) {
       articleList.innerHTML = '<p class="writing-empty">Could not load articles.</p>';

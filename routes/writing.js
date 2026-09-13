@@ -255,6 +255,14 @@ router.get('/my-articles', requireAuth, (req, res) => {
       <p class="page-subtitle">Your saved drafts and completed articles.</p>
     </div>
     <div id="myArticleList" class="article-list-container"></div>
+    <div id="myTrashSection" style="display:none; margin-top:36px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; border-top:1px solid var(--border-cream); padding-top:20px;">
+        <h3 class="community-section-label" style="margin:0;">&#128465; Ready for Permanent Deletion</h3>
+        <button class="btn-delete-article" id="emptyTrashBtn">Empty Trash</button>
+      </div>
+      <p class="page-subtitle" style="margin:6px 0 16px;">Trashed articles are kept here so you can restore them. Deleting permanently cannot be undone.</p>
+      <div id="myTrashList" class="article-list-container"></div>
+    </div>
     <div id="myArticleReading" class="reading-view-container" style="display:none;">
       <div class="reading-topbar">
         <button class="btn-warm" id="readingBackBtn">&#8592; Back</button>
@@ -412,12 +420,90 @@ router.patch('/api/articles/:id/unpublish', requireAuth, (req, res) => {
   }
 });
 
-// ─── DELETE /api/articles/:id ─────────────────────────────────────────────────
+// ─── PATCH /api/articles/:id/trash — soft-delete into the holding area ─────────
+// Move the writer's OWN article to the "Ready for Permanent Deletion" holding
+// area instead of destroying it. Modeled on submit/unpublish (requireAuth +
+// ownership + memberGated + try/catch). Sets a `deleted` flag rather than
+// changing status, AND neutralizes publish state exactly like unpublish so a
+// trashed article can never match a Published/Pending board or admin filter —
+// which is why the Community routes, admin routes, and dashboard need no change.
+// Amens/comments are keyed by article id and are LEFT ALONE (they reattach if
+// the article is later restored and re-published).
+router.patch('/api/articles/:id/trash', requireAuth, (req, res) => {
+  try {
+    if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
+    const articles = readArticles();
+    const idx      = articles.findIndex(a => a.id === req.params.id && a.userId === req.session.userId);
+    if (idx === -1) return res.status(404).json({ success: false, error: 'Article not found.' });
+    articles[idx].deleted     = true;
+    articles[idx].deletedAt   = new Date().toISOString();
+    // Neutralize publish state — a trashed article is never board/queue-eligible.
+    articles[idx].status      = 'Complete';
+    articles[idx].publishedAt = null;
+    articles[idx].pinned      = false;
+    articles[idx].updatedAt   = new Date().toISOString();
+    writeArticles(articles);
+    res.json({ success: true, article: articles[idx] });
+  } catch (err) {
+    console.error('PATCH /api/articles/:id/trash failed:', err);
+    res.status(500).json({ success: false, error: 'Save failed. Please try again.' });
+  }
+});
+
+// ─── PATCH /api/articles/:id/restore — pull back out of the holding area ───────
+// Clears the `deleted` flag so the article returns to the active list. Status is
+// left as-is ('Complete' from the trash step, or its natural value) — restore
+// returns it as Complete/editable, NOT re-published. Precondition: it must
+// actually be trashed.
+router.patch('/api/articles/:id/restore', requireAuth, (req, res) => {
+  try {
+    if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
+    const articles = readArticles();
+    const idx      = articles.findIndex(a => a.id === req.params.id && a.userId === req.session.userId);
+    if (idx === -1) return res.status(404).json({ success: false, error: 'Article not found.' });
+    if (articles[idx].deleted !== true) {
+      return res.status(400).json({ success: false, error: 'Only a trashed article can be restored.' });
+    }
+    articles[idx].deleted   = false;
+    articles[idx].deletedAt = null;
+    articles[idx].updatedAt = new Date().toISOString();
+    writeArticles(articles);
+    res.json({ success: true, article: articles[idx] });
+  } catch (err) {
+    console.error('PATCH /api/articles/:id/restore failed:', err);
+    res.status(500).json({ success: false, error: 'Save failed. Please try again.' });
+  }
+});
+
+// ─── DELETE /api/articles/trash/empty — Empty Trash (this user only) ───────────
+// Permanently removes ALL of the CURRENT user's trashed articles. Only touches
+// this user's rows with deleted === true — never anyone else's, never active
+// ones. Registered BEFORE the /:id route below so "trash" is not captured as an
+// article id.
+router.delete('/api/articles/trash/empty', requireAuth, (req, res) => {
+  try {
+    const articles = readArticles();
+    const before   = articles.length;
+    const kept     = articles.filter(a => !(a.userId === req.session.userId && a.deleted === true));
+    const removed  = before - kept.length;
+    writeArticles(kept);
+    res.json({ success: true, count: removed });
+  } catch (err) {
+    console.error('DELETE /api/articles/trash/empty failed:', err);
+    res.status(500).json({ success: false, error: 'Delete failed. Please try again.' });
+  }
+});
+
+// ─── DELETE /api/articles/:id — Delete Permanently (must be trashed first) ─────
 router.delete('/api/articles/:id', requireAuth, (req, res) => {
   try {
     const articles = readArticles();
     const idx      = articles.findIndex(a => a.id === req.params.id && a.userId === req.session.userId);
     if (idx === -1) return res.status(404).json({ success: false, error: 'Article not found.' });
+    // Two-step guard: nothing is hard-deleted without going through trash first.
+    if (articles[idx].deleted !== true) {
+      return res.status(400).json({ success: false, error: 'Move the article to trash before deleting it permanently.' });
+    }
 
     articles.splice(idx, 1);
     writeArticles(articles);

@@ -2,21 +2,30 @@
   'use strict';
 
   var articleList      = document.getElementById('myArticleList');
+  var trashSection     = document.getElementById('myTrashSection');
+  var trashList        = document.getElementById('myTrashList');
+  var emptyTrashBtn    = document.getElementById('emptyTrashBtn');
   var myArticleReading = document.getElementById('myArticleReading');
   var readingTitle     = document.getElementById('readingTitle');
   var readingBody      = document.getElementById('readingBody');
   var readingBackBtn   = document.getElementById('readingBackBtn');
   var readingBadges    = document.getElementById('readingBadges');
 
+  // Whether the holding area currently has any trashed items (drives its
+  // visibility when returning to the list view).
+  var hasTrash = false;
+
   // ── View switching ────────────────────────────────────────────────────────
   function showList() {
     if (myArticleReading) myArticleReading.style.display = 'none';
     if (articleList)      articleList.style.display      = 'block';
+    if (trashSection)     trashSection.style.display     = hasTrash ? 'block' : 'none';
   }
 
   function showReading(article) {
     if (!myArticleReading || !readingTitle || !readingBody) return;
     articleList.style.display      = 'none';
+    if (trashSection) trashSection.style.display = 'none';
     myArticleReading.style.display = 'block';
 
     readingTitle.textContent = article.title;
@@ -45,7 +54,13 @@
     }
   }
 
-  function renderArticles(articles) {
+  function renderArticles(allArticles) {
+    // Split into the active list and the trash holding area.
+    var articles = (allArticles || []).filter(function (a) { return !a.deleted; });
+    var trashed  = (allArticles || []).filter(function (a) { return a.deleted; });
+
+    renderTrash(trashed);
+
     if (!articles.length) {
       articleList.innerHTML = '<p class="writing-empty">No articles yet. <a href="/writing" class="link-accent">Begin your first.</a></p>';
       return;
@@ -153,12 +168,75 @@
     articleList.querySelectorAll('.article-delete-btn').forEach(function (btn) {
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
-        showConfirm("Delete this article? This can't be undone.", 'Delete', async function () {
+        showConfirm('Move this article to trash? You can restore it or delete it permanently from the trash.', 'Move to Trash', async function () {
+          try {
+            var res  = await fetch('/api/articles/' + encodeURIComponent(btn.dataset.id) + '/trash', { method: 'PATCH' });
+            var data = await res.json();
+            if (data.success) { showToast('Moved to trash.'); loadArticles(); }
+            else showToast('Move to trash failed: ' + (data.error || ''), true);
+          } catch (err) {
+            showToast('Error: ' + err.message, true);
+          }
+        });
+      });
+    });
+  }
+
+  // ── Trash holding area ──────────────────────────────────────────────────────
+  function renderTrash(trashed) {
+    hasTrash = trashed.length > 0;
+    if (trashSection) trashSection.style.display = hasTrash ? 'block' : 'none';
+    if (!trashList) return;
+
+    if (!hasTrash) { trashList.innerHTML = ''; return; }
+
+    trashList.innerHTML = trashed.map(function (a) {
+      var formLabel = formDisplayLabel(a.form);
+      var text      = a.content || '';
+      var words     = text.trim() ? text.trim().split(/\s+/).length : 0;
+
+      return '<div class="article-card article-card-trashed">' +
+        '<div class="article-card-header">' +
+          '<span class="article-card-title">' + esc(a.title) + '</span>' +
+        '</div>' +
+        '<div class="article-card-meta">' +
+          '<span class="tier-badge-sm">Tier ' + a.tier + '</span>' +
+          '<span class="form-badge form-badge-' + esc(a.form || 'article') + '">' + formLabel + '</span>' +
+          '<span class="article-card-date">Trashed ' + fmtDate(a.deletedAt || a.updatedAt) + '</span>' +
+          '<span class="article-word-count">' + words + ' words</span>' +
+        '</div>' +
+        '<div style="display:flex; gap:10px; align-items:center; margin-top:12px; flex-wrap:wrap;">' +
+          '<button class="btn-warm article-restore-btn" data-id="' + esc(a.id) + '" ' +
+            'style="font-size:0.82rem; padding:7px 18px;">Restore</button>' +
+          '<button class="btn-delete-article article-purge-btn" data-id="' + esc(a.id) + '">Delete Permanently</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    trashList.querySelectorAll('.article-restore-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        btn.disabled = true;
+        (async function () {
+          try {
+            var res  = await fetch('/api/articles/' + encodeURIComponent(btn.dataset.id) + '/restore', { method: 'PATCH' });
+            var data = await res.json();
+            if (data.success) { showToast('Article restored.'); loadArticles(); }
+            else { showToast('Restore failed: ' + (data.error || ''), true); btn.disabled = false; }
+          } catch (err) {
+            showToast('Error: ' + err.message, true); btn.disabled = false;
+          }
+        })();
+      });
+    });
+
+    trashList.querySelectorAll('.article-purge-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        showConfirm('Permanently delete this article? This cannot be undone.', 'Delete Permanently', async function () {
           try {
             var res  = await fetch('/api/articles/' + encodeURIComponent(btn.dataset.id), { method: 'DELETE' });
             var data = await res.json();
-            if (data.success) { showToast('Article deleted.'); loadArticles(); }
-            else showToast('Delete failed.', true);
+            if (data.success) { showToast('Article permanently deleted.'); loadArticles(); }
+            else showToast('Delete failed: ' + (data.error || ''), true);
           } catch (err) {
             showToast('Error: ' + err.message, true);
           }
@@ -243,6 +321,22 @@
     aFontDec.addEventListener('click',   function () { applyArticleFontSize(rfontSize - RFONT_STEP); });
     aFontReset.addEventListener('click', function () { applyArticleFontSize(RFONT_DEFAULT); });
     aFontInc.addEventListener('click',   function () { applyArticleFontSize(rfontSize + RFONT_STEP); });
+  }
+
+  // Empty Trash — static button, wired once.
+  if (emptyTrashBtn) {
+    emptyTrashBtn.addEventListener('click', function () {
+      showConfirm('Permanently delete ALL articles in the trash? This cannot be undone.', 'Empty Trash', async function () {
+        try {
+          var res  = await fetch('/api/articles/trash/empty', { method: 'DELETE' });
+          var data = await res.json();
+          if (data.success) { showToast('Trash emptied.'); loadArticles(); }
+          else showToast('Empty trash failed: ' + (data.error || ''), true);
+        } catch (err) {
+          showToast('Error: ' + err.message, true);
+        }
+      });
+    });
   }
 
   loadArticles();
