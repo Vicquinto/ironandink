@@ -326,6 +326,7 @@
     if (!title) { editorTitle.focus(); showToast('Please add a title.', true); return; }
     try {
       await persistArticle({ title: title, status: status });
+      autoSaveSuppressedUntil = 0;   // a successful manual save lifts any auto-save cooldown
       showToast(status === 'Complete' ? 'Marked complete.' : 'Draft saved.');
       if (status === 'Complete') loadArticleList();
     } catch (err) {
@@ -341,16 +342,26 @@
   // the visible #editorTitle field, which the writer still sees blank to fill in.
   // The in-flight flag stops overlapping saves from firing in quick succession.
   var isAutoSaving = false;
+  // Failure backoff: after a failed auto-save, suppress further AUTOMATIC saves for a
+  // cooldown so one persistent failure (e.g. a 413) can't retry-flood the console on
+  // every typing pause. Cleared on the next successful save (auto or manual). Manual
+  // Save Draft / Mark Complete is never suppressed — the writer can always save by hand.
+  var AUTOSAVE_COOLDOWN_MS = 30000;
+  var autoSaveSuppressedUntil = 0;
   async function autoSaveDraft() {
     if (isAutoSaving) return;
+    if (Date.now() < autoSaveSuppressedUntil) return;   // in failure cooldown
     isAutoSaving = true;
     var title  = editorTitle.value.trim() || 'Untitled draft';
     var status = currentArticleStatus || 'Draft';   // preserve status; never downgrade
     try {
       await persistArticle({ title: title, status: status });
+      autoSaveSuppressedUntil = 0;                   // success — clear any cooldown
     } catch (err) {
+      autoSaveSuppressedUntil = Date.now() + AUTOSAVE_COOLDOWN_MS;   // back off, don't flood
       if (window.console && console.warn) {
-        console.warn('Writing auto-save failed (will retry on next change):', err && err.message);
+        console.warn('Writing auto-save failed; pausing auto-save for ' +
+          (AUTOSAVE_COOLDOWN_MS / 1000) + 's (manual save still available):', err && err.message);
       }
     } finally {
       isAutoSaving = false;

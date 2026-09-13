@@ -39,7 +39,11 @@ function readArticles() {
   try {
     if (!fs.existsSync(ARTICLES_PATH)) return [];
     return JSON.parse(fs.readFileSync(ARTICLES_PATH, 'utf8'));
-  } catch { return []; }
+  } catch (err) {
+    // Log genuine corruption instead of silently masking it as "no articles".
+    console.error('readArticles() failed to read/parse articles.json:', err);
+    return [];
+  }
 }
 
 function writeArticles(data) {
@@ -294,86 +298,106 @@ router.get('/api/articles/:id', requireAuth, (req, res) => {
 
 // ─── POST /api/articles ───────────────────────────────────────────────────────
 router.post('/api/articles', requireAuth, (req, res) => {
-  if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
-  const { title, content, tier, form, answers, status, conversation, pendingMessage } = req.body;
-  if (!title) return res.status(400).json({ success: false, error: 'Title is required.' });
+  try {
+    if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
+    const { title, content, tier, form, answers, status, conversation, pendingMessage } = req.body;
+    if (!title) return res.status(400).json({ success: false, error: 'Title is required.' });
 
-  const now          = new Date().toISOString();
-  const userSettings = req.session.user && req.session.user.settings;
-  const article = {
-    id:         randomUUID(),
-    userId:     req.session.userId,
-    title:      title.trim(),
-    content:    content || '',
-    tier:       tier || 1,
-    form:       form || 'article',
-    answers:    answers || {},
-    status:     status || 'Draft',
-    conversation: conversation || [],
-    pendingMessage: pendingMessage || '',
-    studyLevel: (userSettings && userSettings.studyLevel) || 'journeyman',
-    createdAt:  now,
-    updatedAt:  now,
-  };
+    const now          = new Date().toISOString();
+    const userSettings = req.session.user && req.session.user.settings;
+    const article = {
+      id:         randomUUID(),
+      userId:     req.session.userId,
+      title:      title.trim(),
+      content:    content || '',
+      tier:       tier || 1,
+      form:       form || 'article',
+      answers:    answers || {},
+      status:     status || 'Draft',
+      conversation: conversation || [],
+      pendingMessage: pendingMessage || '',
+      studyLevel: (userSettings && userSettings.studyLevel) || 'journeyman',
+      createdAt:  now,
+      updatedAt:  now,
+    };
 
-  const articles = readArticles();
-  articles.push(article);
-  writeArticles(articles);
-  const wu = req.session.user || {};
-  logEvent(wu.id || req.session.userId, wu.fullName, 'article_written', {});
-  res.json({ success: true, article });
+    const articles = readArticles();
+    articles.push(article);
+    writeArticles(articles);
+    const wu = req.session.user || {};
+    logEvent(wu.id || req.session.userId, wu.fullName, 'article_written', {});
+    res.json({ success: true, article });
+  } catch (err) {
+    console.error('POST /api/articles failed:', err);
+    res.status(500).json({ success: false, error: 'Save failed. Please try again.' });
+  }
 });
 
 // ─── PUT /api/articles/:id ────────────────────────────────────────────────────
 router.put('/api/articles/:id', requireAuth, (req, res) => {
-  if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
-  const articles = readArticles();
-  const idx      = articles.findIndex(a => a.id === req.params.id && a.userId === req.session.userId);
-  if (idx === -1) return res.status(404).json({ success: false, error: 'Article not found.' });
+  try {
+    if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
+    const articles = readArticles();
+    const idx      = articles.findIndex(a => a.id === req.params.id && a.userId === req.session.userId);
+    if (idx === -1) return res.status(404).json({ success: false, error: 'Article not found.' });
 
-  const { title, content, tier, form, answers, status, conversation, pendingMessage } = req.body;
-  articles[idx] = {
-    ...articles[idx],
-    title:     title !== undefined ? title.trim() : articles[idx].title,
-    content:   content !== undefined ? content : articles[idx].content,
-    tier:      tier   || articles[idx].tier,
-    form:      form   || articles[idx].form || 'article',
-    answers:   answers || articles[idx].answers,
-    status:    status  || articles[idx].status,
-    conversation: conversation !== undefined ? conversation : (articles[idx].conversation || []),
-    pendingMessage: pendingMessage !== undefined ? pendingMessage : (articles[idx].pendingMessage || ''),
-    updatedAt: new Date().toISOString(),
-  };
+    const { title, content, tier, form, answers, status, conversation, pendingMessage } = req.body;
+    articles[idx] = {
+      ...articles[idx],
+      title:     title !== undefined ? title.trim() : articles[idx].title,
+      content:   content !== undefined ? content : articles[idx].content,
+      tier:      tier   || articles[idx].tier,
+      form:      form   || articles[idx].form || 'article',
+      answers:   answers || articles[idx].answers,
+      status:    status  || articles[idx].status,
+      conversation: conversation !== undefined ? conversation : (articles[idx].conversation || []),
+      pendingMessage: pendingMessage !== undefined ? pendingMessage : (articles[idx].pendingMessage || ''),
+      updatedAt: new Date().toISOString(),
+    };
 
-  writeArticles(articles);
-  res.json({ success: true, article: articles[idx] });
+    writeArticles(articles);
+    res.json({ success: true, article: articles[idx] });
+  } catch (err) {
+    console.error('PUT /api/articles/:id failed:', err);
+    res.status(500).json({ success: false, error: 'Save failed. Please try again.' });
+  }
 });
 
 // ─── PATCH /api/articles/:id/submit — Submit for review ──────────────────────
 router.patch('/api/articles/:id/submit', requireAuth, (req, res) => {
-  if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
-  const articles = readArticles();
-  const idx      = articles.findIndex(a => a.id === req.params.id && a.userId === req.session.userId);
-  if (idx === -1) return res.status(404).json({ success: false, error: 'Article not found.' });
-  if (articles[idx].status !== 'Complete') {
-    return res.status(400).json({ success: false, error: 'Article must be Complete to submit for review.' });
+  try {
+    if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
+    const articles = readArticles();
+    const idx      = articles.findIndex(a => a.id === req.params.id && a.userId === req.session.userId);
+    if (idx === -1) return res.status(404).json({ success: false, error: 'Article not found.' });
+    if (articles[idx].status !== 'Complete') {
+      return res.status(400).json({ success: false, error: 'Article must be Complete to submit for review.' });
+    }
+    articles[idx].status        = 'Pending';
+    articles[idx].rejectionNote = null;
+    articles[idx].updatedAt     = new Date().toISOString();
+    writeArticles(articles);
+    res.json({ success: true, article: articles[idx] });
+  } catch (err) {
+    console.error('PATCH /api/articles/:id/submit failed:', err);
+    res.status(500).json({ success: false, error: 'Save failed. Please try again.' });
   }
-  articles[idx].status        = 'Pending';
-  articles[idx].rejectionNote = null;
-  articles[idx].updatedAt     = new Date().toISOString();
-  writeArticles(articles);
-  res.json({ success: true, article: articles[idx] });
 });
 
 // ─── DELETE /api/articles/:id ─────────────────────────────────────────────────
 router.delete('/api/articles/:id', requireAuth, (req, res) => {
-  const articles = readArticles();
-  const idx      = articles.findIndex(a => a.id === req.params.id && a.userId === req.session.userId);
-  if (idx === -1) return res.status(404).json({ success: false, error: 'Article not found.' });
+  try {
+    const articles = readArticles();
+    const idx      = articles.findIndex(a => a.id === req.params.id && a.userId === req.session.userId);
+    if (idx === -1) return res.status(404).json({ success: false, error: 'Article not found.' });
 
-  articles.splice(idx, 1);
-  writeArticles(articles);
-  res.json({ success: true });
+    articles.splice(idx, 1);
+    writeArticles(articles);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('DELETE /api/articles/:id failed:', err);
+    res.status(500).json({ success: false, error: 'Delete failed. Please try again.' });
+  }
 });
 
 // ─── POST /api/writing/generate ───────────────────────────────────────────────
