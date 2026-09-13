@@ -85,7 +85,7 @@
     warmer: 'Warmer', encouraging: 'Encouraging', conviction: 'With Conviction',
     respond: 'Call to Respond', lyrical: 'More Lyrical', plainer: 'Plainer',
   };
-  var RESTYLE_FORM_DEFAULT = { article: 'conviction', sermon: 'respond', letter: 'warmer' };
+  var RESTYLE_FORM_DEFAULT = { article: 'conviction', sermon: 'respond', letter: 'warmer', teaching: 'respond' };
 
   // ── State control ─────────────────────────────────────────────────────────
   function showState(state) {
@@ -1111,7 +1111,7 @@
   }
 
   function formDisplayLabel(form) {
-    var labels = { article: 'Article', sermon: 'Sermon', letter: 'Letter' };
+    var labels = { article: 'Article', sermon: 'Sermon', letter: 'Letter', teaching: 'Teaching Guide' };
     return labels[form] || 'Article';
   }
 

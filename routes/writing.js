@@ -191,6 +191,14 @@ router.get('/writing', requireAuth, (req, res) => {
                 <div class="form-option-desc">A personal doctrinal letter to a specific person. Pastoral in tone, direct in address.</div>
               </div>
             </label>
+            <label class="form-option">
+              <input type="radio" name="writingForm" value="teaching">
+              <div class="form-option-body">
+                <div class="form-option-icon">&#127891;</div>
+                <div class="form-option-label">Teaching Guide</div>
+                <div class="form-option-desc">A spoken study script for leading a group or teaching to camera.</div>
+              </div>
+            </label>
           </div>
           <div class="writing-modal-footer">
             <button class="btn-primary" id="formContinueBtn" disabled>Continue</button>
@@ -530,6 +538,7 @@ router.post('/api/writing/generate', requireAuth, async (req, res) => {
     article: 'This is an article or essay. Structure it with a clear introduction, logical argument movements, objection and answer, and a doxological conclusion. It is written to be read, not heard.',
     sermon:  'This is a sermon or exhortation. Structure it with a compelling opening, expository body with clear movements, at least one illustration prompt [ILLUSTRATION: describe what kind of illustration would work here], and a direct application landing that tells the listener what to do or believe. Use repetition deliberately. Write for the ear, not the eye. End with a call to the congregation.',
     letter:  'This is a personal doctrinal letter to a specific person. Open by addressing them directly by their relationship to the writer (friend, sister, neighbor — whatever was stated in Q3/Q5). Write in a warm but doctrinally serious pastoral voice. Do not structure it like an essay — let it read like a genuine letter. Close with an expression of care and a prayer or blessing.',
+    teaching: 'This is a teaching guide — a fully-scripted study written to be spoken aloud by a host or teacher leading a group, or delivered to camera. Write it to be SPOKEN and HEARD, not silently read. Open with something that draws a room (or a viewer) in within the first minute — a question, a scene, a striking claim — not a throat-clearing preamble. Organize it in clear, speakable sections a leader can move through, each building on the last, sized to run roughly 20-30 minutes aloud in total. Write in a warm, clear, generic teacher\'s voice usable by ANY host — do not write it as one specific named person; the leader could be anyone. Fully script it (complete sentences meant to be said), not just bullet points, but keep sentences speakable — shorter than written prose, with natural spoken rhythm. Where a passage of Scripture is taught, emit the {{verse:Book Chapter:Verse}} marker as always. End with application and a few discussion questions the group can talk through together (these also work if the guide is delivered solo). This is a teaching document a host holds and speaks from.',
   };
   const formInstruction = formInstructions[form] || formInstructions.article;
 
@@ -595,6 +604,7 @@ router.post('/api/writing/converse', requireAuth, async (req, res) => {
     article: 'This is an article or essay. Structure it with a clear introduction, logical argument movements, objection and answer, and a doxological conclusion. It is written to be read, not heard.',
     sermon:  'This is a sermon or exhortation. Structure it with a compelling opening, expository body with clear movements, at least one illustration prompt [ILLUSTRATION: describe what kind of illustration would work here], and a direct application landing that tells the listener what to do or believe. Use repetition deliberately. Write for the ear, not the eye. End with a call to the congregation.',
     letter:  'This is a personal doctrinal letter to a specific person. Open by addressing them directly by their relationship to the writer (friend, sister, neighbor — whatever was stated in Q3/Q5). Write in a warm but doctrinally serious pastoral voice. Do not structure it like an essay — let it read like a genuine letter. Close with an expression of care and a prayer or blessing.',
+    teaching: 'This is a teaching guide — a fully-scripted study written to be spoken aloud by a host or teacher leading a group, or delivered to camera. Write it to be SPOKEN and HEARD, not silently read. Open with something that draws a room (or a viewer) in within the first minute — a question, a scene, a striking claim — not a throat-clearing preamble. Organize it in clear, speakable sections a leader can move through, each building on the last, sized to run roughly 20-30 minutes aloud in total. Write in a warm, clear, generic teacher\'s voice usable by ANY host — do not write it as one specific named person; the leader could be anyone. Fully script it (complete sentences meant to be said), not just bullet points, but keep sentences speakable — shorter than written prose, with natural spoken rhythm. Where a passage of Scripture is taught, emit the {{verse:Book Chapter:Verse}} marker as always. End with application and a few discussion questions the group can talk through together (these also work if the guide is delivered solo). This is a teaching document a host holds and speaks from.',
   };
   const formInstruction = formInstructions[form] || formInstructions.article;
 
@@ -726,6 +736,7 @@ router.post('/api/writing/restyle', requireAuth, async (req, res) => {
     article: 'This is an article or essay. Structure it with a clear introduction, logical argument movements, objection and answer, and a doxological conclusion. It is written to be read, not heard.',
     sermon:  'This is a sermon or exhortation. Structure it with a compelling opening, expository body with clear movements, at least one illustration prompt [ILLUSTRATION: describe what kind of illustration would work here], and a direct application landing that tells the listener what to do or believe. Use repetition deliberately. Write for the ear, not the eye. End with a call to the congregation.',
     letter:  'This is a personal doctrinal letter to a specific person. Open by addressing them directly by their relationship to the writer (friend, sister, neighbor — whatever was stated in Q3/Q5). Write in a warm but doctrinally serious pastoral voice. Do not structure it like an essay — let it read like a genuine letter. Close with an expression of care and a prayer or blessing.',
+    teaching: 'This is a teaching guide — a fully-scripted study written to be spoken aloud by a host or teacher leading a group, or delivered to camera. Write it to be SPOKEN and HEARD, not silently read. Open with something that draws a room (or a viewer) in within the first minute — a question, a scene, a striking claim — not a throat-clearing preamble. Organize it in clear, speakable sections a leader can move through, each building on the last, sized to run roughly 20-30 minutes aloud in total. Write in a warm, clear, generic teacher\'s voice usable by ANY host — do not write it as one specific named person; the leader could be anyone. Fully script it (complete sentences meant to be said), not just bullet points, but keep sentences speakable — shorter than written prose, with natural spoken rhythm. Where a passage of Scripture is taught, emit the {{verse:Book Chapter:Verse}} marker as always. End with application and a few discussion questions the group can talk through together (these also work if the guide is delivered solo). This is a teaching document a host holds and speaks from.',
   };
   const formInstruction = formInstructions[form] || formInstructions.article;
 
