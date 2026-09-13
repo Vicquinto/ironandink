@@ -68,7 +68,8 @@
       } else if (a.status === 'Pending') {
         submitBtn = '<span class="pending-label">&#8987; Awaiting admin review</span>';
       } else if (a.status === 'Published') {
-        submitBtn = '<a href="/community" class="link-accent" style="font-size:0.82rem;">View in Community &#8594;</a>';
+        submitBtn = '<button class="btn-submit-review article-unpublish-btn" data-id="' + esc(a.id) + '">Unpublish</button>' +
+          '<a href="/community" class="link-accent" style="font-size:0.82rem;">View in Community &#8594;</a>';
       }
 
       return '<div class="article-card">' +
@@ -117,6 +118,28 @@
               loadArticles();
             } else {
               showToast('Submit failed: ' + (data.error || ''), true);
+              btn.disabled = false;
+            }
+          } catch (err) {
+            showToast('Error: ' + err.message, true);
+            btn.disabled = false;
+          }
+        });
+      });
+    });
+
+    articleList.querySelectorAll('.article-unpublish-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        showConfirm('Unpublish this article? It will be removed from the Community board and returned to your drafts as Complete, so you can edit it. Your amens and comments are kept, and you can re-submit it for review afterward.', 'Unpublish', async function () {
+          btn.disabled = true;
+          try {
+            var res  = await fetch('/api/articles/' + encodeURIComponent(btn.dataset.id) + '/unpublish', { method: 'PATCH' });
+            var data = await res.json();
+            if (data.success) {
+              showToast('Article unpublished and returned to your drafts as Complete.');
+              loadArticles();
+            } else {
+              showToast('Unpublish failed: ' + (data.error || ''), true);
               btn.disabled = false;
             }
           } catch (err) {

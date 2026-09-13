@@ -384,6 +384,34 @@ router.patch('/api/articles/:id/submit', requireAuth, (req, res) => {
   }
 });
 
+// ─── PATCH /api/articles/:id/unpublish — writer self-service unpublish ────────
+// Reverse of publish: pull the writer's OWN published article off the Community
+// board back to Complete (private) so they can revise and re-submit. Modeled on
+// the submit handler above — ownership-gated (NOT admin), same memberGated check
+// and try/catch. Sets the same fields the admin unpublish sets. Amens/comments
+// are keyed by article id and are intentionally LEFT ALONE (they reattach if the
+// article is re-published).
+router.patch('/api/articles/:id/unpublish', requireAuth, (req, res) => {
+  try {
+    if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
+    const articles = readArticles();
+    const idx      = articles.findIndex(a => a.id === req.params.id && a.userId === req.session.userId);
+    if (idx === -1) return res.status(404).json({ success: false, error: 'Article not found.' });
+    if (articles[idx].status !== 'Published') {
+      return res.status(400).json({ success: false, error: 'Only a published article can be unpublished.' });
+    }
+    articles[idx].status      = 'Complete';
+    articles[idx].publishedAt = null;
+    articles[idx].pinned      = false;
+    articles[idx].updatedAt   = new Date().toISOString();
+    writeArticles(articles);
+    res.json({ success: true, article: articles[idx] });
+  } catch (err) {
+    console.error('PATCH /api/articles/:id/unpublish failed:', err);
+    res.status(500).json({ success: false, error: 'Save failed. Please try again.' });
+  }
+});
+
 // ─── DELETE /api/articles/:id ─────────────────────────────────────────────────
 router.delete('/api/articles/:id', requireAuth, (req, res) => {
   try {
