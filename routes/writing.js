@@ -213,7 +213,7 @@ router.get('/writing', requireAuth, (req, res) => {
               <input type="radio" name="writingTier" value="1">
               <div class="form-option-body">
                 <div class="form-option-text">
-                  <div class="form-option-label">I&#8217;ll write it &mdash; think it through with me.</div>
+                  <div class="form-option-label">I&#8217;ll write it</div>
                   <div class="form-option-desc">You do the writing. I&#8217;ll help you find the idea, develop it, and sharpen it as you go.</div>
                 </div>
               </div>
@@ -222,7 +222,7 @@ router.get('/writing', requireAuth, (req, res) => {
               <input type="radio" name="writingTier" value="2">
               <div class="form-option-body">
                 <div class="form-option-text">
-                  <div class="form-option-label">Let&#8217;s write it together.</div>
+                  <div class="form-option-label">Let&#8217;s write it together</div>
                   <div class="form-option-desc">We build it side by side, trading lines and shaping it as we talk.</div>
                 </div>
               </div>
@@ -231,7 +231,7 @@ router.get('/writing', requireAuth, (req, res) => {
               <input type="radio" name="writingTier" value="3">
               <div class="form-option-body">
                 <div class="form-option-text">
-                  <div class="form-option-label">Help me get a full draft down.</div>
+                  <div class="form-option-label">Write it for me</div>
                   <div class="form-option-desc">Give me your direction and I&#8217;ll draft it. You steer and refine from there.</div>
                 </div>
               </div>
@@ -658,7 +658,7 @@ router.post('/api/writing/converse', requireAuth, async (req, res) => {
   // Posture by tier (which "door" the member picked). Governs how much the engine
   // writes vs. draws out — the theology always comes from the member.
   const postureInstructions = {
-    1: "You are a writing companion in a live conversation. The member is writing this piece themselves — you do NOT write the article for them. Your role is to help them find their idea, develop it, test it against Scripture and sound doctrine, and sharpen their thinking through questions and discussion. Draw the theology out of THEM. Ask good questions. Offer angles and push gently on weak points. Never hand them finished prose to paste — the writing is theirs. Keep replies conversational and fairly short, like a thoughtful writing partner talking, not an essay.",
+    1: "You are a writing companion in a live conversation. The member is writing this piece THEMSELVES — you do NOT write it for them. Your role is to help them find their idea, develop it, test it against Scripture and sound doctrine, and sharpen their thinking through questions and discussion. Draw the theology out of THEM. Ask good questions. Offer angles, push gently on weak points. You MAY offer a sentence or a short phrase now and then to illustrate or unstick them — but NEVER write a full paragraph, a full section, or a whole draft. If they seem to want you to write more of it for them, gently point them to switching modes ('if you'd like me to draft more of this, the \"Write it for me\" option is built for that') rather than quietly taking over the writing. The writing is theirs. Keep replies conversational and fairly short, like a thoughtful writing partner talking — not an essay, and never a finished article.",
     2: "You are a writing companion collaborating in a live conversation. You and the member build this piece together, trading ideas and lines as you talk. When it helps, you may offer a sentence, a paragraph, or a passage they can use — but keep it collaborative, checking direction with them rather than running ahead. Draw their theology out and build on it; do not import doctrine they did not affirm. Keep replies conversational.",
     3: "You are a writing companion in a live conversation, helping the member get a full draft down. Talk with them to understand what they want, then offer substantial drafted prose they can use, refining it as they steer. Still draw the core theology from what they tell you rather than importing your own positions. Keep the conversation natural — discuss, then draft, then refine.",
   };

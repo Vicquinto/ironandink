@@ -119,9 +119,9 @@ ${planSection}
         <div class="form-group">
           <label class="form-label">Default Writing Tier</label>
           <select class="form-select" id="defaultWritingTier">
-            <option value="tier1"${sel(s.defaultWritingTier, 'tier1')}>Tier 1 — Full Scaffold</option>
-            <option value="tier2"${sel(s.defaultWritingTier, 'tier2')}>Tier 2 — Guided Draft</option>
-            <option value="tier3"${sel(s.defaultWritingTier, 'tier3')}>Tier 3 — Full Ghostwrite</option>
+            <option value="tier1"${sel(s.defaultWritingTier, 'tier1')}>Tier 1 — I&#39;ll write it</option>
+            <option value="tier2"${sel(s.defaultWritingTier, 'tier2')}>Tier 2 — Let&#39;s write it together</option>
+            <option value="tier3"${sel(s.defaultWritingTier, 'tier3')}>Tier 3 — Write it for me</option>
           </select>
         </div>
         <div class="form-group">

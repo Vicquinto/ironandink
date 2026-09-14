@@ -1316,7 +1316,7 @@
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   function setTierBadge(tier, form) {
-    var tierLabels = { 1: 'Tier 1 — Scaffold', 2: 'Tier 2 — Draft', 3: 'Tier 3 — Ghostwrite' };
+    var tierLabels = { 1: 'Tier 1 — I\'ll write it', 2: 'Tier 2 — Let\'s write it together', 3: 'Tier 3 — Write it for me' };
     var formLabel  = formDisplayLabel(form);
     editorTierBadge.textContent = (tierLabels[tier] || 'Tier ' + tier) + (formLabel ? ' · ' + formLabel : '');
   }
