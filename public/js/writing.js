@@ -914,7 +914,24 @@
     setConverseGenerating(true);
     try {
       var greeting = await streamWritingExchange(true);
-      if (greeting) conversationHistory.push({ role: 'assistant', content: greeting });
+      if (greeting) {
+        // "Build from a study": the opening request seeds the study server-side
+        // (via sourceContent, while conversationHistory is still empty — so it is
+        // NOT double-sent on the opening wire and the server injects it exactly
+        // once). But the study-laden opening user turn was never in the client's
+        // history, so message #2+ dropped it and the companion "forgot" the study.
+        // Fix: record that opening user turn here so it rides along in every
+        // subsequent /converse request (normal conversation-context retention).
+        // Pushed only alongside the greeting so history stays validly alternating
+        // [user(study), assistant(greeting)]. Never written to the article pane.
+        if (sourceStudy) {
+          conversationHistory.push({
+            role: 'user',
+            content: 'Source study to build from (topic: "' + (sourceStudy.topic || 'untitled') + '"):\n\n' + sourceStudy.content,
+          });
+        }
+        conversationHistory.push({ role: 'assistant', content: greeting });
+      }
     } catch (err) {
       if (err.name !== 'AbortError') {
         showToast('The companion could not be reached. You can still write on the right.', true);
