@@ -8,6 +8,13 @@
   var currentArticleId     = null;
   var currentArticleStatus = 'Draft';
 
+  // ── "Build from a study" source (Piece B) ───────────────────────────────────
+  // Holds { topic, content } when the writer seeds the session from an existing
+  // study or pasted text, else null ("Start fresh"). Rides to the companion's
+  // opening turn ONLY; never written into the article pane. Cleared on Back / new
+  // session so a wrong pick never carries over.
+  var sourceStudy          = null;
+
   // Snapshot of the editor as of the last clean point (blank editor, loaded
   // article, or successful save). The "Back" guard compares the live editor to
   // this to detect unsaved work. Kept in sync via syncSavedSnapshot().
@@ -46,10 +53,17 @@
 
   var wModalStep0           = document.getElementById('wModalStep0');
   var wModalStep1           = document.getElementById('wModalStep1');
+  var wModalStep2           = document.getElementById('wModalStep2');
   var formContinueBtn       = document.getElementById('formContinueBtn');
   var cancelFormModalBtn    = document.getElementById('cancelFormModalBtn');
   var tierContinueBtn       = document.getElementById('tierContinueBtn');
   var doorsBackBtn          = document.getElementById('doorsBackBtn');
+  var sourceContinueBtn     = document.getElementById('sourceContinueBtn');
+  var sourceBackBtn         = document.getElementById('sourceBackBtn');
+  var wSourcePanelMine      = document.getElementById('wSourcePanelMine');
+  var wSourcePanelCommunity = document.getElementById('wSourcePanelCommunity');
+  var wSourcePanelPaste     = document.getElementById('wSourcePanelPaste');
+  var wSourcePasteText      = document.getElementById('wSourcePasteText');
   var closeWritingModalBtn  = document.getElementById('closeWritingModalBtn');
 
   var editorTitle       = document.getElementById('editorTitle');
@@ -118,12 +132,14 @@
   beginArticleBtn.addEventListener('click', function () {
     selectedTier = 0;
     selectedForm = '';
+    sourceStudy  = null;   // new session — never inherit a prior study pick
     document.querySelectorAll('input[name="writingForm"]').forEach(function (r) { r.checked = false; });
     document.querySelectorAll('input[name="writingTier"]').forEach(function (r) { r.checked = false; });
     if (formContinueBtn) formContinueBtn.disabled = true;
     tierContinueBtn.disabled = true;
     wModalStep0.style.display = 'block';
     wModalStep1.style.display = 'none';
+    if (wModalStep2) wModalStep2.style.display = 'none';
     showState('modal');
   });
 
@@ -164,26 +180,193 @@
     });
   });
 
-  // ── Doors → blank editor ──────────────────────────────────────────────────
-  // New flow: choosing a "how to begin" door skips the old questions/generate
-  // step and drops the user straight into a blank editor, carrying the selected
-  // genre (selectedForm) and door (selectedTier) through for the badge + save.
+  // ── Doors → source picker (Step 2) ──────────────────────────────────────────
+  // Choosing a "how to begin" door now advances to the "Start from a study?"
+  // source picker rather than landing in the workspace directly. The workspace
+  // landing itself lives in proceedToWorkspace(), called once a source is chosen.
   tierContinueBtn.addEventListener('click', function () {
     if (!selectedTier) return;
+    resetSourcePicker();
+    wModalStep1.style.display = 'none';
+    if (wModalStep2) wModalStep2.style.display = 'block';
+  });
+
+  // Land in the two-pane workspace and fire the companion's opening greeting.
+  // Extracted from the old door-continue handler so the source picker can call it
+  // after the writer chooses a source (a study, pasted text, or "start fresh").
+  // Behaviour with no source is byte-for-byte what the door-continue did before.
+  function proceedToWorkspace() {
     currentArticleId     = null;
     currentArticleStatus = 'Draft';
     answers              = [];
     editorTitle.value    = '';
-    editorContent.value  = '';
+    editorContent.value  = '';   // article pane stays empty — the study never lands here
     syncSavedSnapshot();
     setTierBadge(selectedTier, selectedForm);
     updateWordCount();
     showState('editor');
-    // Left pane: greet the writer and ask what they want to write. Fire-and-forget
-    // async (mirrors Dialogue's getOpeningChallenge call); the right-pane editor
-    // stays independently usable while the opening turn streams in.
+    // Left pane: greet the writer. Fire-and-forget async (mirrors Dialogue's
+    // getOpeningChallenge call); the right-pane editor stays independently usable
+    // while the opening turn streams in. openWritingConversation() reads
+    // sourceStudy and passes it to the opening turn when present.
     openWritingConversation();
+  }
+
+  // ── Source picker (Step 2: "Build from a study") ────────────────────────────
+  // Reset to a clean slate each time we enter the picker: no source, no radio,
+  // Continue disabled, panels hidden, paste box emptied.
+  function resetSourcePicker() {
+    sourceStudy = null;
+    document.querySelectorAll('input[name="writingSource"]').forEach(function (r) { r.checked = false; });
+    if (sourceContinueBtn) sourceContinueBtn.disabled = true;
+    hideSourcePanels();
+    if (wSourcePasteText) wSourcePasteText.value = '';
+  }
+
+  function hideSourcePanels() {
+    if (wSourcePanelMine)      wSourcePanelMine.style.display = 'none';
+    if (wSourcePanelCommunity) wSourcePanelCommunity.style.display = 'none';
+    if (wSourcePanelPaste)     wSourcePanelPaste.style.display = 'none';
+  }
+
+  // Minimal HTML escaper (writing.js had none) — used for both text and attribute
+  // contexts in the generated study cards.
+  function escHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function fmtSourceDate(d) {
+    if (!d) return '';
+    var dt = new Date(d);
+    if (isNaN(dt.getTime())) return '';
+    return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  // ONE generic study-list renderer, modeled on room.js loadLibraryPanel /
+  // loadCommunityPanel. Config: { panel, fetchUrl, emptyMsg, errorMsg, mapItem,
+  // onPick }. mapItem adapts a raw study to { id, topic, sub }; onPick receives the
+  // raw study. Instantiated twice below (my studies / community) so adding another
+  // source later is just another config.
+  function loadSourcePanel(cfg) {
+    var panel = cfg.panel;
+    if (!panel) return;
+    panel.style.display = 'block';
+    panel.innerHTML = '<p style="font-size:0.9rem;color:var(--text-muted);margin:0;">Loading&#8230;</p>';
+
+    fetch(cfg.fetchUrl)
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var items = (data && data.success && Array.isArray(data.studies)) ? data.studies : [];
+        if (!items.length) {
+          panel.innerHTML = '<p style="font-size:0.9rem;color:var(--text-muted);margin:0;">' + cfg.emptyMsg + '</p>';
+          return;
+        }
+        var byId = {};
+        items.forEach(function (it) { byId[it.id] = it; });
+
+        panel.innerHTML =
+          '<p style="font-size:0.85rem;color:#5C1A28;font-weight:600;margin:0 0 0.75rem;">Select a study to build from</p>' +
+          items.map(function (raw) {
+            var m = cfg.mapItem(raw);
+            return '<div class="w-source-card" data-id="' + escHtml(m.id) + '" style="background:#fff;border:1px solid #c4a882;border-radius:8px;padding:0.75rem 1rem;margin-bottom:0.5rem;cursor:pointer;">' +
+              '<span style="font-weight:600;font-size:1rem;color:#3a2a1a;display:block;margin-bottom:0.25rem;">' + escHtml(m.topic || '(untitled)') + '</span>' +
+              (m.sub ? '<span style="font-size:0.8rem;color:#6B4226;">' + escHtml(m.sub) + '</span>' : '') +
+            '</div>';
+          }).join('');
+
+        panel.querySelectorAll('.w-source-card').forEach(function (card) {
+          card.addEventListener('mouseenter', function () { card.style.background = '#f5ede0'; });
+          card.addEventListener('mouseleave', function () { card.style.background = '#fff'; });
+          card.addEventListener('click', function () {
+            var raw = byId[card.dataset.id];
+            if (!raw) return;
+            cfg.onPick(raw);
+          });
+        });
+      })
+      .catch(function () {
+        panel.innerHTML = '<p style="font-size:0.9rem;color:#c05050;margin:0;">' + cfg.errorMsg + '</p>';
+      });
+  }
+
+  // Picking a study card commits it and lands in the workspace immediately (the
+  // room.js pattern) — no separate Continue for the lists.
+  function pickStudyAndGo(raw) {
+    sourceStudy = { topic: raw.topic || '', content: raw.content || '' };
+    proceedToWorkspace();
+  }
+
+  var SOURCE_CONFIGS = {
+    mine: {
+      panel:    wSourcePanelMine,
+      fetchUrl: '/api/library',
+      emptyMsg: 'No saved studies yet.',
+      errorMsg: 'Failed to load your studies.',
+      mapItem:  function (s) { return { id: s.id, topic: s.topic, sub: fmtSourceDate(s.savedAt) }; },
+      onPick:   pickStudyAndGo,
+    },
+    community: {
+      panel:    wSourcePanelCommunity,
+      fetchUrl: '/api/community/studies',
+      emptyMsg: 'No community studies available yet.',
+      errorMsg: 'Failed to load community studies.',
+      mapItem:  function (s) {
+        var by  = 'Shared by ' + (s.authorName || 'Unknown');
+        var day = fmtSourceDate(s.sharedAt);
+        return { id: s.id, topic: s.topic, sub: by + (day ? ' · ' + day : '') };
+      },
+      onPick:   pickStudyAndGo,
+    },
+  };
+
+  // Source-type selection: reveal the matching panel. My-studies / community
+  // commit by clicking a card (Continue stays disabled). Paste / fresh commit via
+  // the Continue button.
+  document.querySelectorAll('input[name="writingSource"]').forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      var v = radio.value;
+      hideSourcePanels();
+      sourceStudy = null;   // switching source discards any earlier pick
+      if (v === 'mine') {
+        if (sourceContinueBtn) sourceContinueBtn.disabled = true;
+        loadSourcePanel(SOURCE_CONFIGS.mine);
+      } else if (v === 'community') {
+        if (sourceContinueBtn) sourceContinueBtn.disabled = true;
+        loadSourcePanel(SOURCE_CONFIGS.community);
+      } else if (v === 'paste') {
+        if (wSourcePanelPaste) wSourcePanelPaste.style.display = 'block';
+        if (sourceContinueBtn) sourceContinueBtn.disabled = false;
+      } else {   // 'fresh'
+        if (sourceContinueBtn) sourceContinueBtn.disabled = false;
+      }
+    });
   });
+
+  if (sourceContinueBtn) {
+    sourceContinueBtn.addEventListener('click', function () {
+      var sel = document.querySelector('input[name="writingSource"]:checked');
+      if (!sel) return;
+      if (sel.value === 'paste') {
+        var txt = (wSourcePasteText && wSourcePasteText.value || '').trim();
+        // Empty paste → treat exactly like "start fresh" (no empty study seeded).
+        sourceStudy = txt ? { topic: '', content: txt } : null;
+      } else if (sel.value === 'fresh') {
+        sourceStudy = null;
+      } else {
+        return;   // my-studies / community commit by card click, not Continue
+      }
+      proceedToWorkspace();
+    });
+  }
+
+  if (sourceBackBtn) {
+    sourceBackBtn.addEventListener('click', function () {
+      if (wModalStep2) wModalStep2.style.display = 'none';
+      wModalStep1.style.display = 'block';
+    });
+  }
 
   // ── Generate (DORMANT) ──────────────────────────────────────────────────────
   // No longer reached from the live flow — retained for the upcoming conversation
@@ -237,6 +420,7 @@
     currentArticleStatus = article.status;
     selectedTier         = article.tier;
     selectedForm         = article.form || 'article';
+    sourceStudy          = null;   // reopening a saved article never carries a source pick
     if (article.answers) {
       answers = [
         article.answers.q1 || '',
@@ -396,6 +580,7 @@
     currentArticleStatus = 'Draft';
     selectedTier         = 0;
     selectedForm         = '';
+    sourceStudy          = null;   // clear any "build from a study" pick on exit
     answers              = ['', '', '', '', ''];
     editorTitle.value    = '';
     editorContent.value  = '';
@@ -545,16 +730,25 @@
     writingAbortController = new AbortController();
     var msgEl = null;
 
+    var reqBody = {
+      messages:  conversationHistory,
+      tier:      selectedTier,
+      form:      selectedForm,
+      isOpening: isOpening,
+    };
+    // "Build from a study": the source rides on the OPENING turn only. The greeting
+    // then carries the acknowledgment forward, so we never re-send the (potentially
+    // large) study on subsequent messages, and it is never written to the article pane.
+    if (isOpening && sourceStudy) {
+      reqBody.sourceContent = sourceStudy.content;
+      reqBody.sourceTopic   = sourceStudy.topic;
+    }
+
     try {
       var response = await fetch('/api/writing/converse', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({
-          messages:  conversationHistory,
-          tier:      selectedTier,
-          form:      selectedForm,
-          isOpening: isOpening,
-        }),
+        body:    JSON.stringify(reqBody),
         signal: writingAbortController.signal,
       });
 

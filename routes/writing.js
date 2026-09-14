@@ -242,6 +242,53 @@ router.get('/writing', requireAuth, (req, res) => {
             <button class="btn-discard" id="doorsBackBtn">Back</button>
           </div>
         </div>
+
+        <div id="wModalStep2" style="display:none;">
+          <h3 class="writing-modal-title">Start from a study?</h3>
+          <div class="form-options">
+            <label class="form-option">
+              <input type="radio" name="writingSource" value="mine">
+              <div class="form-option-body">
+                <div class="form-option-icon">&#128218;</div>
+                <div class="form-option-label">Build from one of my studies</div>
+                <div class="form-option-desc">Seed the companion with a study you&#8217;ve saved. It builds from it &mdash; your draft pane stays empty.</div>
+              </div>
+            </label>
+            <label class="form-option">
+              <input type="radio" name="writingSource" value="community">
+              <div class="form-option-body">
+                <div class="form-option-icon">&#128101;</div>
+                <div class="form-option-label">Build from a community study</div>
+                <div class="form-option-desc">Seed the companion with a study shared by the community.</div>
+              </div>
+            </label>
+            <label class="form-option">
+              <input type="radio" name="writingSource" value="paste">
+              <div class="form-option-body">
+                <div class="form-option-icon">&#128203;</div>
+                <div class="form-option-label">Paste in text</div>
+                <div class="form-option-desc">Paste source material for the companion to build from.</div>
+              </div>
+            </label>
+            <label class="form-option">
+              <input type="radio" name="writingSource" value="fresh">
+              <div class="form-option-body">
+                <div class="form-option-icon">&#10024;</div>
+                <div class="form-option-label">Start fresh (no study)</div>
+                <div class="form-option-desc">Begin with a blank slate &mdash; no source material.</div>
+              </div>
+            </label>
+          </div>
+          <div id="wSourcePanelMine" style="display:none;max-height:240px;overflow-y:auto;margin-top:12px;padding-right:4px;"></div>
+          <div id="wSourcePanelCommunity" style="display:none;max-height:240px;overflow-y:auto;margin-top:12px;padding-right:4px;"></div>
+          <div id="wSourcePanelPaste" style="display:none;margin-top:12px;">
+            <textarea id="wSourcePasteText" placeholder="Paste your source text here&#8230;" style="width:100%;box-sizing:border-box;min-height:170px;padding:10px 12px;border:1px solid #c4a882;border-radius:8px;font-family:inherit;font-size:0.95rem;line-height:1.5;resize:vertical;"></textarea>
+          </div>
+          <div class="writing-modal-footer">
+            <button class="btn-primary" id="sourceContinueBtn" disabled>Continue</button>
+            <button class="btn-discard" id="sourceBackBtn">Back</button>
+          </div>
+        </div>
       </div>
     </div>`;
 
@@ -593,7 +640,7 @@ Generate the ${tierLabel} now.`;
 // the blocking /api/writing/generate route above is untouched.
 router.post('/api/writing/converse', requireAuth, async (req, res) => {
   if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
-  const { messages, tier, form, isOpening } = req.body;
+  const { messages, tier, form, isOpening, sourceContent, sourceTopic } = req.body;
 
   const { IRON_INK_CORE_PROMPT, IRON_INK_WRITING_PROMPT } = req.app.locals.prompts;
   const userSettings = req.session.user && req.session.user.settings;
@@ -622,10 +669,17 @@ router.post('/api/writing/converse', requireAuth, async (req, res) => {
   // Build API messages — must always start with 'user'.
   let apiMessages;
   if (isOpening) {
-    apiMessages = [{
-      role: 'user',
-      content: 'Begin a writing session. The member wants to write a ' + (form || 'article') + '. Greet them warmly and briefly, and ask what is on their heart to write about (or, if they are not sure yet, help them find a direction). Keep it short and inviting.'
-    }];
+    // "Build from a study": when the opening turn carries source material, seed the
+    // companion with it so it greets already knowing the study. The study rides in
+    // the opening user turn ONLY (the client sends it just once) and is NOT written
+    // to the article pane. When absent, the greeting path is exactly as before.
+    let openingText;
+    if (sourceContent) {
+      openingText = 'The member wants to build a ' + (form || 'article') + ' from an existing study they have already written. Here is that study as source material:\n\n"""\n' + sourceContent + '\n"""\n\nRead it, then greet them warmly and briefly, acknowledge the study by its topic ("' + (sourceTopic || 'this study') + '"), and ask how they would like to shape it into a ' + (form || 'article') + '. Do NOT dump the study back to them — you are transforming it into the new form. Keep the greeting short.';
+    } else {
+      openingText = 'Begin a writing session. The member wants to write a ' + (form || 'article') + '. Greet them warmly and briefly, and ask what is on their heart to write about (or, if they are not sure yet, help them find a direction). Keep it short and inviting.';
+    }
+    apiMessages = [{ role: 'user', content: openingText }];
   } else {
     const hist = Array.isArray(messages) ? messages : [];
     // No adversarial framing to restate — the history speaks for itself. Guard
