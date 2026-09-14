@@ -640,7 +640,7 @@ Generate the ${tierLabel} now.`;
 // the blocking /api/writing/generate route above is untouched.
 router.post('/api/writing/converse', requireAuth, async (req, res) => {
   if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
-  const { messages, tier, form, isOpening, sourceContent, sourceTopic } = req.body;
+  const { messages, tier, form, isOpening, sourceContent, sourceTopic, fullDraft } = req.body;
 
   const { IRON_INK_CORE_PROMPT, IRON_INK_WRITING_PROMPT } = req.app.locals.prompts;
   const userSettings = req.session.user && req.session.user.settings;
@@ -696,13 +696,18 @@ router.post('/api/writing/converse', requireAuth, async (req, res) => {
   res.flushHeaders();
 
   const model  = tier === 3 ? 'claude-opus-4-8' : 'claude-sonnet-4-6';
+  // Normal conversational replies stay at 1500. Only a deliberate full-draft turn
+  // (runDraftIntoArticle sends fullDraft:true) gets the higher ceiling so a full
+  // teaching guide isn't cut off mid-sentence. Not keyed off tier — that would
+  // inflate ordinary Tier 3 chat replies.
+  const maxTokens = fullDraft ? 4000 : 1500;
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   let closed = false;
 
   try {
     const stream = client.messages.stream({
       model,
-      max_tokens: 1500,
+      max_tokens: maxTokens,
       system:     systemPrompt,
       messages:   apiMessages,
     });

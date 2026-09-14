@@ -836,6 +836,7 @@
           tier:      selectedTier,
           form:      selectedForm,
           isOpening: false,
+          fullDraft: true,   // this is a deliberate full-draft turn → raise the server token cap
         }),
         signal: writingAbortController.signal,
       });
