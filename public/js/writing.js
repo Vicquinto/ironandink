@@ -1283,14 +1283,16 @@
       return '<div class="article-card">' +
         '<div class="article-card-header">' +
           '<span class="article-card-title">' + esc(a.title) + '</span>' +
-          '<button class="card-delete-btn article-delete-btn" data-id="' + esc(a.id) + '" title="Delete">&#10005;</button>' +
         '</div>' +
         '<div class="article-card-meta">' +
           '<span class="tier-badge-sm">Tier ' + a.tier + '</span>' +
           '<span class="form-badge form-badge-' + esc(a.form || 'article') + '">' + formLabel + '</span>' +
           '<span class="article-card-date">' + fmtDate(a.updatedAt || a.createdAt) + '</span>' +
         '</div>' +
-        '<button class="btn-warm article-open-btn" data-id="' + esc(a.id) + '" style="margin-top:12px; font-size:0.82rem; padding:7px 18px;">Open</button>' +
+        '<div style="display:flex; gap:10px; align-items:center; margin-top:12px;">' +
+          '<button class="btn-warm article-open-btn" data-id="' + esc(a.id) + '" style="font-size:0.82rem; padding:7px 18px;">Open</button>' +
+          '<button class="btn-delete-article article-delete-btn" data-id="' + esc(a.id) + '" data-status="' + esc(a.status || 'Draft') + '">Delete</button>' +
+        '</div>' +
       '</div>';
     }).join('');
 
@@ -1301,12 +1303,27 @@
     articleList.querySelectorAll('.article-delete-btn').forEach(function (btn) {
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
-        showConfirm('Delete this article? This cannot be undone.', 'Delete', async function () {
+        var id       = btn.dataset.id;
+        var isDraft  = (btn.dataset.status === 'Draft');
+        var confirmMsg = isDraft
+          ? 'Delete this draft? This cannot be undone.'
+          : 'Move this article to trash?';
+
+        showConfirm(confirmMsg, isDraft ? 'Delete' : 'Move to Trash', async function () {
           try {
-            var res  = await fetch('/api/articles/' + encodeURIComponent(btn.dataset.id), { method: 'DELETE' });
-            var data = await res.json();
-            if (data.success) loadArticleList();
-            else showToast('Delete failed.', true);
+            var trashRes  = await fetch('/api/articles/' + encodeURIComponent(id) + '/trash', { method: 'PATCH' });
+            var trashData = await trashRes.json();
+            if (!trashData.success) { showToast(trashData.error || 'Delete failed.', true); return; }
+
+            if (isDraft) {
+              var delRes  = await fetch('/api/articles/' + encodeURIComponent(id), { method: 'DELETE' });
+              var delData = await delRes.json();
+              if (!delData.success) { showToast(delData.error || 'Delete failed.', true); return; }
+              showToast('Draft deleted.');
+            } else {
+              showToast('Moved to trash.');
+            }
+            loadArticleList();
           } catch (err) {
             showToast('Error: ' + err.message, true);
           }
