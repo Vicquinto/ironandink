@@ -18,6 +18,34 @@
 
 const WHATS_NEW = [
   {
+    date:  'September 17, 2026',
+    title: 'Writing, Reimagined',
+    body:  `The Writing feature has been rebuilt from the ground up. Instead of filling out a form, you now sit down with a live writing companion — a real, flowing conversation that helps you find your idea, think it through, and shape it into something worth sharing. Choose how you want to work together: write it yourself with the companion as your thinking partner, build it together side by side, or have the companion draft it for you while you steer. Pull the companion's words into your draft whenever they're worth keeping.
+
+New: Teaching Guides. A fourth kind of writing, built for anyone who leads a Bible study — at home, in a small group, or on camera. Build one from scratch for a room with open Bibles, or pull in one of your own studies (or a shared study from the Community) and the companion will write you a script built to guide your group through it, page by page.
+
+New: Restyle a Finished Draft. Once you've written something, give it a different voice — Warmer, Encouraging, With Conviction, Call to Respond, More Lyrical, or Plainer — and preview the result before you decide to keep it. Change your mind? One click undoes it.
+
+Never lose your work. The Writing feature now saves silently in the background as you type and converse — even a message you started but haven't sent yet.`
+  },
+  {
+    date:  'September 17, 2026',
+    title: 'A Safer Way to Manage Your Articles',
+    body:  `Deleting an article no longer removes it instantly. It now moves to a "Ready for Permanent Deletion" area, where you can restore it or delete it for good — your choice, on your time.
+
+Unpublish, anytime. If you spot something you'd like to revise in a published article, you can now pull it back off the Community board yourself — no need to wait on an admin. Your amens and comments are kept, so they're waiting for you when you resubmit.`
+  },
+  {
+    date:  'September 17, 2026',
+    title: 'Small Fixes That Matter',
+    body:  `Fixed an issue where longer articles with an extended writing-companion conversation could fail to save. Save errors now always show a clear, helpful message. Fixed AI responses occasionally cutting off mid-sentence on longer pieces.`
+  },
+  {
+    date:  'September 17, 2026',
+    title: 'Writing That Sounds More Human',
+    body:  `We've added foundational guidance that shapes how the AI writes across the whole platform — Study, Writing, and Devotional alike — cutting down on repetitive phrasing, robotic transitions, and over-hedged language, so what you read feels less like a machine and more like a person who means what they're saying.`
+  },
+  {
     date:  'August 8, 2026',
     title: 'Smoother sidebar navigation',
     body:  `The sidebar now moves as one — scroll it top to bottom in a single, gentle motion, with every page just a glance away. When there's more below the fold, a soft fade at the edge lets you know there's further to go.
