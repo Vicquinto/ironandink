@@ -2811,6 +2811,100 @@ body {
   cursor: default;
 }
 
+/* ─── HIGHLIGHT-TO-REVISE TOOLBAR (Capability 1) ──────────────────────────── */
+/* Docked in the layout between the textarea and the action row (Option B — a
+   fixed spot, not floating at the caret; a plain <textarea> exposes no
+   per-character geometry to float over). Same warm-parchment card family as
+   .restyle-picker and the reading-view dictionary tooltip (dictionary.js). */
+.rewrite-toolbar {
+  background: linear-gradient(rgba(160,132,92,0.06), rgba(160,132,92,0.06)), var(--card-bg);
+  border: 1px solid rgba(160,132,92,0.32);
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(107,66,38,0.18);
+  padding: 12px 14px;
+  margin: -8px 0 20px;
+}
+
+.rewrite-toolbar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.rewrite-toolbar-label {
+  font-size: 0.78rem;
+  color: var(--warm-brown);
+  font-style: italic;
+  letter-spacing: 0.03em;
+}
+
+.rewrite-dismiss-btn {
+  background: none;
+  border: none;
+  color: var(--warm-brown);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+}
+
+.rewrite-toolbar-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rewrite-instruction-input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid rgba(160,132,92,0.3);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: Georgia, serif;
+  font-size: 0.88rem;
+  padding: 8px 10px;
+  outline: none;
+}
+.rewrite-instruction-input:focus {
+  border-color: rgba(160,132,92,0.55);
+}
+
+.rewrite-quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.rewrite-quick-btn {
+  background: transparent;
+  border: 1px solid rgba(160,132,92,0.3);
+  border-radius: 14px;
+  color: var(--warm-brown);
+  cursor: pointer;
+  font-family: Georgia, serif;
+  font-size: 0.76rem;
+  padding: 4px 12px;
+  transition: background 0.12s, color 0.12s;
+}
+.rewrite-quick-btn:hover {
+  background: rgba(160,132,92,0.14);
+  color: var(--text);
+}
+
+.rewrite-toolbar-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.rewrite-status {
+  font-size: 0.78rem;
+  color: var(--warm-brown);
+  font-style: italic;
+}
+
 /* ─── WRITING TWO-PANE WORKSPACE ─────────────────────────────────────────── */
 /* Split composer: conversation LEFT (~40%), editor RIGHT (~60%). The row lives
    here (not on #writingEditor) so the wrapper's inline display toggle can't

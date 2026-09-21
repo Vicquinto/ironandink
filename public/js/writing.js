@@ -38,6 +38,22 @@
   var restyleAbortController = null;
   var restylePreviewText     = '';
 
+  // ── Highlight-to-revise state (Capability 1) ───────────────────────────────
+  // rewriteUndoBuffer holds the pre-Apply { content } for a single step of
+  // undo — the WHOLE draft, not just the passage, since that's the simplest
+  // correct way to reverse a splice at arbitrary offsets. isRewriting gates
+  // overlapping requests; rewriteAbortController backs Dismiss-while-streaming.
+  // selRewriteStart/End/Text are captured when a selection is detected and
+  // read again (not re-measured) at Apply time, since focus has by then moved
+  // to the toolbar's own input/buttons and the textarea's live selection can't
+  // be relied on.
+  var rewriteUndoBuffer      = null;
+  var isRewriting            = false;
+  var rewriteAbortController = null;
+  var selRewriteStart        = 0;
+  var selRewriteEnd          = 0;
+  var selRewriteText         = '';
+
   // NOTE (redesign): the five defining questions and their generate step were
   // removed from the live flow. Picking a "door" now lands the user in the blank
   // editor; AI generation is being rebuilt as a conversation in a later phase.
@@ -93,6 +109,14 @@
   var restyleAcceptBtn      = document.getElementById('restyleAcceptBtn');
   var restyleDiscardBtn     = document.getElementById('restyleDiscardBtn');
   var restyleStopBtn        = document.getElementById('restyleStopBtn');
+
+  // Highlight-to-revise (Capability 1) refs.
+  var rewriteToolbar        = document.getElementById('rewriteToolbar');
+  var rewriteInstruction    = document.getElementById('rewriteInstruction');
+  var rewriteApplyBtn       = document.getElementById('rewriteApplyBtn');
+  var rewriteDismissBtn     = document.getElementById('rewriteDismissBtn');
+  var rewriteStatus         = document.getElementById('rewriteStatus');
+  var rewriteUndoBtn        = document.getElementById('rewriteUndoBtn');
 
   // Human labels + genre-default suggestions (soft clay — all six stay selectable).
   var RESTYLE_LABELS = {
@@ -443,6 +467,11 @@
     // buffer — undo must never revert across articles.
     abortRestyle();
     clearRestyleUndo();
+    // Loading a different article: same rule for a highlight-to-revise in
+    // progress — nothing should keep streaming into a draft the writer left,
+    // and undo must never revert across articles.
+    dismissRewriteToolbar();
+    clearRewriteUndo();
     var savedConvo = Array.isArray(article.conversation) ? article.conversation : [];
     if (savedConvo.length) {
       restoreConversation(savedConvo);
@@ -576,6 +605,8 @@
     resetConversationPane();
     abortRestyle();
     clearRestyleUndo();
+    dismissRewriteToolbar();
+    clearRewriteUndo();
     currentArticleId     = null;
     currentArticleStatus = 'Draft';
     selectedTier         = 0;
@@ -603,6 +634,8 @@
         editorContent.value = '';
         updateWordCount();
         clearRestyleUndo();   // the pre-restyle draft is gone; nothing to undo to
+        dismissRewriteToolbar();
+        clearRewriteUndo();   // same reason — the pre-revision draft is gone
       }
     );
   });
@@ -669,6 +702,8 @@
     if (conversationInput)   conversationInput.disabled   = val;
     // No overlapping streams: block Restyle while a conversation / Tier 3 draft runs.
     if (restyleBtn)          restyleBtn.disabled          = val;
+    // Same rule for highlight-to-revise: don't let it compete with a conversation stream.
+    if (val)                 dismissRewriteToolbar();
     if (!val) writingAbortController = null;
   }
 
@@ -1038,7 +1073,9 @@
     restyleBtn.addEventListener('click', function (e) {
       e.stopPropagation();
       if (isConverseGenerating) { showToast('Finish the current writing first.', true); return; }
+      if (isRewriting) { showToast('Finish the current revision first.', true); return; }
       if (!editorContent.value.trim()) { showToast('Write something first, then restyle it.'); return; }
+      dismissRewriteToolbar();   // don't let the picker and the rewrite toolbar both be up
       if (isPickerOpen()) { closeRestylePicker(); return; }
       openRestylePicker();
     });
@@ -1088,6 +1125,7 @@
   async function startRestyle(style) {
     if (isRestyling) return;
     if (isConverseGenerating) { showToast('Finish the current writing first.', true); return; }
+    if (isRewriting) { showToast('Finish the current revision first.', true); return; }
     var draft = editorContent.value;
     if (!draft.trim()) { showToast('Write something first, then restyle it.'); return; }
 
@@ -1170,6 +1208,193 @@
       clearRestyleUndo();
       autoSaveDraft();
       showToast('Restyle undone.');
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // ── Highlight-to-revise: selection toolbar / apply / undo (Capability 1) ──
+  // Client for POST /api/writing/rewrite. Built on the EXISTING plain textarea
+  // using selectionStart/selectionEnd — no rich editor, no DOM Range, no
+  // caret-position geometry. The toolbar docks in a FIXED layout slot between
+  // the textarea and the action row (Option B) rather than floating at the
+  // selection: a bare <textarea> exposes no per-character bounding boxes to
+  // float over (unlike a contenteditable/Quill editor), so there is nothing
+  // to measure. Reuses pumpSSE from above. Mirrors the restyle undo pattern:
+  // one step, buffer cleared at every point the writer moves on.
+  // ══════════════════════════════════════════════════════════════════════════
+
+  function isRewriteToolbarOpen() {
+    return !!rewriteToolbar && rewriteToolbar.style.display !== 'none';
+  }
+
+  // Hide + reset the toolbar's own inputs. Does NOT cancel any in-flight
+  // request on its own — callers that need to cancel one call abortRewrite()
+  // first (dismissRewriteToolbar and every lifecycle hook do this).
+  function hideRewriteToolbar() {
+    if (!rewriteToolbar) return;
+    rewriteToolbar.style.display = 'none';
+    if (rewriteInstruction) rewriteInstruction.value = '';
+    if (rewriteStatus) rewriteStatus.textContent = '';
+    if (rewriteApplyBtn) rewriteApplyBtn.disabled = false;
+  }
+
+  function showRewriteToolbar() {
+    if (!rewriteToolbar) return;
+    var wasOpen = isRewriteToolbarOpen();
+    rewriteToolbar.style.display = 'block';
+    if (!wasOpen && rewriteInstruction) rewriteInstruction.focus();
+  }
+
+  // Abort any in-flight rewrite stream. Used by Dismiss and every lifecycle
+  // hook (Back, Clear Board, loading a different article, a conversation
+  // starting) so nothing keeps streaming into a draft the writer has left.
+  function abortRewrite() {
+    if (rewriteAbortController) { try { rewriteAbortController.abort(); } catch (e) {} }
+    isRewriting = false;
+  }
+
+  // Explicit dismiss (X button, or a lifecycle hook clearing the workspace):
+  // cancel any in-flight request, then hide.
+  function dismissRewriteToolbar() {
+    abortRewrite();
+    hideRewriteToolbar();
+  }
+
+  // Clear the one-step undo buffer and hide its button. Same lifecycle as
+  // clearRestyleUndo(): Back, Clear Board, load another article, a fresh Apply.
+  function clearRewriteUndo() {
+    rewriteUndoBuffer = null;
+    if (rewriteUndoBtn) rewriteUndoBtn.style.display = 'none';
+  }
+
+  // Selection detection on the textarea itself — mouseup (mouse drag-select),
+  // keyup (shift+arrow / shift+home / etc.), and select (e.g. double-click,
+  // "Select All"). Debounced ~300ms so a selection still being dragged doesn't
+  // thrash the toolbar. Never shows while a restyle or conversation stream is
+  // running — Capability 1 does not compete with those for the editor — and
+  // never interferes with an already-in-flight rewrite of its own.
+  var rewriteSelectionTimer = null;
+  function scheduleRewriteSelectionCheck() {
+    if (rewriteSelectionTimer) clearTimeout(rewriteSelectionTimer);
+    rewriteSelectionTimer = setTimeout(checkRewriteSelection, 300);
+  }
+  function checkRewriteSelection() {
+    if (isRewriting) return;               // don't fight the in-flight request's own UI
+    if (isRestyling || isConverseGenerating) { hideRewriteToolbar(); return; }
+    var start = editorContent.selectionStart;
+    var end   = editorContent.selectionEnd;
+    if (start == null || end == null || start === end) {
+      hideRewriteToolbar();
+      return;
+    }
+    selRewriteStart = start;
+    selRewriteEnd   = end;
+    selRewriteText  = editorContent.value.slice(start, end);
+    showRewriteToolbar();
+  }
+  editorContent.addEventListener('mouseup', scheduleRewriteSelectionCheck);
+  editorContent.addEventListener('keyup',   scheduleRewriteSelectionCheck);
+  editorContent.addEventListener('select',  scheduleRewriteSelectionCheck);
+
+  if (rewriteDismissBtn) rewriteDismissBtn.addEventListener('click', dismissRewriteToolbar);
+
+  // Escape closes it too, mirroring the restyle picker's Escape-to-close.
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && isRewriteToolbarOpen() && !isRewriting) dismissRewriteToolbar();
+  });
+
+  // Quick-action buttons fill the instruction and apply immediately — same
+  // shape as the restyle picker's style buttons.
+  if (rewriteToolbar) {
+    rewriteToolbar.querySelectorAll('.rewrite-quick-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (rewriteInstruction) rewriteInstruction.value = btn.getAttribute('data-instruction') || '';
+        applyRewrite();
+      });
+    });
+  }
+
+  // Enter in the instruction field applies (it's a single-line <input>, so
+  // Enter unambiguously means "go" — no Shift+Enter distinction needed).
+  if (rewriteInstruction) {
+    rewriteInstruction.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); applyRewrite(); }
+    });
+  }
+
+  if (rewriteApplyBtn) rewriteApplyBtn.addEventListener('click', applyRewrite);
+
+  async function applyRewrite() {
+    if (isRewriting) return;                                       // guard: no overlapping requests
+    if (isRestyling || isConverseGenerating) { showToast('Finish the current writing first.', true); return; }
+    var instruction = rewriteInstruction ? rewriteInstruction.value.trim() : '';
+    if (!instruction) { if (rewriteInstruction) rewriteInstruction.focus(); return; }
+    if (!selRewriteText || selRewriteStart === selRewriteEnd) { hideRewriteToolbar(); return; }
+
+    isRewriting = true;
+    if (rewriteApplyBtn) rewriteApplyBtn.disabled = true;
+    if (rewriteStatus)   rewriteStatus.textContent = 'Revising…';
+    rewriteAbortController = new AbortController();
+
+    // Snapshot the passage + offsets NOW: the textarea's live selection is
+    // already gone (focus has moved to this toolbar's own input/buttons), so
+    // everything below reads the STORED values, never editorContent.selectionStart/End again.
+    var start   = selRewriteStart;
+    var end     = selRewriteEnd;
+    var passage = selRewriteText;
+
+    try {
+      var response = await fetch('/api/writing/rewrite', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ selection: passage, instruction: instruction, form: selectedForm }),
+        signal:  rewriteAbortController.signal,
+      });
+      if (!response.ok) throw new Error('Server error ' + response.status);
+
+      var revised = await pumpSSE(response, function (full) {
+        if (rewriteStatus) rewriteStatus.textContent = 'Revising…';
+      });
+
+      revised = revised.trim();
+      if (!revised) throw new Error('No revision returned.');
+
+      // One-step undo: capture the WHOLE pre-Apply draft (mirrors restyle's
+      // undo buffer) — simplest correct way to reverse a splice at offsets
+      // that may no longer make sense if anything else changed the content.
+      rewriteUndoBuffer = { content: editorContent.value };
+      editorContent.value = editorContent.value.slice(0, start) + revised + editorContent.value.slice(end);
+
+      // Programmatic .value writes fire no native 'input' event — call the
+      // same two functions every other programmatic writer in this file
+      // calls by hand right after setting .value (see appendToDraft,
+      // runDraftIntoArticle, restyleAcceptBtn/restyleUndoBtn above).
+      updateWordCount();
+      autoSaveDraft();
+
+      if (rewriteUndoBtn) rewriteUndoBtn.style.display = 'inline-block';
+      hideRewriteToolbar();
+      showToast('Revised. You can undo this once.');
+    } catch (err) {
+      if (err.name !== 'AbortError') showToast('Error: ' + err.message, true);
+    } finally {
+      isRewriting = false;
+      rewriteAbortController = null;
+      if (rewriteApplyBtn) rewriteApplyBtn.disabled = false;
+      if (rewriteStatus)   rewriteStatus.textContent = '';
+    }
+  }
+
+  // Undo revision → revert to the captured pre-Apply draft (one step only),
+  // then re-save so the server matches. Buffer is single-use.
+  if (rewriteUndoBtn) {
+    rewriteUndoBtn.addEventListener('click', function () {
+      if (!rewriteUndoBuffer) return;
+      editorContent.value = rewriteUndoBuffer.content;
+      updateWordCount();
+      clearRewriteUndo();
+      autoSaveDraft();
+      showToast('Revision undone.');
     });
   }
 

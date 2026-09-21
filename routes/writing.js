@@ -112,6 +112,34 @@ router.get('/writing', requireAuth, (req, res) => {
           </div>
           <input type="text" id="editorTitle" class="editor-title-input" placeholder="Article title&#8230;">
           <textarea id="editorContent" class="editor-content-textarea" placeholder="Your article will appear here&#8230;"></textarea>
+
+          <!-- Highlight-to-revise toolbar (Capability 1). Docked in this fixed
+               layout slot between the textarea and the action row (Option B) —
+               NOT floating at the caret, since a plain <textarea> exposes no
+               per-character geometry to float over. Shown when #editorContent
+               has a live, non-empty selection; hidden otherwise. Card look
+               matches the reading-view dictionary tooltip / .restyle-picker
+               family for visual consistency. -->
+          <div id="rewriteToolbar" class="rewrite-toolbar" style="display:none;">
+            <div class="rewrite-toolbar-head">
+              <span class="rewrite-toolbar-label">Revise selection</span>
+              <button type="button" id="rewriteDismissBtn" class="rewrite-dismiss-btn" aria-label="Dismiss">&#10005;</button>
+            </div>
+            <div class="rewrite-toolbar-body">
+              <input type="text" id="rewriteInstruction" class="rewrite-instruction-input" placeholder="What should Claude change about this?">
+              <div class="rewrite-quick-actions">
+                <button type="button" class="rewrite-quick-btn" data-instruction="Make this more concise">Concise</button>
+                <button type="button" class="rewrite-quick-btn" data-instruction="Strengthen this">Strengthen</button>
+                <button type="button" class="rewrite-quick-btn" data-instruction="Simplify the language">Simplify</button>
+                <button type="button" class="rewrite-quick-btn" data-instruction="Make this warmer">Warmer</button>
+              </div>
+            </div>
+            <div class="rewrite-toolbar-foot">
+              <span id="rewriteStatus" class="rewrite-status"></span>
+              <button type="button" class="btn-primary" id="rewriteApplyBtn">Apply</button>
+            </div>
+          </div>
+
           <div class="editor-action-row">
             <button class="btn-primary" id="saveDraftBtn">Save Draft</button>
             <button class="btn-warm" id="markCompleteBtn">Mark Complete</button>
@@ -131,6 +159,8 @@ router.get('/writing', requireAuth, (req, res) => {
             </div>
             <!-- One-step undo: shown only after an Accept, hidden otherwise. -->
             <button class="btn-warm restyle-undo-btn" id="restyleUndoBtn" style="display:none;">&#8630; Undo restyle</button>
+            <!-- One-step undo for a highlight-to-revise Apply (Capability 1); same pattern as restyleUndoBtn. -->
+            <button class="btn-warm restyle-undo-btn" id="rewriteUndoBtn" style="display:none;">&#8630; Undo revision</button>
           </div>
         </div>
 
@@ -878,6 +908,138 @@ router.post('/api/writing/restyle', requireAuth, async (req, res) => {
     if (!res.writableEnded) {
       if (!closed) {
         console.error('[Writing/restyle] API error — status:', err.status, '| type:', err.error?.type, '| message:', err.message);
+        res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+      }
+      res.end();
+    }
+  }
+});
+
+// ─── POST /api/writing/rewrite (streaming SSE) ────────────────────────────────
+// Highlight-to-revise (Capability 1). Takes ONE highlighted passage from the
+// article pane plus a free-text instruction and returns ONLY the rewritten
+// passage — never the whole draft, never commentary — so the client can splice
+// it back into #editorContent at the original selection offsets. Cloned from
+// POST /api/writing/restyle almost verbatim: identical SSE + marker-safe
+// flush() + injectVersesTracked + req.on('close')/abort + [DONE] + error
+// handling. Differences: body is { selection, instruction, form } (no style
+// key — the instruction IS the directive), a single short user turn, and
+// max_tokens 1500 (a passage, not a full draft).
+//
+// Deliberately DOES NOT append NASB_ATTRIBUTION_MD the way /restyle does: that
+// footer is meant for the END of a whole piece, and this response gets spliced
+// into the MIDDLE of an existing draft — appending it here would inject
+// attribution text mid-paragraph every time a revision happened to touch a
+// NASB verse. The article-level attribution from whenever the draft was first
+// generated/restyled already covers it; usedNasb is tracked but intentionally
+// unused. Purely additive: /restyle, /converse, /generate are untouched.
+router.post('/api/writing/rewrite', requireAuth, async (req, res) => {
+  if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
+  const { selection, instruction, form } = req.body;
+
+  if (!selection || !String(selection).trim()) {
+    return res.status(400).json({ success: false, error: 'No passage selected.' });
+  }
+  if (!instruction || !String(instruction).trim()) {
+    return res.status(400).json({ success: false, error: 'No instruction given.' });
+  }
+
+  const { IRON_INK_CORE_PROMPT, IRON_INK_WRITING_PROMPT } = req.app.locals.prompts;
+  const userSettings = req.session.user && req.session.user.settings;
+  const studyLevelInstruction = getStudyLevelInstruction(userSettings);
+
+  // Same form instructions as /api/writing/restyle and /converse — kept identical on purpose.
+  const formInstructions = {
+    article: 'This is an article or essay. Structure it with a clear introduction, logical argument movements, objection and answer, and a doxological conclusion. It is written to be read, not heard.',
+    sermon:  'This is a sermon or exhortation. Structure it with a compelling opening, expository body with clear movements, at least one illustration prompt [ILLUSTRATION: describe what kind of illustration would work here], and a direct application landing that tells the listener what to do or believe. Use repetition deliberately. Write for the ear, not the eye. End with a call to the congregation.',
+    letter:  'This is a personal doctrinal letter to a specific person. Open by addressing them directly by their relationship to the writer (friend, sister, neighbor — whatever was stated in Q3/Q5). Write in a warm but doctrinally serious pastoral voice. Do not structure it like an essay — let it read like a genuine letter. Close with an expression of care and a prayer or blessing.',
+    teaching: 'This is a teaching guide — a fully-scripted study written to be spoken aloud by a host or teacher leading a group, or delivered to camera. Write it to be SPOKEN and HEARD, not silently read. The host holds this script and teaches from it.\n\nTHERE ARE TWO MODES, and you must choose based on the conversation:\n\nMODE A — COMPANION GUIDE (use this WHENEVER source study material was provided in this conversation). In this mode, assume every participant is holding a PRINTED COPY of that study. Your job is NOT to re-teach the study\'s content from scratch — they can read it themselves. Your job is to be the CONDUCTOR who leads the room THROUGH the handout they are holding: direct them to specific sections of the study ("Look at Section 4 in your handout — the part on Christ\'s presence"), draw their attention to the key sentences, the important word, the pivotal Scripture, and the turns in the argument. Read a passage aloud together, then unpack it. Pose the study\'s questions to the group and leave room to discuss. Add the host\'s live connective tissue — the transitions, the "here\'s why this matters," the pastoral application — that a printed study can\'t give, while the students follow along in the document. Reference the study by its sections and flow. Do NOT reproduce the whole study as prose; point to it.\n\nMODE B — STANDALONE TEACHING (use this ONLY when NO source study was provided — the writer started fresh). In this mode, assume the group has their BIBLES OPEN to the passage but NO handout. Teach the passage directly: direct them to specific verses ("Open your Bibles to 1 Corinthians 10, look at verse 16"), read the Scripture together, and teach the doctrine as you go, building the understanding live with the room. Here you DO teach the content fully, because there is no handout to carry it — the Bible is the shared document you are guiding them through.\n\nIN BOTH MODES: Open with something that draws the room in within the first minute — a question, a scene, a striking claim — not a throat-clearing preamble. Organize it in clear, speakable sections a host can move through, sized to run roughly 20-30 minutes aloud. Write in a warm, clear, generic teacher\'s voice usable by ANY host — not as one specific named person. Fully script it (complete sentences meant to be said), with natural spoken rhythm — shorter sentences than written prose. Where Scripture is quoted, emit the {{verse:Book Chapter:Verse}} marker as always, never the verse text yourself. End with application and a few discussion questions the group can talk through together. This is a teaching document a host holds and speaks from.',
+  };
+  const formInstruction = formInstructions[form] || formInstructions.article;
+
+  // The rewrite directive: revise ONLY the given passage, return ONLY the
+  // revision — no preamble, no quotes, no commentary, no surrounding context.
+  const rewriteDirective =
+    'You are revising a single highlighted passage lifted out of a larger piece the writer is already ' +
+    'composing — you are not writing anything new from scratch and you are not seeing the rest of the ' +
+    'piece. Rewrite ONLY the passage given below, according to the instruction, preserving the same ' +
+    'Reformed doctrinal frame, voice, and meaning unless the instruction itself asks you to change tone, ' +
+    'length, or emphasis. Return ONLY the rewritten passage itself: no preamble, no quotation marks ' +
+    'wrapped around it, no commentary, no explanation of what you changed, and nothing else from outside ' +
+    'the passage. The Scripture quotation rule still applies in full — you must never write out verse ' +
+    'text yourself; emit {{verse:Book Chapter:Verse}} markers only.';
+
+  const systemPrompt = studyLevelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_WRITING_PROMPT + '\n\n' + formInstruction + '\n\n' + rewriteDirective;
+
+  // One-shot transform — a single user turn carrying the instruction and the
+  // passage to rewrite. No conversation history.
+  const apiMessages = [{
+    role: 'user',
+    content: 'Rewrite only the following passage according to the instruction. Return only the rewritten passage.\n\nINSTRUCTION:\n' + instruction + '\n\nPASSAGE:\n' + selection,
+  }];
+
+  // Set SSE headers
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders();
+
+  const model  = 'claude-opus-4-8';   // quality-sensitive rewrite — stronger model
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  let closed = false;
+
+  try {
+    const stream = client.messages.stream({
+      model,
+      max_tokens: 1500,               // a single passage, not a full draft
+      system:     systemPrompt,
+      messages:   apiMessages,
+    });
+
+    req.on('close', () => {
+      closed = true;
+      try { stream.abort(); } catch {}
+    });
+
+    // Marker-safe streaming (identical to restyle/converse): hold back any
+    // in-progress {{verse:...}} marker, inject completed markers, emit only
+    // the safe prefix.
+    let buf = '';
+    let atLineStart = true;
+    let usedNasb = false;   // tracked for parity with restyle/converse; deliberately unused (see header comment)
+    function flush(final) {
+      if (closed || res.writableEnded) { buf = ''; return; }
+      let cut = buf.length;
+      if (!final) {
+        const open = buf.lastIndexOf('{{');
+        if (open !== -1 && buf.indexOf('}}', open) === -1) cut = open;      // unclosed marker
+        else if (buf.endsWith('{')) cut = buf.length - 1;                    // lone trailing brace
+      }
+      const slice = buf.slice(0, cut);
+      const { text: emit, sources } = injectVersesTracked(slice, atLineStart);
+      if (sources.nasb) usedNasb = true;
+      buf = buf.slice(cut);
+      if (slice) atLineStart = slice.endsWith('\n');
+      if (emit) res.write(`data: ${JSON.stringify({ text: emit })}\n\n`);
+    }
+
+    stream.on('text', (text) => {
+      if (closed || res.writableEnded) return;
+      buf += text;
+      flush(false);
+    });
+
+    await stream.done();
+
+    if (!closed && !res.writableEnded) {
+      flush(true);
+      res.write('data: [DONE]\n\n');
+      res.end();
+    }
+  } catch (err) {
+    if (!res.writableEnded) {
+      if (!closed) {
+        console.error('[Writing/rewrite] API error — status:', err.status, '| type:', err.error?.type, '| message:', err.message);
         res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
       }
       res.end();
