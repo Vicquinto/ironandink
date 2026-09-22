@@ -104,6 +104,7 @@ router.get('/writing', requireAuth, (req, res) => {
                 <button class="guide-font-btn guide-font-btn-lg" id="editorFontInc" title="Larger text" aria-label="Larger text">A+</button>
               </span>
               <button class="guide-print-btn" id="editorPrintBtn" title="Print or Save as PDF">Print / Download</button>
+              <button class="guide-print-btn" id="findToggleBtn" title="Find in article (Ctrl+F)">Find</button>
             </div>
             <div class="editor-topbar-actions">
               <button class="btn-end-session" id="clearBoardBtn">Clear Board</button>
@@ -111,6 +112,21 @@ router.get('/writing', requireAuth, (req, res) => {
             </div>
           </div>
           <input type="text" id="editorTitle" class="editor-title-input" placeholder="Article title&#8230;">
+
+          <!-- Find-in-article bar. Navigation only — never touches
+               #editorContent.value. Hidden by default, toggled via the Find
+               button above or Ctrl/Cmd+F while the workspace is open; closed
+               via the × or Escape. Docked above the textarea so it can never
+               visually collide with the rewrite toolbar, which is docked
+               BELOW the textarea. -->
+          <div id="findBar" class="find-bar" style="display:none;">
+            <input type="text" id="findInput" class="find-input" placeholder="Find in article&#8230;">
+            <span id="findCount" class="find-count"></span>
+            <button type="button" id="findPrevBtn" class="find-nav-btn" aria-label="Previous match" title="Previous match">&#8593;</button>
+            <button type="button" id="findNextBtn" class="find-nav-btn" aria-label="Next match" title="Next match">&#8595;</button>
+            <button type="button" id="findCloseBtn" class="find-close-btn" aria-label="Close find">&#10005;</button>
+          </div>
+
           <textarea id="editorContent" class="editor-content-textarea" placeholder="Your article will appear here&#8230;"></textarea>
 
           <!-- Highlight-to-revise toolbar (Capability 1). Docked in this fixed

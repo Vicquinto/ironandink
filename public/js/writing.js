@@ -54,6 +54,14 @@
   var selRewriteEnd          = 0;
   var selRewriteText         = '';
 
+  // ── Find-in-article state ──────────────────────────────────────────────────
+  // Navigation only — never mutates editorContent.value. findMatches holds the
+  // start index of every match for the current term (non-overlapping,
+  // case-insensitive); findCurrentIndex is which one is "current" (-1 = none).
+  var findMatches       = [];
+  var findCurrentIndex  = -1;
+  var findDebounceTimer = null;
+
   // NOTE (redesign): the five defining questions and their generate step were
   // removed from the live flow. Picking a "door" now lands the user in the blank
   // editor; AI generation is being rebuilt as a conversation in a later phase.
@@ -117,6 +125,15 @@
   var rewriteDismissBtn     = document.getElementById('rewriteDismissBtn');
   var rewriteStatus         = document.getElementById('rewriteStatus');
   var rewriteUndoBtn        = document.getElementById('rewriteUndoBtn');
+
+  // Find-in-article refs.
+  var findToggleBtn = document.getElementById('findToggleBtn');
+  var findBar       = document.getElementById('findBar');
+  var findInput     = document.getElementById('findInput');
+  var findCount     = document.getElementById('findCount');
+  var findPrevBtn   = document.getElementById('findPrevBtn');
+  var findNextBtn   = document.getElementById('findNextBtn');
+  var findCloseBtn  = document.getElementById('findCloseBtn');
 
   // Human labels + genre-default suggestions (soft clay — all six stay selectable).
   var RESTYLE_LABELS = {
@@ -472,6 +489,7 @@
     // and undo must never revert across articles.
     dismissRewriteToolbar();
     clearRewriteUndo();
+    closeFindBar();   // a different article's text makes any stored match offsets stale
     var savedConvo = Array.isArray(article.conversation) ? article.conversation : [];
     if (savedConvo.length) {
       restoreConversation(savedConvo);
@@ -607,6 +625,7 @@
     clearRestyleUndo();
     dismissRewriteToolbar();
     clearRewriteUndo();
+    closeFindBar();
     currentArticleId     = null;
     currentArticleStatus = 'Draft';
     selectedTier         = 0;
@@ -636,6 +655,7 @@
         clearRestyleUndo();   // the pre-restyle draft is gone; nothing to undo to
         dismissRewriteToolbar();
         clearRewriteUndo();   // same reason — the pre-revision draft is gone
+        closeFindBar();       // same reason — any found match offsets are now stale
       }
     );
   });
@@ -1397,6 +1417,158 @@
       showToast('Revision undone.');
     });
   }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // ── Find in article: navigation-only search over #editorContent ───────────
+  // Never mutates editorContent.value — pure read + selection navigation.
+  // Toggle: Ctrl/Cmd+F opens it (the browser's own find is preventDefault'd)
+  // while the two-pane workspace is actually open; the Find button in the
+  // topbar does the same for discoverability, and works everywhere else on
+  // this page since the shortcut is scoped to writingEditor being visible.
+  // Closed via the × button or Escape.
+  //
+  // The bar is docked ABOVE the textarea (see markup) specifically so it can
+  // never visually collide with the rewrite toolbar, which is docked BELOW
+  // it — no runtime suppression between the two features is needed. Jumping
+  // to a match sets the textarea's selection, which the EXISTING selection
+  // listeners (mouseup/keyup/select on #editorContent, wired for
+  // highlight-to-revise) pick up on their own via the native 'select' event
+  // that setSelectionRange() fires — so "find, then revise" already works
+  // with no extra code here, confirmed live (see build report).
+  // ══════════════════════════════════════════════════════════════════════════
+
+  function isFindBarOpen() {
+    return !!findBar && findBar.style.display !== 'none';
+  }
+
+  function openFindBar() {
+    if (!findBar) return;
+    findBar.style.display = 'flex';
+    if (findInput) { findInput.focus(); findInput.select(); }
+  }
+
+  // Toggle entry point shared by the topbar button and Ctrl/Cmd+F: opening
+  // when closed, or just refocusing the input when already open — the same
+  // convention a browser's own find bar uses for a repeated shortcut press.
+  function toggleFindBar() {
+    if (isFindBarOpen()) { if (findInput) { findInput.focus(); findInput.select(); } }
+    else openFindBar();
+  }
+
+  // Close + fully reset find state — no matches, no counter, no stored term.
+  // Does NOT touch editorContent.value or its current selection.
+  function closeFindBar() {
+    if (findBar) findBar.style.display = 'none';
+    if (findInput) findInput.value = '';
+    if (findCount) findCount.textContent = '';
+    findMatches      = [];
+    findCurrentIndex = -1;
+    if (findDebounceTimer) { clearTimeout(findDebounceTimer); findDebounceTimer = null; }
+  }
+
+  if (findToggleBtn) findToggleBtn.addEventListener('click', toggleFindBar);
+  if (findCloseBtn)  findCloseBtn.addEventListener('click', closeFindBar);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && isFindBarOpen()) closeFindBar();
+  });
+
+  // Ctrl/Cmd+F: only while the two-pane workspace is actually open (not on
+  // the article-list "doors" screen) — elsewhere on this page the browser's
+  // own find is left alone.
+  document.addEventListener('keydown', function (e) {
+    var isFindKey = (e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.key === 'f' || e.key === 'F');
+    if (!isFindKey) return;
+    if (!writingEditor || writingEditor.style.display === 'none') return;
+    e.preventDefault();
+    toggleFindBar();
+  });
+
+  // Case-insensitive, non-overlapping match search over the live textarea
+  // value. Read-only — never touches editorContent.value.
+  function computeFindMatches(term) {
+    var matches = [];
+    if (!term) return matches;
+    var hay    = editorContent.value.toLowerCase();
+    var needle = term.toLowerCase();
+    var idx    = hay.indexOf(needle);
+    while (idx !== -1) {
+      matches.push(idx);
+      idx = hay.indexOf(needle, idx + needle.length);
+    }
+    return matches;
+  }
+
+  function updateFindCount() {
+    if (!findCount) return;
+    if (!findInput || !findInput.value) { findCount.textContent = ''; return; }
+    if (!findMatches.length) { findCount.textContent = 'No results'; return; }
+    findCount.textContent = (findCurrentIndex + 1) + ' / ' + findMatches.length;
+  }
+
+  // Jump to the current match: select it in the textarea (a focused textarea's
+  // native selection IS the highlight), then scroll it into view. Textareas
+  // expose no scrollIntoView for a selection and no per-character geometry,
+  // and #editorContent wraps by default (no white-space:pre in its CSS), so
+  // estimating scrollTop by counting '\n' characters would silently fail to
+  // move at all for the common case — a single wrapped paragraph with zero
+  // embedded newlines. Instead this leans on the browser's OWN layout engine:
+  // set the selection, then blur+refocus, which forces the browser to redo
+  // its native "scroll the caret/selection into view" behavior against the
+  // NEW selection. Confirmed live in a real browser against a long, wrapped,
+  // multi-paragraph draft — see build report.
+  function jumpToFindMatch(termLength) {
+    if (findCurrentIndex < 0 || findCurrentIndex >= findMatches.length) return;
+    var start = findMatches[findCurrentIndex];
+    var end   = start + termLength;
+    editorContent.setSelectionRange(start, end);
+    editorContent.blur();
+    editorContent.focus();
+  }
+
+  function runFindSearch() {
+    var term = findInput ? findInput.value : '';
+    findMatches = computeFindMatches(term);
+    if (findMatches.length) {
+      findCurrentIndex = 0;
+      jumpToFindMatch(term.length);
+    } else {
+      findCurrentIndex = -1;
+    }
+    updateFindCount();
+  }
+
+  function findNextMatch() {
+    if (!findMatches.length || !findInput) return;
+    findCurrentIndex = (findCurrentIndex + 1) % findMatches.length;
+    jumpToFindMatch(findInput.value.length);
+    updateFindCount();
+  }
+
+  function findPrevMatch() {
+    if (!findMatches.length || !findInput) return;
+    findCurrentIndex = (findCurrentIndex - 1 + findMatches.length) % findMatches.length;
+    jumpToFindMatch(findInput.value.length);
+    updateFindCount();
+  }
+
+  if (findInput) {
+    findInput.addEventListener('input', function () {
+      if (findDebounceTimer) clearTimeout(findDebounceTimer);
+      findDebounceTimer = setTimeout(runFindSearch, 150);
+    });
+
+    // Enter = next match, Shift+Enter = previous. A plain <input>, not a
+    // <form>, so there's no default submission to worry about beyond this.
+    findInput.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      if (e.shiftKey) findPrevMatch(); else findNextMatch();
+    });
+  }
+
+  if (findNextBtn) findNextBtn.addEventListener('click', findNextMatch);
+  if (findPrevBtn) findPrevBtn.addEventListener('click', findPrevMatch);
 
   // ══════════════════════════════════════════════════════════════════════════
   // ── Whiteboard conveniences: text zoom + download/print (Phase C) ─────────
