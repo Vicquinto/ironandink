@@ -1684,6 +1684,43 @@
   if (editorFontReset) editorFontReset.addEventListener('click', function () { applyEditorFontSize(EFONT_DEFAULT); });
   if (editorFontInc)   editorFontInc.addEventListener('click',   function () { applyEditorFontSize(editorFontSize + EFONT_STEP); });
 
+  // Companion zoom: same bounds/step as the article's zoom above, but sized and
+  // persisted independently — sets #conversationMessages' own font-size, and
+  // .msg-content/.msg-role/etc (now em-based) scale off of it. Never touches
+  // the article textarea or the EFONT_* state.
+  var CFONT_DEFAULT = 16, CFONT_MIN = 12, CFONT_MAX = 28, CFONT_STEP = 2;
+  var CFONT_KEY = 'ironink_conversation_font_size';
+
+  var conversationFontDec   = document.getElementById('conversationFontDec');
+  var conversationFontReset = document.getElementById('conversationFontReset');
+  var conversationFontInc   = document.getElementById('conversationFontInc');
+  var conversationMessagesEl = document.getElementById('conversationMessages');
+
+  function loadConversationFont() {
+    try {
+      var v = parseInt(localStorage.getItem(CFONT_KEY), 10);
+      if (v) return Math.min(CFONT_MAX, Math.max(CFONT_MIN, v));
+    } catch (e) {}
+    return CFONT_DEFAULT;
+  }
+  function saveConversationFont(v) {
+    try { localStorage.setItem(CFONT_KEY, v); } catch (e) {}
+  }
+
+  var conversationFontSize = loadConversationFont();
+
+  function applyConversationFontSize(size) {
+    conversationFontSize = Math.min(CFONT_MAX, Math.max(CFONT_MIN, size));
+    if (conversationMessagesEl) conversationMessagesEl.style.fontSize = conversationFontSize + 'px';
+    saveConversationFont(conversationFontSize);
+  }
+
+  applyConversationFontSize(conversationFontSize);
+
+  if (conversationFontDec)   conversationFontDec.addEventListener('click',   function () { applyConversationFontSize(conversationFontSize - CFONT_STEP); });
+  if (conversationFontReset) conversationFontReset.addEventListener('click', function () { applyConversationFontSize(CFONT_DEFAULT); });
+  if (conversationFontInc)   conversationFontInc.addEventListener('click',   function () { applyConversationFontSize(conversationFontSize + CFONT_STEP); });
+
   // Print / Download — one control. Reuses the app's shared print mechanism (the
   // same one the Library uses: a body-level #printArea shown by the global
   // `@media print` styles when body.is-printing is set). window.print() opens the

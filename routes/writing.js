@@ -73,12 +73,22 @@ router.get('/writing', requireAuth, (req, res) => {
       <div class="writing-workspace">
 
         <div id="writingConversation" class="writing-conversation">
-          <div class="conversation-header">Writing companion</div>
+          <div class="conversation-header">
+            <span class="conversation-header-title">Writing companion</span>
+            <!-- Display-only zoom for the message text (mirrors #editorFontDec/
+                 Reset/Inc below) — independent size + localStorage key from the
+                 article's zoom; see CFONT_* in writing.js. -->
+            <span class="conversation-zoom" role="group" aria-label="Message text size">
+              <button class="guide-font-btn guide-font-btn-sm" id="conversationFontDec" title="Smaller text" aria-label="Smaller text">A&#8722;</button>
+              <button class="guide-font-btn guide-font-btn-md" id="conversationFontReset" title="Reset text size" aria-label="Reset text size">A</button>
+              <button class="guide-font-btn guide-font-btn-lg" id="conversationFontInc" title="Larger text" aria-label="Larger text">A+</button>
+            </span>
+          </div>
           <div id="conversationMessages" class="chat-messages">
             <p class="conversation-empty">Your conversation will appear here.</p>
           </div>
           <div class="chat-input-area">
-            <textarea id="conversationInput" class="chat-textarea" rows="3" placeholder="Type your message&#8230;"></textarea>
+            <textarea id="conversationInput" class="chat-textarea" rows="2" placeholder="Type your message&#8230;"></textarea>
             <div class="chat-input-actions">
               <button class="btn-primary" id="conversationSendBtn">Send</button>
               <button class="btn-stop" id="conversationStopBtn" style="display:none;">Stop</button>
