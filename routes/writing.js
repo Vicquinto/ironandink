@@ -121,9 +121,11 @@ router.get('/writing', requireAuth, (req, res) => {
                BELOW the textarea. -->
           <div id="findBar" class="find-bar" style="display:none;">
             <input type="text" id="findInput" class="find-input" placeholder="Find in article&#8230;">
+            <button type="button" id="findGoBtn" class="find-nav-btn" aria-label="Find" title="Find (Enter)">Go</button>
             <span id="findCount" class="find-count"></span>
-            <button type="button" id="findPrevBtn" class="find-nav-btn" aria-label="Previous match" title="Previous match">&#8593;</button>
-            <button type="button" id="findNextBtn" class="find-nav-btn" aria-label="Next match" title="Next match">&#8595;</button>
+            <!-- Prev/Next are hidden by default and shown by JS only when there are 2+ matches. -->
+            <button type="button" id="findPrevBtn" class="find-nav-btn" aria-label="Previous match" title="Previous match" style="display:none;">&#8593;</button>
+            <button type="button" id="findNextBtn" class="find-nav-btn" aria-label="Next match" title="Next match" style="display:none;">&#8595;</button>
             <button type="button" id="findCloseBtn" class="find-close-btn" aria-label="Close find">&#10005;</button>
           </div>
 
