@@ -1499,67 +1499,98 @@
     return matches;
   }
 
+  // Count-only feedback while typing: '' when the box is empty, 'No results'
+  // when the term has zero matches, a bare total ('N matches') while typing
+  // has found matches but the writer hasn't navigated to one yet
+  // (findCurrentIndex === -1 — nothing is positioned, so showing "1 / N"
+  // here would falsely imply the cursor already sits at match 1), and
+  // 'N / M' once Enter/Next/Prev has actually landed on one.
   function updateFindCount() {
     if (!findCount) return;
     if (!findInput || !findInput.value) { findCount.textContent = ''; return; }
     if (!findMatches.length) { findCount.textContent = 'No results'; return; }
+    if (findCurrentIndex < 0) {
+      findCount.textContent = findMatches.length + (findMatches.length === 1 ? ' match' : ' matches');
+      return;
+    }
     findCount.textContent = (findCurrentIndex + 1) + ' / ' + findMatches.length;
   }
 
-  // Jump to the current match: select it in the textarea (a focused textarea's
-  // native selection IS the highlight), then scroll it into view. Textareas
-  // expose no scrollIntoView for a selection and no per-character geometry,
-  // and #editorContent wraps by default (no white-space:pre in its CSS), so
-  // estimating scrollTop by counting '\n' characters would silently fail to
-  // move at all for the common case — a single wrapped paragraph with zero
-  // embedded newlines. Instead this leans on the browser's OWN layout engine:
-  // set the selection, then blur+refocus, which forces the browser to redo
-  // its native "scroll the caret/selection into view" behavior against the
-  // NEW selection. Confirmed live in a real browser against a long, wrapped,
-  // multi-paragraph draft — see build report.
-  function jumpToFindMatch(termLength) {
+  // Jump to the CURRENT match: place a collapsed cursor at its start —
+  // setSelectionRange(start, start), not (start, end) — then scroll it into
+  // view. Deliberately NOT selecting the matched text: a non-empty selection
+  // is exactly what the highlight-to-revise toolbar's own 'select' listener
+  // (checkRewriteSelection) watches for, and it would otherwise pop up on
+  // every find-jump, fighting the find bar for the textarea. A collapsed
+  // selection (start === end) is the case that listener already treats as
+  // "no selection" and hides for — verified live: after a jump,
+  // #rewriteToolbar stays hidden (or hides itself if it was already open
+  // from an earlier real text selection).
+  //
+  // Textareas expose no scrollIntoView for a caret and no per-character
+  // geometry, and #editorContent wraps by default (no white-space:pre in its
+  // CSS), so estimating scrollTop by counting '\n' characters would silently
+  // fail to move at all for the common case — a single wrapped paragraph
+  // with zero embedded newlines. Instead this leans on the browser's OWN
+  // layout engine: set the selection, then blur+refocus, which forces the
+  // browser to redo its native "scroll the caret into view" behavior against
+  // the NEW (collapsed) selection — confirmed live to still scroll correctly
+  // with no visible text highlighted.
+  function jumpToFindMatch() {
     if (findCurrentIndex < 0 || findCurrentIndex >= findMatches.length) return;
     var start = findMatches[findCurrentIndex];
-    var end   = start + termLength;
-    editorContent.setSelectionRange(start, end);
+    editorContent.setSelectionRange(start, start);
     editorContent.blur();
     editorContent.focus();
   }
 
-  function runFindSearch() {
+  // Typing feedback ONLY: recompute matches and update the count. Never
+  // jumps/selects/scrolls — findCurrentIndex resets to -1 (unpositioned) on
+  // every keystroke, since the match list just changed under it. Navigating
+  // to an actual match is exclusively Enter / Shift+Enter / the next/prev
+  // buttons (see below), so the writer can type a whole phrase without the
+  // article moving or the rewrite toolbar popping up mid-type.
+  function updateFindMatches() {
     var term = findInput ? findInput.value : '';
-    findMatches = computeFindMatches(term);
-    if (findMatches.length) {
-      findCurrentIndex = 0;
-      jumpToFindMatch(term.length);
-    } else {
-      findCurrentIndex = -1;
-    }
+    findMatches      = computeFindMatches(term);
+    findCurrentIndex = -1;
     updateFindCount();
   }
 
+  // Next/Prev read the STORED findMatches/findCurrentIndex, never the live
+  // textarea selection — so they keep stepping correctly even though the
+  // cursor now sits inside #editorContent after a jump (Enter moves focus
+  // there to place the cursor; clicking Next/Prev or refocusing the find
+  // input to type again both still work off this stored state).
+  //
+  // From an unpositioned state (findCurrentIndex === -1, e.g. right after
+  // typing) Next lands on the FIRST match and Prev lands on the LAST —
+  // plain modulo arithmetic on -1 would land one match short for Prev, so
+  // that starting case is handled explicitly rather than left to wrap by
+  // accident.
   function findNextMatch() {
-    if (!findMatches.length || !findInput) return;
-    findCurrentIndex = (findCurrentIndex + 1) % findMatches.length;
-    jumpToFindMatch(findInput.value.length);
+    if (!findMatches.length) return;
+    findCurrentIndex = (findCurrentIndex < 0) ? 0 : (findCurrentIndex + 1) % findMatches.length;
+    jumpToFindMatch();
     updateFindCount();
   }
 
   function findPrevMatch() {
-    if (!findMatches.length || !findInput) return;
-    findCurrentIndex = (findCurrentIndex - 1 + findMatches.length) % findMatches.length;
-    jumpToFindMatch(findInput.value.length);
+    if (!findMatches.length) return;
+    findCurrentIndex = (findCurrentIndex < 0) ? findMatches.length - 1 : (findCurrentIndex - 1 + findMatches.length) % findMatches.length;
+    jumpToFindMatch();
     updateFindCount();
   }
 
   if (findInput) {
     findInput.addEventListener('input', function () {
       if (findDebounceTimer) clearTimeout(findDebounceTimer);
-      findDebounceTimer = setTimeout(runFindSearch, 150);
+      findDebounceTimer = setTimeout(updateFindMatches, 150);
     });
 
-    // Enter = next match, Shift+Enter = previous. A plain <input>, not a
-    // <form>, so there's no default submission to worry about beyond this.
+    // Enter = jump to first match (if unpositioned) or advance to the next
+    // (if already positioned); Shift+Enter = previous. A plain <input>, not
+    // a <form>, so there's no default submission to worry about beyond this.
     findInput.addEventListener('keydown', function (e) {
       if (e.key !== 'Enter') return;
       e.preventDefault();
