@@ -53,6 +53,12 @@
   var selRewriteStart        = 0;
   var selRewriteEnd          = 0;
   var selRewriteText         = '';
+  // Set true immediately before a find-jump's setSelectionRange so the single
+  // resulting selection-change is consumed by checkRewriteSelection WITHOUT
+  // showing the revise toolbar (a find-jump highlights the match, but must not
+  // pop the revise UI). Self-resets after that one event; a subsequent MANUAL
+  // selection still shows the toolbar normally.
+  var suppressRewriteToolbar = false;
 
   // ── Find-in-article state ──────────────────────────────────────────────────
   // Navigation only — never mutates editorContent.value. findMatches holds the
@@ -1299,6 +1305,10 @@
     rewriteSelectionTimer = setTimeout(checkRewriteSelection, 300);
   }
   function checkRewriteSelection() {
+    // A find-jump programmatically selects the match; consume that one
+    // selection-change so it highlights without popping the revise toolbar.
+    // The flag self-resets so the next (manual) selection behaves normally.
+    if (suppressRewriteToolbar) { suppressRewriteToolbar = false; return; }
     if (isRewriting) return;               // don't fight the in-flight request's own UI
     if (isRestyling || isConverseGenerating) { hideRewriteToolbar(); return; }
     var start = editorContent.selectionStart;
@@ -1350,6 +1360,19 @@
     var instruction = rewriteInstruction ? rewriteInstruction.value.trim() : '';
     if (!instruction) { if (rewriteInstruction) rewriteInstruction.focus(); return; }
     if (!selRewriteText || selRewriteStart === selRewriteEnd) { hideRewriteToolbar(); return; }
+
+    // Re-validate the stored offsets against the LIVE document before doing any
+    // work: if a fast re-selection (or any edit) moved the text since these
+    // offsets were captured on the 300ms-debounced check, the live slice won't
+    // match the stored passage, and splicing at these offsets would corrupt the
+    // draft. Abort gracefully instead. Normal path: the slice still matches the
+    // stored text, so this is a no-op. (Guard runs BEFORE isRewriting/the fetch,
+    // so there's no in-flight state to unwind.)
+    if (editorContent.value.slice(selRewriteStart, selRewriteEnd) !== selRewriteText) {
+      showToast('Selection changed — please re-select and try again.', true);
+      hideRewriteToolbar();
+      return;
+    }
 
     isRewriting = true;
     if (rewriteApplyBtn) rewriteApplyBtn.disabled = true;
@@ -1516,30 +1539,29 @@
     findCount.textContent = (findCurrentIndex + 1) + ' / ' + findMatches.length;
   }
 
-  // Jump to the CURRENT match: place a collapsed cursor at its start —
-  // setSelectionRange(start, start), not (start, end) — then scroll it into
-  // view. Deliberately NOT selecting the matched text: a non-empty selection
-  // is exactly what the highlight-to-revise toolbar's own 'select' listener
-  // (checkRewriteSelection) watches for, and it would otherwise pop up on
-  // every find-jump, fighting the find bar for the textarea. A collapsed
-  // selection (start === end) is the case that listener already treats as
-  // "no selection" and hides for — verified live: after a jump,
-  // #rewriteToolbar stays hidden (or hides itself if it was already open
-  // from an earlier real text selection).
+  // Jump to the CURRENT match: SELECT the matched text —
+  // setSelectionRange(start, end) — so the found phrase is visibly
+  // highlighted, then scroll it into view. Selecting normally triggers the
+  // highlight-to-revise toolbar's own 'select' listener
+  // (checkRewriteSelection); to keep a find-jump from popping that toolbar,
+  // we set suppressRewriteToolbar first, which makes checkRewriteSelection
+  // consume this one selection-change and self-reset. A subsequent MANUAL
+  // selection still shows the revise toolbar normally.
   //
-  // Textareas expose no scrollIntoView for a caret and no per-character
+  // Textareas expose no scrollIntoView for a selection and no per-character
   // geometry, and #editorContent wraps by default (no white-space:pre in its
   // CSS), so estimating scrollTop by counting '\n' characters would silently
   // fail to move at all for the common case — a single wrapped paragraph
   // with zero embedded newlines. Instead this leans on the browser's OWN
   // layout engine: set the selection, then blur+refocus, which forces the
-  // browser to redo its native "scroll the caret into view" behavior against
-  // the NEW (collapsed) selection — confirmed live to still scroll correctly
-  // with no visible text highlighted.
+  // browser to redo its native "scroll the selection into view" behavior
+  // against the NEW selection.
   function jumpToFindMatch() {
     if (findCurrentIndex < 0 || findCurrentIndex >= findMatches.length) return;
     var start = findMatches[findCurrentIndex];
-    editorContent.setSelectionRange(start, start);
+    var end   = start + (findInput ? findInput.value.length : 0);
+    suppressRewriteToolbar = true;   // consume the resulting selection-change; no revise toolbar
+    editorContent.setSelectionRange(start, end);
     editorContent.blur();
     editorContent.focus();
   }

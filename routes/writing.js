@@ -951,7 +951,9 @@ router.post('/api/writing/restyle', requireAuth, async (req, res) => {
 // unused. Purely additive: /restyle, /converse, /generate are untouched.
 router.post('/api/writing/rewrite', requireAuth, async (req, res) => {
   if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
-  const { selection, instruction, form } = req.body;
+  // `form` is intentionally NOT read here: unlike /converse and /restyle, this
+  // endpoint deliberately omits per-form essay scaffolding (see systemPrompt below).
+  const { selection, instruction } = req.body;
 
   if (!selection || !String(selection).trim()) {
     return res.status(400).json({ success: false, error: 'No passage selected.' });
@@ -960,32 +962,31 @@ router.post('/api/writing/rewrite', requireAuth, async (req, res) => {
     return res.status(400).json({ success: false, error: 'No instruction given.' });
   }
 
-  const { IRON_INK_CORE_PROMPT, IRON_INK_WRITING_PROMPT } = req.app.locals.prompts;
-  const userSettings = req.session.user && req.session.user.settings;
-  const studyLevelInstruction = getStudyLevelInstruction(userSettings);
+  const { IRON_INK_CORE_PROMPT } = req.app.locals.prompts;
 
-  // Same form instructions as /api/writing/restyle and /converse — kept identical on purpose.
-  const formInstructions = {
-    article: 'This is an article or essay. Structure it with a clear introduction, logical argument movements, objection and answer, and a doxological conclusion. It is written to be read, not heard.',
-    sermon:  'This is a sermon or exhortation. Structure it with a compelling opening, expository body with clear movements, at least one illustration prompt [ILLUSTRATION: describe what kind of illustration would work here], and a direct application landing that tells the listener what to do or believe. Use repetition deliberately. Write for the ear, not the eye. End with a call to the congregation.',
-    letter:  'This is a personal doctrinal letter to a specific person. Open by addressing them directly by their relationship to the writer (friend, sister, neighbor — whatever was stated in Q3/Q5). Write in a warm but doctrinally serious pastoral voice. Do not structure it like an essay — let it read like a genuine letter. Close with an expression of care and a prayer or blessing.',
-    teaching: 'This is a teaching guide — a fully-scripted study written to be spoken aloud by a host or teacher leading a group, or delivered to camera. Write it to be SPOKEN and HEARD, not silently read. The host holds this script and teaches from it.\n\nTHERE ARE TWO MODES, and you must choose based on the conversation:\n\nMODE A — COMPANION GUIDE (use this WHENEVER source study material was provided in this conversation). In this mode, assume every participant is holding a PRINTED COPY of that study. Your job is NOT to re-teach the study\'s content from scratch — they can read it themselves. Your job is to be the CONDUCTOR who leads the room THROUGH the handout they are holding: direct them to specific sections of the study ("Look at Section 4 in your handout — the part on Christ\'s presence"), draw their attention to the key sentences, the important word, the pivotal Scripture, and the turns in the argument. Read a passage aloud together, then unpack it. Pose the study\'s questions to the group and leave room to discuss. Add the host\'s live connective tissue — the transitions, the "here\'s why this matters," the pastoral application — that a printed study can\'t give, while the students follow along in the document. Reference the study by its sections and flow. Do NOT reproduce the whole study as prose; point to it.\n\nMODE B — STANDALONE TEACHING (use this ONLY when NO source study was provided — the writer started fresh). In this mode, assume the group has their BIBLES OPEN to the passage but NO handout. Teach the passage directly: direct them to specific verses ("Open your Bibles to 1 Corinthians 10, look at verse 16"), read the Scripture together, and teach the doctrine as you go, building the understanding live with the room. Here you DO teach the content fully, because there is no handout to carry it — the Bible is the shared document you are guiding them through.\n\nIN BOTH MODES: Open with something that draws the room in within the first minute — a question, a scene, a striking claim — not a throat-clearing preamble. Organize it in clear, speakable sections a host can move through, sized to run roughly 20-30 minutes aloud. Write in a warm, clear, generic teacher\'s voice usable by ANY host — not as one specific named person. Fully script it (complete sentences meant to be said), with natural spoken rhythm — shorter sentences than written prose. Where Scripture is quoted, emit the {{verse:Book Chapter:Verse}} marker as always, never the verse text yourself. End with application and a few discussion questions the group can talk through together. This is a teaching document a host holds and speaks from.',
-  };
-  const formInstruction = formInstructions[form] || formInstructions.article;
-
-  // The rewrite directive: revise ONLY the given passage, return ONLY the
-  // revision — no preamble, no quotes, no commentary, no surrounding context.
+  // FOCUSED fragment-rewrite prompt — deliberately narrower than /converse and
+  // /restyle. This endpoint rewrites a single short passage sitting INSIDE an
+  // existing document, so it must NOT stack the whole-essay writing prompt
+  // (IRON_INK_WRITING_PROMPT) or the per-form structure instruction ("clear
+  // introduction, logical argument movements, objection and answer, doxological
+  // conclusion," etc.). That essay scaffolding is exactly what made the model
+  // over-produce on multi-word passages — returning the original PLUS a rewrite,
+  // which the client then spliced into garble like "...directly.objection directly."
+  // (single words happened to survive because the model returned just one word).
+  // We keep only the non-negotiable guardrails: the Reformed doctrinal frame
+  // (IRON_INK_CORE_PROMPT) and the Scripture marker rule (restated in the
+  // directive below), plus a tight "return only the replacement fragment" order.
   const rewriteDirective =
-    'You are revising a single highlighted passage lifted out of a larger piece the writer is already ' +
-    'composing — you are not writing anything new from scratch and you are not seeing the rest of the ' +
-    'piece. Rewrite ONLY the passage given below, according to the instruction, preserving the same ' +
-    'Reformed doctrinal frame, voice, and meaning unless the instruction itself asks you to change tone, ' +
-    'length, or emphasis. Return ONLY the rewritten passage itself: no preamble, no quotation marks ' +
-    'wrapped around it, no commentary, no explanation of what you changed, and nothing else from outside ' +
-    'the passage. The Scripture quotation rule still applies in full — you must never write out verse ' +
-    'text yourself; emit {{verse:Book Chapter:Verse}} markers only.';
+    'You are revising a single short passage from within a larger existing document. ' +
+    'Rewrite ONLY the passage below according to the instruction. Return ONLY the rewritten passage ' +
+    'itself — no quotation marks, no preamble, no explanation, no restatement of the original, and ' +
+    'nothing before or after it. Do not add structure, headings, transitions, or a conclusion; this ' +
+    'is a fragment inside an existing document, not a standalone piece. Preserve the same Reformed ' +
+    'doctrinal frame, voice, and meaning unless the instruction itself asks you to change tone, ' +
+    'length, or emphasis. The Scripture quotation rule still applies in full — you must never write ' +
+    'out verse text yourself; emit {{verse:Book Chapter:Verse}} markers only.';
 
-  const systemPrompt = studyLevelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_WRITING_PROMPT + '\n\n' + formInstruction + '\n\n' + rewriteDirective;
+  const systemPrompt = IRON_INK_CORE_PROMPT + '\n\n' + rewriteDirective;
 
   // One-shot transform — a single user turn carrying the instruction and the
   // passage to rewrite. No conversation history.
