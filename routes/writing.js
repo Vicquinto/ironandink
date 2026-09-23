@@ -816,7 +816,7 @@ router.post('/api/writing/converse', requireAuth, async (req, res) => {
     if (!res.writableEnded) {
       if (!closed) {
         console.error('[Writing/converse] API error — status:', err.status, '| type:', err.error?.type, '| message:', err.message);
-        res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+        res.write(`data: ${JSON.stringify({ error: "The companion couldn't respond. Please try again." })}\n\n`);
       }
       res.end();
     }
@@ -936,7 +936,7 @@ router.post('/api/writing/restyle', requireAuth, async (req, res) => {
     if (!res.writableEnded) {
       if (!closed) {
         console.error('[Writing/restyle] API error — status:', err.status, '| type:', err.error?.type, '| message:', err.message);
-        res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+        res.write(`data: ${JSON.stringify({ error: 'Could not restyle this passage. Please try again.' })}\n\n`);
       }
       res.end();
     }
@@ -1069,7 +1069,7 @@ router.post('/api/writing/rewrite', requireAuth, async (req, res) => {
     if (!res.writableEnded) {
       if (!closed) {
         console.error('[Writing/rewrite] API error — status:', err.status, '| type:', err.error?.type, '| message:', err.message);
-        res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+        res.write(`data: ${JSON.stringify({ error: 'Could not revise this passage. Please try again.' })}\n\n`);
       }
       res.end();
     }

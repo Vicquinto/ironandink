@@ -53,14 +53,25 @@
   var selRewriteStart        = 0;
   var selRewriteEnd          = 0;
   var selRewriteText         = '';
+  // Set true immediately before a find-jump's setSelectionRange so the single
+  // resulting selection-change is consumed by checkRewriteSelection WITHOUT
+  // showing the revise toolbar — Find and Revise are two separate actions, not
+  // one flow. Self-resets after that one event; a subsequent MANUAL selection
+  // still shows the toolbar normally.
+  var suppressRewriteToolbar = false;
 
   // ── Find-in-article state ──────────────────────────────────────────────────
   // Navigation only — never mutates editorContent.value. findMatches holds the
   // start index of every match for the current term (non-overlapping,
   // case-insensitive); findCurrentIndex is which one is "current" (-1 = none).
+  // findTerm is the exact search string that produced findMatches — jumpToFindMatch
+  // uses ITS length for the selection end offset, never a fresh read of
+  // findInput.value, so the offset that built the match and the offset that ends
+  // the selection can never disagree.
   var findMatches       = [];
   var findCurrentIndex  = -1;
   var findDebounceTimer = null;
+  var findTerm          = '';
 
   // NOTE (redesign): the five defining questions and their generate step were
   // removed from the live flow. Picking a "door" now lands the user in the blank
@@ -1300,6 +1311,10 @@
     rewriteSelectionTimer = setTimeout(checkRewriteSelection, 300);
   }
   function checkRewriteSelection() {
+    // A find-jump programmatically selects the match; consume that one
+    // selection-change so it highlights without popping the revise toolbar.
+    // The flag self-resets so the next (manual) selection behaves normally.
+    if (suppressRewriteToolbar) { suppressRewriteToolbar = false; return; }
     if (isRewriting) return;               // don't fight the in-flight request's own UI
     if (isRestyling || isConverseGenerating) { hideRewriteToolbar(); return; }
     var start = editorContent.selectionStart;
@@ -1477,6 +1492,7 @@
     if (findCount) findCount.textContent = '';
     findMatches      = [];
     findCurrentIndex = -1;
+    findTerm         = '';
     updateFindNavVisibility();   // no matches now → hide the stepping arrows
     if (findDebounceTimer) { clearTimeout(findDebounceTimer); findDebounceTimer = null; }
   }
@@ -1543,53 +1559,83 @@
 
   // Jump to the CURRENT match: SELECT the matched text —
   // setSelectionRange(start, end) — so the found phrase is visibly highlighted,
-  // then scroll it into view. Selecting is intentional: it drives the
-  // "find → revise in one motion" flow — the highlight-to-revise toolbar SHOULD
-  // appear on the found match so the writer can immediately act on it.
+  // then scroll it into view. Find and Revise are two separate actions, not one
+  // flow: this selection must NOT pop the highlight-to-revise toolbar, so
+  // suppressRewriteToolbar is set first — checkRewriteSelection() consumes it
+  // and returns without showing the toolbar (see that function above).
   //
-  // We show that toolbar PROMPTLY and predictably by running checkRewriteSelection
-  // directly here, right after setting the selection — instead of leaning on the
-  // 300ms debounced selection check that setSelectionRange schedules. That debounce
-  // was the cause of the "toolbar appears at a stray later moment (e.g. while
-  // scrolling)" bug: the delayed check fired well after the jump. So we cancel the
-  // pending debounced check and invoke it once, synchronously, anchored to THIS
-  // selection. checkRewriteSelection reads editorContent.selectionStart/End, so it
-  // correctly populates selRewriteStart/End/Text for the found match — meaning a
-  // subsequent Apply / quick-action operates on the found text.
+  // We still resolve that consumption PROMPTLY and predictably by running
+  // checkRewriteSelection directly here, right after setting the selection —
+  // instead of leaning on the 300ms debounced selection check that
+  // setSelectionRange schedules. That debounce was the cause of an earlier
+  // "toolbar appears at a stray later moment (e.g. while scrolling)" bug when
+  // find-jumps used to open the toolbar; running synchronously now means the
+  // suppressed check resolves immediately, with no stale pending timer left
+  // behind to fire (and, if suppression is ever revisited, to pop the toolbar)
+  // at a random later point.
+  //
+  // The end offset uses findTerm — the exact string that produced findMatches
+  // — never a fresh read of findInput.value: the offset that built the match
+  // and the offset that ends the selection must always come from the same
+  // search term (see findTerm's declaration above and updateFindMatches below).
   //
   // Textareas expose no scrollIntoView for a selection and no per-character
-  // geometry, and #editorContent wraps by default (no white-space:pre in its CSS),
-  // so estimating scrollTop by counting '\n' characters would silently fail to move
-  // for the common case — a single wrapped paragraph with zero embedded newlines.
-  // Instead this leans on the browser's OWN layout engine: set the selection, then
-  // blur+refocus, which forces the browser to redo its native "scroll the selection
-  // into view" behavior against the NEW selection.
+  // geometry, and #editorContent wraps by default (no white-space:pre in its
+  // CSS), so estimating scrollTop by counting '\n' characters would silently
+  // fail to move for the common case — a single wrapped paragraph with zero
+  // embedded newlines. Instead this leans on the browser's OWN layout engine:
+  // set the selection, then blur+refocus, which forces the browser to redo
+  // its native "scroll the selection into view" behavior against the NEW
+  // selection.
   function jumpToFindMatch() {
     if (findCurrentIndex < 0 || findCurrentIndex >= findMatches.length) return;
     var start = findMatches[findCurrentIndex];
-    var end   = start + (findInput ? findInput.value.length : 0);
+    var end   = start + findTerm.length;
+    suppressRewriteToolbar = true;   // consume the resulting selection-change; no revise toolbar
     editorContent.setSelectionRange(start, end);
     editorContent.blur();
     editorContent.focus();
     // Cancel the debounced check that setSelectionRange/focus just scheduled, then
-    // run it once now so the revise toolbar appears at the moment of the jump —
+    // run it once now so the suppression is consumed at the moment of the jump —
     // not 300ms later at a random point.
     if (rewriteSelectionTimer) { clearTimeout(rewriteSelectionTimer); rewriteSelectionTimer = null; }
     checkRewriteSelection();
   }
 
-  // Typing feedback ONLY: recompute matches and update the count. Never
-  // jumps/selects/scrolls — findCurrentIndex resets to -1 (unpositioned) on
-  // every keystroke, since the match list just changed under it. Navigating
-  // to an actual match is exclusively Enter / Shift+Enter / the next/prev
-  // buttons (see below), so the writer can type a whole phrase without the
-  // article moving or the rewrite toolbar popping up mid-type.
+  // Recompute matches (+ findTerm) and update the count. Never jumps/selects/
+  // scrolls itself — findCurrentIndex resets to -1 (unpositioned) every time
+  // this runs, since the match list just changed under it. Called on the
+  // 150ms typing debounce below, AND synchronously by flushFindDebounce()
+  // right before a jump when that debounce was still pending — never
+  // unconditionally before a jump (see flushFindDebounce), so the writer can
+  // type a whole phrase without the article moving or the rewrite toolbar
+  // popping up mid-type, and repeated Enter/Go still steps forward normally
+  // once the search has settled.
   function updateFindMatches() {
     var term = findInput ? findInput.value : '';
+    findTerm         = term;
     findMatches      = computeFindMatches(term);
     findCurrentIndex = -1;
     updateFindCount();
     updateFindNavVisibility();
+  }
+
+  // Guarantees findMatches/findTerm reflect the CURRENT findInput.value before
+  // a jump: if a search debounce is still pending (the writer typed and
+  // immediately pressed Enter/Go, inside the 150ms window below), cancel it and
+  // recompute synchronously right now instead of jumping against a stale,
+  // shorter search term. computeFindMatches/updateFindMatches do no async work,
+  // so this recompute is safe to run inline. When no debounce is pending (the
+  // common case — search already settled), this is a no-op: it deliberately
+  // does NOT re-run updateFindMatches unconditionally, since that would reset
+  // findCurrentIndex to -1 on every Enter/Go press and break stepping to the
+  // next match on repeated presses.
+  function flushFindDebounce() {
+    if (findDebounceTimer) {
+      clearTimeout(findDebounceTimer);
+      findDebounceTimer = null;
+      updateFindMatches();
+    }
   }
 
   // Next/Prev read the STORED findMatches/findCurrentIndex, never the live
@@ -1626,16 +1672,21 @@
     // Enter = jump to first match (if unpositioned) or advance to the next
     // (if already positioned); Shift+Enter = previous. A plain <input>, not
     // a <form>, so there's no default submission to worry about beyond this.
+    // flushFindDebounce() first so a jump right after typing (within the
+    // 150ms search debounce) never acts on a stale, shorter search term.
     findInput.addEventListener('keydown', function (e) {
       if (e.key !== 'Enter') return;
       e.preventDefault();
+      flushFindDebounce();
       if (e.shiftKey) findPrevMatch(); else findNextMatch();
     });
   }
 
   // Go button: same as Enter — jump to the first match (or advance if already
   // positioned). Discoverable affordance in addition to Enter-in-the-input.
-  if (findGoBtn)   findGoBtn.addEventListener('click', findNextMatch);
+  // Same flush as Enter, for the same reason (typing then immediately clicking
+  // Go is the same race as typing then immediately pressing Enter).
+  if (findGoBtn)   findGoBtn.addEventListener('click', function () { flushFindDebounce(); findNextMatch(); });
   if (findNextBtn) findNextBtn.addEventListener('click', findNextMatch);
   if (findPrevBtn) findPrevBtn.addEventListener('click', findPrevMatch);
 

@@ -2656,6 +2656,17 @@ body {
 .editor-content-textarea:focus {
   border-color: rgba(160,132,92,0.35);
 }
+/* Fixed selection color, independent of focus: browsers render a textarea's
+   selection in a muted "inactive" style once focus moves elsewhere (e.g. to
+   the highlight-to-revise toolbar's own input), which made a highlighted
+   passage look like it had cleared even though selectionStart/End were
+   untouched. Pinning both states to the theme's accent keeps the highlight
+   visible and consistent whether or not the textarea currently has focus. */
+.editor-content-textarea::selection,
+.editor-content-textarea::-moz-selection {
+  background: var(--accent);
+  color: var(--ink);
+}
 
 .editor-action-row {
   display: flex;
