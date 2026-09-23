@@ -53,12 +53,21 @@
   var selRewriteStart        = 0;
   var selRewriteEnd          = 0;
   var selRewriteText         = '';
-  // Set true immediately before a find-jump's setSelectionRange so the single
-  // resulting selection-change is consumed by checkRewriteSelection WITHOUT
-  // showing the revise toolbar — Find and Revise are two separate actions, not
-  // one flow. Self-resets after that one event; a subsequent MANUAL selection
-  // still shows the toolbar normally.
-  var suppressRewriteToolbar = false;
+  // Holds the {start, end} a find-jump just selected, so checkRewriteSelection
+  // can recognize a delayed ECHO of that same jump (see its declaration site)
+  // and skip opening the revise toolbar — Find and Revise are two separate
+  // actions, not one flow. NOT a one-shot "consume and clear" flag: live
+  // testing showed a textarea's native 'select' event from setSelectionRange()
+  // can fire asynchronously, sometimes more than once for a single jump, so a
+  // flag reset by the first echo let a second, later echo open the toolbar for
+  // real. Comparing the LIVE selection against this remembered range instead
+  // means it naturally stops applying the instant the writer makes an actual
+  // different selection — no timing assumption required. armSuppressedFindRange
+  // also arms a generous backstop timer, in case no echo (and thus no
+  // consumption) ever arrives, so this can never linger and swallow whatever
+  // the writer selects next.
+  var suppressedFindRange      = null;
+  var suppressedFindRangeTimer = null;
 
   // ── Find-in-article state ──────────────────────────────────────────────────
   // Navigation only — never mutates editorContent.value. findMatches holds the
@@ -1311,16 +1320,29 @@
     rewriteSelectionTimer = setTimeout(checkRewriteSelection, 300);
   }
   function checkRewriteSelection() {
-    // A find-jump programmatically selects the match; consume that one
-    // selection-change so it highlights without popping the revise toolbar.
-    // The flag self-resets so the next (manual) selection behaves normally.
-    if (suppressRewriteToolbar) { suppressRewriteToolbar = false; return; }
     if (isRewriting) return;               // don't fight the in-flight request's own UI
     if (isRestyling || isConverseGenerating) { hideRewriteToolbar(); return; }
     var start = editorContent.selectionStart;
     var end   = editorContent.selectionEnd;
     if (start == null || end == null || start === end) {
       hideRewriteToolbar();
+      return;
+    }
+    // Still the exact range a find-jump selected, and nothing has manually
+    // re-selected since — a delayed ECHO of that jump's own selection-change,
+    // not a new selection to revise. See suppressedFindRange's declaration
+    // above jumpToFindMatch for why this can't be a simple one-shot flag: a
+    // textarea's native 'select' event from setSelectionRange() does not fire
+    // synchronously in this browser (confirmed live with timestamped logging
+    // — it lands as a separate later task), and a second echo follows from
+    // the blur()/focus() pair jumpToFindMatch uses to scroll the match into
+    // view, so a flag reset by the FIRST echo left the SECOND one to open the
+    // toolbar for real. Comparing against the live range instead of consuming
+    // a flag means any number of late echoes of the SAME unchanged selection
+    // stay suppressed, while the range comparison itself (not a timer) is
+    // what stops applying the moment the writer actually changes the
+    // selection — including extending the found text with Shift+Arrow.
+    if (suppressedFindRange && suppressedFindRange.start === start && suppressedFindRange.end === end) {
       return;
     }
     selRewriteStart = start;
@@ -1495,6 +1517,7 @@
     findTerm         = '';
     updateFindNavVisibility();   // no matches now → hide the stepping arrows
     if (findDebounceTimer) { clearTimeout(findDebounceTimer); findDebounceTimer = null; }
+    clearSuppressedFindRange();
   }
 
   if (findToggleBtn) findToggleBtn.addEventListener('click', toggleFindBar);
@@ -1557,22 +1580,35 @@
     if (findNextBtn) findNextBtn.style.display = show ? '' : 'none';
   }
 
+  // Arm the find-jump's selection-echo guard: remember exactly which range is
+  // about to be selected, and cancel any pending rewrite-selection timer left
+  // over from an EARLIER, unrelated selection so it can't fire mid-jump and
+  // get mistaken for an echo of THIS one. A generous backstop timer also
+  // clears the guard on its own — belt-and-suspenders in case no 'select'/
+  // 'mouseup'/'keyup' echo of this jump ever arrives to clear it via
+  // checkRewriteSelection's own range comparison (see that function).
+  function armSuppressedFindRange(start, end) {
+    if (rewriteSelectionTimer) { clearTimeout(rewriteSelectionTimer); rewriteSelectionTimer = null; }
+    suppressedFindRange = { start: start, end: end };
+    if (suppressedFindRangeTimer) clearTimeout(suppressedFindRangeTimer);
+    suppressedFindRangeTimer = setTimeout(function () {
+      suppressedFindRange      = null;
+      suppressedFindRangeTimer = null;
+    }, 2000);
+  }
+
+  function clearSuppressedFindRange() {
+    suppressedFindRange = null;
+    if (suppressedFindRangeTimer) { clearTimeout(suppressedFindRangeTimer); suppressedFindRangeTimer = null; }
+  }
+
   // Jump to the CURRENT match: SELECT the matched text —
   // setSelectionRange(start, end) — so the found phrase is visibly highlighted,
   // then scroll it into view. Find and Revise are two separate actions, not one
   // flow: this selection must NOT pop the highlight-to-revise toolbar, so
-  // suppressRewriteToolbar is set first — checkRewriteSelection() consumes it
-  // and returns without showing the toolbar (see that function above).
-  //
-  // We still resolve that consumption PROMPTLY and predictably by running
-  // checkRewriteSelection directly here, right after setting the selection —
-  // instead of leaning on the 300ms debounced selection check that
-  // setSelectionRange schedules. That debounce was the cause of an earlier
-  // "toolbar appears at a stray later moment (e.g. while scrolling)" bug when
-  // find-jumps used to open the toolbar; running synchronously now means the
-  // suppressed check resolves immediately, with no stale pending timer left
-  // behind to fire (and, if suppression is ever revisited, to pop the toolbar)
-  // at a random later point.
+  // armSuppressedFindRange() remembers this exact range before selecting it —
+  // checkRewriteSelection() recognizes any selection-change echo that still
+  // matches it and skips showing the toolbar (see that function above).
   //
   // The end offset uses findTerm — the exact string that produced findMatches
   // — never a fresh read of findInput.value: the offset that built the match
@@ -1591,15 +1627,10 @@
     if (findCurrentIndex < 0 || findCurrentIndex >= findMatches.length) return;
     var start = findMatches[findCurrentIndex];
     var end   = start + findTerm.length;
-    suppressRewriteToolbar = true;   // consume the resulting selection-change; no revise toolbar
+    armSuppressedFindRange(start, end);
     editorContent.setSelectionRange(start, end);
     editorContent.blur();
     editorContent.focus();
-    // Cancel the debounced check that setSelectionRange/focus just scheduled, then
-    // run it once now so the suppression is consumed at the moment of the jump —
-    // not 300ms later at a random point.
-    if (rewriteSelectionTimer) { clearTimeout(rewriteSelectionTimer); rewriteSelectionTimer = null; }
-    checkRewriteSelection();
   }
 
   // Recompute matches (+ findTerm) and update the count. Never jumps/selects/
