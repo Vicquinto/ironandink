@@ -887,7 +887,7 @@ router.post('/api/writing/restyle', requireAuth, async (req, res) => {
   try {
     const stream = client.messages.stream({
       model,
-      max_tokens: 4000,               // drafts can be long
+      max_tokens: 16000,              // drafts can be long
       system:     systemPrompt,
       messages:   apiMessages,
     });
