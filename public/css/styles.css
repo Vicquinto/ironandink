@@ -2916,75 +2916,6 @@ body {
   font-style: italic;
 }
 
-/* ─── FIND-IN-ARTICLE BAR ──────────────────────────────────────────────────── */
-/* Same warm-parchment card family as .rewrite-toolbar / .restyle-picker.
-   A single row: input grows, count is fixed-width, then prev/next/close. */
-.find-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: linear-gradient(rgba(160,132,92,0.06), rgba(160,132,92,0.06)), var(--card-bg);
-  border: 1px solid rgba(160,132,92,0.32);
-  border-radius: 6px;
-  box-shadow: 0 6px 18px rgba(107,66,38,0.18);
-  padding: 8px 10px;
-  margin-bottom: 14px;
-}
-
-.find-input {
-  flex: 1;
-  min-width: 0;
-  background: var(--bg);
-  border: 1px solid rgba(160,132,92,0.3);
-  border-radius: 4px;
-  color: var(--text);
-  font-family: Georgia, serif;
-  font-size: 0.88rem;
-  padding: 6px 10px;
-  outline: none;
-}
-.find-input:focus {
-  border-color: rgba(160,132,92,0.55);
-}
-
-.find-count {
-  font-size: 0.78rem;
-  color: var(--warm-brown);
-  font-style: italic;
-  white-space: nowrap;
-  min-width: 64px;
-  text-align: center;
-}
-
-.find-nav-btn {
-  background: transparent;
-  border: 1px solid rgba(160,132,92,0.3);
-  border-radius: 4px;
-  color: var(--warm-brown);
-  cursor: pointer;
-  font-size: 13px;
-  line-height: 1;
-  padding: 5px 9px;
-  transition: background 0.12s, color 0.12s;
-}
-.find-nav-btn:hover {
-  background: rgba(160,132,92,0.14);
-  color: var(--text);
-}
-
-.find-close-btn {
-  background: none;
-  border: none;
-  color: var(--warm-brown);
-  cursor: pointer;
-  font-size: 14px;
-  line-height: 1;
-  padding: 5px 6px;
-}
-.find-close-btn:hover {
-  color: var(--text);
-}
-
 /* ─── WRITING TWO-PANE WORKSPACE ─────────────────────────────────────────── */
 /* Split composer: conversation LEFT (~40%), editor RIGHT (~60%). The row lives
    here (not on #writingEditor) so the wrapper's inline display toggle can't
@@ -3010,6 +2941,14 @@ body {
   border: 1px solid rgba(160,132,92,0.18);
   border-radius: 6px;
   padding: 12px 16px;
+}
+
+/* Hidden via #companionToggleBtn (public/js/writing.js). Fully removes the pane
+   from the flex row (not just visually) so .writing-editor-pane's flex:1 1 60%
+   naturally fills the freed space — no width recalculation needed on the
+   editor side, `gap` also stops applying since there's only one visible child. */
+.writing-conversation.collapsed {
+  display: none;
 }
 
 .conversation-header {
@@ -3043,10 +2982,16 @@ body {
 }
 
 /* RIGHT — the existing editor, unchanged internals. Scrolls within the pane if
-   its content exceeds the workspace height. */
+   its content exceeds the workspace height. Capped at max-width so freeing the
+   Companion panel (collapsed above, or just a wide viewport) doesn't stretch
+   article lines past a comfortable reading width — flexbox leaves a shrunk
+   item at the start of the row by default, so this reads left-aligned within
+   .writing-workspace, consistent with the rest of the page's left-flowing
+   layout (no other panel on this page centers itself). */
 .writing-editor-pane {
   flex: 1 1 60%;
   min-width: 0;
+  max-width: 900px;
   overflow-y: auto;
   padding-right: 4px;
 }

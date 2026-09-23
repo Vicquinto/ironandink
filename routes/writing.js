@@ -114,7 +114,13 @@ router.get('/writing', requireAuth, (req, res) => {
                 <button class="guide-font-btn guide-font-btn-lg" id="editorFontInc" title="Larger text" aria-label="Larger text">A+</button>
               </span>
               <button class="guide-print-btn" id="editorPrintBtn" title="Print or Save as PDF">Print / Download</button>
-              <button class="guide-print-btn" id="findToggleBtn" title="Find in article (Ctrl+F)">Find</button>
+              <!-- Hide/show the Companion panel (.writing-conversation), freeing the
+                   board to fill the row when hidden. Mirrors the app-wide sidebar's
+                   own collapse toggle (#sidebarToggle, public/js/app.js) for a
+                   consistent interaction; state persisted the same way the editor's
+                   font-zoom does (see COMPANION_COLLAPSED_KEY in writing.js). Label
+                   text is corrected by JS on load to match the restored state. -->
+              <button class="guide-print-btn" id="companionToggleBtn" title="Hide or show the writing companion">Hide Companion</button>
             </div>
             <div class="editor-topbar-actions">
               <button class="btn-end-session" id="clearBoardBtn">Clear Board</button>
@@ -122,22 +128,6 @@ router.get('/writing', requireAuth, (req, res) => {
             </div>
           </div>
           <input type="text" id="editorTitle" class="editor-title-input" placeholder="Article title&#8230;">
-
-          <!-- Find-in-article bar. Navigation only — never touches
-               #editorContent.value. Hidden by default, toggled via the Find
-               button above or Ctrl/Cmd+F while the workspace is open; closed
-               via the × or Escape. Docked above the textarea so it can never
-               visually collide with the rewrite toolbar, which is docked
-               BELOW the textarea. -->
-          <div id="findBar" class="find-bar" style="display:none;">
-            <input type="text" id="findInput" class="find-input" placeholder="Find in article&#8230;">
-            <button type="button" id="findGoBtn" class="find-nav-btn" aria-label="Find" title="Find (Enter)">Go</button>
-            <span id="findCount" class="find-count"></span>
-            <!-- Prev/Next are hidden by default and shown by JS only when there are 2+ matches. -->
-            <button type="button" id="findPrevBtn" class="find-nav-btn" aria-label="Previous match" title="Previous match" style="display:none;">&#8593;</button>
-            <button type="button" id="findNextBtn" class="find-nav-btn" aria-label="Next match" title="Next match" style="display:none;">&#8595;</button>
-            <button type="button" id="findCloseBtn" class="find-close-btn" aria-label="Close find">&#10005;</button>
-          </div>
 
           <textarea id="editorContent" class="editor-content-textarea" placeholder="Your article will appear here&#8230;"></textarea>
 
