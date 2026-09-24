@@ -95,6 +95,7 @@
 
   var editorTitle       = document.getElementById('editorTitle');
   var editorContent     = document.getElementById('editorContent');
+  var writingEditorPane = document.getElementById('writingEditorPane');
   var editorTierBadge   = document.getElementById('editorTierBadge');
   var editorWordCount   = document.getElementById('editorWordCount');
   var saveDraftBtn      = document.getElementById('saveDraftBtn');
@@ -1442,22 +1443,30 @@
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // ── Highlight-to-revise: selection toolbar / apply / undo (Capability 1) ──
-  // Client for POST /api/writing/rewrite. Built on the EXISTING plain textarea
-  // using selectionStart/selectionEnd — no rich editor, no DOM Range, no
-  // caret-position geometry. The toolbar still docks in a FIXED layout slot
-  // between the board and the action row (Option B) rather than floating at
-  // the selection — the board is now contenteditable (Revise rebuild Phase
-  // 1), which DOES expose real Range/getBoundingClientRect() geometry, but
-  // the floating-popup positioning work itself is scoped to a later phase;
-  // this phase only swaps the foundation under the existing fixed-panel UI.
-  // Selection is captured via window.getSelection()/Range and converted
-  // to/from plain-text character offsets (rangeToPlainTextOffsets /
-  // plainTextOffsetToRange, see the contenteditable helpers above) — the
-  // same role .selectionStart/.selectionEnd played on the old <textarea>.
-  // Reuses pumpSSE from above. Undo now lives on the shared contentUndoBuffer
-  // (see its declaration near the top of the file), not a dedicated buffer.
+  // ── Highlight-to-revise: floating popup / apply / undo (Capability 1) ─────
+  // Client for POST /api/writing/rewrite. Revise rebuild Phase 2: the toolbar
+  // is now a position:fixed popup anchored at the live selection via
+  // getBoundingClientRect(), instead of a fixed panel docked in the page
+  // layout — Phase 1 (contenteditable conversion) is what made real selection
+  // geometry available at all. Selection is captured via
+  // window.getSelection()/Range and converted to/from plain-text character
+  // offsets (rangeToPlainTextOffsets / plainTextOffsetToRange, see the
+  // contenteditable helpers above) — the same role .selectionStart/
+  // .selectionEnd played on the old <textarea>. Reuses pumpSSE from above.
+  // Undo lives on the shared contentUndoBuffer (see its declaration near the
+  // top of the file), not a dedicated buffer.
+  //
+  // Reparented to a direct child of <body> once at startup: position:fixed is
+  // computed relative to the viewport regardless of DOM nesting as long as no
+  // ancestor creates its own containing block via transform/filter/
+  // will-change (checked — none here do), but moving it out from under
+  // .writing-editor-pane removes any doubt and keeps it clear of that pane's
+  // own scroll/font-zoom machinery.
   // ══════════════════════════════════════════════════════════════════════════
+
+  if (rewriteToolbar && rewriteToolbar.parentNode !== document.body) {
+    document.body.appendChild(rewriteToolbar);
+  }
 
   function isRewriteToolbarOpen() {
     return !!rewriteToolbar && rewriteToolbar.style.display !== 'none';
@@ -1474,11 +1483,80 @@
     if (rewriteApplyBtn) rewriteApplyBtn.disabled = false;
   }
 
-  function showRewriteToolbar() {
+  // Anchor the popup at the END of the selection's LAST visual line, not the
+  // selection's overall bounding box — for a selection spanning several
+  // wrapped lines, the bounding box can be nearly as wide as the whole board,
+  // which would put the popup somewhere that doesn't visually relate to
+  // where the writer's eye actually is (the end of what they just selected).
+  // getClientRects() gives one rect per visual line the selection touches;
+  // falls back to the overall box only in the (practically unreachable)
+  // case of a non-collapsed Range reporting zero rects.
+  function getSelectionAnchorRect(range) {
+    var rects = range.getClientRects();
+    return rects.length ? rects[rects.length - 1] : range.getBoundingClientRect();
+  }
+
+  // True if `rect` visibly overlaps BOTH the browser viewport and
+  // .writing-editor-pane's own visible (scrolled) area. Text can scroll out
+  // of the pane's view while the pane itself is still fully on-screen (the
+  // pane scrolls internally), or the whole pane can scroll out of view
+  // within .main-content — either way the selection is no longer something
+  // the writer can actually see, and the popup should disappear rather than
+  // hover disconnected over unrelated content.
+  function isRectVisibleWithinPane(rect) {
+    if (!writingEditorPane) return true;
+    var paneRect = writingEditorPane.getBoundingClientRect();
+    var top    = Math.max(paneRect.top, 0);
+    var bottom = Math.min(paneRect.bottom, window.innerHeight);
+    var left   = Math.max(paneRect.left, 0);
+    var right  = Math.min(paneRect.right, window.innerWidth);
+    return rect.bottom > top && rect.top < bottom && rect.right > left && rect.left < right;
+  }
+
+  // Measures the popup's own size (it must be displayed, even if invisibly,
+  // to do this — offsetWidth/Height are 0 while display:none), then places
+  // it just below `rect`, flipping above when there isn't room below, and
+  // clamping on both axes so it can never render partially off-screen. That
+  // clamping is also what fixes the old panel's scroll-jump bug: focus()
+  // only scrolls an element into view when it ISN'T already visible, and the
+  // old fixed-panel design could render below the visible area on a long
+  // article, so focusing its instruction field force-scrolled the whole page
+  // down to reveal it. A popup that's always fully within the viewport by
+  // construction never triggers that.
+  var REWRITE_POPUP_GAP = 8;
+  function positionRewriteToolbar(rect) {
     if (!rewriteToolbar) return;
-    var wasOpen = isRewriteToolbarOpen();
+    rewriteToolbar.style.visibility = 'hidden';   // measure without a flash at the wrong spot
     rewriteToolbar.style.display = 'block';
-    if (!wasOpen && rewriteInstruction) rewriteInstruction.focus();
+    var tw = rewriteToolbar.offsetWidth;
+    var th = rewriteToolbar.offsetHeight;
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+
+    var left = rect.left;
+    if (left + tw > vw - REWRITE_POPUP_GAP) left = vw - tw - REWRITE_POPUP_GAP;
+    if (left < REWRITE_POPUP_GAP) left = REWRITE_POPUP_GAP;
+
+    var spaceBelow = vh - rect.bottom;
+    var spaceAbove = rect.top;
+    var top;
+    if (spaceBelow >= th + REWRITE_POPUP_GAP || spaceBelow >= spaceAbove) {
+      top = rect.bottom + REWRITE_POPUP_GAP;   // preferred: just below the selection
+    } else {
+      top = rect.top - th - REWRITE_POPUP_GAP; // flip above when there's no room below
+    }
+    if (top < REWRITE_POPUP_GAP) top = REWRITE_POPUP_GAP;
+    if (top + th > vh - REWRITE_POPUP_GAP) top = vh - th - REWRITE_POPUP_GAP;
+
+    rewriteToolbar.style.left = left + 'px';
+    rewriteToolbar.style.top  = top + 'px';
+    rewriteToolbar.style.visibility = 'visible';
+  }
+
+  function showRewriteToolbar(rect, shouldFocus) {
+    if (!rewriteToolbar) return;
+    positionRewriteToolbar(rect);
+    if (shouldFocus && rewriteInstruction) rewriteInstruction.focus();
   }
 
   // Abort any in-flight rewrite stream. Used by Dismiss and every lifecycle
@@ -1503,16 +1581,15 @@
   // 'selectionchange' event (fires for ANY selection change anywhere in the
   // document), filtered below to only react when the selection is actually
   // inside #editorContent — otherwise, e.g., selecting text in the Companion
-  // pane or the instruction field would also trigger this. Debounced ~300ms
-  // so a selection still being dragged doesn't thrash the toolbar. Never
-  // shows while a restyle or conversation stream is running — Capability 1
-  // does not compete with those for the editor — and never interferes with
-  // an already-in-flight rewrite of its own.
-  var rewriteSelectionTimer = null;
-  function scheduleRewriteSelectionCheck() {
-    if (rewriteSelectionTimer) clearTimeout(rewriteSelectionTimer);
-    rewriteSelectionTimer = setTimeout(checkRewriteSelection, 300);
-  }
+  // pane or the instruction field would also trigger this. Runs SYNCHRONOUSLY
+  // now, with no debounce — the old 300ms delay's stated purpose ("don't
+  // thrash the toolbar while still dragging") doesn't actually apply to
+  // mouseup/keyup, which only fire once a selection gesture is already
+  // complete, and a floating popup anchored at the selection is meant to
+  // appear immediately, not after a pause. Never shows while a restyle or
+  // conversation stream is running — Capability 1 does not compete with
+  // those for the editor — and never interferes with an already-in-flight
+  // rewrite of its own.
   function checkRewriteSelection() {
     if (isRewriting) return;               // don't fight the in-flight request's own UI
     if (isRestyling || isConverseGenerating) { hideRewriteToolbar(); return; }
@@ -1528,19 +1605,93 @@
       hideRewriteToolbar();
       return;
     }
+    // Only steal focus into the instruction field when the SELECTED TEXT
+    // itself actually changed — contenteditable can fire more than one
+    // selectionchange for what is, from the writer's perspective, a single
+    // selection action, and re-focusing on every redundant firing would yank
+    // focus away the instant the writer starts typing an instruction.
+    var isNewSelection = !isRewriteToolbarOpen() || offsets.start !== selRewriteStart || offsets.end !== selRewriteEnd;
     selRewriteStart = offsets.start;
     selRewriteEnd   = offsets.end;
     selRewriteText  = getPlainText(editorContent).slice(offsets.start, offsets.end);
-    showRewriteToolbar();
+    showRewriteToolbar(getSelectionAnchorRect(range), isNewSelection);
   }
-  editorContent.addEventListener('mouseup', scheduleRewriteSelectionCheck);
-  editorContent.addEventListener('keyup',   scheduleRewriteSelectionCheck);
+
+  // isDraggingSelection tracks an in-progress mouse drag so selectionchange
+  // (below) can ignore it entirely: selectionchange fires continuously as a
+  // drag grows the selection, and since the offsets differ on every firing,
+  // showRewriteToolbar would call rewriteInstruction.focus() mid-drag on
+  // nearly every one of them — moving focus away from the document while a
+  // mouse-drag text selection is in progress cuts the drag short in most
+  // browsers. Waiting for the drag to actually finish (mouseup) avoids this
+  // entirely; mouseup is attached to `document`, not just #editorContent,
+  // since a drag can end with the mouse released outside the board (e.g.
+  // over the Companion pane) and still needs to be picked up.
+  // isKeyDown is the same guard for the keyboard equivalent: holding
+  // Shift+Arrow to extend a selection fires 'keydown' repeatedly (OS auto-
+  // repeat) but 'keyup' only once, when the key is finally released — so
+  // wiring checkRewriteSelection to keyup alone (below) is already safe on
+  // its own. selectionchange is the risk: it fires on every auto-repeated
+  // extension, and would otherwise call rewriteInstruction.focus() while the
+  // key is still physically held, hijacking the rest of that keystroke
+  // stream into the instruction field instead of the article.
+  var isDraggingSelection = false;
+  var isKeyDown            = false;
+  editorContent.addEventListener('mousedown', function () { isDraggingSelection = true; });
+  editorContent.addEventListener('keydown',   function () { isKeyDown = true; });
+  document.addEventListener('mouseup', function (e) {
+    isDraggingSelection = false;
+    // A click landing INSIDE the popup itself (the instruction field, a
+    // quick-action button, Apply, Dismiss) must never re-run selection
+    // detection — clicking into the instruction field can itself change
+    // (collapse) the page's underlying text selection as a side effect of
+    // moving focus there, which would otherwise read as "selection became
+    // invalid" and close the very popup being clicked into.
+    if (rewriteToolbar && rewriteToolbar.contains(e.target)) return;
+    checkRewriteSelection();
+  });
+  editorContent.addEventListener('keyup', function () {
+    isKeyDown = false;
+    checkRewriteSelection();
+  });
   document.addEventListener('selectionchange', function () {
+    if (isDraggingSelection || isKeyDown) return;
+    // Same reasoning as the mouseup guard above, for the case where focus is
+    // already inside the popup (e.g. mid-keystroke in the instruction field)
+    // when some unrelated selection change fires — never let that close the
+    // popup the writer is actively using.
+    if (rewriteToolbar && rewriteToolbar.contains(document.activeElement)) return;
     var sel = window.getSelection();
     if (sel && sel.rangeCount && editorContent.contains(sel.getRangeAt(0).commonAncestorContainer)) {
-      scheduleRewriteSelectionCheck();
+      checkRewriteSelection();
     }
   });
+
+  // Keeps the popup glued to the selection while it stays visible, and hides
+  // it the moment the selection scrolls out of view — it never "follows" the
+  // selection to some other fixed spot on screen, which would misleadingly
+  // suggest it's still anchored to text the writer can no longer see.
+  // 'scroll' doesn't bubble, so capture:true on document is the standard way
+  // to catch it from ANY scrollable ancestor (.writing-editor-pane,
+  // .main-content, ...) without naming them individually; window resize gets
+  // the same treatment since it can just as easily move the selection
+  // relative to the viewport. Rebuilds the Range from the STORED offsets
+  // rather than re-reading window.getSelection(), since focus has already
+  // moved to the toolbar's own instruction input by the time either of these
+  // can fire — the live document selection no longer reflects the article
+  // text the popup is anchored to.
+  function updateRewriteToolbarOnViewportChange() {
+    if (!isRewriteToolbarOpen() || isRewriting) return;
+    var range = plainTextOffsetToRange(editorContent, selRewriteStart, selRewriteEnd);
+    var overallRect = range.getBoundingClientRect();
+    if (!isRectVisibleWithinPane(overallRect)) {
+      hideRewriteToolbar();
+      return;
+    }
+    positionRewriteToolbar(getSelectionAnchorRect(range));
+  }
+  document.addEventListener('scroll', updateRewriteToolbarOnViewportChange, true);
+  window.addEventListener('resize', updateRewriteToolbarOnViewportChange);
 
   if (rewriteDismissBtn) rewriteDismissBtn.addEventListener('click', dismissRewriteToolbar);
 
@@ -1578,12 +1729,13 @@
     if (!selRewriteText || selRewriteStart === selRewriteEnd) { hideRewriteToolbar(); return; }
 
     // Re-validate the stored offsets against the LIVE document before doing any
-    // work: if a fast re-selection (or any edit) moved the text since these
-    // offsets were captured on the 300ms-debounced check, the live slice won't
-    // match the stored passage, and splicing at these offsets would corrupt the
-    // draft. Abort gracefully instead. Normal path: the slice still matches the
-    // stored text, so this is a no-op. (Guard runs BEFORE isRewriting/the fetch,
-    // so there's no in-flight state to unwind.)
+    // work: if anything edited the text between the selection check and now
+    // (however briefly — e.g. an auto-save race, or the writer resuming
+    // typing), the live slice won't match the stored passage, and splicing at
+    // these offsets would corrupt the draft. Abort gracefully instead. Normal
+    // path: the slice still matches the stored text, so this is a no-op.
+    // (Guard runs BEFORE isRewriting/the fetch, so there's no in-flight state
+    // to unwind.)
     if (getPlainText(editorContent).slice(selRewriteStart, selRewriteEnd) !== selRewriteText) {
       showToast('Selection changed — please re-select and try again.', true);
       hideRewriteToolbar();

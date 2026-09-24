@@ -140,13 +140,15 @@ router.get('/writing', requireAuth, (req, res) => {
                :empty::before CSS rule in styles.css stand in for it. -->
           <div id="editorContent" class="editor-content-textarea" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Article content" data-placeholder="Your article will appear here&#8230;"></div>
 
-          <!-- Highlight-to-revise toolbar (Capability 1). Docked in this fixed
-               layout slot between the board and the action row (Option B) —
-               NOT floating at the caret yet; that's a later phase once the
-               contenteditable conversion above has settled. Shown when #editorContent
-               has a live, non-empty selection; hidden otherwise. Card look
-               matches the reading-view dictionary tooltip / .restyle-picker
-               family for visual consistency. -->
+          <!-- Highlight-to-revise popup (Capability 1 — Revise rebuild Phase 2).
+               Markup lives here for readability, but writing.js reparents this
+               node to a direct child of <body> at startup and positions it with
+               position:fixed via getBoundingClientRect() on the live selection —
+               it renders floating next to the selection, not in this document
+               position. Shown when #editorContent has a live, non-empty
+               selection; hidden otherwise, or if the selection scrolls out of
+               view. Card look matches the reading-view dictionary tooltip /
+               .restyle-picker family for visual consistency. -->
           <div id="rewriteToolbar" class="rewrite-toolbar" style="display:none;">
             <div class="rewrite-toolbar-head">
               <span class="rewrite-toolbar-label">Revise selection</span>

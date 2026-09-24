@@ -2850,17 +2850,24 @@ body {
 }
 
 /* ─── HIGHLIGHT-TO-REVISE TOOLBAR (Capability 1) ──────────────────────────── */
-/* Docked in the layout between the textarea and the action row (Option B — a
-   fixed spot, not floating at the caret; a plain <textarea> exposes no
-   per-character geometry to float over). Same warm-parchment card family as
-   .restyle-picker and the reading-view dictionary tooltip (dictionary.js). */
+/* Floating popup anchored at the live selection (Revise rebuild Phase 2) —
+   position:fixed, left/top set in JS from getBoundingClientRect() on the
+   selection's Range (see positionRewriteToolbar in writing.js). Reparented
+   to a direct child of <body> at startup so no ancestor's overflow/stacking
+   context can clip or mis-position it. Same warm-parchment card family as
+   .restyle-picker and the reading-view dictionary tooltip (dictionary.js).
+   z-index sits above ordinary page content but below the toast (9000) and
+   floating notepad (9100) widgets. */
 .rewrite-toolbar {
+  position: fixed;
+  z-index: 2200;
+  width: 300px;
+  max-width: calc(100vw - 16px);
   background: linear-gradient(rgba(160,132,92,0.06), rgba(160,132,92,0.06)), var(--card-bg);
   border: 1px solid rgba(160,132,92,0.32);
   border-radius: 6px;
   box-shadow: 0 6px 18px rgba(107,66,38,0.18);
   padding: 12px 14px;
-  margin: -8px 0 20px;
 }
 
 .rewrite-toolbar-head {
