@@ -129,12 +129,21 @@ router.get('/writing', requireAuth, (req, res) => {
           </div>
           <input type="text" id="editorTitle" class="editor-title-input" placeholder="Article title&#8230;">
 
-          <textarea id="editorContent" class="editor-content-textarea" placeholder="Your article will appear here&#8230;"></textarea>
+          <!-- Revise rebuild Phase 1: contenteditable, not a <textarea> — gives
+               Range/getBoundingClientRect() for a future inline popup (later
+               phase) instead of estimating caret position. Every existing
+               feature (save, restyle, Revise apply/undo, word count, print,
+               add-to-draft) now goes through the plain-text helpers in
+               writing.js (getPlainText/plainTextToSafeHtml/offset<->Range) so
+               it keeps working exactly as before. contenteditable has no
+               native placeholder attribute, so data-placeholder + the
+               :empty::before CSS rule in styles.css stand in for it. -->
+          <div id="editorContent" class="editor-content-textarea" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Article content" data-placeholder="Your article will appear here&#8230;"></div>
 
           <!-- Highlight-to-revise toolbar (Capability 1). Docked in this fixed
-               layout slot between the textarea and the action row (Option B) —
-               NOT floating at the caret, since a plain <textarea> exposes no
-               per-character geometry to float over. Shown when #editorContent
+               layout slot between the board and the action row (Option B) —
+               NOT floating at the caret yet; that's a later phase once the
+               contenteditable conversion above has settled. Shown when #editorContent
                has a live, non-empty selection; hidden otherwise. Card look
                matches the reading-view dictionary tooltip / .restyle-picker
                family for visual consistency. -->
@@ -175,10 +184,12 @@ router.get('/writing', requireAuth, (req, res) => {
                 <button class="restyle-picker-item" data-style="plainer">Plainer</button>
               </div>
             </div>
-            <!-- One-step undo: shown only after an Accept, hidden otherwise. -->
-            <button class="btn-warm restyle-undo-btn" id="restyleUndoBtn" style="display:none;">&#8630; Undo restyle</button>
-            <!-- One-step undo for a highlight-to-revise Apply (Capability 1); same pattern as restyleUndoBtn. -->
-            <button class="btn-warm restyle-undo-btn" id="rewriteUndoBtn" style="display:none;">&#8630; Undo revision</button>
+            <!-- One-step undo, shared across every content-mutating action (restyle
+                 accept, Revise apply, add-to-draft, draft-into-article) — one
+                 snapshot buffer, one button, label text set by JS to say which
+                 action it would revert. Shown only right after such an action;
+                 hidden/cleared as soon as it's used or the writer moves on. -->
+            <button class="btn-warm restyle-undo-btn" id="contentUndoBtn" style="display:none;">&#8630; Undo</button>
           </div>
         </div>
 

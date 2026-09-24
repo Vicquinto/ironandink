@@ -2640,6 +2640,7 @@ body {
 }
 
 .editor-content-textarea {
+  display: block;
   width: 100%;
   min-height: 440px;
   background: var(--card-bg);
@@ -2650,6 +2651,19 @@ body {
   font-size: 0.92rem;
   line-height: 1.75;
   padding: 22px 26px;
+  /* A <textarea> wraps and preserves whitespace via its UA stylesheet for
+     free; a contenteditable <div> does neither by default, so both are set
+     explicitly (Revise rebuild Phase 1) — omitting this would let a long
+     unbroken run of text (a URL, a transliteration) push the element wider
+     instead of wrapping, reintroducing the horizontal-scrollbar bug this
+     page just had fixed. */
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  /* Own overflow (not just the outer .writing-editor-pane's) so `resize`
+     below still works — CSS resize requires overflow other than visible on
+     the element ITSELF, which a real <textarea> gets from the UA stylesheet
+     automatically but a plain <div> does not. */
+  overflow-y: auto;
   resize: vertical;
   margin-bottom: 20px;
   outline: none;
@@ -2657,6 +2671,15 @@ body {
 }
 .editor-content-textarea:focus {
   border-color: rgba(160,132,92,0.35);
+}
+/* contenteditable has no native `placeholder` attribute — this is the
+   standard stand-in: show the data-placeholder text only while the element
+   renders no child nodes at all. Matches the color used for the article
+   title's own ::placeholder (rgba(30,18,8,0.28)) for visual consistency. */
+.editor-content-textarea:empty::before {
+  content: attr(data-placeholder);
+  color: rgba(30,18,8,0.28);
+  pointer-events: none;
 }
 /* Fixed selection color, independent of focus: browsers render a textarea's
    selection in a muted "inactive" style once focus moves elsewhere (e.g. to

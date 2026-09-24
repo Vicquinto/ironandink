@@ -28,26 +28,37 @@
   var writingAbortController  = null;
   var isConverseGenerating    = false;
 
+  // ── Shared content-undo buffer (Revise rebuild Phase 1) ────────────────────
+  // ONE single-step undo buffer shared by every content-mutating action:
+  // restyle accept, Revise apply, add-to-draft, and draft-into-article. Each
+  // push captures { content, title, label } — the WHOLE draft (not just the
+  // affected passage), since that's the simplest correct way to reverse any
+  // of these regardless of what kind of edit it made. `label` names the
+  // action for the button text / toast ("restyle", "revision", "add to
+  // draft", "draft-in"). One button (#contentUndoBtn), text set from the
+  // most recent push; a second mutating action before the first is undone
+  // simply overwrites the buffer, matching every one of these actions'
+  // existing "single step only" behavior. See pushContentUndo/clearContentUndo.
+  var contentUndoBuffer = null;
+
   // ── Writing Types (restyle) state (Phase B) ────────────────────────────────
-  // restyleUndoBuffer holds the pre-Accept { content, title } for a single step
-  // of undo. isRestyling gates overlapping streams; restyleAbortController backs
-  // the Stop button. restylePreviewText accumulates the streamed rewrite (raw
+  // isRestyling gates overlapping streams; restyleAbortController backs the
+  // Stop button. restylePreviewText accumulates the streamed rewrite (raw
   // text, verses already resolved server-side) — this is what Accept swaps in.
-  var restyleUndoBuffer      = null;
   var isRestyling            = false;
   var restyleAbortController = null;
   var restylePreviewText     = '';
 
   // ── Highlight-to-revise state (Capability 1) ───────────────────────────────
-  // rewriteUndoBuffer holds the pre-Apply { content } for a single step of
-  // undo — the WHOLE draft, not just the passage, since that's the simplest
-  // correct way to reverse a splice at arbitrary offsets. isRewriting gates
-  // overlapping requests; rewriteAbortController backs Dismiss-while-streaming.
-  // selRewriteStart/End/Text are captured when a selection is detected and
-  // read again (not re-measured) at Apply time, since focus has by then moved
-  // to the toolbar's own input/buttons and the textarea's live selection can't
-  // be relied on.
-  var rewriteUndoBuffer      = null;
+  // isRewriting gates overlapping requests; rewriteAbortController backs
+  // Dismiss-while-streaming. selRewriteStart/End/Text are captured when a
+  // selection is detected and read again (not re-measured) at Apply time,
+  // since focus has by then moved to the toolbar's own input/buttons and the
+  // board's live selection can't be relied on. Start/End are plain-text
+  // character offsets (see rangeToPlainTextOffsets/plainTextOffsetToRange) —
+  // the same role .selectionStart/.selectionEnd played before the
+  // contenteditable conversion, just computed by hand now instead of read
+  // directly off the element.
   var isRewriting            = false;
   var rewriteAbortController = null;
   var selRewriteStart        = 0;
@@ -102,7 +113,6 @@
   // Restyle (Writing Types) refs.
   var restyleBtn            = document.getElementById('restyleBtn');
   var restylePicker         = document.getElementById('restylePicker');
-  var restyleUndoBtn        = document.getElementById('restyleUndoBtn');
   var restyleOverlay        = document.getElementById('restyleOverlay');
   var restyleOverlayTitle   = document.getElementById('restyleOverlayTitle');
   var restylePreviewContent = document.getElementById('restylePreviewContent');
@@ -116,11 +126,247 @@
   var rewriteApplyBtn       = document.getElementById('rewriteApplyBtn');
   var rewriteDismissBtn     = document.getElementById('rewriteDismissBtn');
   var rewriteStatus         = document.getElementById('rewriteStatus');
-  var rewriteUndoBtn        = document.getElementById('rewriteUndoBtn');
+
+  // Shared content-undo button (Revise rebuild Phase 1) — replaces the old
+  // separate restyleUndoBtn/rewriteUndoBtn; see contentUndoBuffer above.
+  var contentUndoBtn = document.getElementById('contentUndoBtn');
 
   // Companion panel collapse refs (mirrors the app-wide sidebar's own toggle).
   var writingConversation = document.getElementById('writingConversation');
   var companionToggleBtn  = document.getElementById('companionToggleBtn');
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // ── Contenteditable plain-text helpers (Revise rebuild Phase 1) ───────────
+  // editorContent is a contenteditable <div>, not a <textarea> — these are the
+  // single translation layer between "plain text with \n line breaks" (what
+  // every existing feature here — save, restyle, print, word count, Revise's
+  // offset splice — already expects) and the DOM the browser actually
+  // renders. Writes loading a full document (article load, restyle, undo)
+  // go through plainTextToSafeHtml, which represents line breaks as <br>.
+  // Writes from user interaction (typing, Enter, paste, Revise's splice) go
+  // through execCommand — see insertPlainTextAtCurrentSelection below —
+  // which represents them as literal \n characters inside a text node
+  // instead. BOTH forms stay deliberately flat (no nested <div>/<p> ever),
+  // and the offset<->Range helpers below handle both identically, so mixing
+  // them in one document is fine. That flatness (whichever form) is what
+  // makes getPlainText() a reliable round-trip of what was written, and it's
+  // also what keeps native undo and IME composition behaving sanely (both
+  // degrade notably on messier contenteditable DOM). Nothing outside this
+  // block should read editorContent.innerText/.textContent directly or write
+  // editorContent.innerHTML directly — always through these.
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // Read the board's rendered text as a plain string with real \n line
+  // breaks. innerText (not textContent) is layout-aware and inserts a break
+  // at each visual block boundary — textContent would silently concatenate
+  // across them with no separator, losing every line break in the document.
+  function getPlainText(el) {
+    return el.innerText;
+  }
+
+  // HTML-escape + convert \n to <br> — the one path every WRITE uses to turn
+  // a plain string back into safe markup. A <textarea>'s .value is inert, so
+  // this app never needed to think about escaping before; .innerHTML is a
+  // real markup sink, so every write must go through this, including undo
+  // restores and content loaded from a saved article.
+  function plainTextToSafeHtml(text) {
+    return esc(String(text)).replace(/\n/g, '<br>');
+  }
+
+  // Sum of the plain-text length a node (and everything under it) contributes
+  // — a text node contributes its own length, a <br> contributes 1 (the '\n'
+  // it represents), anything else recurses into its children. Shared by both
+  // directions of the offset<->Range mapping below.
+  function plainTextLength(node) {
+    if (!node) return 0;
+    if (node.nodeType === Node.TEXT_NODE) return node.nodeValue.length;
+    if (node.nodeName === 'BR') return 1;
+    var len = 0;
+    for (var i = 0; i < node.childNodes.length; i++) len += plainTextLength(node.childNodes[i]);
+    return len;
+  }
+
+  // A Range boundary is a (node, offset) pair — for a text-node container,
+  // offset is a character count into it; for an element container (e.g. el
+  // itself, at a boundary between two children), offset is a CHILD INDEX,
+  // meaning "the boundary sits before the child at this index." This walks
+  // the tree in document order accumulating plain-text length until it
+  // reaches the exact (node, offset) given, handling both cases, and returns
+  // the single plain-text character offset that point corresponds to.
+  function plainTextOffsetAt(el, targetNode, targetOffset) {
+    var offset = 0;
+    var found  = false;
+    function walk(node) {
+      if (found) return;
+      if (node === targetNode) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          offset += targetOffset;
+        } else {
+          for (var i = 0; i < targetOffset; i++) offset += plainTextLength(node.childNodes[i]);
+        }
+        found = true;
+        return;
+      }
+      if (node.nodeType === Node.TEXT_NODE) {
+        offset += node.nodeValue.length;
+      } else if (node.nodeName === 'BR') {
+        offset += 1;
+      } else {
+        for (var i = 0; i < node.childNodes.length && !found; i++) walk(node.childNodes[i]);
+      }
+    }
+    walk(el);
+    return offset;
+  }
+
+  // Range -> plain-text offsets. Mirrors plainTextOffsetToRange below — these
+  // two functions together are the whole reason Revise's offset-based
+  // capture/splice (checkRewriteSelection / applyRewrite) can keep working on
+  // a contenteditable surface: there is no built-in browser API for this
+  // conversion in either direction, since a Range points into the DOM tree
+  // while .selectionStart/.selectionEnd (what a <textarea> gave us before)
+  // are plain integers into a flat string.
+  function rangeToPlainTextOffsets(el, range) {
+    return {
+      start: plainTextOffsetAt(el, range.startContainer, range.startOffset),
+      end:   plainTextOffsetAt(el, range.endContainer,   range.endOffset),
+    };
+  }
+
+  // The inverse: find the (node, offset) DOM position a given plain-text
+  // character offset corresponds to, walking the same way plainTextOffsetAt
+  // does. Falls back to "the very end of el" if the offset is at or past the
+  // end of all content (e.g. an empty board, or offset === full length).
+  function plainTextPositionAt(el, offset) {
+    var remaining = offset;
+    var result    = null;
+    function walk(node) {
+      if (result) return;
+      if (node.nodeType === Node.TEXT_NODE) {
+        if (remaining <= node.nodeValue.length) { result = { node: node, offset: remaining }; return; }
+        remaining -= node.nodeValue.length;
+      } else if (node.nodeName === 'BR') {
+        if (remaining <= 0) {
+          result = { node: node.parentNode, offset: Array.prototype.indexOf.call(node.parentNode.childNodes, node) };
+          return;
+        }
+        remaining -= 1;
+      } else {
+        for (var i = 0; i < node.childNodes.length && !result; i++) walk(node.childNodes[i]);
+      }
+    }
+    walk(el);
+    if (!result) result = { node: el, offset: el.childNodes.length };
+    return result;
+  }
+
+  // Plain-text offsets -> a Range spanning them. Used by applyRewrite() to
+  // build the exact Range to splice a revision into, replacing the string-
+  // slice arithmetic a <textarea> made trivial.
+  function plainTextOffsetToRange(el, start, end) {
+    var startPos = plainTextPositionAt(el, start);
+    var endPos   = plainTextPositionAt(el, end);
+    var range = document.createRange();
+    range.setStart(startPos.node, startPos.offset);
+    range.setEnd(endPos.node, endPos.offset);
+    return range;
+  }
+
+  // Insert `text` at whatever the CURRENT live selection is, one line at a
+  // time via the browser's own execCommand rather than manual Range/Node
+  // surgery. Confirmed live, the hard way, that a hand-built <br> + Range
+  // reconstruction is not reliably honored by subsequent native typing:
+  // characters typed right after a freshly-inserted <br> silently merged
+  // into the PRECEDING text run instead of continuing after it, no matter
+  // how carefully the replacement caret position was computed (tried anchoring
+  // it inside a real Text node, normalizing first, recomputing the offset
+  // after — Chrome's own insertText still redirected into the text run
+  // before the <br>). execCommand('insertLineBreak') does not have this
+  // problem — it's what the browser's own Shift+Enter uses internally, and
+  // subsequent typing continues correctly after it.
+  //
+  // Deliberately split into one execCommand('insertText', ...) per line,
+  // joined by execCommand('insertLineBreak'), rather than a single
+  // insertText call with embedded \n characters — confirmed live that
+  // Chrome's insertText represents a multi-line string by wrapping every
+  // line after the first in its own <div>, which would break the flat-DOM
+  // (text nodes + <br>/\n only) assumption getPlainText()'s offset math
+  // depends on. Line-by-line with insertLineBreak between keeps the result
+  // to a single text node with literal \n characters (rendered as real line
+  // breaks by the white-space: pre-wrap CSS already on the board) — no
+  // wrapping elements at all.
+  //
+  // execCommand fires real native 'input' events (confirmed live), so this
+  // needs no manual updateWordCount()/dispatchEvent afterward — it already
+  // behaves indistinguishably from the writer having typed it.
+  function insertPlainTextAtCurrentSelection(text) {
+    var lines = String(text).split('\n');
+    for (var i = 0; i < lines.length; i++) {
+      if (i > 0) document.execCommand('insertLineBreak');
+      if (lines[i]) document.execCommand('insertText', false, lines[i]);
+    }
+  }
+
+  // Insert `text` at the board's current selection/caret — used by the paste
+  // handler. Falls back to the end of the board if nothing is currently
+  // selected inside it (e.g. a paste triggered without focus ever landing
+  // there first).
+  function insertPlainTextAtSelection(el, text) {
+    var sel = window.getSelection();
+    if (!sel.rangeCount || !el.contains(sel.getRangeAt(0).commonAncestorContainer)) {
+      var range = document.createRange();
+      range.selectNodeContents(el);
+      range.collapse(false);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+    insertPlainTextAtCurrentSelection(text);
+  }
+
+  // Insert `text` at a SPECIFIC Range that isn't necessarily the live
+  // selection (Revise's splice operates on stored offsets, not wherever the
+  // caret happens to be) — sets it as the live selection first, since
+  // execCommand only ever acts on that, then delegates to the same
+  // line-by-line insertion every other write path uses.
+  function insertPlainTextAtRange(el, range, text) {
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    insertPlainTextAtCurrentSelection(text);
+  }
+
+  // Push one snapshot onto the shared one-step undo buffer and reveal the
+  // button with a label naming what it would revert. Shared by restyle
+  // accept, Revise apply, add-to-draft, and draft-into-article — see
+  // contentUndoBuffer's declaration above for why these four share one
+  // buffer instead of each keeping their own.
+  function pushContentUndo(label) {
+    contentUndoBuffer = { content: getPlainText(editorContent), title: editorTitle.value, label: label };
+    if (contentUndoBtn) {
+      contentUndoBtn.textContent = '↺ Undo ' + label;
+      contentUndoBtn.style.display = 'inline-block';
+    }
+  }
+
+  function clearContentUndo() {
+    contentUndoBuffer = null;
+    if (contentUndoBtn) contentUndoBtn.style.display = 'none';
+  }
+
+  if (contentUndoBtn) {
+    contentUndoBtn.addEventListener('click', function () {
+      if (!contentUndoBuffer) return;
+      var label = contentUndoBuffer.label;
+      editorContent.innerHTML = plainTextToSafeHtml(contentUndoBuffer.content);
+      if (contentUndoBuffer.title !== undefined && contentUndoBuffer.title !== editorTitle.value) {
+        editorTitle.value = contentUndoBuffer.title;
+      }
+      updateWordCount();
+      clearContentUndo();
+      autoSaveDraft();
+      showToast(label.charAt(0).toUpperCase() + label.slice(1) + ' undone.');
+    });
+  }
 
   // Human labels + genre-default suggestions (soft clay — all six stay selectable).
   var RESTYLE_LABELS = {
@@ -228,7 +474,7 @@
     currentArticleStatus = 'Draft';
     answers              = [];
     editorTitle.value    = '';
-    editorContent.value  = '';   // article pane stays empty — the study never lands here
+    editorContent.innerHTML = '';   // article pane stays empty — the study never lands here
     syncSavedSnapshot();
     setTierBadge(selectedTier, selectedForm);
     updateWordCount();
@@ -421,7 +667,7 @@
       currentArticleId     = null;
       currentArticleStatus = 'Draft';
       editorTitle.value    = extractTitleFromContent(data.content, answers[0]);
-      editorContent.value  = data.content;
+      editorContent.innerHTML = plainTextToSafeHtml(data.content);
       setTierBadge(selectedTier, selectedForm);
       updateWordCount();
       showState('editor');
@@ -459,7 +705,7 @@
       ];
     }
     editorTitle.value   = article.title;
-    editorContent.value = article.content;
+    editorContent.innerHTML = plainTextToSafeHtml(article.content);
     syncSavedSnapshot();
     setTierBadge(article.tier, article.form || 'article');
     updateWordCount();
@@ -467,15 +713,13 @@
     // restore the saved transcript (Step 4B) or, for old records with none, show
     // the inert conversation shell. Never re-greet — greeting is the doors path only.
     abortWritingConversation();
-    // Loading a different article: kill any restyle preview and drop the undo
-    // buffer — undo must never revert across articles.
+    // Loading a different article: kill any restyle preview, and any
+    // highlight-to-revise in progress — nothing should keep streaming into a
+    // draft the writer left. Drop the shared undo buffer too — undo must
+    // never revert across articles.
     abortRestyle();
-    clearRestyleUndo();
-    // Loading a different article: same rule for a highlight-to-revise in
-    // progress — nothing should keep streaming into a draft the writer left,
-    // and undo must never revert across articles.
     dismissRewriteToolbar();
-    clearRewriteUndo();
+    clearContentUndo();
     var savedConvo = Array.isArray(article.conversation) ? article.conversation : [];
     if (savedConvo.length) {
       restoreConversation(savedConvo);
@@ -502,7 +746,7 @@
   async function persistArticle(opts) {
     var body = {
       title:   opts.title,
-      content: editorContent.value,
+      content: getPlainText(editorContent),
       tier:    selectedTier,
       form:    selectedForm,
       answers: { q1: answers[0], q2: answers[1], q3: answers[2], q4: answers[3], q5: answers[4] },
@@ -591,14 +835,14 @@
   // article, successful save) so editorIsDirty() reflects real unsaved work.
   function syncSavedSnapshot() {
     lastSavedTitle   = editorTitle.value;
-    lastSavedContent = editorContent.value;
+    lastSavedContent = getPlainText(editorContent);
   }
 
   // Unsaved-work check: the live editor differs from the last clean snapshot.
   // Catches a brand-new never-saved draft AND edits made after a save.
   function editorIsDirty() {
     return editorTitle.value !== lastSavedTitle ||
-           editorContent.value !== lastSavedContent;
+           getPlainText(editorContent) !== lastSavedContent;
   }
 
   // Leave the two-pane workspace and return to the doors/genre flow. Same cleanup
@@ -608,9 +852,8 @@
     abortWritingConversation();
     resetConversationPane();
     abortRestyle();
-    clearRestyleUndo();
     dismissRewriteToolbar();
-    clearRewriteUndo();
+    clearContentUndo();
     currentArticleId     = null;
     currentArticleStatus = 'Draft';
     selectedTier         = 0;
@@ -618,7 +861,7 @@
     sourceStudy          = null;   // clear any "build from a study" pick on exit
     answers              = ['', '', '', '', ''];
     editorTitle.value    = '';
-    editorContent.value  = '';
+    editorContent.innerHTML = '';
     syncSavedSnapshot();
     updateWordCount();
     loadArticleList();
@@ -635,11 +878,10 @@
       'Clear Board',
       function () {
         editorTitle.value   = '';
-        editorContent.value = '';
+        editorContent.innerHTML = '';
         updateWordCount();
-        clearRestyleUndo();   // the pre-restyle draft is gone; nothing to undo to
         dismissRewriteToolbar();
-        clearRewriteUndo();   // same reason — the pre-revision draft is gone
+        clearContentUndo();   // the pre-action draft is gone; nothing to undo to
       }
     );
   });
@@ -819,10 +1061,11 @@
   // verified text by the server — so nothing raw can reach the editor.
   function appendToDraft(text) {
     if (!text) return;
-    var cur = editorContent.value.replace(/\s+$/, '');
-    editorContent.value = cur ? cur + '\n\n' + text : text;
+    pushContentUndo('add to draft');
+    var cur = getPlainText(editorContent).replace(/\s+$/, '');
+    editorContent.innerHTML = plainTextToSafeHtml(cur ? cur + '\n\n' + text : text);
     updateWordCount();
-    showToast('Added to draft');
+    showToast('Added to draft. You can undo this once.');
     autoSaveDraft();   // preserve the article-pane change silently
   }
 
@@ -847,7 +1090,7 @@
   // to conversationHistory, so the visible conversation stays clean.
   async function draftIntoArticle() {
     if (isConverseGenerating) return;
-    if (editorContent.value.trim()) {
+    if (getPlainText(editorContent).trim()) {
       showConfirm('Replace the current draft with a full draft written from your conversation?', 'Replace', runDraftIntoArticle);
     } else {
       runDraftIntoArticle();
@@ -857,7 +1100,8 @@
   async function runDraftIntoArticle() {
     setConverseGenerating(true);
     if (conversationDraftBtn) conversationDraftBtn.disabled = true;
-    editorContent.value = '';           // Tier 3 = "write me the whole thing" → replace
+    pushContentUndo('draft-in');        // capture whatever was there before the replace
+    editorContent.innerHTML = '';       // Tier 3 = "write me the whole thing" → replace
     updateWordCount();
     writingAbortController = new AbortController();
 
@@ -883,7 +1127,13 @@
       if (!response.ok) throw new Error('Server error ' + response.status);
 
       var fullText = await pumpSSE(response, function (full) {
-        editorContent.value = full;     // stream progressively into the article
+        // Full reassignment on every chunk, same as the old .value write —
+        // reassigning innerHTML this often is more expensive on a
+        // contenteditable than it was on a <textarea> for a long draft
+        // (rebuilds the whole text-node/<br> subtree each time); noted as a
+        // follow-up optimization (e.g. throttling to every N chunks), not
+        // needed for Phase 1 correctness.
+        editorContent.innerHTML = plainTextToSafeHtml(full);   // stream progressively into the article
         updateWordCount();
         editorContent.scrollTop = editorContent.scrollHeight;
       });
@@ -892,7 +1142,7 @@
         editorTitle.value = extractTitleFromContent(fullText, '');
       }
       updateWordCount();
-      showToast('Draft written into the article.');
+      showToast('Draft written into the article. You can undo this once.');
       autoSaveDraft();   // preserve the drafted-in article content silently
     } catch (err) {
       if (err.name !== 'AbortError') showToast('Error: ' + err.message, true);
@@ -1065,20 +1315,13 @@
     closeRestyleOverlay();
   }
 
-  // Clear the one-step undo buffer and hide its button. Called on every point the
-  // writer moves on (Back, Clear Board, load another article, accept a new restyle).
-  function clearRestyleUndo() {
-    restyleUndoBuffer = null;
-    if (restyleUndoBtn) restyleUndoBtn.style.display = 'none';
-  }
-
   // Restyle button → toggle the picker. Guards: no draft, or a stream in progress.
   if (restyleBtn) {
     restyleBtn.addEventListener('click', function (e) {
       e.stopPropagation();
       if (isConverseGenerating) { showToast('Finish the current writing first.', true); return; }
       if (isRewriting) { showToast('Finish the current revision first.', true); return; }
-      if (!editorContent.value.trim()) { showToast('Write something first, then restyle it.'); return; }
+      if (!getPlainText(editorContent).trim()) { showToast('Write something first, then restyle it.'); return; }
       dismissRewriteToolbar();   // don't let the picker and the rewrite toolbar both be up
       if (isPickerOpen()) { closeRestylePicker(); return; }
       openRestylePicker();
@@ -1130,7 +1373,7 @@
     if (isRestyling) return;
     if (isConverseGenerating) { showToast('Finish the current writing first.', true); return; }
     if (isRewriting) { showToast('Finish the current revision first.', true); return; }
-    var draft = editorContent.value;
+    var draft = getPlainText(editorContent);
     if (!draft.trim()) { showToast('Write something first, then restyle it.'); return; }
 
     var label = RESTYLE_LABELS[style] || RESTYLE_LABELS.warmer;
@@ -1182,36 +1425,19 @@
     });
   }
 
-  // Accept → capture the pre-restyle draft for one-step undo, swap in the styled
-  // text, save, and reveal Undo. Only after the stream has finished.
+  // Accept → capture the pre-restyle draft on the shared undo buffer, swap in
+  // the styled text, save, and reveal Undo. Only after the stream has finished.
   if (restyleAcceptBtn) {
     restyleAcceptBtn.addEventListener('click', function () {
       if (isRestyling) return;
       var styled = restylePreviewText;
       if (!styled || !styled.trim()) { closeRestyleOverlay(); return; }
-      restyleUndoBuffer = { content: editorContent.value, title: editorTitle.value };
-      editorContent.value = styled;
+      pushContentUndo('restyle');
+      editorContent.innerHTML = plainTextToSafeHtml(styled);
       updateWordCount();
       closeRestyleOverlay();
-      if (restyleUndoBtn) restyleUndoBtn.style.display = 'inline-block';
       autoSaveDraft();                       // styled version now persists
       showToast('Restyled. You can undo this once.');
-    });
-  }
-
-  // Undo restyle → revert to the captured pre-restyle draft (one step only), then
-  // re-save so the server matches. Buffer is single-use.
-  if (restyleUndoBtn) {
-    restyleUndoBtn.addEventListener('click', function () {
-      if (!restyleUndoBuffer) return;
-      editorContent.value = restyleUndoBuffer.content;
-      if (restyleUndoBuffer.title !== undefined && restyleUndoBuffer.title !== editorTitle.value) {
-        editorTitle.value = restyleUndoBuffer.title;
-      }
-      updateWordCount();
-      clearRestyleUndo();
-      autoSaveDraft();
-      showToast('Restyle undone.');
     });
   }
 
@@ -1219,12 +1445,18 @@
   // ── Highlight-to-revise: selection toolbar / apply / undo (Capability 1) ──
   // Client for POST /api/writing/rewrite. Built on the EXISTING plain textarea
   // using selectionStart/selectionEnd — no rich editor, no DOM Range, no
-  // caret-position geometry. The toolbar docks in a FIXED layout slot between
-  // the textarea and the action row (Option B) rather than floating at the
-  // selection: a bare <textarea> exposes no per-character bounding boxes to
-  // float over (unlike a contenteditable/Quill editor), so there is nothing
-  // to measure. Reuses pumpSSE from above. Mirrors the restyle undo pattern:
-  // one step, buffer cleared at every point the writer moves on.
+  // caret-position geometry. The toolbar still docks in a FIXED layout slot
+  // between the board and the action row (Option B) rather than floating at
+  // the selection — the board is now contenteditable (Revise rebuild Phase
+  // 1), which DOES expose real Range/getBoundingClientRect() geometry, but
+  // the floating-popup positioning work itself is scoped to a later phase;
+  // this phase only swaps the foundation under the existing fixed-panel UI.
+  // Selection is captured via window.getSelection()/Range and converted
+  // to/from plain-text character offsets (rangeToPlainTextOffsets /
+  // plainTextOffsetToRange, see the contenteditable helpers above) — the
+  // same role .selectionStart/.selectionEnd played on the old <textarea>.
+  // Reuses pumpSSE from above. Undo now lives on the shared contentUndoBuffer
+  // (see its declaration near the top of the file), not a dedicated buffer.
   // ══════════════════════════════════════════════════════════════════════════
 
   function isRewriteToolbarOpen() {
@@ -1264,19 +1496,18 @@
     hideRewriteToolbar();
   }
 
-  // Clear the one-step undo buffer and hide its button. Same lifecycle as
-  // clearRestyleUndo(): Back, Clear Board, load another article, a fresh Apply.
-  function clearRewriteUndo() {
-    rewriteUndoBuffer = null;
-    if (rewriteUndoBtn) rewriteUndoBtn.style.display = 'none';
-  }
-
-  // Selection detection on the textarea itself — mouseup (mouse drag-select),
-  // keyup (shift+arrow / shift+home / etc.), and select (e.g. double-click,
-  // "Select All"). Debounced ~300ms so a selection still being dragged doesn't
-  // thrash the toolbar. Never shows while a restyle or conversation stream is
-  // running — Capability 1 does not compete with those for the editor — and
-  // never interferes with an already-in-flight rewrite of its own.
+  // Selection detection — mouseup (mouse drag-select) and keyup (shift+arrow
+  // / shift+home / etc.) fire directly on the board same as before. A plain
+  // 'select' event is a form-control thing and doesn't fire reliably on a
+  // contenteditable element; the correct replacement is the document-level
+  // 'selectionchange' event (fires for ANY selection change anywhere in the
+  // document), filtered below to only react when the selection is actually
+  // inside #editorContent — otherwise, e.g., selecting text in the Companion
+  // pane or the instruction field would also trigger this. Debounced ~300ms
+  // so a selection still being dragged doesn't thrash the toolbar. Never
+  // shows while a restyle or conversation stream is running — Capability 1
+  // does not compete with those for the editor — and never interferes with
+  // an already-in-flight rewrite of its own.
   var rewriteSelectionTimer = null;
   function scheduleRewriteSelectionCheck() {
     if (rewriteSelectionTimer) clearTimeout(rewriteSelectionTimer);
@@ -1285,20 +1516,31 @@
   function checkRewriteSelection() {
     if (isRewriting) return;               // don't fight the in-flight request's own UI
     if (isRestyling || isConverseGenerating) { hideRewriteToolbar(); return; }
-    var start = editorContent.selectionStart;
-    var end   = editorContent.selectionEnd;
-    if (start == null || end == null || start === end) {
+    var sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) { hideRewriteToolbar(); return; }
+    var range = sel.getRangeAt(0);
+    if (range.collapsed || !editorContent.contains(range.commonAncestorContainer)) {
       hideRewriteToolbar();
       return;
     }
-    selRewriteStart = start;
-    selRewriteEnd   = end;
-    selRewriteText  = editorContent.value.slice(start, end);
+    var offsets = rangeToPlainTextOffsets(editorContent, range);
+    if (offsets.start === offsets.end) {
+      hideRewriteToolbar();
+      return;
+    }
+    selRewriteStart = offsets.start;
+    selRewriteEnd   = offsets.end;
+    selRewriteText  = getPlainText(editorContent).slice(offsets.start, offsets.end);
     showRewriteToolbar();
   }
   editorContent.addEventListener('mouseup', scheduleRewriteSelectionCheck);
   editorContent.addEventListener('keyup',   scheduleRewriteSelectionCheck);
-  editorContent.addEventListener('select',  scheduleRewriteSelectionCheck);
+  document.addEventListener('selectionchange', function () {
+    var sel = window.getSelection();
+    if (sel && sel.rangeCount && editorContent.contains(sel.getRangeAt(0).commonAncestorContainer)) {
+      scheduleRewriteSelectionCheck();
+    }
+  });
 
   if (rewriteDismissBtn) rewriteDismissBtn.addEventListener('click', dismissRewriteToolbar);
 
@@ -1342,7 +1584,7 @@
     // draft. Abort gracefully instead. Normal path: the slice still matches the
     // stored text, so this is a no-op. (Guard runs BEFORE isRewriting/the fetch,
     // so there's no in-flight state to unwind.)
-    if (editorContent.value.slice(selRewriteStart, selRewriteEnd) !== selRewriteText) {
+    if (getPlainText(editorContent).slice(selRewriteStart, selRewriteEnd) !== selRewriteText) {
       showToast('Selection changed — please re-select and try again.', true);
       hideRewriteToolbar();
       return;
@@ -1353,9 +1595,10 @@
     if (rewriteStatus)   rewriteStatus.textContent = 'Revising…';
     rewriteAbortController = new AbortController();
 
-    // Snapshot the passage + offsets NOW: the textarea's live selection is
+    // Snapshot the passage + offsets NOW: the board's live selection is
     // already gone (focus has moved to this toolbar's own input/buttons), so
-    // everything below reads the STORED values, never editorContent.selectionStart/End again.
+    // everything below reads the STORED values, never re-reads the live
+    // selection again.
     var start   = selRewriteStart;
     var end     = selRewriteEnd;
     var passage = selRewriteText;
@@ -1376,20 +1619,16 @@
       revised = revised.trim();
       if (!revised) throw new Error('No revision returned.');
 
-      // One-step undo: capture the WHOLE pre-Apply draft (mirrors restyle's
-      // undo buffer) — simplest correct way to reverse a splice at offsets
-      // that may no longer make sense if anything else changed the content.
-      rewriteUndoBuffer = { content: editorContent.value };
-      editorContent.value = editorContent.value.slice(0, start) + revised + editorContent.value.slice(end);
+      // One-step undo on the shared buffer — captures the WHOLE pre-Apply
+      // draft, the simplest correct way to reverse a splice at offsets that
+      // may no longer make sense if anything else changed the content.
+      pushContentUndo('revision');
+      var spliceRange = plainTextOffsetToRange(editorContent, start, end);
+      insertPlainTextAtRange(editorContent, spliceRange, revised);
 
-      // Programmatic .value writes fire no native 'input' event — call the
-      // same two functions every other programmatic writer in this file
-      // calls by hand right after setting .value (see appendToDraft,
-      // runDraftIntoArticle, restyleAcceptBtn/restyleUndoBtn above).
       updateWordCount();
       autoSaveDraft();
 
-      if (rewriteUndoBtn) rewriteUndoBtn.style.display = 'inline-block';
       hideRewriteToolbar();
       showToast('Revised. You can undo this once.');
     } catch (err) {
@@ -1400,19 +1639,6 @@
       if (rewriteApplyBtn) rewriteApplyBtn.disabled = false;
       if (rewriteStatus)   rewriteStatus.textContent = '';
     }
-  }
-
-  // Undo revision → revert to the captured pre-Apply draft (one step only),
-  // then re-save so the server matches. Buffer is single-use.
-  if (rewriteUndoBtn) {
-    rewriteUndoBtn.addEventListener('click', function () {
-      if (!rewriteUndoBuffer) return;
-      editorContent.value = rewriteUndoBuffer.content;
-      updateWordCount();
-      clearRewriteUndo();
-      autoSaveDraft();
-      showToast('Revision undone.');
-    });
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -1559,7 +1785,7 @@
 
   function printArticle() {
     var title = editorTitle.value.trim();
-    var body  = editorContent.value;
+    var body  = getPlainText(editorContent);
     if (!title && !body.trim()) { showToast('Nothing to print yet.'); return; }
     writingPrintArea.innerHTML = buildPrintHtml(title, body);
     document.body.classList.add('is-printing');
@@ -1657,7 +1883,7 @@
   }
 
   function updateWordCount() {
-    var text  = editorContent.value.trim();
+    var text  = getPlainText(editorContent).trim();
     var words = text ? text.split(/\s+/).length : 0;
     editorWordCount.textContent = words + ' word' + (words !== 1 ? 's' : '');
   }
@@ -1678,7 +1904,7 @@
   editorContent.addEventListener('input', function () {
     if (editorSaveDebounceTimer) clearTimeout(editorSaveDebounceTimer);
     editorSaveDebounceTimer = setTimeout(function () {
-      if (!editorContent.value.trim()) return;   // nothing in the body to save
+      if (!getPlainText(editorContent).trim()) return;   // nothing in the body to save
       autoSaveDraft();
     }, SAVE_DEBOUNCE_MS);
   });
@@ -1693,6 +1919,40 @@
       }, SAVE_DEBOUNCE_MS);
     });
   }
+
+  // ── Board input handling (Revise rebuild Phase 1) ──────────────────────────
+  // Two behaviors a plain <textarea> gave for free that a contenteditable
+  // must implement by hand:
+
+  // 1. Paste as plain text only — never the source's HTML (fonts, colors,
+  // nested tags). Forces text/plain and routes it through the same
+  // line-by-line insertion primitive Revise's splice uses, so pasted content
+  // becomes ordinary text with literal \n line breaks, never markup —
+  // keeping the "always flat, always plain" invariant getPlainText depends
+  // on. No manual updateWordCount()/autosave nudge needed afterward —
+  // execCommand-driven inserts fire real native 'input' events, same as the
+  // writer having typed it.
+  editorContent.addEventListener('paste', function (e) {
+    e.preventDefault();
+    var text = (e.clipboardData || window.clipboardData).getData('text/plain');
+    insertPlainTextAtSelection(editorContent, text);
+  });
+
+  // 2. Enter inserts a single line break, never a browser-default new
+  // <div>/<p> — which browser is used, and even its version, determines
+  // what a bare contenteditable does with Enter by default, and any of
+  // those choices would break getPlainText()'s flat-DOM assumption.
+  // e.isComposing guards against IME composition: many IMEs (CJK phonetic
+  // input, but also some diacritic/dead-key sequences relevant to this
+  // app's transliterated Hebrew/Greek terms) use Enter to CONFIRM a
+  // composition candidate, not to insert a line break — intercepting
+  // unconditionally would swallow that confirmation and corrupt text entry
+  // for anyone using one.
+  editorContent.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' || e.isComposing) return;
+    e.preventDefault();
+    insertPlainTextAtCurrentSelection('\n');
+  });
 
   function extractTitleFromContent(content, fallback) {
     var match = String(content).match(/^#\s+(.+)$/m);
