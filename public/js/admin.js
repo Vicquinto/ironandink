@@ -360,7 +360,7 @@
         '<span class="tier-badge-sm">Tier ' + a.tier + '</span> ' +
         '<span class="form-badge form-badge-' + esc(a.form || 'article') + '">' + formLabel + '</span>';
 
-      adminReadBody.innerHTML = renderReadingText(a.content || '');
+      adminReadBody.innerHTML = renderArticleBody(a);
 
       if (context === 'pending') {
         adminReadActions.innerHTML =
@@ -448,6 +448,14 @@
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
+  // Article body: sanitized Quill HTML (contentHtml) when the article was
+  // written on the formatted board, else the legacy plain-text renderer.
+  // See public/js/article-html.js.
+  function renderArticleBody(article) {
+    if (window.IronInkArticleHtml) return window.IronInkArticleHtml.renderBody(article, renderReadingText);
+    return renderReadingText((article && article.content) || '');
+  }
+
   function renderReadingText(text) {
     if (window.marked) {
       return window.marked.parse ? window.marked.parse(String(text)) : window.marked(String(text));

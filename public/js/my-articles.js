@@ -29,7 +29,7 @@
     myArticleReading.style.display = 'block';
 
     readingTitle.textContent = article.title;
-    readingBody.innerHTML    = renderReadingText(article.content || '');
+    readingBody.innerHTML    = renderArticleBody(article);
 
     if (readingBadges) {
       var formLabel   = formDisplayLabel(article.form);
@@ -246,6 +246,14 @@
   }
 
   // ── Reading text renderer ─────────────────────────────────────────────────
+  // Article body: sanitized Quill HTML (contentHtml) when the article was
+  // written on the formatted board, else the legacy plain-text renderer.
+  // See public/js/article-html.js.
+  function renderArticleBody(article) {
+    if (window.IronInkArticleHtml) return window.IronInkArticleHtml.renderBody(article, renderReadingText);
+    return renderReadingText((article && article.content) || '');
+  }
+
   function renderReadingText(text) {
     if (window.marked) {
       return window.marked.parse ? window.marked.parse(String(text)) : window.marked(String(text));

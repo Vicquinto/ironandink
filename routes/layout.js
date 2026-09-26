@@ -81,7 +81,7 @@ function isMemberLocked(req) {
 // Member-only nav items and the /pricing?from= tag each links to when locked.
 const MEMBER_LOCKED_NAV = { dialogue: 'dialogue', writing: 'article', 'my-articles': 'article', selah: 'selah' };
 
-function renderLayout({ req, activeSection, title, content, scripts = '' }) {
+function renderLayout({ req, activeSection, title, content, scripts = '', head = '' }) {
   const navItems = [
     { id: 'dashboard',   label: 'Dashboard',   href: '/dashboard',   icon: '&#9685;' },
     { id: 'devotional',  label: 'Devotional',  href: '/devotional',  icon: '&#9788;' },
@@ -134,7 +134,8 @@ function renderLayout({ req, activeSection, title, content, scripts = '' }) {
   <title>${title} — Iron &amp; Ink</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/shepherd.css">
-  <link rel="stylesheet" href="/css/styles.css?v=73">
+  ${head}
+  <link rel="stylesheet" href="/css/styles.css?v=74">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>

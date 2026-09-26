@@ -7,6 +7,11 @@ const { requireAuth, renderLayout } = require('./layout');
 const { injectWithAttribution, injectVersesTracked, NASB_ATTRIBUTION_MD } = require('../lib/asv');
 const { logEvent } = require('../lib/usageLog');
 const { getEntitlements } = require('../lib/entitlements');
+const { sanitizeArticleHtml } = require('../lib/articleHtml');
+
+// Cache-busters for the Writing page's own assets (bump when they change).
+const QUILL_ASSET_VER   = '2.0.3';
+const WRITING_ASSET_VER = '40';
 
 const router       = express.Router();
 
@@ -113,6 +118,7 @@ router.get('/writing', requireAuth, (req, res) => {
                 <button class="guide-font-btn guide-font-btn-md" id="editorFontReset" title="Reset text size" aria-label="Reset text size">A</button>
                 <button class="guide-font-btn guide-font-btn-lg" id="editorFontInc" title="Larger text" aria-label="Larger text">A+</button>
               </span>
+              <button class="guide-print-btn" id="editorFindBtn" title="Find in article (Ctrl+F)">Find</button>
               <button class="guide-print-btn" id="editorPrintBtn" title="Print or Save as PDF">Print / Download</button>
               <!-- Hide/show the Companion panel (.writing-conversation), freeing the
                    board to fill the row when hidden. Mirrors the app-wide sidebar's
@@ -129,24 +135,32 @@ router.get('/writing', requireAuth, (req, res) => {
           </div>
           <input type="text" id="editorTitle" class="editor-title-input" placeholder="Article title&#8230;">
 
-          <!-- Revise rebuild Phase 1: contenteditable, not a <textarea> — gives
-               Range/getBoundingClientRect() for a future inline popup (later
-               phase) instead of estimating caret position. Every existing
-               feature (save, restyle, Revise apply/undo, word count, print,
-               add-to-draft) now goes through the plain-text helpers in
-               writing.js (getPlainText/plainTextToSafeHtml/offset<->Range) so
-               it keeps working exactly as before. contenteditable has no
-               native placeholder attribute, so data-placeholder + the
-               :empty::before CSS rule in styles.css stand in for it. -->
-          <div id="editorContent" class="editor-content-textarea" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Article content" data-placeholder="Your article will appear here&#8230;"></div>
+          <!-- Find bar (Ctrl+F / the Find button). Searches the board's plain
+               text; each match is selected via quill.setSelection(..., 'api'),
+               which never opens the Revise popup (that only reacts to 'user'
+               selections). -->
+          <div id="findBar" class="find-bar" role="search" style="display:none;">
+            <input type="text" id="findInput" class="find-input" placeholder="Find in article&#8230;" aria-label="Find in article" autocomplete="off">
+            <span id="findCount" class="find-count" aria-live="polite"></span>
+            <button type="button" id="findPrevBtn" class="find-btn" title="Previous match (Shift+Enter)" aria-label="Previous match">&#8593;</button>
+            <button type="button" id="findNextBtn" class="find-btn" title="Next match (Enter)" aria-label="Next match">&#8595;</button>
+            <button type="button" id="findCloseBtn" class="find-btn" title="Close (Esc)" aria-label="Close find">&#10005;</button>
+          </div>
+
+          <!-- Article board: Quill 2 (snow theme). writing.js mounts Quill on
+               #editorContent; Quill inserts its toolbar just before it, so
+               both live inside #articleBoard (the bordered card). -->
+          <div id="articleBoard" class="article-board">
+            <div id="editorContent"></div>
+          </div>
 
           <!-- Highlight-to-revise popup (Capability 1 — Revise rebuild Phase 2).
                Markup lives here for readability, but writing.js reparents this
                node to a direct child of <body> at startup and positions it with
-               position:fixed via getBoundingClientRect() on the live selection —
+               position:fixed via quill.getBounds() on the selection —
                it renders floating next to the selection, not in this document
-               position. Shown when #editorContent has a live, non-empty
-               selection; hidden otherwise, or if the selection scrolls out of
+               position. Shown when the Quill board has a live, non-empty
+               'user' selection; hidden otherwise, or if the selection scrolls out of
                view. Card look matches the reading-view dictionary tooltip /
                .restyle-picker family for visual consistency. -->
           <div id="rewriteToolbar" class="rewrite-toolbar" style="display:none;">
@@ -358,7 +372,10 @@ router.get('/writing', requireAuth, (req, res) => {
     activeSection: 'writing',
     title:         'Writing',
     content,
-    scripts:       '<script src="/js/writing.js"></script>',
+    head:          `<link rel="stylesheet" href="/vendor/quill-2.0.3/quill.snow.css?v=${QUILL_ASSET_VER}">`,
+    scripts:       `<script src="/vendor/quill-2.0.3/quill.js?v=${QUILL_ASSET_VER}"></script>
+      <script src="/js/article-html.js?v=1"></script>
+      <script src="/js/writing.js?v=${WRITING_ASSET_VER}"></script>`,
   }));
 });
 
@@ -400,7 +417,8 @@ router.get('/my-articles', requireAuth, (req, res) => {
     activeSection: 'my-articles',
     title:         'My Articles',
     content,
-    scripts:       '<script src="/js/my-articles.js"></script>',
+    scripts:       `<script src="/js/article-html.js?v=1"></script>
+      <script src="/js/my-articles.js?v=2"></script>`,
   }));
 });
 
@@ -424,7 +442,7 @@ router.get('/api/articles/:id', requireAuth, (req, res) => {
 router.post('/api/articles', requireAuth, (req, res) => {
   try {
     if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
-    const { title, content, tier, form, answers, status, conversation, pendingMessage } = req.body;
+    const { title, content, contentHtml, tier, form, answers, status, conversation, pendingMessage } = req.body;
     if (!title) return res.status(400).json({ success: false, error: 'Title is required.' });
 
     const now          = new Date().toISOString();
@@ -434,6 +452,9 @@ router.post('/api/articles', requireAuth, (req, res) => {
       userId:     req.session.userId,
       title:      title.trim(),
       content:    content || '',
+      // Formatted board (Quill) — sanitized to the toolbar's allowlist before it
+      // is ever stored. `content` stays the plain-text copy (word counts, AI).
+      contentHtml: typeof contentHtml === 'string' ? sanitizeArticleHtml(contentHtml) : '',
       tier:       tier || 1,
       form:       form || 'article',
       answers:    answers || {},
@@ -465,11 +486,19 @@ router.put('/api/articles/:id', requireAuth, (req, res) => {
     const idx      = articles.findIndex(a => a.id === req.params.id && a.userId === req.session.userId);
     if (idx === -1) return res.status(404).json({ success: false, error: 'Article not found.' });
 
-    const { title, content, tier, form, answers, status, conversation, pendingMessage } = req.body;
+    const { title, content, contentHtml, tier, form, answers, status, conversation, pendingMessage } = req.body;
+    // Formatted body: sanitize whatever the board sent. A save that carries
+    // plain `content` but no `contentHtml` (a stale cached writing.js from
+    // before the Quill board) clears the HTML so readers never show a
+    // formatted copy that is older than the plain text.
+    let nextHtml = articles[idx].contentHtml || '';
+    if (contentHtml !== undefined) nextHtml = typeof contentHtml === 'string' ? sanitizeArticleHtml(contentHtml) : '';
+    else if (content !== undefined) nextHtml = '';
     articles[idx] = {
       ...articles[idx],
       title:     title !== undefined ? title.trim() : articles[idx].title,
       content:   content !== undefined ? content : articles[idx].content,
+      contentHtml: nextHtml,
       tier:      tier   || articles[idx].tier,
       form:      form   || articles[idx].form || 'article',
       answers:   answers || articles[idx].answers,

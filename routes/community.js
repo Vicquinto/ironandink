@@ -3,6 +3,7 @@ const fs         = require('fs');
 const path       = require('path');
 const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
+const { sanitizeArticleHtml } = require('../lib/articleHtml');
 
 const router        = express.Router();
 const ARTICLES_PATH = path.join(__dirname, '../data/articles.json');
@@ -152,7 +153,8 @@ router.get('/community', requireAuth, (req, res) => {
         window.CURRENT_USER_ID = ${JSON.stringify(req.session.userId)};
       </script>
       <script src="/js/study-badges.js?v=3"></script>
-      <script src="/js/community.js?v=17"></script>
+      <script src="/js/article-html.js?v=1"></script>
+      <script src="/js/community.js?v=18"></script>
       <script src="/js/render-markdown.js?v=1"></script>
       <script src="/js/enhance-further-studies.js?v=2"></script>
       <script src="/js/library.js?v=60"></script>`,
@@ -167,6 +169,7 @@ router.get('/api/community/articles', requireAuth, (req, res) => {
     .filter(a => a.status === 'Published')
     .map(a => ({
       ...a,
+      contentHtml:  sanitizeArticleHtml(a.contentHtml || ''),   // re-sanitized on the way out to other users
       authorName:   getAuthorName(a.userId),
       amenCount:    amens.filter(x => x.articleId === a.id).length,
       commentCount: comments.filter(x => x.articleId === a.id).length,
@@ -218,6 +221,7 @@ router.get('/api/community/articles/:id', requireAuth, (req, res) => {
     success: true,
     article: {
       ...article,
+      contentHtml: sanitizeArticleHtml(article.contentHtml || ''),
       authorName: getAuthorName(article.userId),
       amenCount:  amens.filter(x => x.articleId === article.id).length,
       userAmened: !!userAmen,

@@ -3,6 +3,7 @@ const fs       = require('fs');
 const path     = require('path');
 const ExcelJS  = require('exceljs');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
+const { sanitizeArticleHtml } = require('../lib/articleHtml');
 const { listDevotionals, deleteDevotional, clearAllDevotionals } = require('./dashboard');
 const { readEvents, writeEvents } = require('../lib/usageLog');
 // Invite provisioning (create record + email link) lives in one shared module so
@@ -251,7 +252,8 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
     content,
     scripts: `<script>window.ADMIN_TABS = ${JSON.stringify(ADMIN_TABS)};</script>
 <script src="/js/study-badges.js?v=3"></script>
-<script src="/js/admin.js?v=21"></script>
+<script src="/js/article-html.js?v=1"></script>
+<script src="/js/admin.js?v=22"></script>
 <script>
 (function () {
   var form     = document.getElementById('directInviteForm');
@@ -311,6 +313,7 @@ router.get('/api/admin/pending', requireAuth, requireAdmin, (req, res) => {
     .filter(a => a.status === 'Pending')
     .map(a => ({
       ...a,
+      contentHtml:  sanitizeArticleHtml(a.contentHtml || ''),
       authorName:   getAuthorName(a.userId),
       amenCount:    amens.filter(x => x.articleId === a.id).length,
       commentCount: comments.filter(x => x.articleId === a.id).length,
@@ -327,6 +330,7 @@ router.get('/api/admin/published', requireAuth, requireAdmin, (req, res) => {
     .filter(a => a.status === 'Published')
     .map(a => ({
       ...a,
+      contentHtml:  sanitizeArticleHtml(a.contentHtml || ''),
       authorName:   getAuthorName(a.userId),
       amenCount:    amens.filter(x => x.articleId === a.id).length,
       commentCount: comments.filter(x => x.articleId === a.id).length,
@@ -344,7 +348,7 @@ router.get('/api/admin/articles/:id', requireAuth, requireAdmin, (req, res) => {
   const articles = readJSON(ARTICLES_PATH);
   const article  = articles.find(a => a.id === req.params.id);
   if (!article) return res.status(404).json({ success: false, error: 'Article not found.' });
-  res.json({ success: true, article: { ...article, authorName: getAuthorName(article.userId) } });
+  res.json({ success: true, article: { ...article, contentHtml: sanitizeArticleHtml(article.contentHtml || ''), authorName: getAuthorName(article.userId) } });
 });
 
 // ─── POST /api/admin/:id/approve ─────────────────────────────────────────────

@@ -28,12 +28,13 @@
   var writingAbortController  = null;
   var isConverseGenerating    = false;
 
-  // ── Shared content-undo buffer (Revise rebuild Phase 1) ────────────────────
+  // ── Shared content-undo buffer ─────────────────────────────────────────────
   // ONE single-step undo buffer shared by every content-mutating action:
   // restyle accept, Revise apply, add-to-draft, and draft-into-article. Each
-  // push captures { content, title, label } — the WHOLE draft (not just the
-  // affected passage), since that's the simplest correct way to reverse any
-  // of these regardless of what kind of edit it made. `label` names the
+  // push captures { delta, title, label } — the WHOLE board as a Quill Delta
+  // (quill.getContents(), so formatting comes back too), since that's the
+  // simplest correct way to reverse any of these regardless of what kind of
+  // edit it made. Quill's own history (Ctrl+Z) handles ordinary typing. `label` names the
   // action for the button text / toast ("restyle", "revision", "add to
   // draft", "draft-in"). One button (#contentUndoBtn), text set from the
   // most recent push; a second mutating action before the first is undone
@@ -51,18 +52,14 @@
 
   // ── Highlight-to-revise state (Capability 1) ───────────────────────────────
   // isRewriting gates overlapping requests; rewriteAbortController backs
-  // Dismiss-while-streaming. selRewriteStart/End/Text are captured when a
-  // selection is detected and read again (not re-measured) at Apply time,
-  // since focus has by then moved to the toolbar's own input/buttons and the
-  // board's live selection can't be relied on. Start/End are plain-text
-  // character offsets (see rangeToPlainTextOffsets/plainTextOffsetToRange) —
-  // the same role .selectionStart/.selectionEnd played before the
-  // contenteditable conversion, just computed by hand now instead of read
-  // directly off the element.
+  // Dismiss-while-streaming. selRewriteIndex/Length/Text are the Quill range
+  // (quill.getSelection()) captured when a 'user' selection is detected, and
+  // read again (not re-measured) at Apply time, since focus has by then moved
+  // to the popup's own input/buttons and the board's live selection is gone.
   var isRewriting            = false;
   var rewriteAbortController = null;
-  var selRewriteStart        = 0;
-  var selRewriteEnd          = 0;
+  var selRewriteIndex        = 0;
+  var selRewriteLength       = 0;
   var selRewriteText         = '';
 
   // NOTE (redesign): the five defining questions and their generate step were
@@ -137,203 +134,285 @@
   var companionToggleBtn  = document.getElementById('companionToggleBtn');
 
   // ══════════════════════════════════════════════════════════════════════════
-  // ── Contenteditable plain-text helpers (Revise rebuild Phase 1) ───────────
-  // editorContent is a contenteditable <div>, not a <textarea> — these are the
-  // single translation layer between "plain text with \n line breaks" (what
-  // every existing feature here — save, restyle, print, word count, Revise's
-  // offset splice — already expects) and the DOM the browser actually
-  // renders. Writes loading a full document (article load, restyle, undo)
-  // go through plainTextToSafeHtml, which represents line breaks as <br>.
-  // Writes from user interaction (typing, Enter, paste, Revise's splice) go
-  // through execCommand — see insertPlainTextAtCurrentSelection below —
-  // which represents them as literal \n characters inside a text node
-  // instead. BOTH forms stay deliberately flat (no nested <div>/<p> ever),
-  // and the offset<->Range helpers below handle both identically, so mixing
-  // them in one document is fine. That flatness (whichever form) is what
-  // makes getPlainText() a reliable round-trip of what was written, and it's
-  // also what keeps native undo and IME composition behaving sanely (both
-  // degrade notably on messier contenteditable DOM). Nothing outside this
-  // block should read editorContent.innerText/.textContent directly or write
-  // editorContent.innerHTML directly — always through these.
+  // ── Article board: Quill 2 ────────────────────────────────────────────────
+  // #editorContent is a Quill 2 editor (snow theme, same editor CaseDesk
+  // uses). Everything that reads or writes the article goes through the
+  // helpers in this block:
+  //   boardText()         plain text (quill.getText()) — word count, AI calls,
+  //                       the saved plain-text copy
+  //   boardHtml()         formatted HTML (getSemanticHTML) — saved as
+  //                       contentHtml, printed
+  //   textToDelta()       plain/markdown-ish text → Delta, for legacy articles
+  //                       and AI text (add-to-draft, draft-in, restyle)
+  //   inlineTextToDelta() the same for a passage spliced mid-paragraph (Revise)
+  // `formats` below is the single allowlist of what the board can hold — Quill
+  // drops anything else, including on paste. It mirrors the server sanitizer
+  // (lib/articleHtml.js) and the reader sanitizer (public/js/article-html.js).
   // ══════════════════════════════════════════════════════════════════════════
 
-  // Read the board's rendered text as a plain string with real \n line
-  // breaks. innerText (not textContent) is layout-aware and inserts a break
-  // at each visual block boundary — textContent would silently concatenate
-  // across them with no separator, losing every line break in the document.
-  function getPlainText(el) {
-    return el.innerText;
-  }
+  // Highlight colours: soft parchment tints (gold, oxblood rose, sage, slate).
+  var HIGHLIGHT_COLORS = ['#f3dfa2', '#ecc9c3', '#d9e2c4', '#d3dde6'];
+  var BOARD_FORMATS    = ['header', 'size', 'bold', 'italic', 'underline', 'list', 'blockquote', 'background'];
+  var Delta            = Quill.import('delta');
 
-  // HTML-escape + convert \n to <br> — the one path every WRITE uses to turn
-  // a plain string back into safe markup. A <textarea>'s .value is inert, so
-  // this app never needed to think about escaping before; .innerHTML is a
-  // real markup sink, so every write must go through this, including undo
-  // restores and content loaded from a saved article.
-  function plainTextToSafeHtml(text) {
-    return esc(String(text)).replace(/\n/g, '<br>');
-  }
+  var quill = new Quill(editorContent, {
+    theme:       'snow',
+    placeholder: 'Your article will appear here…',
+    formats:     BOARD_FORMATS,
+    modules: {
+      toolbar: [
+        [{ header: [2, 3, false] }, { size: ['small', false, 'large', 'huge'] }],
+        ['bold', 'italic', 'underline'],
+        [{ list: 'bullet' }, { list: 'ordered' }, 'blockquote'],
+        [{ background: [false].concat(HIGHLIGHT_COLORS) }],
+        ['clean'],
+      ],
+      // userOnly:false so programmatic edits (add-to-draft, restyle, Revise)
+      // are Ctrl+Z-able too; history is cleared after every full load.
+      history: { delay: 1000, maxStack: 200, userOnly: false },
+    },
+  });
 
-  // Sum of the plain-text length a node (and everything under it) contributes
-  // — a text node contributes its own length, a <br> contributes 1 (the '\n'
-  // it represents), anything else recurses into its children. Shared by both
-  // directions of the offset<->Range mapping below.
-  function plainTextLength(node) {
-    if (!node) return 0;
-    if (node.nodeType === Node.TEXT_NODE) return node.nodeValue.length;
-    if (node.nodeName === 'BR') return 1;
-    var len = 0;
-    for (var i = 0; i < node.childNodes.length; i++) len += plainTextLength(node.childNodes[i]);
-    return len;
-  }
-
-  // A Range boundary is a (node, offset) pair — for a text-node container,
-  // offset is a character count into it; for an element container (e.g. el
-  // itself, at a boundary between two children), offset is a CHILD INDEX,
-  // meaning "the boundary sits before the child at this index." This walks
-  // the tree in document order accumulating plain-text length until it
-  // reaches the exact (node, offset) given, handling both cases, and returns
-  // the single plain-text character offset that point corresponds to.
-  function plainTextOffsetAt(el, targetNode, targetOffset) {
-    var offset = 0;
-    var found  = false;
-    function walk(node) {
-      if (found) return;
-      if (node === targetNode) {
-        if (node.nodeType === Node.TEXT_NODE) {
-          offset += targetOffset;
-        } else {
-          for (var i = 0; i < targetOffset; i++) offset += plainTextLength(node.childNodes[i]);
-        }
-        found = true;
-        return;
-      }
-      if (node.nodeType === Node.TEXT_NODE) {
-        offset += node.nodeValue.length;
-      } else if (node.nodeName === 'BR') {
-        offset += 1;
-      } else {
-        for (var i = 0; i < node.childNodes.length && !found; i++) walk(node.childNodes[i]);
-      }
-    }
-    walk(el);
-    return offset;
-  }
-
-  // Range -> plain-text offsets. Mirrors plainTextOffsetToRange below — these
-  // two functions together are the whole reason Revise's offset-based
-  // capture/splice (checkRewriteSelection / applyRewrite) can keep working on
-  // a contenteditable surface: there is no built-in browser API for this
-  // conversion in either direction, since a Range points into the DOM tree
-  // while .selectionStart/.selectionEnd (what a <textarea> gave us before)
-  // are plain integers into a flat string.
-  function rangeToPlainTextOffsets(el, range) {
-    return {
-      start: plainTextOffsetAt(el, range.startContainer, range.startOffset),
-      end:   plainTextOffsetAt(el, range.endContainer,   range.endOffset),
+  // Toolbar tooltips (Quill ships none).
+  (function labelToolbar() {
+    var tb = quill.getModule('toolbar');
+    if (!tb || !tb.container) return;
+    var titles = {
+      'ql-bold': 'Bold (Ctrl+B)', 'ql-italic': 'Italic (Ctrl+I)', 'ql-underline': 'Underline (Ctrl+U)',
+      'ql-blockquote': 'Blockquote', 'ql-clean': 'Clear formatting',
     };
-  }
+    Object.keys(titles).forEach(function (cls) {
+      var b = tb.container.querySelector('button.' + cls);
+      if (b) b.title = titles[cls];
+    });
+    tb.container.querySelectorAll('button.ql-list').forEach(function (b) {
+      b.title = b.value === 'ordered' ? 'Numbered list' : 'Bulleted list';
+    });
+    var pickers = { 'ql-header': 'Heading', 'ql-size': 'Text size', 'ql-background': 'Highlight' };
+    Object.keys(pickers).forEach(function (cls) {
+      var p = tb.container.querySelector('.ql-picker.' + cls);
+      if (p) p.title = pickers[cls];
+    });
+  })();
 
-  // The inverse: find the (node, offset) DOM position a given plain-text
-  // character offset corresponds to, walking the same way plainTextOffsetAt
-  // does. Falls back to "the very end of el" if the offset is at or past the
-  // end of all content (e.g. an empty board, or offset === full length).
-  function plainTextPositionAt(el, offset) {
-    var remaining = offset;
-    var result    = null;
-    function walk(node) {
-      if (result) return;
-      if (node.nodeType === Node.TEXT_NODE) {
-        if (remaining <= node.nodeValue.length) { result = { node: node, offset: remaining }; return; }
-        remaining -= node.nodeValue.length;
-      } else if (node.nodeName === 'BR') {
-        if (remaining <= 0) {
-          result = { node: node.parentNode, offset: Array.prototype.indexOf.call(node.parentNode.childNodes, node) };
-          return;
-        }
-        remaining -= 1;
-      } else {
-        for (var i = 0; i < node.childNodes.length && !result; i++) walk(node.childNodes[i]);
+  // Sticky board head: Quill's toolbar plus the Find bar, so both stay in view
+  // while the pane scrolls (see .article-board-head in styles.css). Moving
+  // the toolbar node is safe — Quill keeps its own reference to it.
+  (function buildBoardHead() {
+    var tb = quill.getModule('toolbar');
+    if (!tb || !tb.container || !tb.container.parentNode) return;
+    var head = document.createElement('div');
+    head.className = 'article-board-head';
+    tb.container.parentNode.insertBefore(head, tb.container);
+    head.appendChild(tb.container);
+    var fb = document.getElementById('findBar');
+    if (fb) head.appendChild(fb);
+  })();
+
+  // ── Paste / load normalizer ────────────────────────────────────────────────
+  // Runs on every element Quill's clipboard converts (paste AND loading saved
+  // contentHtml). The formats allowlist already drops unsupported formats;
+  // this tightens the two supported ones whose VALUES can arrive out of range
+  // from pasted content: headings other than H2/H3 are mapped onto them, and
+  // highlights in any colour other than the board's palette are removed.
+  function hexFromColor(value) {
+    var v = String(value || '').trim().toLowerCase();
+    var m = v.match(/^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/);
+    if (m) {
+      return '#' + [m[1], m[2], m[3]].map(function (n) {
+        var h = Math.min(255, parseInt(n, 10)).toString(16);
+        return h.length === 1 ? '0' + h : h;
+      }).join('');
+    }
+    if (/^#[0-9a-f]{3}$/.test(v)) return '#' + v[1] + v[1] + v[2] + v[2] + v[3] + v[3];
+    return v;
+  }
+  function isPaletteColor(value) {
+    return HIGHLIGHT_COLORS.indexOf(hexFromColor(value)) !== -1;
+  }
+  quill.clipboard.addMatcher(Node.ELEMENT_NODE, function (node, delta) {
+    delta.ops.forEach(function (op) {
+      var a = op.attributes;
+      if (!a) return;
+      if (a.header != null) a.header = a.header <= 2 ? 2 : 3;
+      if (a.background != null) {
+        if (isPaletteColor(a.background)) a.background = hexFromColor(a.background);
+        else delete a.background;
       }
+      if (!Object.keys(a).length) delete op.attributes;
+    });
+    return delta;
+  });
+
+  // ── Text → Delta ───────────────────────────────────────────────────────────
+  // AI text and legacy (pre-Quill) articles are plain text carrying the light
+  // markdown the rest of the app already renders with marked: verse blocks
+  // come back from the server as `> “…” — Ref (NASB 1995)`, inline verses as
+  // `*“…”* — Ref`, the Lockman notice as `*…*`, and drafts use `#` headings
+  // and `**bold**`. Converting just that subset keeps Scripture looking the
+  // way My Articles / Community already show it, instead of leaving raw `>`
+  // and `*` on the board. Text is never dropped — only those markers. Blank
+  // line(s) = paragraph break; a single newline also starts a new paragraph
+  // (Quill has no soft line break).
+  var INLINE_MD_RE = /\*\*([^\s*](?:[^*\n]*[^\s*])?)\*\*|\*([^\s*](?:[^*\n]*[^\s*])?)\*/g;
+
+  function appendInlineMarkdown(delta, line) {
+    var last = 0;
+    var m;
+    INLINE_MD_RE.lastIndex = 0;
+    while ((m = INLINE_MD_RE.exec(line))) {
+      if (m.index > last) delta.insert(line.slice(last, m.index));
+      if (m[1] != null) delta.insert(m[1], { bold: true });
+      else              delta.insert(m[2], { italic: true });
+      last = INLINE_MD_RE.lastIndex;
     }
-    walk(el);
-    if (!result) result = { node: el, offset: el.childNodes.length };
-    return result;
+    if (last < line.length) delta.insert(line.slice(last));
+    return delta;
   }
 
-  // Plain-text offsets -> a Range spanning them. Used by applyRewrite() to
-  // build the exact Range to splice a revision into, replacing the string-
-  // slice arithmetic a <textarea> made trivial.
-  function plainTextOffsetToRange(el, start, end) {
-    var startPos = plainTextPositionAt(el, start);
-    var endPos   = plainTextPositionAt(el, end);
-    var range = document.createRange();
-    range.setStart(startPos.node, startPos.offset);
-    range.setEnd(endPos.node, endPos.offset);
-    return range;
+  function textToDelta(text) {
+    var delta = new Delta();
+    var src = String(text == null ? '' : text).replace(/\r\n?/g, '\n').replace(/^(?:[ \t]*\n)+/, '').replace(/\s+$/, '');
+    if (!src) return delta;
+    src.split(/\n[ \t]*\n\s*/).forEach(function (para) {
+      para.split('\n').forEach(function (line) {
+        var attrs = null;
+        var m;
+        if ((m = line.match(/^(#{1,6})[ \t]+(.*?)(?:[ \t]+#+)?[ \t]*$/))) {
+          attrs = { header: m[1].length <= 2 ? 2 : 3 };
+          line  = m[2];
+        } else if ((m = line.match(/^[ \t]{0,3}>[ \t]?(.*)$/))) {
+          attrs = { blockquote: true };
+          line  = m[1];
+        } else if ((m = line.match(/^[ \t]*[-*+][ \t]+(.*)$/))) {
+          attrs = { list: 'bullet' };
+          line  = m[1];
+        } else if ((m = line.match(/^[ \t]*\d{1,3}[.)][ \t]+(.*)$/))) {
+          attrs = { list: 'ordered' };
+          line  = m[1];
+        }
+        appendInlineMarkdown(delta, line);
+        if (attrs) delta.insert('\n', attrs);
+        else       delta.insert('\n');
+      });
+    });
+    return delta;
   }
 
-  // Insert `text` at whatever the CURRENT live selection is, one line at a
-  // time via the browser's own execCommand rather than manual Range/Node
-  // surgery. Confirmed live, the hard way, that a hand-built <br> + Range
-  // reconstruction is not reliably honored by subsequent native typing:
-  // characters typed right after a freshly-inserted <br> silently merged
-  // into the PRECEDING text run instead of continuing after it, no matter
-  // how carefully the replacement caret position was computed (tried anchoring
-  // it inside a real Text node, normalizing first, recomputing the offset
-  // after — Chrome's own insertText still redirected into the text run
-  // before the <br>). execCommand('insertLineBreak') does not have this
-  // problem — it's what the browser's own Shift+Enter uses internally, and
-  // subsequent typing continues correctly after it.
-  //
-  // Deliberately split into one execCommand('insertText', ...) per line,
-  // joined by execCommand('insertLineBreak'), rather than a single
-  // insertText call with embedded \n characters — confirmed live that
-  // Chrome's insertText represents a multi-line string by wrapping every
-  // line after the first in its own <div>, which would break the flat-DOM
-  // (text nodes + <br>/\n only) assumption getPlainText()'s offset math
-  // depends on. Line-by-line with insertLineBreak between keeps the result
-  // to a single text node with literal \n characters (rendered as real line
-  // breaks by the white-space: pre-wrap CSS already on the board) — no
-  // wrapping elements at all.
-  //
-  // execCommand fires real native 'input' events (confirmed live), so this
-  // needs no manual updateWordCount()/dispatchEvent afterward — it already
-  // behaves indistinguishably from the writer having typed it.
-  function insertPlainTextAtCurrentSelection(text) {
-    var lines = String(text).split('\n');
-    for (var i = 0; i < lines.length; i++) {
-      if (i > 0) document.execCommand('insertLineBreak');
-      if (lines[i]) document.execCommand('insertText', false, lines[i]);
+  // Revise splices a passage INTO an existing paragraph, so only inline
+  // markers are converted; line breaks stay plain (blank lines collapse to
+  // one break, since Quill paragraphs already carry their own spacing). A
+  // verse the server rendered in block form (`> “…” — Ref`, because the
+  // passage starts a line from its point of view) loses just the `> ` marker —
+  // the spliced line keeps whatever block format the board line already has.
+  function inlineTextToDelta(text) {
+    var delta = new Delta();
+    String(text).replace(/\r\n?/g, '\n').replace(/\n{2,}/g, '\n').split('\n').forEach(function (line, i) {
+      if (i > 0) delta.insert('\n');
+      appendInlineMarkdown(delta, line.replace(/^[ \t]{0,3}>[ \t]?(?=\S)/, ''));
+    });
+    return delta;
+  }
+
+  // ── Board read helpers ─────────────────────────────────────────────────────
+  function boardIsEmpty() {
+    return !quill.getText().trim();
+  }
+
+  // Plain text of the whole board (quill.getText()) — what the Companion,
+  // Restyle, word count and the saved plain-text copy all use.
+  function boardText() {
+    return quill.getText();
+  }
+
+  // Formatted HTML for saving/printing. getSemanticHTML() (Quill 2.0.3)
+  // writes every space as &nbsp;, which would stop readers' text from ever
+  // wrapping — turn each run back into a normal space, keeping extra spaces
+  // in a run as &nbsp; so deliberate double spaces survive.
+  function boardHtml() {
+    if (boardIsEmpty()) return '';
+    return quill.getSemanticHTML().replace(/(?:&nbsp;)+/g, function (run) {
+      var n = run.length / 6;
+      return ' ' + new Array(n).join('&nbsp;');
+    });
+  }
+
+  function boardHasFormatting() {
+    return quill.getContents().ops.some(function (op) {
+      return op.attributes && Object.keys(op.attributes).length > 0;
+    });
+  }
+
+  // ── Board write helpers ────────────────────────────────────────────────────
+  // Full replacement of the board. `source`:
+  //   'silent' — loads (article open, new session, streaming chunks): no
+  //              text-change, so no auto-save; Quill history is cleared since
+  //              it never saw the change.
+  //   'api'    — AI edits / undo: fires text-change (word count, find
+  //              refresh) and is Ctrl+Z-able.
+  function setBoard(delta, source) {
+    quill.setContents(delta || new Delta(), source || 'api');
+    if (source === 'silent') {
+      quill.history.clear();
+      updateWordCount();
+      refreshBoardOverlays();
     }
   }
 
-  // Insert `text` at the board's current selection/caret — used by the paste
-  // handler. Falls back to the end of the board if nothing is currently
-  // selected inside it (e.g. a paste triggered without focus ever landing
-  // there first).
-  function insertPlainTextAtSelection(el, text) {
-    var sel = window.getSelection();
-    if (!sel.rangeCount || !el.contains(sel.getRangeAt(0).commonAncestorContainer)) {
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      range.collapse(false);
-      sel.removeAllRanges();
-      sel.addRange(range);
-    }
-    insertPlainTextAtCurrentSelection(text);
+  function clearBoard(source) {
+    setBoard(new Delta(), source);
   }
 
-  // Insert `text` at a SPECIFIC Range that isn't necessarily the live
-  // selection (Revise's splice operates on stored offsets, not wherever the
-  // caret happens to be) — sets it as the live selection first, since
-  // execCommand only ever acts on that, then delegates to the same
-  // line-by-line insertion every other write path uses.
-  function insertPlainTextAtRange(el, range, text) {
-    var sel = window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(range);
-    insertPlainTextAtCurrentSelection(text);
+  // Open a saved article: formatted HTML when it has it, else convert its
+  // legacy plain text.
+  function loadBoardFromArticle(article) {
+    var html = article && typeof article.contentHtml === 'string' ? article.contentHtml : '';
+    if (html.trim()) {
+      var clean = window.IronInkArticleHtml ? window.IronInkArticleHtml.sanitize(html) : html;
+      setBoard(quill.clipboard.convert({ html: clean }), 'silent');
+    } else {
+      setBoard(textToDelta(article ? article.content : ''), 'silent');
+    }
+  }
+
+  // ── Board overlays (find match / Revise selection) ─────────────────────────
+  // Moving focus out of the board (into the find field or the Revise popup)
+  // hides the browser's own selection highlight, so these absolutely
+  // positioned boxes inside the Quill container mark the passage instead.
+  // quill.getBounds() is relative to that container, and the container grows
+  // with its content (the pane scrolls, not the board), so they stay aligned
+  // while scrolling; they're redrawn on edits, zoom and resize.
+  var overlayTargets = { find: null, revise: null };
+  var overlayEls     = {};
+
+  function drawOverlay(kind) {
+    var target = overlayTargets[kind];
+    var el = overlayEls[kind];
+    if (!target) { if (el) el.style.display = 'none'; return; }
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'board-overlay board-overlay-' + kind;
+      el.setAttribute('aria-hidden', 'true');
+      quill.container.appendChild(el);
+      overlayEls[kind] = el;
+    }
+    var b = target.length > 0 ? quill.getBounds(target.index, target.length) : null;
+    if (!b) { el.style.display = 'none'; return; }
+    el.style.left    = b.left + 'px';
+    el.style.top     = b.top + 'px';
+    el.style.width   = Math.max(2, b.width) + 'px';
+    el.style.height  = b.height + 'px';
+    el.style.display = 'block';
+  }
+
+  function setOverlay(kind, index, length) {
+    overlayTargets[kind] = (index == null) ? null : { index: index, length: length };
+    drawOverlay(kind);
+  }
+
+  function refreshBoardOverlays() {
+    drawOverlay('find');
+    drawOverlay('revise');
   }
 
   // Push one snapshot onto the shared one-step undo buffer and reveal the
@@ -342,7 +421,7 @@
   // contentUndoBuffer's declaration above for why these four share one
   // buffer instead of each keeping their own.
   function pushContentUndo(label) {
-    contentUndoBuffer = { content: getPlainText(editorContent), title: editorTitle.value, label: label };
+    contentUndoBuffer = { delta: quill.getContents(), title: editorTitle.value, label: label };
     if (contentUndoBtn) {
       contentUndoBtn.textContent = '↺ Undo ' + label;
       contentUndoBtn.style.display = 'inline-block';
@@ -358,7 +437,8 @@
     contentUndoBtn.addEventListener('click', function () {
       if (!contentUndoBuffer) return;
       var label = contentUndoBuffer.label;
-      editorContent.innerHTML = plainTextToSafeHtml(contentUndoBuffer.content);
+      dismissRewriteToolbar();
+      setBoard(contentUndoBuffer.delta, 'api');
       if (contentUndoBuffer.title !== undefined && contentUndoBuffer.title !== editorTitle.value) {
         editorTitle.value = contentUndoBuffer.title;
       }
@@ -475,7 +555,8 @@
     currentArticleStatus = 'Draft';
     answers              = [];
     editorTitle.value    = '';
-    editorContent.innerHTML = '';   // article pane stays empty — the study never lands here
+    clearBoard('silent');   // article pane stays empty — the study never lands here
+    closeFindBar(false);
     syncSavedSnapshot();
     setTierBadge(selectedTier, selectedForm);
     updateWordCount();
@@ -668,7 +749,7 @@
       currentArticleId     = null;
       currentArticleStatus = 'Draft';
       editorTitle.value    = extractTitleFromContent(data.content, answers[0]);
-      editorContent.innerHTML = plainTextToSafeHtml(data.content);
+      setBoard(textToDelta(data.content), 'silent');
       setTierBadge(selectedTier, selectedForm);
       updateWordCount();
       showState('editor');
@@ -706,7 +787,11 @@
       ];
     }
     editorTitle.value   = article.title;
-    editorContent.innerHTML = plainTextToSafeHtml(article.content);
+    // Formatted HTML when the article has it; legacy plain-text articles are
+    // converted on load (blank line = paragraph break). Nothing is written
+    // back until the writer edits or saves.
+    loadBoardFromArticle(article);
+    closeFindBar(false);
     syncSavedSnapshot();
     setTierBadge(article.tier, article.form || 'article');
     updateWordCount();
@@ -747,7 +832,11 @@
   async function persistArticle(opts) {
     var body = {
       title:   opts.title,
-      content: getPlainText(editorContent),
+      // Plain-text copy (quill.getText(), trailing newline trimmed) for word
+      // counts and AI use; contentHtml is the formatted board, sanitized again
+      // server-side before it's stored.
+      content:     boardText().replace(/\n+$/, ''),
+      contentHtml: boardHtml(),
       tier:    selectedTier,
       form:    selectedForm,
       answers: { q1: answers[0], q2: answers[1], q3: answers[2], q4: answers[3], q5: answers[4] },
@@ -836,14 +925,14 @@
   // article, successful save) so editorIsDirty() reflects real unsaved work.
   function syncSavedSnapshot() {
     lastSavedTitle   = editorTitle.value;
-    lastSavedContent = getPlainText(editorContent);
+    lastSavedContent = boardHtml();   // HTML, so formatting-only edits count as unsaved
   }
 
   // Unsaved-work check: the live editor differs from the last clean snapshot.
   // Catches a brand-new never-saved draft AND edits made after a save.
   function editorIsDirty() {
     return editorTitle.value !== lastSavedTitle ||
-           getPlainText(editorContent) !== lastSavedContent;
+           boardHtml() !== lastSavedContent;
   }
 
   // Leave the two-pane workspace and return to the doors/genre flow. Same cleanup
@@ -862,7 +951,8 @@
     sourceStudy          = null;   // clear any "build from a study" pick on exit
     answers              = ['', '', '', '', ''];
     editorTitle.value    = '';
-    editorContent.innerHTML = '';
+    clearBoard('silent');
+    closeFindBar(false);
     syncSavedSnapshot();
     updateWordCount();
     loadArticleList();
@@ -879,9 +969,9 @@
       'Clear Board',
       function () {
         editorTitle.value   = '';
-        editorContent.innerHTML = '';
-        updateWordCount();
         dismissRewriteToolbar();
+        clearBoard('api');
+        updateWordCount();
         clearContentUndo();   // the pre-action draft is gone; nothing to undo to
       }
     );
@@ -1028,7 +1118,7 @@
     // Give the companion sight of the article board. Read fresh on every turn and
     // sent as its own field — never pushed into conversationHistory, so it is not
     // accumulated. The server ignores it when empty.
-    reqBody.articleContent = getPlainText(editorContent);
+    reqBody.articleContent = boardText();
     reqBody.articleTitle   = editorTitle.value;
 
     try {
@@ -1061,15 +1151,21 @@
 
   // ── Conversation → article bridge (Step 4A) ────────────────────────────────
 
-  // Append clean text to #editorContent: two newlines then the text when the
-  // draft already has content, else just the text. `text` is the message's
-  // accumulated stream text — markdown with verse markers ALREADY resolved to
-  // verified text by the server — so nothing raw can reach the editor.
+  // Append the message to the end of the board as new paragraphs (after any
+  // existing content; the existing board and its formatting are untouched).
+  // `text` is the message's accumulated stream text — markdown with verse
+  // markers ALREADY resolved to verified text by the server — so nothing raw
+  // can reach the editor; textToDelta turns its blank lines into paragraph
+  // breaks and its verse blockquote / emphasis markers into formatting.
   function appendToDraft(text) {
     if (!text) return;
+    var add = textToDelta(text);
+    if (!add.length()) return;
     pushContentUndo('add to draft');
-    var cur = getPlainText(editorContent).replace(/\s+$/, '');
-    editorContent.innerHTML = plainTextToSafeHtml(cur ? cur + '\n\n' + text : text);
+    if (!isRewriting) hideRewriteToolbar();   // never abort an in-flight revision
+    // Existing contents always end with Quill's trailing newline, so the
+    // appended paragraphs start on a fresh line and nothing above is re-formatted.
+    setBoard(boardIsEmpty() ? add : quill.getContents().concat(add), 'api');
     updateWordCount();
     showToast('Added to draft. You can undo this once.');
     autoSaveDraft();   // preserve the article-pane change silently
@@ -1096,7 +1192,7 @@
   // to conversationHistory, so the visible conversation stays clean.
   async function draftIntoArticle() {
     if (isConverseGenerating) return;
-    if (getPlainText(editorContent).trim()) {
+    if (!boardIsEmpty()) {
       showConfirm('Replace the current draft with a full draft written from your conversation?', 'Replace', runDraftIntoArticle);
     } else {
       runDraftIntoArticle();
@@ -1108,12 +1204,27 @@
     if (conversationDraftBtn) conversationDraftBtn.disabled = true;
     // Read the board BEFORE it is cleared below, so the companion drafts with
     // sight of what the writer already has (sent as its own field, not history).
-    var articleContent = getPlainText(editorContent);
+    var articleContent = boardText();
     var articleTitle   = editorTitle.value;
     pushContentUndo('draft-in');        // capture whatever was there before the replace
-    editorContent.innerHTML = '';       // Tier 3 = "write me the whole thing" → replace
-    updateWordCount();
+    dismissRewriteToolbar();
+    closeFindBar(false);
+    clearBoard('silent');               // Tier 3 = "write me the whole thing" → replace
+    // Read-only while the draft streams in: every chunk re-renders the whole
+    // board, so typing (or Ctrl+Z) mid-stream would be clobbered or corrupt.
+    quill.disable();
     writingAbortController = new AbortController();
+
+    // Chunks are rendered at most every DRAFT_RENDER_MS (the whole draft is
+    // re-converted each time), plus once at the end with the final text.
+    var DRAFT_RENDER_MS = 120;
+    var latestDraft     = '';
+    var lastDraftRender = 0;
+    function renderDraft(text) {
+      setBoard(textToDelta(text), 'silent');
+      lastDraftRender = Date.now();
+      if (writingEditorPane) writingEditorPane.scrollTop = writingEditorPane.scrollHeight;
+    }
 
     var draftForm   = selectedForm || 'article';
     var instruction = 'Please write the full, complete draft now — the entire ' + draftForm +
@@ -1139,16 +1250,11 @@
       if (!response.ok) throw new Error('Server error ' + response.status);
 
       var fullText = await pumpSSE(response, function (full) {
-        // Full reassignment on every chunk, same as the old .value write —
-        // reassigning innerHTML this often is more expensive on a
-        // contenteditable than it was on a <textarea> for a long draft
-        // (rebuilds the whole text-node/<br> subtree each time); noted as a
-        // follow-up optimization (e.g. throttling to every N chunks), not
-        // needed for Phase 1 correctness.
-        editorContent.innerHTML = plainTextToSafeHtml(full);   // stream progressively into the article
-        updateWordCount();
-        editorContent.scrollTop = editorContent.scrollHeight;
+        latestDraft = full;   // stream progressively into the article
+        if (Date.now() - lastDraftRender >= DRAFT_RENDER_MS) renderDraft(full);
       });
+      latestDraft = fullText;
+      renderDraft(fullText);
 
       if (!editorTitle.value.trim()) {
         editorTitle.value = extractTitleFromContent(fullText, '');
@@ -1157,8 +1263,12 @@
       showToast('Draft written into the article. You can undo this once.');
       autoSaveDraft();   // preserve the drafted-in article content silently
     } catch (err) {
+      // Stopped or failed mid-stream: keep whatever arrived (as before), fully
+      // rendered — the last throttled chunk may be behind.
+      if (latestDraft) renderDraft(latestDraft);
       if (err.name !== 'AbortError') showToast('Error: ' + err.message, true);
     } finally {
+      quill.enable();
       setConverseGenerating(false);
       if (conversationDraftBtn) conversationDraftBtn.disabled = false;
     }
@@ -1333,7 +1443,7 @@
       e.stopPropagation();
       if (isConverseGenerating) { showToast('Finish the current writing first.', true); return; }
       if (isRewriting) { showToast('Finish the current revision first.', true); return; }
-      if (!getPlainText(editorContent).trim()) { showToast('Write something first, then restyle it.'); return; }
+      if (boardIsEmpty()) { showToast('Write something first, then restyle it.'); return; }
       dismissRewriteToolbar();   // don't let the picker and the rewrite toolbar both be up
       if (isPickerOpen()) { closeRestylePicker(); return; }
       openRestylePicker();
@@ -1385,7 +1495,7 @@
     if (isRestyling) return;
     if (isConverseGenerating) { showToast('Finish the current writing first.', true); return; }
     if (isRewriting) { showToast('Finish the current revision first.', true); return; }
-    var draft = getPlainText(editorContent);
+    var draft = boardText();
     if (!draft.trim()) { showToast('Write something first, then restyle it.'); return; }
 
     var label = RESTYLE_LABELS[style] || RESTYLE_LABELS.warmer;
@@ -1439,33 +1549,43 @@
 
   // Accept → capture the pre-restyle draft on the shared undo buffer, swap in
   // the styled text, save, and reveal Undo. Only after the stream has finished.
+  // The restyle engine works on (and returns) plain text, so accepting drops
+  // the board's formatting — confirm first when there is any to lose. (The
+  // shared Undo restores it, formatting included.)
+  function acceptRestyle() {
+    if (isRestyling) return;
+    var styled = restylePreviewText;
+    if (!styled || !styled.trim()) { closeRestyleOverlay(); return; }
+    pushContentUndo('restyle');
+    dismissRewriteToolbar();
+    setBoard(textToDelta(styled), 'api');
+    updateWordCount();
+    closeRestyleOverlay();
+    autoSaveDraft();                       // styled version now persists
+    showToast('Restyled. You can undo this once.');
+  }
+
   if (restyleAcceptBtn) {
     restyleAcceptBtn.addEventListener('click', function () {
       if (isRestyling) return;
-      var styled = restylePreviewText;
-      if (!styled || !styled.trim()) { closeRestyleOverlay(); return; }
-      pushContentUndo('restyle');
-      editorContent.innerHTML = plainTextToSafeHtml(styled);
-      updateWordCount();
-      closeRestyleOverlay();
-      autoSaveDraft();                       // styled version now persists
-      showToast('Restyled. You can undo this once.');
+      if (boardHasFormatting()) {
+        showConfirm('Restyle returns plain text and will remove your formatting. Continue?', 'Continue', acceptRestyle);
+      } else {
+        acceptRestyle();
+      }
     });
   }
 
   // ══════════════════════════════════════════════════════════════════════════
   // ── Highlight-to-revise: floating popup / apply / undo (Capability 1) ─────
-  // Client for POST /api/writing/rewrite. Revise rebuild Phase 2: the toolbar
-  // is now a position:fixed popup anchored at the live selection via
-  // getBoundingClientRect(), instead of a fixed panel docked in the page
-  // layout — Phase 1 (contenteditable conversion) is what made real selection
-  // geometry available at all. Selection is captured via
-  // window.getSelection()/Range and converted to/from plain-text character
-  // offsets (rangeToPlainTextOffsets / plainTextOffsetToRange, see the
-  // contenteditable helpers above) — the same role .selectionStart/
-  // .selectionEnd played on the old <textarea>. Reuses pumpSSE from above.
-  // Undo lives on the shared contentUndoBuffer (see its declaration near the
-  // top of the file), not a dedicated buffer.
+  // Client for POST /api/writing/rewrite. The popup is position:fixed,
+  // anchored at the selection via quill.getBounds() (relative to
+  // quill.container, converted to viewport coordinates). Selection comes from
+  // Quill's 'selection-change' event and ONLY opens the popup for source
+  // 'user' — programmatic selections (the Find bar's setSelection(..., 'api'),
+  // restores, loads) never do. The Quill range (index/length) is stored and
+  // reused at Apply time; the splice is quill.deleteText + quill.insertText.
+  // Reuses pumpSSE from above. Undo lives on the shared contentUndoBuffer.
   //
   // Reparented to a direct child of <body> once at startup: position:fixed is
   // computed relative to the viewport regardless of DOM nesting as long as no
@@ -1492,19 +1612,33 @@
     if (rewriteInstruction) rewriteInstruction.value = '';
     if (rewriteStatus) rewriteStatus.textContent = '';
     if (rewriteApplyBtn) rewriteApplyBtn.disabled = false;
+    setOverlay('revise', null);
   }
 
-  // Anchor the popup at the END of the selection's LAST visual line, not the
-  // selection's overall bounding box — for a selection spanning several
-  // wrapped lines, the bounding box can be nearly as wide as the whole board,
-  // which would put the popup somewhere that doesn't visually relate to
-  // where the writer's eye actually is (the end of what they just selected).
-  // getClientRects() gives one rect per visual line the selection touches;
-  // falls back to the overall box only in the (practically unreachable)
-  // case of a non-collapsed Range reporting zero rects.
-  function getSelectionAnchorRect(range) {
-    var rects = range.getClientRects();
-    return rects.length ? rects[rects.length - 1] : range.getBoundingClientRect();
+  // Viewport rects for a Quill range. `anchor` is the END of the selection's
+  // LAST visual line (top/bottom of the last selected character, left edge of
+  // the whole selection) — for a selection spanning several wrapped lines the
+  // overall box can be nearly as wide and tall as the board, which would put
+  // the popup somewhere unrelated to where the writer's eye actually is.
+  // `overall` is the whole selection's box, used for the visibility check.
+  function rewriteRangeRects(index, length) {
+    var full = quill.getBounds(index, length);
+    var last = quill.getBounds(index + length - 1, 1);
+    if (!full || !last) return null;
+    var c = quill.container.getBoundingClientRect();
+    return {
+      anchor: {
+        left:   c.left + full.left,
+        top:    c.top + last.top,
+        bottom: c.top + last.bottom,
+      },
+      overall: {
+        left:   c.left + full.left,
+        right:  c.left + full.right,
+        top:    c.top + full.top,
+        bottom: c.top + full.bottom,
+      },
+    };
   }
 
   // True if `rect` visibly overlaps BOTH the browser viewport and
@@ -1528,12 +1662,10 @@
   // to do this — offsetWidth/Height are 0 while display:none), then places
   // it just below `rect`, flipping above when there isn't room below, and
   // clamping on both axes so it can never render partially off-screen. That
-  // clamping is also what fixes the old panel's scroll-jump bug: focus()
-  // only scrolls an element into view when it ISN'T already visible, and the
-  // old fixed-panel design could render below the visible area on a long
-  // article, so focusing its instruction field force-scrolled the whole page
-  // down to reveal it. A popup that's always fully within the viewport by
-  // construction never triggers that.
+  // clamping is also what prevents the old scroll-jump bug: focus() only
+  // scrolls an element into view when it ISN'T already visible, and a popup
+  // that's always fully within the viewport by construction never triggers
+  // that (focus is also called with preventScroll as a belt-and-braces).
   var REWRITE_POPUP_GAP = 8;
   function positionRewriteToolbar(rect) {
     if (!rewriteToolbar) return;
@@ -1567,7 +1699,10 @@
   function showRewriteToolbar(rect, shouldFocus) {
     if (!rewriteToolbar) return;
     positionRewriteToolbar(rect);
-    if (shouldFocus && rewriteInstruction) rewriteInstruction.focus();
+    // Focus leaves the board, which hides the browser's selection highlight —
+    // the revise overlay keeps the chosen passage marked while the popup is up.
+    setOverlay('revise', selRewriteIndex, selRewriteLength);
+    if (shouldFocus && rewriteInstruction) rewriteInstruction.focus({ preventScroll: true });
   }
 
   // Abort any in-flight rewrite stream. Used by Dismiss and every lifecycle
@@ -1585,97 +1720,65 @@
     hideRewriteToolbar();
   }
 
-  // Selection detection — mouseup (mouse drag-select) and keyup (shift+arrow
-  // / shift+home / etc.) fire directly on the board same as before. A plain
-  // 'select' event is a form-control thing and doesn't fire reliably on a
-  // contenteditable element; the correct replacement is the document-level
-  // 'selectionchange' event (fires for ANY selection change anywhere in the
-  // document), filtered below to only react when the selection is actually
-  // inside #editorContent — otherwise, e.g., selecting text in the Companion
-  // pane or the instruction field would also trigger this. Runs SYNCHRONOUSLY
-  // now, with no debounce — the old 300ms delay's stated purpose ("don't
-  // thrash the toolbar while still dragging") doesn't actually apply to
-  // mouseup/keyup, which only fire once a selection gesture is already
-  // complete, and a floating popup anchored at the selection is meant to
-  // appear immediately, not after a pause. Never shows while a restyle or
+  // React to a USER selection on the board. Never shows while a restyle or
   // conversation stream is running — Capability 1 does not compete with
   // those for the editor — and never interferes with an already-in-flight
-  // rewrite of its own.
-  function checkRewriteSelection() {
+  // rewrite of its own. A collapsed selection (a click / caret move inside the
+  // board) closes the popup; whitespace-only selections are ignored.
+  function handleRewriteSelection(range) {
     if (isRewriting) return;               // don't fight the in-flight request's own UI
-    if (isRestyling || isConverseGenerating) { hideRewriteToolbar(); return; }
-    var sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0) { hideRewriteToolbar(); return; }
-    var range = sel.getRangeAt(0);
-    if (range.collapsed || !editorContent.contains(range.commonAncestorContainer)) {
-      hideRewriteToolbar();
-      return;
-    }
-    var offsets = rangeToPlainTextOffsets(editorContent, range);
-    if (offsets.start === offsets.end) {
-      hideRewriteToolbar();
-      return;
-    }
-    // Only steal focus into the instruction field when the SELECTED TEXT
-    // itself actually changed — contenteditable can fire more than one
-    // selectionchange for what is, from the writer's perspective, a single
-    // selection action, and re-focusing on every redundant firing would yank
-    // focus away the instant the writer starts typing an instruction.
-    var isNewSelection = !isRewriteToolbarOpen() || offsets.start !== selRewriteStart || offsets.end !== selRewriteEnd;
-    selRewriteStart = offsets.start;
-    selRewriteEnd   = offsets.end;
-    selRewriteText  = getPlainText(editorContent).slice(offsets.start, offsets.end);
-    showRewriteToolbar(getSelectionAnchorRect(range), isNewSelection);
+    if (isRestyling || isConverseGenerating || !quill.isEnabled()) { hideRewriteToolbar(); return; }
+    if (!range || range.length === 0) { hideRewriteToolbar(); return; }
+    var text = quill.getText(range.index, range.length);
+    if (!text.trim()) { hideRewriteToolbar(); return; }
+    var rects = rewriteRangeRects(range.index, range.length);
+    if (!rects) { hideRewriteToolbar(); return; }
+    // Only move focus into the instruction field when the selection itself
+    // changed — a repeat event for the same range must not yank focus away
+    // while the writer is already typing an instruction.
+    var isNewSelection = !isRewriteToolbarOpen() ||
+      range.index !== selRewriteIndex || range.length !== selRewriteLength;
+    selRewriteIndex  = range.index;
+    selRewriteLength = range.length;
+    selRewriteText   = text;
+    showRewriteToolbar(rects.anchor, isNewSelection);
   }
 
-  // isDraggingSelection tracks an in-progress mouse drag so selectionchange
-  // (below) can ignore it entirely: selectionchange fires continuously as a
-  // drag grows the selection, and since the offsets differ on every firing,
-  // showRewriteToolbar would call rewriteInstruction.focus() mid-drag on
-  // nearly every one of them — moving focus away from the document while a
-  // mouse-drag text selection is in progress cuts the drag short in most
-  // browsers. Waiting for the drag to actually finish (mouseup) avoids this
-  // entirely; mouseup is attached to `document`, not just #editorContent,
-  // since a drag can end with the mouse released outside the board (e.g.
-  // over the Companion pane) and still needs to be picked up.
-  // isKeyDown is the same guard for the keyboard equivalent: holding
-  // Shift+Arrow to extend a selection fires 'keydown' repeatedly (OS auto-
-  // repeat) but 'keyup' only once, when the key is finally released — so
-  // wiring checkRewriteSelection to keyup alone (below) is already safe on
-  // its own. selectionchange is the risk: it fires on every auto-repeated
-  // extension, and would otherwise call rewriteInstruction.focus() while the
-  // key is still physically held, hijacking the rest of that keystroke
-  // stream into the instruction field instead of the article.
-  var isDraggingSelection = false;
-  var isKeyDown            = false;
-  editorContent.addEventListener('mousedown', function () { isDraggingSelection = true; });
-  editorContent.addEventListener('keydown',   function () { isKeyDown = true; });
-  document.addEventListener('mouseup', function (e) {
-    isDraggingSelection = false;
-    // A click landing INSIDE the popup itself (the instruction field, a
-    // quick-action button, Apply, Dismiss) must never re-run selection
-    // detection — clicking into the instruction field can itself change
-    // (collapse) the page's underlying text selection as a side effect of
-    // moving focus there, which would otherwise read as "selection became
-    // invalid" and close the very popup being clicked into.
-    if (rewriteToolbar && rewriteToolbar.contains(e.target)) return;
-    checkRewriteSelection();
-  });
-  editorContent.addEventListener('keyup', function () {
+  // Quill already holds 'selection-change' back during a mouse drag (it
+  // emits once, on mouseup). The keyboard equivalent — Shift+Arrow held down
+  // to extend a selection — emits on every auto-repeat, and moving focus into
+  // the instruction field mid-keystroke would hijack the rest of the
+  // keystrokes, so while a key is down we wait and re-check on keyup.
+  // The release is caught on `document` (and window blur) rather than the
+  // board, since focus can leave mid-press (e.g. Ctrl+F moves it to the find
+  // field) and a missed keyup would otherwise suppress the popup for good.
+  var isKeyDown = false;
+  quill.root.addEventListener('keydown', function () { isKeyDown = true; });
+  document.addEventListener('keyup', function (e) {
+    if (!isKeyDown) return;
     isKeyDown = false;
-    checkRewriteSelection();
+    if (!quill.root.contains(e.target)) return;
+    var range = quill.getSelection();      // no focus change
+    if (range) handleRewriteSelection(range);
   });
-  document.addEventListener('selectionchange', function () {
-    if (isDraggingSelection || isKeyDown) return;
-    // Same reasoning as the mouseup guard above, for the case where focus is
-    // already inside the popup (e.g. mid-keystroke in the instruction field)
-    // when some unrelated selection change fires — never let that close the
-    // popup the writer is actively using.
-    if (rewriteToolbar && rewriteToolbar.contains(document.activeElement)) return;
-    var sel = window.getSelection();
-    if (sel && sel.rangeCount && editorContent.contains(sel.getRangeAt(0).commonAncestorContainer)) {
-      checkRewriteSelection();
-    }
+  window.addEventListener('blur', function () { isKeyDown = false; });
+
+  quill.on('selection-change', function (range, oldRange, source) {
+    if (source !== 'user') return;         // 'api' / 'silent' (Find, loads) never open the popup
+    if (!range) return;                    // blur — focus moved (e.g. into the popup itself)
+    if (isKeyDown) return;                 // handled on keyup
+    handleRewriteSelection(range);
+  });
+
+  // A press anywhere outside the popup and the board (Companion pane, page
+  // chrome, …) closes the popup, as it did before. Presses on the board are
+  // left to selection-change; presses on the formatting toolbar keep it open.
+  document.addEventListener('mousedown', function (e) {
+    if (!isRewriteToolbarOpen() || isRewriting) return;
+    if (rewriteToolbar.contains(e.target)) return;
+    var board = document.getElementById('articleBoard');
+    if (board && board.contains(e.target)) return;
+    hideRewriteToolbar();
   });
 
   // Keeps the popup glued to the selection while it stays visible, and hides
@@ -1684,25 +1787,23 @@
   // suggest it's still anchored to text the writer can no longer see.
   // 'scroll' doesn't bubble, so capture:true on document is the standard way
   // to catch it from ANY scrollable ancestor (.writing-editor-pane,
-  // .main-content, ...) without naming them individually; window resize gets
-  // the same treatment since it can just as easily move the selection
-  // relative to the viewport. Rebuilds the Range from the STORED offsets
-  // rather than re-reading window.getSelection(), since focus has already
-  // moved to the toolbar's own instruction input by the time either of these
-  // can fire — the live document selection no longer reflects the article
-  // text the popup is anchored to.
+  // .main-content, ...); window resize gets the same treatment. Rebuilds the
+  // position from the STORED Quill range, since focus has already moved to
+  // the popup's own instruction input by the time either of these fires.
   function updateRewriteToolbarOnViewportChange() {
     if (!isRewriteToolbarOpen() || isRewriting) return;
-    var range = plainTextOffsetToRange(editorContent, selRewriteStart, selRewriteEnd);
-    var overallRect = range.getBoundingClientRect();
-    if (!isRectVisibleWithinPane(overallRect)) {
+    var rects = rewriteRangeRects(selRewriteIndex, selRewriteLength);
+    if (!rects || !isRectVisibleWithinPane(rects.overall)) {
       hideRewriteToolbar();
       return;
     }
-    positionRewriteToolbar(getSelectionAnchorRect(range));
+    positionRewriteToolbar(rects.anchor);
   }
   document.addEventListener('scroll', updateRewriteToolbarOnViewportChange, true);
-  window.addEventListener('resize', updateRewriteToolbarOnViewportChange);
+  window.addEventListener('resize', function () {
+    refreshBoardOverlays();
+    updateRewriteToolbarOnViewportChange();
+  });
 
   if (rewriteDismissBtn) rewriteDismissBtn.addEventListener('click', dismissRewriteToolbar);
 
@@ -1736,18 +1837,14 @@
     if (isRewriting) return;                                       // guard: no overlapping requests
     if (isRestyling || isConverseGenerating) { showToast('Finish the current writing first.', true); return; }
     var instruction = rewriteInstruction ? rewriteInstruction.value.trim() : '';
-    if (!instruction) { if (rewriteInstruction) rewriteInstruction.focus(); return; }
-    if (!selRewriteText || selRewriteStart === selRewriteEnd) { hideRewriteToolbar(); return; }
+    if (!instruction) { if (rewriteInstruction) rewriteInstruction.focus({ preventScroll: true }); return; }
+    if (!selRewriteText || !selRewriteLength) { hideRewriteToolbar(); return; }
 
-    // Re-validate the stored offsets against the LIVE document before doing any
-    // work: if anything edited the text between the selection check and now
-    // (however briefly — e.g. an auto-save race, or the writer resuming
-    // typing), the live slice won't match the stored passage, and splicing at
-    // these offsets would corrupt the draft. Abort gracefully instead. Normal
-    // path: the slice still matches the stored text, so this is a no-op.
-    // (Guard runs BEFORE isRewriting/the fetch, so there's no in-flight state
-    // to unwind.)
-    if (getPlainText(editorContent).slice(selRewriteStart, selRewriteEnd) !== selRewriteText) {
+    // Re-validate the stored range against the LIVE board before doing any
+    // work: if anything edited the text between the selection and now, the
+    // live slice won't match the stored passage, and splicing at this range
+    // would corrupt the draft. Abort gracefully instead.
+    if (quill.getText(selRewriteIndex, selRewriteLength) !== selRewriteText) {
       showToast('Selection changed — please re-select and try again.', true);
       hideRewriteToolbar();
       return;
@@ -1758,12 +1855,9 @@
     if (rewriteStatus)   rewriteStatus.textContent = 'Revising…';
     rewriteAbortController = new AbortController();
 
-    // Snapshot the passage + offsets NOW: the board's live selection is
-    // already gone (focus has moved to this toolbar's own input/buttons), so
-    // everything below reads the STORED values, never re-reads the live
-    // selection again.
-    var start   = selRewriteStart;
-    var end     = selRewriteEnd;
+    // Snapshot the passage + range NOW; everything below reads these.
+    var index   = selRewriteIndex;
+    var length  = selRewriteLength;
     var passage = selRewriteText;
 
     try {
@@ -1775,19 +1869,33 @@
       });
       if (!response.ok) throw new Error('Server error ' + response.status);
 
-      var revised = await pumpSSE(response, function (full) {
+      var revised = await pumpSSE(response, function () {
         if (rewriteStatus) rewriteStatus.textContent = 'Revising…';
       });
 
       revised = revised.trim();
       if (!revised) throw new Error('No revision returned.');
 
-      // One-step undo on the shared buffer — captures the WHOLE pre-Apply
-      // draft, the simplest correct way to reverse a splice at offsets that
-      // may no longer make sense if anything else changed the content.
+      // The request is async — re-check the passage is still exactly where it
+      // was before splicing (the board stays editable while it runs).
+      if (quill.getText(index, length) !== passage) {
+        throw new Error('The passage changed while revising — please re-select and try again.');
+      }
+
+      // One-step undo on the shared buffer — the WHOLE pre-Apply board as a
+      // Delta, formatting included.
       pushContentUndo('revision');
-      var spliceRange = plainTextOffsetToRange(editorContent, start, end);
-      insertPlainTextAtRange(editorContent, spliceRange, revised);
+
+      // Splice: the revision comes back as plain text (inline **/* emphasis
+      // from the model becomes bold/italic). Formatting inside the replaced
+      // passage is lost; the rest of the article is untouched.
+      quill.deleteText(index, length, 'user');
+      var pos = index;
+      inlineTextToDelta(revised).ops.forEach(function (op) {
+        if (typeof op.insert !== 'string') return;
+        quill.insertText(pos, op.insert, op.attributes || {}, 'user');
+        pos += op.insert.length;
+      });
 
       updateWordCount();
       autoSaveDraft();
@@ -1805,7 +1913,172 @@
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // ── Companion panel collapse (replaces Find — see build notes) ────────────
+  // ── Find (Ctrl+F / Find button) ───────────────────────────────────────────
+  // Case-insensitive search over quill.getText() (whose indices are Quill
+  // indices — the board has no embeds). Each match is selected with
+  // quill.setSelection(index, length, 'api') — which also scrolls it into
+  // view — and because the source is 'api' the Revise popup never opens for
+  // it (that listener only reacts to 'user'). setSelection moves focus into
+  // the board, so focus is handed straight back to the find field (typing
+  // keeps searching) and the find overlay marks the current match. Closing
+  // the bar leaves the current match selected in the board.
+  // ══════════════════════════════════════════════════════════════════════════
+
+  var findBar      = document.getElementById('findBar');
+  var findInput    = document.getElementById('findInput');
+  var findCount    = document.getElementById('findCount');
+  var findPrevBtn  = document.getElementById('findPrevBtn');
+  var findNextBtn  = document.getElementById('findNextBtn');
+  var findCloseBtn = document.getElementById('findCloseBtn');
+  var editorFindBtn = document.getElementById('editorFindBtn');
+
+  var findMatches = [];   // [{ index, length }]
+  var findCurrent = -1;
+
+  function isFindOpen() {
+    return !!findBar && findBar.style.display !== 'none';
+  }
+
+  function computeFindMatches() {
+    var needle = findInput ? findInput.value : '';
+    var out = [];
+    if (!needle) return out;
+    var hay = quill.getText().toLowerCase();
+    var n   = needle.toLowerCase();
+    var i   = hay.indexOf(n);
+    while (i !== -1) {
+      out.push({ index: i, length: n.length });
+      i = hay.indexOf(n, i + n.length);
+    }
+    return out;
+  }
+
+  function updateFindCount() {
+    if (!findCount) return;
+    if (!findInput || !findInput.value) { findCount.textContent = ''; return; }
+    findCount.textContent = findMatches.length
+      ? (findCurrent + 1) + ' of ' + findMatches.length
+      : 'No matches';
+    findCount.classList.toggle('find-count-none', !findMatches.length);
+  }
+
+  function goToFindMatch(i) {
+    if (!findMatches.length) { findCurrent = -1; setOverlay('find', null); updateFindCount(); return; }
+    var n = findMatches.length;
+    findCurrent = ((i % n) + n) % n;       // wrap both directions
+    var m = findMatches[findCurrent];
+    if (!isRewriting) hideRewriteToolbar();   // never abort an in-flight revision
+    quill.setSelection(m.index, m.length, 'api');   // selects + scrolls into view; never opens Revise
+    setOverlay('find', m.index, m.length);
+    var overlay = overlayEls.find;
+    if (overlay && overlay.scrollIntoView) overlay.scrollIntoView({ block: 'nearest' });
+    if (findInput) findInput.focus({ preventScroll: true });
+    updateFindCount();
+  }
+
+  // New search text: jump to the first match at/after the current match (or
+  // the top), so refining the query doesn't bounce back to the start.
+  function runFind() {
+    var from = findCurrent >= 0 && findMatches[findCurrent] ? findMatches[findCurrent].index : 0;
+    findMatches = computeFindMatches();
+    if (!findMatches.length) { findCurrent = -1; setOverlay('find', null); updateFindCount(); return; }
+    var start = 0;
+    for (var i = 0; i < findMatches.length; i++) {
+      if (findMatches[i].index >= from) { start = i; break; }
+    }
+    goToFindMatch(start);
+  }
+
+  // The board changed while the bar is open (typing, AI edit): recount and
+  // re-mark without moving the writer's caret.
+  function refreshFindAfterEdit() {
+    if (!isFindOpen()) return;
+    findMatches = computeFindMatches();
+    if (findCurrent >= findMatches.length) findCurrent = findMatches.length - 1;
+    if (findCurrent < 0 && findMatches.length) findCurrent = 0;
+    var m = findMatches[findCurrent];
+    setOverlay('find', m ? m.index : null, m ? m.length : 0);
+    updateFindCount();
+  }
+
+  function openFindBar() {
+    if (!findBar || !findInput) return;
+    if (!isRewriting) hideRewriteToolbar();   // never abort an in-flight revision
+    // Seed with a short single-line selection, like browser find.
+    var sel = quill.getSelection();
+    if (sel && sel.length > 0 && sel.length <= 80) {
+      var t = quill.getText(sel.index, sel.length);
+      if (t.indexOf('\n') === -1) findInput.value = t;
+    }
+    findBar.style.display = 'flex';
+    findInput.focus({ preventScroll: true });
+    findInput.select();
+    findCurrent = -1;
+    if (findInput.value) runFind(); else updateFindCount();
+  }
+
+  // restoreSelection: leave the current match selected in the board (normal
+  // close). Lifecycle closes (loading/leaving/clearing) pass false.
+  function closeFindBar(restoreSelection) {
+    if (!findBar) return;
+    var wasOpen = isFindOpen();
+    findBar.style.display = 'none';
+    var m = findMatches[findCurrent];
+    setOverlay('find', null);
+    findMatches = [];
+    findCurrent = -1;
+    if (wasOpen && restoreSelection && m) quill.setSelection(m.index, m.length, 'api');
+  }
+
+  if (editorFindBtn) editorFindBtn.addEventListener('click', function () {
+    if (isFindOpen()) { findInput.focus({ preventScroll: true }); findInput.select(); }
+    else openFindBar();
+  });
+  if (findInput) {
+    findInput.addEventListener('input', runFind);
+    findInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (!findMatches.length) { runFind(); return; }
+        goToFindMatch(findCurrent + (e.shiftKey ? -1 : 1));
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        closeFindBar(true);
+      }
+    });
+  }
+  if (findNextBtn)  findNextBtn.addEventListener('click',  function () { goToFindMatch(findCurrent + 1); });
+  if (findPrevBtn)  findPrevBtn.addEventListener('click',  function () { goToFindMatch(findCurrent - 1); });
+  if (findCloseBtn) findCloseBtn.addEventListener('click', function () { closeFindBar(true); });
+
+  // Ctrl/Cmd+F opens the bar while the workspace is showing (and no overlay
+  // or modal is covering it); elsewhere on the page the browser's own find
+  // is left alone.
+  document.addEventListener('keydown', function (e) {
+    if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey) return;
+    if (String(e.key).toLowerCase() !== 'f') return;
+    if (writingEditor.style.display === 'none') return;
+    if (restyleOverlay && restyleOverlay.style.display !== 'none') return;
+    if (document.querySelector('.ironink-modal-overlay')) return;
+    e.preventDefault();
+    if (isFindOpen()) { findInput.focus({ preventScroll: true }); findInput.select(); }
+    else openFindBar();
+  });
+
+  // Board edits: word count, match refresh, overlay positions. Only edits the
+  // WRITER made (source 'user') schedule the debounced auto-save —
+  // programmatic changes (loads are 'silent'; AI edits save explicitly) must
+  // not bump a just-opened article's updatedAt.
+  quill.on('text-change', function (delta, oldDelta, source) {
+    updateWordCount();
+    refreshFindAfterEdit();
+    drawOverlay('revise');
+    if (source === 'user') scheduleEditorSave();
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // ── Companion panel collapse ──────────────────────────────────────────────
   // Hides/shows .writing-conversation via a plain class toggle, mirroring the
   // app-wide sidebar's own collapse (#sidebarToggle, public/js/app.js — same
   // "toggle a class, persist to localStorage" shape). Hidden state is
@@ -1839,9 +2112,10 @@
 
   // ══════════════════════════════════════════════════════════════════════════
   // ── Whiteboard conveniences: text zoom + download/print (Phase C) ─────────
-  // Display + export only. Zoom changes how #editorContent is SHOWN (its inline
-  // fontSize), never its .value — saved content is untouched. Download/print
-  // build the file client-side from the live title + body; no server round-trip.
+  // Display + export only. Zoom changes how the board is SHOWN (the Quill
+  // editor's inline fontSize; headings and text sizes are em-based so they
+  // scale with it), never its content — saved content is untouched. Print
+  // builds the page client-side from the live title + formatted board.
   // ══════════════════════════════════════════════════════════════════════════
 
   // Bounds mirror the My Articles reading view (12–28) for consistency; default
@@ -1869,11 +2143,13 @@
 
   var editorFontSize = loadEditorFont();
 
-  // Display-only zoom: sets the textarea's shown font size. Never touches .value.
+  // Display-only zoom: sets the board's shown font size. Never touches content.
   function applyEditorFontSize(size) {
     editorFontSize = Math.min(EFONT_MAX, Math.max(EFONT_MIN, size));
-    if (editorContent) editorContent.style.fontSize = editorFontSize + 'px';
+    quill.root.style.fontSize = editorFontSize + 'px';
     saveEditorFont(editorFontSize);
+    refreshBoardOverlays();                  // text reflowed — re-mark find / revise passages
+    updateRewriteToolbarOnViewportChange();
   }
 
   applyEditorFontSize(editorFontSize);
@@ -1932,25 +2208,21 @@
     document.body.appendChild(writingPrintArea);
   }
 
-  // Build clean print HTML: title as <h1>, body as escaped paragraphs (blank lines
-  // split paragraphs, single newlines become <br>). The global #printArea @media
-  // print rules (Georgia 12pt, styled headings/paragraphs) do the visual work.
-  function buildPrintHtml(title, body) {
+  // Build print HTML: title as <h1>, then the board's formatted HTML (headings,
+  // lists, blockquotes, bold/italic/underline, sizes, highlights), run through
+  // the same allowlist sanitizer the readers use. The global #printArea
+  // @media print rules (Georgia 12pt, styled headings/paragraphs) do the
+  // visual work.
+  function buildPrintHtml(title, bodyHtml) {
     var html = title ? ('<h1>' + esc(title) + '</h1>') : '';
-    var paras = String(body).split(/\n{2,}/);
-    for (var i = 0; i < paras.length; i++) {
-      var p = paras[i].replace(/\s+$/, '');
-      if (!p.trim()) continue;
-      html += '<p>' + esc(p).replace(/\n/g, '<br>') + '</p>';
-    }
-    return html;
+    var clean = window.IronInkArticleHtml ? window.IronInkArticleHtml.sanitize(bodyHtml) : bodyHtml;
+    return html + clean;
   }
 
   function printArticle() {
     var title = editorTitle.value.trim();
-    var body  = getPlainText(editorContent);
-    if (!title && !body.trim()) { showToast('Nothing to print yet.'); return; }
-    writingPrintArea.innerHTML = buildPrintHtml(title, body);
+    if (!title && boardIsEmpty()) { showToast('Nothing to print yet.'); return; }
+    writingPrintArea.innerHTML = buildPrintHtml(title, boardHtml());
     document.body.classList.add('is-printing');
     window.print();
   }
@@ -2046,12 +2318,10 @@
   }
 
   function updateWordCount() {
-    var text  = getPlainText(editorContent).trim();
+    var text  = boardText().trim();
     var words = text ? text.split(/\s+/).length : 0;
     editorWordCount.textContent = words + ' word' + (words !== 1 ? 's' : '');
   }
-
-  editorContent.addEventListener('input', updateWordCount);
 
   // ── Debounced save-on-typing-pause ─────────────────────────────────────────
   // Closes the gap the event-based autoSaveDraft() leaves open: text typed into the
@@ -2064,13 +2334,15 @@
   var inputSaveDebounceTimer  = null;
   var SAVE_DEBOUNCE_MS = 2000;
 
-  editorContent.addEventListener('input', function () {
+  // Called from the board's text-change listener (writer edits only — see the
+  // Find section).
+  function scheduleEditorSave() {
     if (editorSaveDebounceTimer) clearTimeout(editorSaveDebounceTimer);
     editorSaveDebounceTimer = setTimeout(function () {
-      if (!getPlainText(editorContent).trim()) return;   // nothing in the body to save
+      if (boardIsEmpty()) return;   // nothing in the body to save
       autoSaveDraft();
     }, SAVE_DEBOUNCE_MS);
-  });
+  }
 
   if (conversationInput) {
     conversationInput.addEventListener('input', function () {
@@ -2082,40 +2354,6 @@
       }, SAVE_DEBOUNCE_MS);
     });
   }
-
-  // ── Board input handling (Revise rebuild Phase 1) ──────────────────────────
-  // Two behaviors a plain <textarea> gave for free that a contenteditable
-  // must implement by hand:
-
-  // 1. Paste as plain text only — never the source's HTML (fonts, colors,
-  // nested tags). Forces text/plain and routes it through the same
-  // line-by-line insertion primitive Revise's splice uses, so pasted content
-  // becomes ordinary text with literal \n line breaks, never markup —
-  // keeping the "always flat, always plain" invariant getPlainText depends
-  // on. No manual updateWordCount()/autosave nudge needed afterward —
-  // execCommand-driven inserts fire real native 'input' events, same as the
-  // writer having typed it.
-  editorContent.addEventListener('paste', function (e) {
-    e.preventDefault();
-    var text = (e.clipboardData || window.clipboardData).getData('text/plain');
-    insertPlainTextAtSelection(editorContent, text);
-  });
-
-  // 2. Enter inserts a single line break, never a browser-default new
-  // <div>/<p> — which browser is used, and even its version, determines
-  // what a bare contenteditable does with Enter by default, and any of
-  // those choices would break getPlainText()'s flat-DOM assumption.
-  // e.isComposing guards against IME composition: many IMEs (CJK phonetic
-  // input, but also some diacritic/dead-key sequences relevant to this
-  // app's transliterated Hebrew/Greek terms) use Enter to CONFIRM a
-  // composition candidate, not to insert a line break — intercepting
-  // unconditionally would swallow that confirmation and corrupt text entry
-  // for anyone using one.
-  editorContent.addEventListener('keydown', function (e) {
-    if (e.key !== 'Enter' || e.isComposing) return;
-    e.preventDefault();
-    insertPlainTextAtCurrentSelection('\n');
-  });
 
   function extractTitleFromContent(content, fallback) {
     var match = String(content).match(/^#\s+(.+)$/m);

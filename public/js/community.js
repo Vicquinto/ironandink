@@ -124,7 +124,7 @@
 
       communityReadTitle.textContent = a.title;
       communityReadMeta.textContent  = (a.authorName || '') + ' · ' + fmtDate(a.publishedAt || a.updatedAt);
-      communityReadBody.innerHTML    = renderReadingText(a.content || '');
+      communityReadBody.innerHTML    = renderArticleBody(a);
 
       var formLabel = formDisplayLabel(a.form);
       if (communityReadBadges) {
@@ -259,6 +259,14 @@
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
+  // Article body: sanitized Quill HTML (contentHtml) when the article was
+  // written on the formatted board, else the legacy plain-text renderer.
+  // See public/js/article-html.js.
+  function renderArticleBody(article) {
+    if (window.IronInkArticleHtml) return window.IronInkArticleHtml.renderBody(article, renderReadingText);
+    return renderReadingText((article && article.content) || '');
+  }
+
   function renderReadingText(text) {
     if (window.marked) {
       return window.marked.parse ? window.marked.parse(String(text)) : window.marked(String(text));
