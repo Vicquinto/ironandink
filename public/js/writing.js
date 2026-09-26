@@ -124,6 +124,7 @@
   var rewriteApplyBtn       = document.getElementById('rewriteApplyBtn');
   var rewriteDismissBtn     = document.getElementById('rewriteDismissBtn');
   var rewriteStatus         = document.getElementById('rewriteStatus');
+  var rewriteCopyBtn        = document.getElementById('rewriteCopyBtn');
 
   // Shared content-undo button (Revise rebuild Phase 1) — replaces the old
   // separate restyleUndoBtn/rewriteUndoBtn; see contentUndoBuffer above.
@@ -329,12 +330,16 @@
   // writes every space as &nbsp;, which would stop readers' text from ever
   // wrapping — turn each run back into a normal space, keeping extra spaces
   // in a run as &nbsp; so deliberate double spaces survive.
-  function boardHtml() {
-    if (boardIsEmpty()) return '';
-    return quill.getSemanticHTML().replace(/(?:&nbsp;)+/g, function (run) {
+  function fixSemanticSpaces(html) {
+    return html.replace(/(?:&nbsp;)+/g, function (run) {
       var n = run.length / 6;
       return ' ' + new Array(n).join('&nbsp;');
     });
+  }
+
+  function boardHtml() {
+    if (boardIsEmpty()) return '';
+    return fixSemanticSpaces(quill.getSemanticHTML());
   }
 
   function boardHasFormatting() {
@@ -1612,6 +1617,7 @@
     if (rewriteInstruction) rewriteInstruction.value = '';
     if (rewriteStatus) rewriteStatus.textContent = '';
     if (rewriteApplyBtn) rewriteApplyBtn.disabled = false;
+    resetCopyFeedback();
     setOverlay('revise', null);
   }
 
@@ -1738,6 +1744,7 @@
     // while the writer is already typing an instruction.
     var isNewSelection = !isRewriteToolbarOpen() ||
       range.index !== selRewriteIndex || range.length !== selRewriteLength;
+    if (isNewSelection) resetCopyFeedback();
     selRewriteIndex  = range.index;
     selRewriteLength = range.length;
     selRewriteText   = text;
@@ -1825,13 +1832,116 @@
 
   // Enter in the instruction field applies (it's a single-line <input>, so
   // Enter unambiguously means "go" — no Shift+Enter distinction needed).
+  //
+  // While the field is still EMPTY, Ctrl/Cmd+C/B/I/U act on the selected
+  // ARTICLE passage instead of the (empty) field: C copies it (same as the
+  // Copy button), B/I/U toggle bold/italic/underline on it and keep the popup
+  // open. Once anything is typed, the keys fall through to the field's own
+  // native behavior. Esc is handled by the document-level listener above.
+  var PASSAGE_FORMAT_KEYS = { b: 'bold', i: 'italic', u: 'underline' };
   if (rewriteInstruction) {
     rewriteInstruction.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') { e.preventDefault(); applyRewrite(); }
+      if (e.key === 'Enter') { e.preventDefault(); applyRewrite(); return; }
+      if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey) return;
+      if (rewriteInstruction.value !== '') return;
+      var k = String(e.key).toLowerCase();
+      if (k === 'c') {
+        e.preventDefault();
+        copyRewritePassage();
+      } else if (PASSAGE_FORMAT_KEYS[k]) {
+        e.preventDefault();
+        formatRewritePassage(PASSAGE_FORMAT_KEYS[k]);
+      }
     });
   }
 
   if (rewriteApplyBtn) rewriteApplyBtn.addEventListener('click', applyRewrite);
+  if (rewriteCopyBtn)  rewriteCopyBtn.addEventListener('click', copyRewritePassage);
+
+  // True if the stored popup passage is still exactly what the board holds at
+  // that range (anything edited in between would make index/length stale).
+  function rewritePassageIsCurrent() {
+    return !!selRewriteText && selRewriteLength > 0 &&
+      quill.getText(selRewriteIndex, selRewriteLength) === selRewriteText;
+  }
+
+  // ── Copy the selected passage ─────────────────────────────────────────────
+  // Writes text/html (the passage's own formatting via getSemanticHTML,
+  // run through the reader allowlist sanitizer) AND text/plain via
+  // navigator.clipboard.write; falls back to writeText(plain) if the rich
+  // write is unsupported or refused. Button reads "Copied" for
+  // COPY_FEEDBACK_MS, then the popup closes and the passage is re-selected
+  // in the article ('api' source — never re-opens the popup).
+  var COPY_FEEDBACK_MS  = 1500;
+  var copyFeedbackTimer = null;
+
+  function resetCopyFeedback() {
+    if (copyFeedbackTimer) { clearTimeout(copyFeedbackTimer); copyFeedbackTimer = null; }
+    if (rewriteCopyBtn) rewriteCopyBtn.textContent = 'Copy';
+  }
+
+  async function writePassageToClipboard(index, length) {
+    var plain = quill.getText(index, length);
+    var html  = fixSemanticSpaces(quill.getSemanticHTML(index, length));
+    if (window.IronInkArticleHtml) html = window.IronInkArticleHtml.sanitize(html);
+    if (navigator.clipboard && navigator.clipboard.write && window.ClipboardItem) {
+      try {
+        await navigator.clipboard.write([new ClipboardItem({
+          'text/html':  new Blob([html],  { type: 'text/html' }),
+          'text/plain': new Blob([plain], { type: 'text/plain' }),
+        })]);
+        return true;
+      } catch (e) { /* fall through to plain text */ }
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try { await navigator.clipboard.writeText(plain); return true; } catch (e) {}
+    }
+    return false;
+  }
+
+  async function copyRewritePassage() {
+    if (!isRewriteToolbarOpen() || isRewriting || copyFeedbackTimer) return;
+    if (!rewritePassageIsCurrent()) {
+      showToast('Selection changed — please re-select and try again.', true);
+      hideRewriteToolbar();
+      return;
+    }
+    var index   = selRewriteIndex;
+    var length  = selRewriteLength;
+    var passage = selRewriteText;
+    var ok = await writePassageToClipboard(index, length);
+    if (!ok) { showToast('Could not copy — the browser blocked clipboard access.', true); return; }
+    if (!isRewriteToolbarOpen() || selRewriteIndex !== index || selRewriteLength !== length) return;
+    if (rewriteCopyBtn) rewriteCopyBtn.textContent = 'Copied';
+    copyFeedbackTimer = setTimeout(function () {
+      copyFeedbackTimer = null;
+      // The writer may have moved on meanwhile (new selection, Apply started,
+      // popup closed) — only close the popup that still shows this passage.
+      if (!isRewriteToolbarOpen() || isRewriting ||
+          selRewriteIndex !== index || selRewriteLength !== length) {
+        resetCopyFeedback();
+        return;
+      }
+      hideRewriteToolbar();
+      if (quill.getText(index, length) === passage) quill.setSelection(index, length, 'api');
+    }, COPY_FEEDBACK_MS);
+  }
+
+  // ── Bold / italic / underline the selected passage (keyboard) ─────────────
+  // Toggles like a word processor: a passage that is only PARTLY formatted
+  // gets the format applied to all of it. Source 'user' so it auto-saves and
+  // is Ctrl+Z-able on the board. The popup stays open; the revise overlay
+  // redraws itself on the resulting text-change.
+  function formatRewritePassage(name) {
+    if (!quill.isEnabled()) return;
+    if (!rewritePassageIsCurrent()) {
+      showToast('Selection changed — please re-select and try again.', true);
+      hideRewriteToolbar();
+      return;
+    }
+    var current = quill.getFormat(selRewriteIndex, selRewriteLength);
+    quill.formatText(selRewriteIndex, selRewriteLength, name, !current[name], 'user');
+  }
 
   async function applyRewrite() {
     if (isRewriting) return;                                       // guard: no overlapping requests

@@ -3087,6 +3087,24 @@ body {
   margin-top: 10px;
 }
 
+/* Copy (secondary, .btn-warm) + Apply (primary). Compact inside the 300px
+   popup so both sit beside the status text; Apply keeps its filled oxblood. */
+.rewrite-foot-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.rewrite-foot-actions .btn-warm,
+.rewrite-foot-actions .btn-primary {
+  padding: 7px 16px;
+  font-size: 0.85rem;
+}
+.rewrite-foot-actions .btn-warm {
+  min-width: 74px;   /* "Copy" → "Copied" without the row shifting */
+  text-align: center;
+}
+
 .rewrite-status {
   font-size: 0.78rem;
   color: var(--warm-brown);

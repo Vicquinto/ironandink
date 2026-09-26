@@ -11,7 +11,7 @@ const { sanitizeArticleHtml } = require('../lib/articleHtml');
 
 // Cache-busters for the Writing page's own assets (bump when they change).
 const QUILL_ASSET_VER   = '2.0.3';
-const WRITING_ASSET_VER = '40';
+const WRITING_ASSET_VER = '41';
 
 const router       = express.Router();
 
@@ -179,7 +179,12 @@ router.get('/writing', requireAuth, (req, res) => {
             </div>
             <div class="rewrite-toolbar-foot">
               <span id="rewriteStatus" class="rewrite-status"></span>
-              <button type="button" class="btn-primary" id="rewriteApplyBtn">Apply</button>
+              <!-- Copy = the selected ARTICLE passage (not the instruction
+                   field), as HTML + plain text. Secondary to Apply. -->
+              <span class="rewrite-foot-actions">
+                <button type="button" class="btn-warm" id="rewriteCopyBtn" title="Copy the selected passage (Ctrl+C while the instruction is empty)">Copy</button>
+                <button type="button" class="btn-primary" id="rewriteApplyBtn">Apply</button>
+              </span>
             </div>
           </div>
 
