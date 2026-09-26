@@ -685,21 +685,36 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
     const attemptStart = Date.now();
     try {
       console.log(`[study-gen] Calling Anthropic API — attempt ${attempt} time=${new Date().toISOString()}`);
+      // Opus 5.5 always thinks, and thinking counts toward max_tokens — so the
+      // old 8000-token output ceiling gets 8000 tokens of headroom.
       const message = await client.messages.create({
-        model:      'claude-sonnet-4-6',
-        max_tokens: 8000,
-        system:     systemPrompt,
+        model:         'claude-opus-5-5',
+        max_tokens:    16000,
+        output_config: { effort: 'medium' },
+        system:        systemPrompt,
         messages: [{ role: 'user', content: userMessage }],
       });
       console.log(`[study-gen] API call ${attempt} finished in ${Date.now() - attemptStart}ms — success`);
       console.log(`[study-gen] stop_reason: ${message.stop_reason}`);
+
+      // On Opus 5.5 a safety-classifier decline arrives as HTTP 200 with
+      // stop_reason 'refusal' rather than a 400. Route it through the same
+      // content-filter retry path below.
+      if (message.stop_reason === 'refusal') {
+        const refusal = new Error('refusal: ' + ((message.stop_details && message.stop_details.category) || 'uncategorized'));
+        refusal.isRefusal = true;
+        refusal.request_id = message._request_id;
+        throw refusal;
+      }
+      // The response can open with (empty) thinking blocks — read text blocks only.
+      const studyText = message.content.filter(b => b.type === 'text').map(b => b.text).join('');
 
       // Replace every {{verse:...}} marker with real, verified verse text — NASB
       // 1995 from the local cache, ASV as a silent per-verse fallback. The model
       // never writes Scripture; all verse text is inserted here. Unresolvable
       // markers collapse to the plain reference — never model-generated verse
       // text. The Lockman notice is appended when NASB text was injected.
-      const content = injectWithAttribution(message.content[0].text);
+      const content = injectWithAttribution(studyText);
       console.log(`[study-gen] DONE total time=${Date.now() - reqStart}ms`);
       const su = req.session.user || {};
       logEvent(su.id || req.session.userId, su.fullName, 'study_generated', { topic: topic.trim(), studyType: resolvedStudyType });
@@ -728,7 +743,7 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
 
       return res.json({ success: true, content, topic: topic.trim(), translation, studyLength, studyLevel: resolvedStudyLevel, studyType: resolvedStudyType, ...(studiesRemaining !== undefined ? { studiesRemaining } : {}) });
     } catch (err) {
-      if (isContentFilterError(err)) {
+      if (err.isRefusal || isContentFilterError(err)) {
         console.log(`[study-gen] API call ${attempt} finished in ${Date.now() - attemptStart}ms — filtered`);
         const requestId = err.request_id || err.requestID ||
           (err.headers && (err.headers['request-id'] || err.headers['x-request-id'])) || 'unknown';
@@ -834,14 +849,19 @@ router.post('/api/study/suggest-type', requireAuth, aiLimiter, async (req, res) 
 
   try {
     const client  = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    // Opus 5.5 always thinks (counts toward max_tokens) — low effort plus
+    // headroom above the old 200-token ceiling for a one-line JSON answer.
     const message = await client.messages.create({
-      model:      'claude-haiku-4-5-20251001',
-      max_tokens: 200,
-      system:     systemPrompt,
+      model:         'claude-opus-5-5',
+      max_tokens:    2000,
+      output_config: { effort: 'low' },
+      system:        systemPrompt,
       messages: [{ role: 'user', content: userMessage }],
     });
 
-    const parsed = parseSuggestion(message.content[0].text);
+    // Read text blocks only (the response can open with thinking blocks). A
+    // refusal or empty reply parses to null and degrades to Open below.
+    const parsed = parseSuggestion(message.content.filter(b => b.type === 'text').map(b => b.text).join(''));
 
     // Any unusable answer degrades to Open rather than failing the request — Open
     // is a real option that fits the study to the subject, so it is a safe default.

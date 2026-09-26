@@ -290,16 +290,25 @@ router.post('/api/library/ask', requireAuth, async (req, res) => {
 
   try {
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    // Opus 5.5 always thinks and thinking counts toward max_tokens, so the old
+    // 800-token ceiling gets headroom; answer length is set by the prompt.
     const message = await client.messages.create({
-      model:      'claude-sonnet-4-6',
-      max_tokens: 800,
-      system:     systemPrompt,
+      model:         'claude-opus-5-5',
+      max_tokens:    4000,
+      output_config: { effort: 'low' },
+      system:        systemPrompt,
       messages,
     });
+    // The response can open with (empty) thinking blocks — read text blocks only.
+    const text = message.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    if (message.stop_reason === 'refusal' || !text) {
+      console.error('Inline ask: no text returned — stop_reason:', message.stop_reason);
+      return res.status(500).json({ success: false, error: 'Failed to get answer. Please try again.' });
+    }
     // Inline answers use the core prompt, so the model quotes Scripture via
     // {{verse:...}} markers too — insert the verified verse text (NASB primary,
     // ASV fallback) and append the Lockman notice when NASB text appears.
-    res.json({ success: true, answer: injectWithAttribution(message.content[0].text) });
+    res.json({ success: true, answer: injectWithAttribution(text) });
   } catch (err) {
     console.error('Inline ask error:', err.message);
     res.status(500).json({ success: false, error: 'Failed to get answer. Please try again.' });

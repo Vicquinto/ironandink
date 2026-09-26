@@ -671,22 +671,32 @@ Q5 (Connection to life and doxology): ${answers.q5}
 
 Generate the ${tierLabel} now.`;
 
-  const model  = tier === 3 ? 'claude-opus-4-8' : 'claude-sonnet-4-6';
-  const tokens = tier === 3 ? 4000 : tier === 2 ? 3000 : 1500;
+  // All tiers on Opus 5.5. Thinking is always on for this model and counts
+  // toward max_tokens, so the per-tier output size gets 8000 tokens of headroom.
+  const model  = 'claude-opus-5-5';
+  const tokens = (tier === 3 ? 4000 : tier === 2 ? 3000 : 1500) + 8000;
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
   try {
     const message = await client.messages.create({
       model,
-      max_tokens: tokens,
-      system:     systemPrompt,
-      messages:   [{ role: 'user', content: userPrompt }],
+      max_tokens:    tokens,
+      output_config: { effort: 'medium' },
+      system:        systemPrompt,
+      messages:      [{ role: 'user', content: userPrompt }],
     });
+
+    // The response can open with (empty) thinking blocks — read text blocks only.
+    const text = message.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    if (message.stop_reason === 'refusal' || !text) {
+      console.error('[Writing/generate] no text returned — stop_reason:', message.stop_reason);
+      return res.status(500).json({ success: false, error: 'Generation failed. Please try again.' });
+    }
 
     // Core-prompt output quotes Scripture via {{verse:...}} markers — insert the
     // verified verse text (NASB primary, ASV fallback) and append the Lockman
     // notice when NASB text appears.
-    res.json({ success: true, content: injectWithAttribution(message.content[0].text) });
+    res.json({ success: true, content: injectWithAttribution(text) });
   } catch (err) {
     console.error('[Writing/generate]', err.message);
     res.status(500).json({ success: false, error: err.message });
@@ -756,21 +766,26 @@ router.post('/api/writing/converse', requireAuth, async (req, res) => {
   res.setHeader('Connection', 'keep-alive');
   res.flushHeaders();
 
-  const model  = tier === 3 ? 'claude-opus-4-8' : 'claude-sonnet-4-6';
-  // Normal conversational replies stay at 1500. Only a deliberate full-draft turn
-  // (runDraftIntoArticle sends fullDraft:true) gets the higher ceiling so a full
-  // teaching guide isn't cut off mid-sentence. Not keyed off tier — that would
-  // inflate ordinary Tier 3 chat replies.
-  const maxTokens = fullDraft ? 4000 : 1500;
+  const model  = 'claude-opus-5-5';   // all tiers
+  // Normal conversational replies get the smaller ceiling. Only a deliberate
+  // full-draft turn (runDraftIntoArticle sends fullDraft:true) gets the higher
+  // ceiling so a full teaching guide isn't cut off mid-sentence. Not keyed off
+  // tier — that would inflate ordinary Tier 3 chat replies. Opus 5.5 always
+  // thinks and thinking counts toward max_tokens, so both ceilings carry
+  // headroom above the old 1500/4000 output sizes; chat runs at low effort to
+  // keep replies quick, full drafts at medium.
+  const maxTokens = fullDraft ? 12000 : 6000;
+  const effort    = fullDraft ? 'medium' : 'low';
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   let closed = false;
 
   try {
     const stream = client.messages.stream({
       model,
-      max_tokens: maxTokens,
-      system:     systemPrompt,
-      messages:   apiMessages,
+      max_tokens:    maxTokens,
+      output_config: { effort },
+      system:        systemPrompt,
+      messages:      apiMessages,
     });
 
     req.on('close', () => {
@@ -801,13 +816,25 @@ router.post('/api/writing/converse', requireAuth, async (req, res) => {
       if (emit) res.write(`data: ${JSON.stringify({ text: emit })}\n\n`);
     }
 
+    let gotText = false;
     stream.on('text', (text) => {
       if (closed || res.writableEnded) return;
+      gotText = true;
       buf += text;
       flush(false);
     });
 
-    await stream.done();
+    const finalMsg = await stream.finalMessage();
+    // Opus 5.5 safety classifiers can decline with stop_reason 'refusal' (HTTP 200).
+    // If nothing streamed, tell the client instead of ending on an empty [DONE].
+    if (finalMsg.stop_reason === 'refusal') {
+      console.error('[Writing/converse] refusal — category:', finalMsg.stop_details && finalMsg.stop_details.category);
+      if (!gotText && !closed && !res.writableEnded) {
+        res.write(`data: ${JSON.stringify({ error: "The companion couldn't respond. Please try again." })}\n\n`);
+        res.end();
+        return;
+      }
+    }
 
     if (!closed && !res.writableEnded) {
       flush(true);
@@ -883,16 +910,17 @@ router.post('/api/writing/restyle', requireAuth, async (req, res) => {
   res.setHeader('Connection', 'keep-alive');
   res.flushHeaders();
 
-  const model  = 'claude-opus-4-8';   // quality-sensitive rewrite — stronger model
+  const model  = 'claude-opus-5-5';   // quality-sensitive rewrite — stronger model
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   let closed = false;
 
   try {
     const stream = client.messages.stream({
       model,
-      max_tokens: 16000,              // drafts can be long
-      system:     systemPrompt,
-      messages:   apiMessages,
+      max_tokens:    32000,           // drafts can be long, plus always-on thinking
+      output_config: { effort: 'medium' },
+      system:        systemPrompt,
+      messages:      apiMessages,
     });
 
     req.on('close', () => {
@@ -921,13 +949,25 @@ router.post('/api/writing/restyle', requireAuth, async (req, res) => {
       if (emit) res.write(`data: ${JSON.stringify({ text: emit })}\n\n`);
     }
 
+    let gotText = false;
     stream.on('text', (text) => {
       if (closed || res.writableEnded) return;
+      gotText = true;
       buf += text;
       flush(false);
     });
 
-    await stream.done();
+    const finalMsg = await stream.finalMessage();
+    // Opus 5.5 safety classifiers can decline with stop_reason 'refusal' (HTTP 200).
+    // If nothing streamed, tell the client instead of ending on an empty [DONE].
+    if (finalMsg.stop_reason === 'refusal') {
+      console.error('[Writing/restyle] refusal — category:', finalMsg.stop_details && finalMsg.stop_details.category);
+      if (!gotText && !closed && !res.writableEnded) {
+        res.write(`data: ${JSON.stringify({ error: 'Could not restyle this passage. Please try again.' })}\n\n`);
+        res.end();
+        return;
+      }
+    }
 
     if (!closed && !res.writableEnded) {
       flush(true);
@@ -1016,16 +1056,17 @@ router.post('/api/writing/rewrite', requireAuth, async (req, res) => {
   res.setHeader('Connection', 'keep-alive');
   res.flushHeaders();
 
-  const model  = 'claude-opus-4-8';   // quality-sensitive rewrite — stronger model
+  const model  = 'claude-opus-5-5';   // quality-sensitive rewrite — stronger model
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   let closed = false;
 
   try {
     const stream = client.messages.stream({
       model,
-      max_tokens: 1500,               // a single passage, not a full draft
-      system:     systemPrompt,
-      messages:   apiMessages,
+      max_tokens:    6000,            // a single passage, plus always-on thinking
+      output_config: { effort: 'low' },
+      system:        systemPrompt,
+      messages:      apiMessages,
     });
 
     req.on('close', () => {
@@ -1055,13 +1096,25 @@ router.post('/api/writing/rewrite', requireAuth, async (req, res) => {
       if (emit) res.write(`data: ${JSON.stringify({ text: emit })}\n\n`);
     }
 
+    let gotText = false;
     stream.on('text', (text) => {
       if (closed || res.writableEnded) return;
+      gotText = true;
       buf += text;
       flush(false);
     });
 
-    await stream.done();
+    const finalMsg = await stream.finalMessage();
+    // Opus 5.5 safety classifiers can decline with stop_reason 'refusal' (HTTP 200).
+    // If nothing streamed, tell the client instead of ending on an empty [DONE].
+    if (finalMsg.stop_reason === 'refusal') {
+      console.error('[Writing/rewrite] refusal — category:', finalMsg.stop_details && finalMsg.stop_details.category);
+      if (!gotText && !closed && !res.writableEnded) {
+        res.write(`data: ${JSON.stringify({ error: 'Could not revise this passage. Please try again.' })}\n\n`);
+        res.end();
+        return;
+      }
+    }
 
     if (!closed && !res.writableEnded) {
       flush(true);
