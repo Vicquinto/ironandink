@@ -849,18 +849,16 @@ router.post('/api/study/suggest-type', requireAuth, aiLimiter, async (req, res) 
 
   try {
     const client  = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-    // Opus 5.5 always thinks (counts toward max_tokens) — low effort plus
-    // headroom above the old 200-token ceiling for a one-line JSON answer.
     const message = await client.messages.create({
-      model:         'claude-opus-5-5',
-      max_tokens:    2000,
-      output_config: { effort: 'low' },
-      system:        systemPrompt,
+      model:      'claude-haiku-4-5-20251001',
+      max_tokens: 200,
+      system:     systemPrompt,
       messages: [{ role: 'user', content: userMessage }],
     });
 
-    // Read text blocks only (the response can open with thinking blocks). A
-    // refusal or empty reply parses to null and degrades to Open below.
+    // Read text blocks only rather than content[0] — harmless on Haiku (no
+    // thinking requested), and an empty reply parses to null and degrades to
+    // Open below.
     const parsed = parseSuggestion(message.content.filter(b => b.type === 'text').map(b => b.text).join(''));
 
     // Any unusable answer degrades to Open rather than failing the request — Open

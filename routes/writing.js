@@ -772,10 +772,9 @@ router.post('/api/writing/converse', requireAuth, async (req, res) => {
   // ceiling so a full teaching guide isn't cut off mid-sentence. Not keyed off
   // tier — that would inflate ordinary Tier 3 chat replies. Opus 5.5 always
   // thinks and thinking counts toward max_tokens, so both ceilings carry
-  // headroom above the old 1500/4000 output sizes; chat runs at low effort to
-  // keep replies quick, full drafts at medium.
+  // headroom above the old 1500/4000 output sizes.
   const maxTokens = fullDraft ? 12000 : 6000;
-  const effort    = fullDraft ? 'medium' : 'low';
+  const effort    = 'medium';
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   let closed = false;
 
