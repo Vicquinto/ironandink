@@ -711,7 +711,7 @@ Generate the ${tierLabel} now.`;
 // the blocking /api/writing/generate route above is untouched.
 router.post('/api/writing/converse', requireAuth, async (req, res) => {
   if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
-  const { messages, tier, form, isOpening, sourceContent, sourceTopic, fullDraft } = req.body;
+  const { messages, tier, form, isOpening, sourceContent, sourceTopic, fullDraft, articleContent, articleTitle } = req.body;
 
   const { IRON_INK_CORE_PROMPT, IRON_INK_WRITING_PROMPT } = req.app.locals.prompts;
   const userSettings = req.session.user && req.session.user.settings;
@@ -736,6 +736,24 @@ router.post('/api/writing/converse', requireAuth, async (req, res) => {
   const postureInstruction = postureInstructions[tier] || postureInstructions[1];
 
   const systemPrompt = studyLevelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_WRITING_PROMPT + '\n\n' + formInstruction + '\n\n' + postureInstruction;
+
+  // System prompt as blocks: the stable part (fixed for the session) carries the
+  // cache breakpoint; the article board — sent fresh by the client every turn —
+  // goes AFTER it as its own block, so board edits never invalidate the cached
+  // prefix. Empty board → no extra block; the prompt is exactly as before.
+  const systemBlocks = [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }];
+  const boardText  = typeof articleContent === 'string' ? articleContent.trim() : '';
+  const boardTitle = typeof articleTitle   === 'string' ? articleTitle.trim()   : '';
+  if (boardText) {
+    systemBlocks.push({
+      type: 'text',
+      text: 'CURRENT ARTICLE ON THE BOARD (this is the writer\'s latest text, including their own edits; ' +
+        'treat it as the authoritative version, over anything said earlier in the chat).\n' +
+        'This gives you sight of the board only. Your role and how much you may write are exactly as instructed above — unchanged.\n\n' +
+        (boardTitle ? 'Title: ' + boardTitle + '\n\n' : '') +
+        '"""\n' + boardText + '\n"""',
+    });
+  }
 
   // Build API messages — must always start with 'user'.
   let apiMessages;
@@ -783,7 +801,7 @@ router.post('/api/writing/converse', requireAuth, async (req, res) => {
       model,
       max_tokens:    maxTokens,
       output_config: { effort },
-      system:        systemPrompt,
+      system:        systemBlocks,
       messages:      apiMessages,
     });
 
@@ -824,6 +842,10 @@ router.post('/api/writing/converse', requireAuth, async (req, res) => {
     });
 
     const finalMsg = await stream.finalMessage();
+    // One line per turn to confirm the system-prompt cache is hitting (cache_read > 0
+    // from the second turn of a session, within the 5-minute cache window).
+    const u = finalMsg.usage || {};
+    console.log(`[Writing/converse] usage — input:${u.input_tokens} cache_read:${u.cache_read_input_tokens} cache_write:${u.cache_creation_input_tokens} output:${u.output_tokens} board:${boardText.length}ch`);
     // Opus 5.5 safety classifiers can decline with stop_reason 'refusal' (HTTP 200).
     // If nothing streamed, tell the client instead of ending on an empty [DONE].
     if (finalMsg.stop_reason === 'refusal') {

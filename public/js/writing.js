@@ -1025,6 +1025,11 @@
       reqBody.sourceContent = sourceStudy.content;
       reqBody.sourceTopic   = sourceStudy.topic;
     }
+    // Give the companion sight of the article board. Read fresh on every turn and
+    // sent as its own field — never pushed into conversationHistory, so it is not
+    // accumulated. The server ignores it when empty.
+    reqBody.articleContent = getPlainText(editorContent);
+    reqBody.articleTitle   = editorTitle.value;
 
     try {
       var response = await fetch('/api/writing/converse', {
@@ -1101,6 +1106,10 @@
   async function runDraftIntoArticle() {
     setConverseGenerating(true);
     if (conversationDraftBtn) conversationDraftBtn.disabled = true;
+    // Read the board BEFORE it is cleared below, so the companion drafts with
+    // sight of what the writer already has (sent as its own field, not history).
+    var articleContent = getPlainText(editorContent);
+    var articleTitle   = editorTitle.value;
     pushContentUndo('draft-in');        // capture whatever was there before the replace
     editorContent.innerHTML = '';       // Tier 3 = "write me the whole thing" → replace
     updateWordCount();
@@ -1121,6 +1130,8 @@
           form:      selectedForm,
           isOpening: false,
           fullDraft: true,   // this is a deliberate full-draft turn → raise the server token cap
+          articleContent: articleContent,
+          articleTitle:   articleTitle,
         }),
         signal: writingAbortController.signal,
       });
