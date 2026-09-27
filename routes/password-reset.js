@@ -3,7 +3,7 @@ const bcrypt   = require('bcrypt');
 const fs       = require('fs');
 const path     = require('path');
 const crypto   = require('crypto');
-const sgMail   = require('@sendgrid/mail');
+const { sendMail } = require('../lib/mailer');
 const { escapeHtml } = require('../lib/html');
 const { appBaseUrl } = require('../lib/baseUrl');
 
@@ -12,9 +12,6 @@ const router = express.Router();
 const DATA_DIR     = path.join(__dirname, '../data');
 const USERS_PATH   = path.join(DATA_DIR, 'users.json');
 const RESETS_PATH  = path.join(DATA_DIR, 'password_resets.json');
-
-// Same SendGrid setup as routes/help.js and routes/invite.js.
-sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
 
 // ── Password reset: how it works ─────────────────────────────────────────────
 // 1. POST /api/forgot-password always answers with the same GENERIC_MESSAGE —
@@ -125,35 +122,28 @@ function invalidateUserTokens(records, userId, whenIso, reason) {
 }
 
 // ── Email ─────────────────────────────────────────────────────────────────────
-// Best-effort, self-contained (like the other SendGrid senders): failures are
-// logged, never surfaced to the requester. Neither the address nor the link is
-// logged.
+// Sent through lib/mailer.js. Best-effort: failures are logged server-side (the
+// mailer logs the real cause), never surfaced to the requester — who always sees
+// the same generic message. Neither the address nor the link is logged.
 async function sendResetEmail(user, resetUrl) {
-  if (!process.env.SENDGRID_API_KEY) {
-    console.warn('[passwordReset] SENDGRID_API_KEY not set — reset email not sent');
-    return;
-  }
   const name = (user.fullName || '').trim() || 'Friend';
-  try {
-    await sgMail.send({
-      to:      user.email,
-      from:    { email: process.env.SENDGRID_FROM_EMAIL, name: 'Iron & Ink' },
-      subject: 'Reset your Iron & Ink password',
-      text: `${name},\n\nWe received a request to reset the password for your Iron & Ink account. ` +
-        `Use the link below to choose a new one:\n\n${resetUrl}\n\n` +
-        `This link works once and expires in 60 minutes. If you didn't ask for this, you can ignore this email — ` +
-        `your password stays the same.\n\nSoli Deo Gloria,\nIron & Ink`,
-      html: `<p>${escapeHtml(name)},</p>
+  const result = await sendMail({
+    tag:     'passwordReset',
+    to:      user.email,
+    subject: 'Reset your Iron & Ink password',
+    text: `${name},\n\nWe received a request to reset the password for your Iron & Ink account. ` +
+      `Use the link below to choose a new one:\n\n${resetUrl}\n\n` +
+      `This link works once and expires in 60 minutes. If you didn't ask for this, you can ignore this email — ` +
+      `your password stays the same.\n\nSoli Deo Gloria,\nIron & Ink`,
+    html: `<p>${escapeHtml(name)},</p>
 <p>We received a request to reset the password for your Iron &amp; Ink account. Use the link below to choose a new one:</p>
 <p><a href="${escapeHtml(resetUrl)}">Reset my password</a></p>
 <p style="font-size:0.9em;color:#555;">Or paste this address into your browser:<br>${escapeHtml(resetUrl)}</p>
 <p>This link works once and expires in 60 minutes. If you didn't ask for this, you can ignore this email &mdash; your password stays the same.</p>
 <p><em>Soli Deo Gloria,</em><br>Iron &amp; Ink</p>`,
-    });
-    console.log('[passwordReset] reset email sent for user', user.id);
-  } catch (err) {
-    console.error('[passwordReset] reset email failed for user', user.id + ':', err.message);
-  }
+  });
+  if (result.ok) console.log('[passwordReset] reset email sent for user', user.id);
+  else console.error('[passwordReset] reset email failed for user', user.id);
 }
 
 // Issue a token for `email` if (and only if) it belongs to an active account.
@@ -182,7 +172,8 @@ function issueReset(email) {
   });
   writeJSON(RESETS_PATH, records);
 
-  sendResetEmail(user, base + '/reset-password?token=' + token);
+  sendResetEmail(user, base + '/reset-password?token=' + token)
+    .catch(err => console.error('[passwordReset] unexpected:', err && err.message));
 }
 
 // End every stored session belonging to `userId` (session-file-store: list()

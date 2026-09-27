@@ -3,15 +3,13 @@ const bcrypt   = require('bcrypt');
 const fs       = require('fs');
 const path     = require('path');
 const { randomUUID } = require('crypto');
-const sgMail   = require('@sendgrid/mail');
+const { sendMail } = require('../lib/mailer');
 // Shared invite provisioning — the same create-record + email-link logic the
 // admin approve button uses. The submit handler auto-invites through this so the
 // two paths can never drift. See lib/invites.js.
 const { createAndSendInvite, findActiveInvite } = require('../lib/invites');
 
 const router = express.Router();
-
-sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
 
 // Where new-invite-request notifications go. Overridable via env; single source
 // of truth so the address is changed in exactly one place.
@@ -38,36 +36,29 @@ const DOCTRINE_LABELS = [
 // self-contained: swallows its own errors so a send failure can never block or
 // fail the applicant's invite.
 async function sendNewMemberNotification(record) {
-  if (!process.env.SENDGRID_API_KEY) {
-    console.warn('[newMemberNotify] SENDGRID_API_KEY not set — skipping email');
-    return;
-  }
   const reason      = record.reason && record.reason.trim() ? record.reason.trim() : '(none given)';
   const doctrines   = record.doctrines || {};
   const answersText = DOCTRINE_LABELS.map(([key, label]) => `- ${label}: ${doctrines[key] || '(no answer)'}`).join('\n');
   const answersHtml = DOCTRINE_LABELS.map(([key, label]) =>
     `<li><strong>${label}:</strong> ${escHtml(doctrines[key] || '(no answer)')}</li>`).join('');
-  try {
-    await sgMail.send({
-      to:   ADMIN_NOTIFY_EMAIL,
-      from: { email: process.env.SENDGRID_FROM_EMAIL, name: 'Iron & Ink' },
-      subject: `New Iron & Ink member: ${record.name}`,
-      text: `${record.name} (${record.email}) just requested an invitation and was automatically invited.\n\n` +
-        `Reason for joining:\n${reason}\n\n` +
-        `Doctrinal responses:\n${answersText}\n\n` +
-        `Submitted: ${record.submittedAt}\n\n` +
-        `Soli Deo Gloria,\nIron & Ink`,
-      html: `<p><strong>${escHtml(record.name)}</strong> (${escHtml(record.email)}) just requested an invitation and was automatically invited.</p>
+  // The mailer strips CR/LF from the subject (the name comes from a public form).
+  const result = await sendMail({
+    tag:  'newMemberNotify',
+    to:   ADMIN_NOTIFY_EMAIL,
+    subject: `New Iron & Ink member: ${record.name}`,
+    text: `${record.name} (${record.email}) just requested an invitation and was automatically invited.\n\n` +
+      `Reason for joining:\n${reason}\n\n` +
+      `Doctrinal responses:\n${answersText}\n\n` +
+      `Submitted: ${record.submittedAt}\n\n` +
+      `Soli Deo Gloria,\nIron & Ink`,
+    html: `<p><strong>${escHtml(record.name)}</strong> (${escHtml(record.email)}) just requested an invitation and was automatically invited.</p>
 <p><strong>Reason for joining:</strong><br>${escHtml(reason).replace(/\n/g, '<br>')}</p>
 <p><strong>Doctrinal responses:</strong></p>
 <ul>${answersHtml}</ul>
 <p><strong>Submitted:</strong> ${escHtml(record.submittedAt)}</p>
 <p><em>Soli Deo Gloria,</em><br>Iron &amp; Ink</p>`,
-    });
-    console.log('[newMemberNotify] sent to', ADMIN_NOTIFY_EMAIL);
-  } catch (err) {
-    console.error('[newMemberNotify] failed:', err.message);
-  }
+  });
+  if (result.ok) console.log('[newMemberNotify] sent to', ADMIN_NOTIFY_EMAIL);
 }
 
 function readJSON(p) {

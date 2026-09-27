@@ -5,6 +5,7 @@ const ExcelJS  = require('exceljs');
 const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout, getIsAdmin, isAdminRecord } = require('./layout');
 const { sanitizeArticleHtml } = require('../lib/articleHtml');
+const { appBaseUrl } = require('../lib/baseUrl');
 const { escapeHtml, inlineJson } = require('../lib/html');
 const { listDevotionals, deleteDevotional, clearAllDevotionals } = require('./dashboard');
 const { readEvents, writeEvents } = require('../lib/usageLog');
@@ -255,7 +256,7 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
     scripts: `<script>window.ADMIN_TABS = ${inlineJson(ADMIN_TABS)};</script>
 <script src="/js/study-badges.js?v=4"></script>
 <script src="/js/article-html.js?v=2"></script>
-<script src="/js/admin.js?v=25"></script>
+<script src="/js/admin.js?v=26"></script>
 <script>
 (function () {
   var form     = document.getElementById('directInviteForm');
@@ -575,10 +576,17 @@ router.get('/api/admin/invites', requireAuth, requireAdmin, (req, res) => {
     }
   }
 
+  // Pending (unused, unexpired) invites also carry their full link, built the
+  // same way the invite email builds it, so the admin can hand it over directly
+  // ("Copy invite link") if email ever fails. This endpoint is admin-only.
+  const base = appBaseUrl();
+  const now  = new Date();
   const enriched = invites.map(i => {
     const r = i.email ? reqByEmail.get(i.email.toLowerCase()) : null;
+    const pending = !i.used && new Date(i.expiresAt) > now;
     return {
       ...i,
+      inviteUrl: pending && base && i.token ? `${base}/register?token=${encodeURIComponent(i.token)}` : null,
       application: r ? {
         reason:      r.reason || '',
         doctrines:   r.doctrines || null,

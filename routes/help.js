@@ -4,7 +4,7 @@ const router  = express.Router();
 const fs      = require('fs');
 const path    = require('path');
 const { randomUUID } = require('crypto');
-const sgMail  = require('@sendgrid/mail');
+const { sendMail } = require('../lib/mailer');
 const { requireAuth, renderLayout } = require('./layout');
 // Reuse the single ADMIN_NOTIFY_EMAIL source of truth from invite.js — no second
 // address constant. (invite.js exports the same env-driven value it uses itself.)
@@ -13,34 +13,23 @@ const { ADMIN_NOTIFY_EMAIL } = require('./invite');
 const USERS_PATH_H   = path.join(__dirname, '../data/users.json');
 const FEEDBACK_PATH  = path.join(__dirname, '../data/feedback.json');
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
-
-// Best-effort admin notification when a member submits feedback. Mirrors
-// sendInviteRequestNotification in routes/invite.js: same SendGrid setup, same
-// from-address convention, fully self-contained, and swallows its own errors so
-// a send failure can never break the feedback submission.
+// Best-effort admin notification when a member submits feedback. Goes through
+// lib/mailer.js like every other email; sendMail never throws and logs its own
+// failures, so a send problem can never break the feedback submission.
 async function sendFeedbackNotification({ fullName, text, submittedAt }) {
-  if (!process.env.SENDGRID_API_KEY) {
-    console.warn('[feedbackNotify] SENDGRID_API_KEY not set — skipping email');
-    return;
-  }
-  try {
-    await sgMail.send({
-      to:   ADMIN_NOTIFY_EMAIL,
-      from: { email: process.env.SENDGRID_FROM_EMAIL, name: 'Iron & Ink' },
-      subject: 'New Iron & Ink feedback',
-      text: `A member has submitted feedback.\n\nName: ${fullName}\nSubmitted: ${submittedAt}\n\nFeedback:\n${text}\n\nView it in the Admin panel.\n\nSoli Deo Gloria,\nIron & Ink`,
-      html: `<p>A member has submitted feedback.</p>
+  const result = await sendMail({
+    tag:  'feedbackNotify',
+    to:   ADMIN_NOTIFY_EMAIL,
+    subject: 'New Iron & Ink feedback',
+    text: `A member has submitted feedback.\n\nName: ${fullName}\nSubmitted: ${submittedAt}\n\nFeedback:\n${text}\n\nView it in the Admin panel.\n\nSoli Deo Gloria,\nIron & Ink`,
+    html: `<p>A member has submitted feedback.</p>
 <p><strong>Name:</strong> ${escapeHtml(fullName)}<br><strong>Submitted:</strong> ${escapeHtml(submittedAt)}</p>
 <p><strong>Feedback:</strong></p>
 <p style="white-space:pre-wrap;">${escapeHtml(text)}</p>
 <p>View it in the Admin panel.</p>
 <p><em>Soli Deo Gloria,</em><br>Iron &amp; Ink</p>`,
-    });
-    console.log('[feedbackNotify] sent to', ADMIN_NOTIFY_EMAIL);
-  } catch (err) {
-    console.error('[feedbackNotify] failed:', err.message);
-  }
+  });
+  if (result.ok) console.log('[feedbackNotify] sent to', ADMIN_NOTIFY_EMAIL);
 }
 
 function readJSON(p) {

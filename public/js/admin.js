@@ -85,6 +85,23 @@
         return;
       }
 
+      // Copy a pending invite's link to the clipboard; if the browser refuses
+      // clipboard access, show it in a prompt so it can be copied by hand.
+      var copyBtn = e.target.closest('[data-copy-invite]');
+      if (copyBtn) {
+        var url = copyBtn.getAttribute('data-copy-invite');
+        try {
+          if (!navigator.clipboard || !navigator.clipboard.writeText) throw new Error('clipboard unavailable');
+          await navigator.clipboard.writeText(url);
+          copyBtn.textContent = 'Copied!';
+          setTimeout(function () { copyBtn.textContent = 'Copy invite link'; }, 1500);
+          showToast('Invite link copied. It works once and expires with the invite.');
+        } catch (err) {
+          window.prompt('Copy this invite link:', url);
+        }
+        return;
+      }
+
       var btn = e.target.closest('[data-delete-invite]');
       if (!btn) return;
       var id = btn.getAttribute('data-delete-invite');
@@ -703,6 +720,11 @@
       var newPill    = isNew
         ? '<span class="article-status-badge status-pending" style="margin-right:6px;">New</span>'
         : '';
+      // Pending invites only (the server sends inviteUrl just for unused,
+      // unexpired ones): a manual fallback if the invite email didn't arrive.
+      var copyBtn    = i.inviteUrl
+        ? '<button class="btn-warm" data-copy-invite="' + esc(i.inviteUrl) + '" style="font-size:0.82rem; padding:6px 14px;">Copy invite link</button>'
+        : '';
       var appBtn     = i.application
         ? '<button class="btn-warm" data-toggle-application="' + esc(i.id) + '" style="font-size:0.82rem; padding:6px 14px;">Application ▾</button>'
         : '';
@@ -721,7 +743,7 @@
         '</div>' +
         applicationDetailHtml(i.application, i.id) +
         '<div style="padding:6px 12px 10px; display:flex; justify-content:space-between; align-items:center; gap:10px;">' +
-          '<span>' + appBtn + '</span>' +
+          '<span style="display:flex; gap:8px; flex-wrap:wrap;">' + appBtn + copyBtn + '</span>' +
           '<button class="btn-discard" data-delete-invite="' + esc(i.id) + '">Delete</button>' +
         '</div>' +
       '</div>';
