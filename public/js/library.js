@@ -1922,8 +1922,8 @@
 
       var bodyHtml = '';
       try {
-        bodyHtml = (typeof marked !== 'undefined')
-          ? marked.parse(pin.content || '')
+        bodyHtml = window.IronInkSanitize
+          ? window.IronInkSanitize.markdown(pin.content || '')
           : '<pre>' + esc(pin.content || '') + '</pre>';
       } catch (e) {
         bodyHtml = esc(pin.content || '');

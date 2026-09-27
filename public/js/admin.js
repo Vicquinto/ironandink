@@ -456,10 +456,10 @@
     return renderReadingText((article && article.content) || '');
   }
 
+  // Markdown → HTML via the shared sanitizer (marked output is never trusted
+  // raw). The escape-first branch below is only reached if that script is missing.
   function renderReadingText(text) {
-    if (window.marked) {
-      return window.marked.parse ? window.marked.parse(String(text)) : window.marked(String(text));
-    }
+    if (window.IronInkSanitize) return window.IronInkSanitize.markdown(String(text));
     var escaped = String(text)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     return '<p>' + escaped.split(/\n\n+/).map(function (p) {

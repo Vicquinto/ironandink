@@ -194,13 +194,14 @@ function renderLayout({ req, activeSection, title, content, scripts = '', head =
     window.__currentUserId  = ${JSON.stringify(userId || '')};
   </script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="/js/html-sanitizer.js?v=1"></script>
   <script src="/js/modal.js?v=10"></script>
   <script src="/js/app.js?v=8"></script>
   <script src="/js/dictionary.js?v=10"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/dm-badge.js?v=3"></script>
   <script src="/js/dm-widget.js?v=2"></script>
-  <script src="/js/notepad.js?v=6"></script>
+  <script src="/js/notepad.js?v=7"></script>
   ${scripts}
   <script type="module" src="/js/tour-runner.js?v=4"></script>
   <script>

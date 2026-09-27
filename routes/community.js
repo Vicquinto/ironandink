@@ -153,11 +153,11 @@ router.get('/community', requireAuth, (req, res) => {
         window.CURRENT_USER_ID = ${JSON.stringify(req.session.userId)};
       </script>
       <script src="/js/study-badges.js?v=3"></script>
-      <script src="/js/article-html.js?v=1"></script>
-      <script src="/js/community.js?v=18"></script>
-      <script src="/js/render-markdown.js?v=1"></script>
+      <script src="/js/article-html.js?v=2"></script>
+      <script src="/js/community.js?v=19"></script>
+      <script src="/js/render-markdown.js?v=2"></script>
       <script src="/js/enhance-further-studies.js?v=2"></script>
-      <script src="/js/library.js?v=60"></script>`,
+      <script src="/js/library.js?v=61"></script>`,
   }));
 });
 

@@ -379,7 +379,7 @@ router.get('/writing', requireAuth, (req, res) => {
     content,
     head:          `<link rel="stylesheet" href="/vendor/quill-2.0.3/quill.snow.css?v=${QUILL_ASSET_VER}">`,
     scripts:       `<script src="/vendor/quill-2.0.3/quill.js?v=${QUILL_ASSET_VER}"></script>
-      <script src="/js/article-html.js?v=1"></script>
+      <script src="/js/article-html.js?v=2"></script>
       <script src="/js/writing.js?v=${WRITING_ASSET_VER}"></script>`,
   }));
 });
@@ -422,8 +422,8 @@ router.get('/my-articles', requireAuth, (req, res) => {
     activeSection: 'my-articles',
     title:         'My Articles',
     content,
-    scripts:       `<script src="/js/article-html.js?v=1"></script>
-      <script src="/js/my-articles.js?v=2"></script>`,
+    scripts:       `<script src="/js/article-html.js?v=2"></script>
+      <script src="/js/my-articles.js?v=3"></script>`,
   }));
 });
 

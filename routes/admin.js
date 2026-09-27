@@ -252,8 +252,8 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
     content,
     scripts: `<script>window.ADMIN_TABS = ${JSON.stringify(ADMIN_TABS)};</script>
 <script src="/js/study-badges.js?v=3"></script>
-<script src="/js/article-html.js?v=1"></script>
-<script src="/js/admin.js?v=22"></script>
+<script src="/js/article-html.js?v=2"></script>
+<script src="/js/admin.js?v=23"></script>
 <script>
 (function () {
   var form     = document.getElementById('directInviteForm');

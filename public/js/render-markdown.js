@@ -5,6 +5,11 @@
   // just-generated study view (study.js) and the saved-study view (library.js,
   // modal + inline). Consolidated from two byte-identical copies — do not fork
   // it again; edit here so both views always render identically.
+  //
+  // The regex conversion below does not escape its input, so its output is
+  // ALWAYS passed through the shared allowlist sanitizer (html-sanitizer.js,
+  // 'markdown' profile — keeps every guide-* class used here) before it is
+  // returned. Every caller assigns the result to innerHTML.
   global.renderMarkdown = function renderMarkdown(text) {
     if (!text) return '';
 
@@ -54,7 +59,15 @@
 
     if (inUl) result.push('</ul>');
     if (inOl) result.push('</ol>');
-    return result.join('\n');
+    return safeHtml(result.join('\n'), text);
   };
+
+  // Sanitize, or — if the sanitizer somehow isn't loaded — fail closed and
+  // show the source as escaped text rather than ever emitting raw markup.
+  function safeHtml(html, original) {
+    if (global.IronInkSanitize) return global.IronInkSanitize.sanitize(html, 'markdown');
+    var esc = String(original).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return '<p class="guide-p">' + esc.replace(/\n/g, '<br>') + '</p>';
+  }
 
 }(window));

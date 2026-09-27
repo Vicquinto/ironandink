@@ -5,6 +5,12 @@ const { getDailyDevotional, getDevotionalArchive } = require('./dashboard');
 const { injectWithAttribution } = require('../lib/asv');
 const { logEvent } = require('../lib/usageLog');
 
+// JSON for embedding inside an inline <script>: escape '<' as \u003c so the
+// content can never close the script tag early (e.g. a literal "</script>").
+function inlineJson(v) {
+  return JSON.stringify(v).replace(/</g, '\\u003c');
+}
+
 const router = express.Router();
 
 router.get('/devotional', requireAuth, async (req, res) => {
@@ -55,18 +61,26 @@ router.get('/devotional', requireAuth, async (req, res) => {
 
   const scripts = `
   <script>
-    var devotionalText   = ${JSON.stringify(devotionalContent || '')};
+    var devotionalText   = ${inlineJson(devotionalContent || '')};
     var devotChatHistory = [];
-    var archiveEntries   = ${JSON.stringify(archiveEntries)};
+    var archiveEntries   = ${inlineJson(archiveEntries)};
+
+    // Escape plain-text fields before they go into innerHTML strings.
+    function devotEsc(s) {
+      if (window.IronInkSanitize) return window.IronInkSanitize.escape(s);
+      var d = document.createElement('div');
+      d.textContent = s == null ? '' : String(s);
+      return d.innerHTML;
+    }
 
     // ── Render devotional content ──────────────────────────────────────────
     (function() {
       var el = document.getElementById('devotionalContent');
       if (!el || !devotionalText) return;
       try {
-        el.innerHTML = (typeof marked !== 'undefined')
-          ? marked.parse(devotionalText)
-          : '<pre>' + devotionalText + '</pre>';
+        // Shared sanitizer (marked + allowlist); escaped text if it's missing.
+        if (window.IronInkSanitize) el.innerHTML = window.IronInkSanitize.markdown(devotionalText);
+        else el.textContent = devotionalText;
       } catch (e) {
         console.error('Devotional render error:', e);
         el.textContent = devotionalText;
@@ -149,7 +163,8 @@ router.get('/devotional', requireAuth, async (req, res) => {
       el.className = 'devot-msg devot-msg--' + role;
       if (role === 'assistant') {
         try {
-          el.innerHTML = (typeof marked !== 'undefined') ? marked.parse(text) : text;
+          if (window.IronInkSanitize) el.innerHTML = window.IronInkSanitize.markdown(text);
+          else el.textContent = text;
         } catch(e) {
           el.textContent = text;
         }
@@ -195,18 +210,17 @@ router.get('/devotional', requireAuth, async (req, res) => {
         header.innerHTML =
           '<div class="devot-archive-meta">' +
             '<span class="devot-archive-date">' + dateLabel + '</span>' +
-            (entry.scripture ? '<span class="devot-archive-scripture">' + entry.scripture + '</span>' : '') +
+            (entry.scripture ? '<span class="devot-archive-scripture">' + devotEsc(entry.scripture) + '</span>' : '') +
           '</div>' +
-          (entry.snippet ? '<div class="devot-archive-snippet">' + entry.snippet + '</div>' : '') +
+          (entry.snippet ? '<div class="devot-archive-snippet">' + devotEsc(entry.snippet) + '</div>' : '') +
           '<span class="devot-archive-toggle">&#9662;</span>';
 
         var body = document.createElement('div');
         body.className = 'devot-archive-item-body';
         if (entry.content) {
           try {
-            body.innerHTML = (typeof marked !== 'undefined')
-              ? marked.parse(entry.content)
-              : '<pre>' + entry.content + '</pre>';
+            if (window.IronInkSanitize) body.innerHTML = window.IronInkSanitize.markdown(entry.content);
+            else body.textContent = entry.content;
           } catch(e) {
             body.textContent = entry.content;
           }

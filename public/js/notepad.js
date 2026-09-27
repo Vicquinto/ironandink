@@ -32,9 +32,8 @@
   function renderMd(text) {
     if (!text) return '';
     try {
-      if (typeof marked !== 'undefined') {
-        return typeof marked.parse === 'function' ? marked.parse(text) : marked(text);
-      }
+      // Shared sanitizer: marked + allowlist (marked alone passes raw HTML through).
+      if (window.IronInkSanitize) return window.IronInkSanitize.markdown(text);
     } catch (e) { /* fall through */ }
     return '<p>' + esc(text).replace(/\n/g, '<br>') + '</p>';
   }
