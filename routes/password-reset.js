@@ -2,12 +2,41 @@ const express  = require('express');
 const bcrypt   = require('bcrypt');
 const fs       = require('fs');
 const path     = require('path');
-const { randomUUID } = require('crypto');
+const crypto   = require('crypto');
+const sgMail   = require('@sendgrid/mail');
+const { escapeHtml } = require('../lib/html');
 
 const router = express.Router();
 
-const USERS_PATH   = path.join(__dirname, '../data/users.json');
-const RESETS_PATH  = path.join(__dirname, '../data/password_resets.json');
+const DATA_DIR     = path.join(__dirname, '../data');
+const USERS_PATH   = path.join(DATA_DIR, 'users.json');
+const RESETS_PATH  = path.join(DATA_DIR, 'password_resets.json');
+
+// Same SendGrid setup as routes/help.js and routes/invite.js.
+sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
+
+// ── Password reset: how it works ─────────────────────────────────────────────
+// 1. POST /api/forgot-password always answers with the same GENERIC_MESSAGE —
+//    whether or not the email has an account — and does the real work after
+//    the response is sent, so neither the body nor the timing reveals which
+//    emails are registered. The reset link is ONLY ever emailed; it is never
+//    returned in a response or shown on a page.
+// 2. The link is built from APP_BASE_URL (env), never the request's Host
+//    header (which a client controls).
+// 3. Tokens are 256-bit random values. Only their SHA-256 is stored, so the
+//    data file alone can't be used to reset anyone. A token is single-use,
+//    expires RESET_TTL_MS after it is issued, and is invalidated when the same
+//    account requests a newer one or completes a reset.
+// 4. A successful reset stamps users[].passwordChangedAt and ends every
+//    stored session belonging to that user (requireAuth also refuses any
+//    session authenticated before passwordChangedAt — see routes/layout.js).
+// 5. Records are kept (used / invalidated) for RECORD_KEEP_MS as an audit
+//    trail — scripts/reset-audit.js reads them.
+// Both endpoints sit behind rate limiters (server.js).
+const RESET_TTL_MS    = 60 * 60 * 1000;              // 60 minutes
+const RECORD_KEEP_MS  = 90 * 24 * 60 * 60 * 1000;    // audit trail: 90 days
+const GENERIC_MESSAGE = 'If that email has an account, a reset link is on its way.';
+const INVALID_LINK    = 'This reset link is invalid or has expired.';
 
 function readJSON(p) {
   try {
@@ -18,6 +47,179 @@ function readJSON(p) {
 
 function writeJSON(p, data) {
   fs.writeFileSync(p, JSON.stringify(data, null, 2));
+}
+
+function hashToken(token) {
+  return crypto.createHash('sha256').update(String(token)).digest('hex');
+}
+
+// Origin for reset links, from APP_BASE_URL (e.g. https://example.com). Returns
+// null when unset/invalid — callers then send no email and log why.
+function resetBaseUrl() {
+  const raw = (process.env.APP_BASE_URL || '').trim();
+  if (!raw) return null;
+  try {
+    const u = new URL(raw);
+    if (u.protocol !== 'https:' && u.protocol !== 'http:') return null;
+    return u.origin;
+  } catch { return null; }
+}
+
+// ── One-time invalidation of pre-fix tokens ──────────────────────────────────
+// Records written by the old flow stored the token in plain text, and any of
+// them could have been obtained through the old endpoint (which returned the
+// link to whoever asked). On first start they are removed from the live file
+// — so they can never be accepted — but NOT destroyed: they are moved to
+// data/password_resets_legacy_<timestamp>.json with the token value replaced
+// by its SHA-256 (still matchable against access logs, useless for a reset),
+// for scripts/reset-audit.js and your own review. Records in the new format
+// (tokenHash) are untouched, so this is a no-op on every later start.
+(function invalidateLegacyTokens() {
+  let records;
+  try {
+    if (!fs.existsSync(RESETS_PATH)) return;
+    records = JSON.parse(fs.readFileSync(RESETS_PATH, 'utf8'));
+  } catch (err) {
+    console.error('[passwordReset] could not read reset records for legacy invalidation:', err.message);
+    return;
+  }
+  if (!Array.isArray(records)) return;
+  const legacy = records.filter(r => r && r.tokenHash == null);
+  if (!legacy.length) return;
+
+  const stamp   = new Date().toISOString();
+  const archive = {
+    archivedAt: stamp,
+    reason:     'Pre-fix plaintext reset tokens, invalidated when the hashed reset flow first started. ' +
+                'Token values replaced by their SHA-256. The old flow deleted used tokens, so every record here was unused.',
+    records: legacy.map(r => {
+      const copy = Object.assign({}, r);
+      copy.tokenSha256 = r.token != null ? hashToken(r.token) : null;
+      delete copy.token;
+      const exp = Date.parse(r.expiresAt);
+      copy.derivedCreatedAt = isNaN(exp) ? null : new Date(exp - RESET_TTL_MS).toISOString();
+      return copy;
+    }),
+  };
+  const archiveFile = path.join(DATA_DIR, 'password_resets_legacy_' + stamp.replace(/[:.]/g, '-') + '.json');
+  try {
+    fs.writeFileSync(archiveFile, JSON.stringify(archive, null, 2));
+  } catch (err) {
+    // Evidence must not vanish silently: put it in the pm2 log instead.
+    console.error('[passwordReset] could not write legacy archive (' + err.message + '); records follow:',
+      JSON.stringify(archive));
+  }
+  writeJSON(RESETS_PATH, records.filter(r => r && r.tokenHash != null));
+  console.warn('[passwordReset] invalidated ' + legacy.length + ' legacy plaintext reset token(s); archived to ' +
+    path.basename(archiveFile));
+})();
+
+// Index of the live (unused, not invalidated, unexpired) record for `token`, or -1.
+function findValidRecord(records, token) {
+  if (typeof token !== 'string' || !/^[0-9a-f]{64}$/.test(token)) return -1;
+  const h   = hashToken(token);
+  const now = Date.now();
+  return records.findIndex(r =>
+    r && r.tokenHash === h && !r.usedAt && !r.invalidatedAt && Date.parse(r.expiresAt) > now);
+}
+
+// Mark every still-live token of `userId` invalidated (reason recorded), and
+// drop records older than the audit window.
+function invalidateUserTokens(records, userId, whenIso, reason) {
+  const cutoff = Date.now() - RECORD_KEEP_MS;
+  return records.filter(r => r && Date.parse(r.createdAt || r.expiresAt) > cutoff).map(r => {
+    if (r.userId === userId && !r.usedAt && !r.invalidatedAt) {
+      return Object.assign({}, r, { invalidatedAt: whenIso, invalidatedReason: reason });
+    }
+    return r;
+  });
+}
+
+// ── Email ─────────────────────────────────────────────────────────────────────
+// Best-effort, self-contained (like the other SendGrid senders): failures are
+// logged, never surfaced to the requester. Neither the address nor the link is
+// logged.
+async function sendResetEmail(user, resetUrl) {
+  if (!process.env.SENDGRID_API_KEY) {
+    console.warn('[passwordReset] SENDGRID_API_KEY not set — reset email not sent');
+    return;
+  }
+  const name = (user.fullName || '').trim() || 'Friend';
+  try {
+    await sgMail.send({
+      to:      user.email,
+      from:    { email: process.env.SENDGRID_FROM_EMAIL, name: 'Iron & Ink' },
+      subject: 'Reset your Iron & Ink password',
+      text: `${name},\n\nWe received a request to reset the password for your Iron & Ink account. ` +
+        `Use the link below to choose a new one:\n\n${resetUrl}\n\n` +
+        `This link works once and expires in 60 minutes. If you didn't ask for this, you can ignore this email — ` +
+        `your password stays the same.\n\nSoli Deo Gloria,\nIron & Ink`,
+      html: `<p>${escapeHtml(name)},</p>
+<p>We received a request to reset the password for your Iron &amp; Ink account. Use the link below to choose a new one:</p>
+<p><a href="${escapeHtml(resetUrl)}">Reset my password</a></p>
+<p style="font-size:0.9em;color:#555;">Or paste this address into your browser:<br>${escapeHtml(resetUrl)}</p>
+<p>This link works once and expires in 60 minutes. If you didn't ask for this, you can ignore this email &mdash; your password stays the same.</p>
+<p><em>Soli Deo Gloria,</em><br>Iron &amp; Ink</p>`,
+    });
+    console.log('[passwordReset] reset email sent for user', user.id);
+  } catch (err) {
+    console.error('[passwordReset] reset email failed for user', user.id + ':', err.message);
+  }
+}
+
+// Issue a token for `email` if (and only if) it belongs to an active account.
+// Runs AFTER the generic response has been sent.
+function issueReset(email) {
+  const user = readJSON(USERS_PATH).find(u => String(u.email || '').toLowerCase() === email);
+  if (!user || user.isActive === false) return;
+
+  const base = resetBaseUrl();
+  if (!base) {
+    console.error('[passwordReset] APP_BASE_URL is not set to a valid http(s) URL — cannot build a reset link, no email sent');
+    return;
+  }
+
+  const token = crypto.randomBytes(32).toString('hex');
+  const now   = new Date();
+  const records = invalidateUserTokens(readJSON(RESETS_PATH), user.id, now.toISOString(), 'superseded by a newer request');
+  records.push({
+    id:            crypto.randomUUID(),
+    tokenHash:     hashToken(token),
+    userId:        user.id,
+    createdAt:     now.toISOString(),
+    expiresAt:     new Date(now.getTime() + RESET_TTL_MS).toISOString(),
+    usedAt:        null,
+    invalidatedAt: null,
+  });
+  writeJSON(RESETS_PATH, records);
+
+  sendResetEmail(user, base + '/reset-password?token=' + token);
+}
+
+// End every stored session belonging to `userId` (session-file-store: list()
+// yields "<sid>.json" file names; get/destroy take the bare sid). Resolves to
+// the number of sessions ended; never rejects.
+function endUserSessions(store, userId) {
+  return new Promise(resolve => {
+    if (!store || typeof store.list !== 'function' || typeof store.get !== 'function') return resolve(0);
+    store.list((err, files) => {
+      if (err || !Array.isArray(files) || !files.length) return resolve(0);
+      let pending = files.length;
+      let ended   = 0;
+      const done  = () => { if (--pending === 0) resolve(ended); };
+      files.forEach(file => {
+        const sid = String(file).replace(/\.json$/, '');
+        store.get(sid, (getErr, sess) => {
+          if (!getErr && sess && sess.userId === userId) {
+            ended++;
+            store.destroy(sid, done);
+          } else {
+            done();
+          }
+        });
+      });
+    });
+  });
 }
 
 function publicStyles() {
@@ -65,7 +267,6 @@ function publicStyles() {
         color:var(--dark-cream); padding:16px 18px; border-radius:6px;
         font-size:0.9rem; line-height:1.7; word-break:break-all;
       }
-      .reset-link { color:var(--accent); font-family:'Courier New',monospace; font-size:0.82rem; }
       .pub-footer { text-align:center; font-size:0.75rem; color:var(--warm-brown); margin-top:20px; }
       .pub-footer a { color:var(--warm-brown); text-decoration:none; }
     </style>`;
@@ -117,16 +318,20 @@ router.get('/forgot-password', (req, res) => {
         });
         var data = await res.json();
         if (data.success) {
+          // Same message for every address — the link itself only ever goes by email.
           document.getElementById('forgotForm').style.display = 'none';
           var box = document.getElementById('resultBox');
-          box.innerHTML = '<p style="margin-bottom:12px; color:var(--dark-cream);">Your password reset link:</p>' +
-            '<p class="reset-link"></p>' +
-            '<p style="margin-top:12px; font-size:0.8rem; color:var(--warm-brown);">Copy this link and open it in your browser. It expires in 1 hour.</p>' +
-            '<p style="margin-top:8px; font-size:0.78rem; color:var(--warm-brown); font-style:italic;">Note: when deployed, this link will be sent via email instead.</p>';
-          box.querySelector('.reset-link').textContent = data.resetUrl;
+          var msg = document.createElement('p');
+          msg.style.color = 'var(--dark-cream)';
+          msg.textContent = data.message || 'If that email has an account, a reset link is on its way.';
+          var hint = document.createElement('p');
+          hint.style.cssText = 'margin-top:10px; font-size:0.8rem; color:var(--warm-brown);';
+          hint.textContent = 'Check your inbox (and spam folder). The link works once and expires in 60 minutes.';
+          box.appendChild(msg);
+          box.appendChild(hint);
           box.style.display = 'block';
         } else {
-          errEl.textContent = data.error || 'Failed to generate reset link.';
+          errEl.textContent = data.error || 'Something went wrong. Please try again.';
           errEl.classList.add('visible');
           btn.disabled = false;
         }
@@ -142,40 +347,31 @@ router.get('/forgot-password', (req, res) => {
 });
 
 // ─── POST /api/forgot-password ────────────────────────────────────────────────
+// Same response for every well-formed address; the work happens after the
+// response is sent (see issueReset). Rate-limited in server.js.
 router.post('/api/forgot-password', (req, res) => {
-  const { email } = req.body;
-  if (!email) return res.status(400).json({ success: false, error: 'Email is required.' });
-
-  const users = readJSON(USERS_PATH);
-  const user  = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-
-  if (!user) {
-    return res.json({ success: false, error: 'No account found with that email address.' });
+  const email = typeof (req.body && req.body.email) === 'string' ? req.body.email.trim().toLowerCase() : '';
+  if (!email || email.length > 254 || email.indexOf('@') < 1) {
+    return res.status(400).json({ success: false, error: 'Please enter a valid email address.' });
   }
-
-  const token     = randomUUID();
-  const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
-
-  const resets = readJSON(RESETS_PATH).filter(r => r.userId !== user.id);
-  resets.push({ id: randomUUID(), token, userId: user.id, email: user.email, expiresAt });
-  writeJSON(RESETS_PATH, resets);
-
-  const host     = req.get('host') || 'localhost:4000';
-  const protocol = req.secure ? 'https' : 'http';
-  const resetUrl = `${protocol}://${host}/reset-password?token=${token}`;
-
-  res.json({ success: true, resetUrl });
+  res.json({ success: true, message: GENERIC_MESSAGE });
+  setImmediate(() => {
+    try { issueReset(email); }
+    catch (err) { console.error('[passwordReset] issue failed:', err.message); }
+  });
 });
 
 // ─── GET /reset-password?token=xxx ───────────────────────────────────────────
 router.get('/reset-password', (req, res) => {
   if (req.session.userId) return res.redirect('/dashboard');
 
-  const { token } = req.query;
-  const resets    = readJSON(RESETS_PATH);
-  const record    = resets.find(r => r.token === token);
+  // The token is in this URL: never cache the page, and never send the URL
+  // onward as a Referer.
+  res.set('Cache-Control', 'no-store');
+  res.set('Referrer-Policy', 'no-referrer');
 
-  if (!record || new Date(record.expiresAt) < new Date()) {
+  const { token } = req.query;
+  if (findValidRecord(readJSON(RESETS_PATH), token) === -1) {
     return res.send(`<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -275,10 +471,15 @@ router.get('/reset-password', (req, res) => {
 });
 
 // ─── POST /api/reset-password ─────────────────────────────────────────────────
+// Rate-limited in server.js. The token is consumed BEFORE the (async) password
+// hash, so two concurrent submits of one link can't both succeed.
 router.post('/api/reset-password', async (req, res) => {
-  const { token, password, confirm } = req.body;
+  const { token, password, confirm } = req.body || {};
 
   if (!token || !password || !confirm) {
+    return res.status(400).json({ success: false, error: 'All fields are required.' });
+  }
+  if (typeof password !== 'string' || typeof confirm !== 'string') {
     return res.status(400).json({ success: false, error: 'All fields are required.' });
   }
   if (password.length < 8) {
@@ -288,24 +489,43 @@ router.post('/api/reset-password', async (req, res) => {
     return res.json({ success: false, error: 'Passwords do not match.' });
   }
 
-  const resets = readJSON(RESETS_PATH);
-  const idx    = resets.findIndex(r => r.token === token);
-  const record = resets[idx];
+  let records = readJSON(RESETS_PATH);
+  const idx   = findValidRecord(records, token);
+  if (idx === -1) return res.json({ success: false, error: INVALID_LINK });
+  const userId = records[idx].userId;
 
-  if (!record || new Date(record.expiresAt) < new Date()) {
-    return res.json({ success: false, error: 'This reset link is invalid or has expired.' });
+  const user = readJSON(USERS_PATH).find(u => u.id === userId);
+  if (!user || user.isActive === false) return res.json({ success: false, error: INVALID_LINK });
+
+  // Single use: mark this token used and every other live token of the account
+  // invalidated, and persist that first.
+  const usedAt = new Date().toISOString();
+  records[idx] = Object.assign({}, records[idx], { usedAt });
+  records = invalidateUserTokens(records, userId, usedAt, 'password reset completed');
+  writeJSON(RESETS_PATH, records);
+
+  let passwordHash;
+  try {
+    passwordHash = await bcrypt.hash(password, 10);
+  } catch (err) {
+    console.error('[passwordReset] hash failed:', err.message);
+    return res.status(500).json({ success: false, error: 'Something went wrong. Please request a new reset link.' });
   }
 
+  // Re-read after the await so a concurrent write to users.json isn't lost.
   const users   = readJSON(USERS_PATH);
-  const userIdx = users.findIndex(u => u.id === record.userId);
-  if (userIdx === -1) return res.json({ success: false, error: 'User not found.' });
-
-  users[userIdx].passwordHash = await bcrypt.hash(password, 10);
-  users[userIdx].updatedAt    = new Date().toISOString();
+  const userIdx = users.findIndex(u => u.id === userId);
+  if (userIdx === -1) return res.json({ success: false, error: INVALID_LINK });
+  const changedAt = new Date().toISOString();
+  users[userIdx].passwordHash      = passwordHash;
+  users[userIdx].passwordChangedAt = changedAt;
+  users[userIdx].updatedAt         = changedAt;
   writeJSON(USERS_PATH, users);
 
-  resets.splice(idx, 1);
-  writeJSON(RESETS_PATH, resets);
+  // Sign the account out everywhere (requireAuth's passwordChangedAt check is
+  // the backstop for anything this misses).
+  const ended = await endUserSessions(req.sessionStore, userId);
+  console.log('[passwordReset] password reset completed for user', userId, '- ended', ended, 'session(s)');
 
   res.json({ success: true, redirect: '/login?reset=1' });
 });

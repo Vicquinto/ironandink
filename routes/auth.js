@@ -73,6 +73,7 @@ router.post('/api/login', async (req, res) => {
   }
 
   req.session.userId = user.id;
+  req.session.authAt = Date.now();   // see requireAuth's passwordChangedAt check
   req.session.user = {
     id:       user.id,
     email:    user.email,
@@ -119,6 +120,7 @@ router.post('/api/setup-password', async (req, res) => {
 
   delete req.session.setupEmail;
   req.session.userId = users[idx].id;
+  req.session.authAt = Date.now();   // see requireAuth's passwordChangedAt check
   req.session.user = {
     id:       users[idx].id,
     email:    users[idx].email,

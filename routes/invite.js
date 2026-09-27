@@ -839,6 +839,7 @@ router.post('/api/register', async (req, res) => {
     }
 
     req.session.userId     = user.id;
+    req.session.authAt     = Date.now();   // see requireAuth's passwordChangedAt check
     req.session.firstLogin = true;
     req.session.user = {
       id:       user.id,

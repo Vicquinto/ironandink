@@ -17,6 +17,17 @@ function requireAuth(req, res, next) {
     if (user && user.isActive === false) {
       return req.session.destroy(() => res.redirect('/login?suspended=1'));
     }
+    // Password reset backstop: a session authenticated before the account's
+    // last password change is over (the reset also deletes stored sessions
+    // directly — this catches anything that missed). authAt is stamped at
+    // every sign-in; a session without it predates this check, so it counts
+    // as "before" — only for accounts that have reset since.
+    if (user && user.passwordChangedAt) {
+      const changedAt = Date.parse(user.passwordChangedAt);
+      if (!isNaN(changedAt) && !(req.session.authAt >= changedAt)) {
+        return req.session.destroy(() => res.redirect('/login'));
+      }
+    }
   } catch { /* fail open */ }
   next();
 }

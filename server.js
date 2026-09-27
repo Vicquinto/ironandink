@@ -435,6 +435,25 @@ const inviteRequestLimiter = rateLimit({
   legacyHeaders:   false,
 });
 
+// Password reset: requesting a link (per IP) and submitting a new password.
+// A request always gets the same answer, so this mainly stops email flooding
+// and bulk probing; the submit limit bounds guessing on the reset form.
+const forgotPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max:      5,
+  message:  { success: false, error: 'Too many reset requests. Please try again in 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders:   false,
+});
+
+const resetPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max:      10,
+  message:  { success: false, error: 'Too many attempts. Please try again in 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders:   false,
+});
+
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
   max:      60,
@@ -446,6 +465,8 @@ const apiLimiter = rateLimit({
 app.post('/api/login',          loginLimiter);
 app.post('/api/register',       registerLimiter);
 app.post('/api/invite-request', inviteRequestLimiter);
+app.post('/api/forgot-password', forgotPasswordLimiter);
+app.post('/api/reset-password',  resetPasswordLimiter);
 app.use('/api/',                apiLimiter);
 
 // ─── Routes ───────────────────────────────────────────────────────────────
