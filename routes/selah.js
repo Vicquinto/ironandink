@@ -1,4 +1,5 @@
 const express        = require('express');
+const { escapeHtml, inlineJson } = require('../lib/html');
 const fs             = require('fs');
 const path           = require('path');
 const Anthropic      = require('@anthropic-ai/sdk');
@@ -80,8 +81,8 @@ router.get('/selah', requireAuth, (req, res) => {
     </div>`;
 
   const scripts = `
-  <script>var SELAH_INIT_ENTRIES = ${JSON.stringify(entries)};</script>
-  <script src="/js/selah.js"></script>`;
+  <script>var SELAH_INIT_ENTRIES = ${inlineJson(entries)};</script>
+  <script src="/js/selah.js?v=2"></script>`;
 
   res.send(renderLayout({
     req,

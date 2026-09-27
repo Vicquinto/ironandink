@@ -1,6 +1,7 @@
 const express   = require('express');
 const fs        = require('fs');
 const path      = require('path');
+const { escapeHtml, inlineJson } = require('../lib/html');
 const Anthropic = require('@anthropic-ai/sdk');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
 const { renderDashboardPanel: renderWhatsNewPanel } = require('./whats-new');
@@ -395,15 +396,15 @@ router.get('/dashboard', requireAuth, (req, res) => {
       <span style="color:var(--warm-brown); font-size:0.8rem;">&#10005;</span>
     </div>` : ''}
     <div class="page-header">
-      <h2 class="page-title" id="greeting">Good day, ${firstName}.</h2>
+      <h2 class="page-title" id="greeting">Good day, ${escapeHtml(firstName)}.</h2>
       <p class="page-subtitle">May your study be fruitful to the glory of God.</p>
     </div>
 
     <div class="verse-card">
       <div class="verse-label">Verse of the Day</div>
-      <div class="verse-text">"${verse.text}"</div>
-      <div class="verse-ref">${verse.ref} — ${verse.source}</div>
-      ${verse.source === 'NASB 1995' ? `<div class="verse-copyright">${NASB_ATTRIBUTION}</div>` : ''}
+      <div class="verse-text">"${escapeHtml(verse.text)}"</div>
+      <div class="verse-ref">${escapeHtml(verse.ref)} — ${escapeHtml(verse.source)}</div>
+      ${verse.source === 'NASB 1995' ? `<div class="verse-copyright">${escapeHtml(NASB_ATTRIBUTION)}</div>` : ''}
     </div>
 
     <div class="stat-cards">
@@ -440,7 +441,7 @@ router.get('/dashboard', requireAuth, (req, res) => {
     (function() {
       const h = new Date().getHours();
       const greeting = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
-      document.getElementById('greeting').textContent = greeting + ', ${firstName}.';
+      document.getElementById('greeting').textContent = greeting + ', ' + ${inlineJson(firstName)} + '.';
     })();
   </script>`;
 

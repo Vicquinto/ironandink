@@ -28,16 +28,22 @@
     }
   }
 
+  // Verse text is plain text (API.Bible JSON text nodes / the ASV file); escape
+  // it so nothing from an external source is ever parsed as markup.
+  function escText(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
   // Render a chapter: NASB 1995 (primary) or ASV (silent fallback), with the
   // source-appropriate copyright notice the server supplies. Both translations use
   // the same numbered-verse markup.
   function renderChapter(bookName, chapter, verses, copyright) {
     heading.textContent = bookName + ' ' + chapter;
     var html = (verses || []).map(function (v) {
-      return '<p class="scripture-verse"><sup class="verse-num">' + v.verse + '</sup>' + v.text + '</p>';
+      return '<p class="scripture-verse"><sup class="verse-num">' + escText(v.verse) + '</sup>' + escText(v.text) + '</p>';
     }).join('');
     if (copyright) {
-      html += '<p class="scripture-copyright">' + copyright + '</p>';
+      html += '<p class="scripture-copyright">' + escText(copyright) + '</p>';
     }
     body.innerHTML = html;
     var v = pendingScrollVerse;

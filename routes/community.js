@@ -4,6 +4,7 @@ const path       = require('path');
 const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
 const { sanitizeArticleHtml } = require('../lib/articleHtml');
+const { escapeHtml, inlineJson } = require('../lib/html');
 
 const router        = express.Router();
 const ARTICLES_PATH = path.join(__dirname, '../data/articles.json');
@@ -150,11 +151,11 @@ router.get('/community', requireAuth, (req, res) => {
     scripts: `
       <script>
         window.IS_ADMIN = ${isAdmin};
-        window.CURRENT_USER_ID = ${JSON.stringify(req.session.userId)};
+        window.CURRENT_USER_ID = ${inlineJson(req.session.userId)};
       </script>
-      <script src="/js/study-badges.js?v=3"></script>
+      <script src="/js/study-badges.js?v=4"></script>
       <script src="/js/article-html.js?v=2"></script>
-      <script src="/js/community.js?v=19"></script>
+      <script src="/js/community.js?v=20"></script>
       <script src="/js/render-markdown.js?v=2"></script>
       <script src="/js/enhance-further-studies.js?v=2"></script>
       <script src="/js/library.js?v=61"></script>`,

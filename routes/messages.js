@@ -111,7 +111,7 @@ router.get('/messages', requireAuth, (req, res) => {
 window.__dm       = ${safeJson({ threads: myThreads, users: allUsers, me: userId })};
 window.__presence = ${safeJson({ online: onlineList })};
 </script>
-<script src="/js/messages.js?v=4"></script>`;
+<script src="/js/messages.js?v=5"></script>`;
 
   res.send(renderLayout({ req, activeSection: 'messages', title: 'Messages', content, scripts }));
 });

@@ -248,15 +248,16 @@
   }
 
   function renderThread(thread) {
-    var otherId   = thread.participants.find(function (p) { return p !== ME; });
-    var otherName = esc(getUserName(otherId));
+    var otherId      = thread.participants.find(function (p) { return p !== ME; });
+    var otherNameRaw = getUserName(otherId);
+    var otherName    = esc(otherNameRaw);
 
     var msgs = thread.messages.map(function (m) {
       var mine = m.senderId === ME;
       return (
         '<div class="dm-msg ' + (mine ? 'mine' : 'theirs') + '">' +
           '<div class="dm-sender">' +
-            (mine ? 'You' : esc(m.senderName || otherName)) +
+            (mine ? 'You' : esc(m.senderName || otherNameRaw)) +
             ' &middot; <span class="dm-time">' + fmtTime(m.sentAt) + '</span>' +
           '</div>' +
           '<div class="dm-bubble">' + nl2br(m.text) + '</div>' +

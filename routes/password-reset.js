@@ -120,9 +120,10 @@ router.get('/forgot-password', (req, res) => {
           document.getElementById('forgotForm').style.display = 'none';
           var box = document.getElementById('resultBox');
           box.innerHTML = '<p style="margin-bottom:12px; color:var(--dark-cream);">Your password reset link:</p>' +
-            '<p class="reset-link">' + data.resetUrl + '</p>' +
+            '<p class="reset-link"></p>' +
             '<p style="margin-top:12px; font-size:0.8rem; color:var(--warm-brown);">Copy this link and open it in your browser. It expires in 1 hour.</p>' +
             '<p style="margin-top:8px; font-size:0.78rem; color:var(--warm-brown); font-style:italic;">Note: when deployed, this link will be sent via email instead.</p>';
+          box.querySelector('.reset-link').textContent = data.resetUrl;
           box.style.display = 'block';
         } else {
           errEl.textContent = data.error || 'Failed to generate reset link.';

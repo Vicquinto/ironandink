@@ -4,6 +4,7 @@ const path     = require('path');
 const ExcelJS  = require('exceljs');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
 const { sanitizeArticleHtml } = require('../lib/articleHtml');
+const { escapeHtml, inlineJson } = require('../lib/html');
 const { listDevotionals, deleteDevotional, clearAllDevotionals } = require('./dashboard');
 const { readEvents, writeEvents } = require('../lib/usageLog');
 // Invite provisioning (create record + email link) lives in one shared module so
@@ -250,10 +251,10 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
     activeSection: 'admin',
     title:         'Admin Panel',
     content,
-    scripts: `<script>window.ADMIN_TABS = ${JSON.stringify(ADMIN_TABS)};</script>
-<script src="/js/study-badges.js?v=3"></script>
+    scripts: `<script>window.ADMIN_TABS = ${inlineJson(ADMIN_TABS)};</script>
+<script src="/js/study-badges.js?v=4"></script>
 <script src="/js/article-html.js?v=2"></script>
-<script src="/js/admin.js?v=23"></script>
+<script src="/js/admin.js?v=24"></script>
 <script>
 (function () {
   var form     = document.getElementById('directInviteForm');

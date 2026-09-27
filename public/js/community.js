@@ -86,7 +86,7 @@
     return '<div class="community-card" data-id="' + esc(a.id) + '">' +
       '<h3 class="community-card-title">' + esc(a.title) + '</h3>' +
       '<div class="community-card-meta">' +
-        '<span class="tier-badge-sm">Tier ' + a.tier + '</span>' +
+        '<span class="tier-badge-sm">Tier ' + esc(a.tier) + '</span>' +
         '<span class="form-badge form-badge-' + esc(a.form || 'article') + '">' + formLabel + '</span>' +
         studyLevelBadge(a.studyLevel) +
         '<span class="community-card-author">' + esc(a.authorName || '') + '</span>' +
@@ -129,7 +129,7 @@
       var formLabel = formDisplayLabel(a.form);
       if (communityReadBadges) {
         communityReadBadges.innerHTML =
-          '<span class="tier-badge-sm">Tier ' + a.tier + '</span> ' +
+          '<span class="tier-badge-sm">Tier ' + esc(a.tier) + '</span> ' +
           '<span class="form-badge form-badge-' + esc(a.form || 'article') + '">' + formLabel + '</span>' +
           (a.studyLevel ? ' ' + studyLevelBadge(a.studyLevel) : '');
       }

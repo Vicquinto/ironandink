@@ -72,13 +72,13 @@
       var msg = (filter && filter !== 'All')
         ? 'No ' + filter + ' entries yet.'
         : 'No entries yet. Begin writing above.';
-      entryList.innerHTML = '<p class="selah-no-entries">' + msg + '</p>';
+      entryList.innerHTML = '<p class="selah-no-entries">' + escapeHtml(msg) + '</p>';
       return;
     }
 
     entryList.innerHTML = entries.map(function (e) {
       var cat      = e.category || 'Journal';
-      var catSlug  = cat.toLowerCase();
+      var catSlug  = escapeHtml(String(cat).toLowerCase());
       var catBadge = '<span class="selah-cat-badge selah-cat-badge--' + catSlug + '">' + escapeHtml(cat) + '</span>';
 
       var titleHtml = e.title
@@ -90,7 +90,7 @@
         : e.content;
 
       return (
-        '<div class="selah-entry" data-id="' + e.id + '">' +
+        '<div class="selah-entry" data-id="' + escapeHtml(e.id) + '">' +
           '<div class="selah-entry-header">' +
             '<div class="selah-entry-header-left">' +
               catBadge +
@@ -99,16 +99,16 @@
             '<span class="selah-entry-date">' + formatDate(e.createdAt) + '</span>' +
           '</div>' +
           '<div class="selah-entry-preview">' + escapeHtml(preview) + '</div>' +
-          '<div class="selah-entry-full" id="full-' + e.id + '" style="display:none;">' + escapeHtml(e.content) + '</div>' +
+          '<div class="selah-entry-full" id="full-' + escapeHtml(e.id) + '" style="display:none;">' + escapeHtml(e.content) + '</div>' +
           (e.reflectionText
-            ? '<div class="selah-entry-reflection" id="refl-' + e.id + '" style="display:none;">' +
+            ? '<div class="selah-entry-reflection" id="refl-' + escapeHtml(e.id) + '" style="display:none;">' +
                 '<div class="selah-reflect-label">A word for your reflection</div>' +
                 '<div class="selah-reflect-text">' + escapeHtml(e.reflectionText) + '</div>' +
               '</div>'
             : '') +
           '<div class="selah-entry-footer">' +
-            '<button class="selah-expand-btn" data-id="' + e.id + '">Read</button>' +
-            '<button class="selah-delete-btn" data-id="' + e.id + '">Delete</button>' +
+            '<button class="selah-expand-btn" data-id="' + escapeHtml(e.id) + '">Read</button>' +
+            '<button class="selah-delete-btn" data-id="' + escapeHtml(e.id) + '">Delete</button>' +
           '</div>' +
         '</div>'
       );

@@ -14,7 +14,11 @@
     var t = type || 'doctrinal';
     if (t === 'deepdive') t = 'explore'; // legacy records saved under the old Deep Dive key
     var labels = { doctrinal: 'DOCTRINAL', explore: 'EXPLORE', historical: 'HISTORICAL', scripture: 'SCRIPTURE', open: 'OPEN', people: 'SUBJECT', pathway: 'PATHWAY', book: 'BOOK' };
-    var label  = labels[t] || 'DOCTRINAL';
+    // studyType is stored as the client sent it (and shared studies render on
+    // other members' screens), so only a KNOWN key ever reaches the class
+    // attribute; anything else renders as the default.
+    if (!Object.prototype.hasOwnProperty.call(labels, t)) t = 'doctrinal';
+    var label  = labels[t];
     return '<span class="study-type-badge study-type-badge-' + t + '">' + label + '</span>';
   };
 
@@ -22,7 +26,7 @@
   // fabricates one, so a study saved without a level simply carries no level badge.
   global.studyLevelBadge = function studyLevelBadge(level) {
     var labels = { children: 'CHILDREN’S', foundations: 'APPRENTICE', journeyman: 'JOURNEYMAN', scholar: 'SCHOLAR' };
-    var label  = labels[level];
+    var label  = Object.prototype.hasOwnProperty.call(labels, level) ? labels[level] : '';
     if (!label) return '';
     return '<span class="study-level-badge study-level-badge-' + level + '">' + label + '</span>';
   };

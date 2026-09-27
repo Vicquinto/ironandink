@@ -239,7 +239,7 @@
           '<span class="article-status-badge status-pending">Pending</span>' +
         '</div>' +
         '<div class="article-card-meta">' +
-          '<span class="tier-badge-sm">Tier ' + a.tier + '</span>' +
+          '<span class="tier-badge-sm">Tier ' + esc(a.tier) + '</span>' +
           '<span class="form-badge form-badge-' + esc(a.form || 'article') + '">' + formLabel + '</span>' +
           '<span class="community-card-author">' + esc(a.authorName || '') + '</span>' +
           '<span class="article-card-date">' + fmtDate(a.updatedAt) + '</span>' +
@@ -301,7 +301,7 @@
           '<span class="article-status-badge status-published">Published</span>' +
         '</div>' +
         '<div class="article-card-meta">' +
-          '<span class="tier-badge-sm">Tier ' + a.tier + '</span>' +
+          '<span class="tier-badge-sm">Tier ' + esc(a.tier) + '</span>' +
           '<span class="form-badge form-badge-' + esc(a.form || 'article') + '">' + formLabel + '</span>' +
           '<span class="community-card-author">' + esc(a.authorName || '') + '</span>' +
           '<span class="article-card-date">' + fmtDate(a.publishedAt || a.updatedAt) + '</span>' +
@@ -357,7 +357,7 @@
 
       var formLabel = formDisplayLabel(a.form);
       adminReadBadges.innerHTML =
-        '<span class="tier-badge-sm">Tier ' + a.tier + '</span> ' +
+        '<span class="tier-badge-sm">Tier ' + esc(a.tier) + '</span> ' +
         '<span class="form-badge form-badge-' + esc(a.form || 'article') + '">' + formLabel + '</span>';
 
       adminReadBody.innerHTML = renderArticleBody(a);

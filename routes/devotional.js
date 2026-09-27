@@ -4,12 +4,9 @@ const { requireAuth, renderLayout }  = require('./layout');
 const { getDailyDevotional, getDevotionalArchive } = require('./dashboard');
 const { injectWithAttribution } = require('../lib/asv');
 const { logEvent } = require('../lib/usageLog');
+const { escapeHtml, inlineJson } = require('../lib/html');
 
-// JSON for embedding inside an inline <script>: escape '<' as \u003c so the
-// content can never close the script tag early (e.g. a literal "</script>").
-function inlineJson(v) {
-  return JSON.stringify(v).replace(/</g, '\\u003c');
-}
+// inlineJson (lib/html.js): JSON for inline <script> embeds, '<' escaped.
 
 const router = express.Router();
 

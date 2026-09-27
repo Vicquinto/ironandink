@@ -1,5 +1,6 @@
 const fs   = require('fs');
 const path = require('path');
+const { escapeHtml, inlineJson } = require('../lib/html');
 const { BILLING_ENABLED, getEntitlements } = require('../lib/entitlements');
 const USERS_PATH_L    = path.join(__dirname, '../data/users.json');
 const MESSAGES_PATH_L = path.join(__dirname, '../data/messages.json');
@@ -131,7 +132,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '', head =
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${title} — Iron &amp; Ink</title>
+  <title>${escapeHtml(title)} — Iron &amp; Ink</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/shepherd.css">
   ${head}
@@ -189,9 +190,9 @@ function renderLayout({ req, activeSection, title, content, scripts = '', head =
   </div>
   <script>
     window.__currentPage    = '${activeSection}';
-    window.__toursSeen      = ${JSON.stringify(toursSeen)};
+    window.__toursSeen      = ${inlineJson(toursSeen)};
     window.__dmUnread       = ${dmUnread};
-    window.__currentUserId  = ${JSON.stringify(userId || '')};
+    window.__currentUserId  = ${inlineJson(userId || '')};
   </script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="/js/html-sanitizer.js?v=1"></script>

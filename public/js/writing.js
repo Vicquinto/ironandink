@@ -2368,7 +2368,7 @@
           '<span class="article-card-title">' + esc(a.title) + '</span>' +
         '</div>' +
         '<div class="article-card-meta">' +
-          '<span class="tier-badge-sm">Tier ' + a.tier + '</span>' +
+          '<span class="tier-badge-sm">Tier ' + esc(a.tier) + '</span>' +
           '<span class="form-badge form-badge-' + esc(a.form || 'article') + '">' + formLabel + '</span>' +
           '<span class="article-card-date">' + fmtDate(a.updatedAt || a.createdAt) + '</span>' +
         '</div>' +

@@ -3,6 +3,7 @@ const fs             = require('fs');
 const path           = require('path');
 const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
+const { escapeHtml, inlineJson } = require('../lib/html');
 const { logEvent } = require('../lib/usageLog');
 const { getEntitlements } = require('../lib/entitlements');
 
@@ -122,7 +123,7 @@ router.get('/rooms', requireAuth, (req, res) => {
     activeSection: 'rooms',
     title:         'Live Study Rooms',
     content,
-    scripts: `<script>window.USER_STUDY_LEVEL = ${JSON.stringify((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};</script><script src="/js/study-badges.js?v=3"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/rooms.js?v=6"></script><script src="/js/library.js?v=61"></script>`,
+    scripts: `<script>window.USER_STUDY_LEVEL = ${inlineJson((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};</script><script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/rooms.js?v=6"></script><script src="/js/library.js?v=61"></script>`,
   }));
 });
 
@@ -211,9 +212,9 @@ router.get('/room/:code', requireAuth, (req, res) => {
     </div>`,
       scripts: `
   <script>
-    window.ROOM_CODE    = ${JSON.stringify(room.code)};
-    window.CURRENT_USER = ${JSON.stringify({ id: userId, name: userName, email: user ? user.email : '' })};
-    window.ROOM_CHAT    = ${JSON.stringify(room.chat || [])};
+    window.ROOM_CODE    = ${inlineJson(room.code)};
+    window.CURRENT_USER = ${inlineJson({ id: userId, name: userName, email: user ? user.email : '' })};
+    window.ROOM_CHAT    = ${inlineJson(room.chat || [])};
   </script>
   <script>
     (function () {
@@ -267,7 +268,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
       }
     })();
   </script>
-  <script src="/js/study-badges.js?v=3"></script>
+  <script src="/js/study-badges.js?v=4"></script>
   <script src="/js/render-markdown.js?v=2"></script>
   <script src="/js/enhance-further-studies.js?v=2"></script>
   <script src="/js/library.js?v=61"></script>`,
@@ -352,14 +353,14 @@ router.get('/room/:code', requireAuth, (req, res) => {
     content,
     scripts: `
   <script>
-    window.ROOM_CODE    = ${JSON.stringify(room.code)};
-    window.CURRENT_USER = ${JSON.stringify({ id: userId, name: userName, email: user ? user.email : '' })};
-    window.ROOM_HOST    = ${JSON.stringify(hostEmail)};
-    window.ROOM_STUDY       = ${room.study ? JSON.stringify(room.study) : 'null'};
-    window.ROOM_CHAT        = ${JSON.stringify(room.chat || [])};
+    window.ROOM_CODE    = ${inlineJson(room.code)};
+    window.CURRENT_USER = ${inlineJson({ id: userId, name: userName, email: user ? user.email : '' })};
+    window.ROOM_HOST    = ${inlineJson(hostEmail)};
+    window.ROOM_STUDY       = ${room.study ? inlineJson(room.study) : 'null'};
+    window.ROOM_CHAT        = ${inlineJson(room.chat || [])};
     window.IS_ADMIN         = ${getIsAdmin(req)};
   </script>
-  <script src="/js/study-badges.js?v=3"></script>
+  <script src="/js/study-badges.js?v=4"></script>
   <script src="/js/render-markdown.js?v=2"></script>
   <script src="/js/enhance-further-studies.js?v=2"></script>
   <script src="/js/room.js?v=25"></script>

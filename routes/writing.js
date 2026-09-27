@@ -11,7 +11,7 @@ const { sanitizeArticleHtml } = require('../lib/articleHtml');
 
 // Cache-busters for the Writing page's own assets (bump when they change).
 const QUILL_ASSET_VER   = '2.0.3';
-const WRITING_ASSET_VER = '41';
+const WRITING_ASSET_VER = '42';
 
 const router       = express.Router();
 
@@ -39,6 +39,34 @@ function getStudyLevelInstruction(settings) {
   return STUDY_LEVEL_INSTRUCTIONS[level] || STUDY_LEVEL_INSTRUCTIONS.journeyman;
 }
 const ARTICLES_PATH = path.join(__dirname, '../data/articles.json');
+
+// ── Article field validation ─────────────────────────────────────────────────
+// tier / form / status arrive from the client on every save and are later
+// rendered on other members' screens (Community, Admin), so they are held to
+// their known values here rather than stored as sent.
+//  - tier:   1, 2 or 3
+//  - form:   one of the four writing forms
+//  - status: a writer may only set Draft or Complete. Pending and Published
+//            are reached through Submit for Review and admin approval; a save
+//            that echoes the article's CURRENT status (auto-save of a Pending
+//            or Published piece) keeps it. Anything else keeps the current
+//            status. (Before this, a PUT with status "Published" published an
+//            article without review.)
+const ARTICLE_TIERS    = [1, 2, 3];
+const ARTICLE_FORMS    = ['article', 'sermon', 'letter', 'teaching'];
+const WRITER_STATUSES  = ['Draft', 'Complete'];
+
+function cleanTier(tier, fallback) {
+  const t = parseInt(tier, 10);
+  return ARTICLE_TIERS.includes(t) ? t : fallback;
+}
+function cleanForm(form, fallback) {
+  return ARTICLE_FORMS.includes(form) ? form : fallback;
+}
+function cleanStatus(status, current) {
+  if (WRITER_STATUSES.includes(status)) return status;
+  return current;
+}
 
 function readArticles() {
   try {
@@ -423,7 +451,7 @@ router.get('/my-articles', requireAuth, (req, res) => {
     title:         'My Articles',
     content,
     scripts:       `<script src="/js/article-html.js?v=2"></script>
-      <script src="/js/my-articles.js?v=3"></script>`,
+      <script src="/js/my-articles.js?v=4"></script>`,
   }));
 });
 
@@ -460,10 +488,10 @@ router.post('/api/articles', requireAuth, (req, res) => {
       // Formatted board (Quill) — sanitized to the toolbar's allowlist before it
       // is ever stored. `content` stays the plain-text copy (word counts, AI).
       contentHtml: typeof contentHtml === 'string' ? sanitizeArticleHtml(contentHtml) : '',
-      tier:       tier || 1,
-      form:       form || 'article',
+      tier:       cleanTier(tier, 1),
+      form:       cleanForm(form, 'article'),
       answers:    answers || {},
-      status:     status || 'Draft',
+      status:     cleanStatus(status, 'Draft'),
       conversation: conversation || [],
       pendingMessage: pendingMessage || '',
       studyLevel: (userSettings && userSettings.studyLevel) || 'journeyman',
@@ -504,10 +532,10 @@ router.put('/api/articles/:id', requireAuth, (req, res) => {
       title:     title !== undefined ? title.trim() : articles[idx].title,
       content:   content !== undefined ? content : articles[idx].content,
       contentHtml: nextHtml,
-      tier:      tier   || articles[idx].tier,
-      form:      form   || articles[idx].form || 'article',
+      tier:      cleanTier(tier, cleanTier(articles[idx].tier, 1)),
+      form:      cleanForm(form, cleanForm(articles[idx].form, 'article')),
       answers:   answers || articles[idx].answers,
-      status:    status  || articles[idx].status,
+      status:    cleanStatus(status, articles[idx].status),
       conversation: conversation !== undefined ? conversation : (articles[idx].conversation || []),
       pendingMessage: pendingMessage !== undefined ? pendingMessage : (articles[idx].pendingMessage || ''),
       updatedAt: new Date().toISOString(),

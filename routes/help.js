@@ -1,4 +1,5 @@
 const express = require('express');
+const { escapeHtml, inlineJson } = require('../lib/html');
 const router  = express.Router();
 const fs      = require('fs');
 const path    = require('path');
@@ -30,9 +31,9 @@ async function sendFeedbackNotification({ fullName, text, submittedAt }) {
       subject: 'New Iron & Ink feedback',
       text: `A member has submitted feedback.\n\nName: ${fullName}\nSubmitted: ${submittedAt}\n\nFeedback:\n${text}\n\nView it in the Admin panel.\n\nSoli Deo Gloria,\nIron & Ink`,
       html: `<p>A member has submitted feedback.</p>
-<p><strong>Name:</strong> ${fullName}<br><strong>Submitted:</strong> ${submittedAt}</p>
+<p><strong>Name:</strong> ${escapeHtml(fullName)}<br><strong>Submitted:</strong> ${escapeHtml(submittedAt)}</p>
 <p><strong>Feedback:</strong></p>
-<p style="white-space:pre-wrap;">${text}</p>
+<p style="white-space:pre-wrap;">${escapeHtml(text)}</p>
 <p>View it in the Admin panel.</p>
 <p><em>Soli Deo Gloria,</em><br>Iron &amp; Ink</p>`,
     });

@@ -1,4 +1,5 @@
 const express = require('express');
+const { escapeHtml, inlineJson } = require('../lib/html');
 const fs      = require('fs');
 const path    = require('path');
 const { requireAuth, renderLayout } = require('./layout');
@@ -67,11 +68,11 @@ async function resolveChapter(bookName, chapterNum) {
 // are identical.
 function renderVerses(verses) {
   return verses.map(v =>
-    `<p class="scripture-verse"><sup class="verse-num">${v.verse}</sup>${v.text}</p>`
+    `<p class="scripture-verse"><sup class="verse-num">${escapeHtml(v.verse)}</sup>${escapeHtml(v.text)}</p>`
   ).join('\n        ');
 }
 function renderChapterBody(verses, copyright) {
-  return renderVerses(verses) + `\n        <p class="scripture-copyright">${copyright}</p>`;
+  return renderVerses(verses) + `\n        <p class="scripture-copyright">${escapeHtml(copyright)}</p>`;
 }
 
 // ─── GET /scripture ──────────────────────────────────────────────────────────
@@ -163,7 +164,7 @@ router.get('/scripture', requireAuth, async (req, res) => {
     activeSection: 'scripture',
     title:         'Scripture',
     content,
-    scripts:       `<script src="/js/study-badges.js?v=3"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/scripture.js?v=8"></script><script src="/js/library.js?v=61"></script>`,
+    scripts:       `<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/scripture.js?v=9"></script><script src="/js/library.js?v=61"></script>`,
   }));
 });
 

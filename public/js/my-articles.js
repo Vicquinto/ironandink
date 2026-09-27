@@ -35,9 +35,9 @@
       var formLabel   = formDisplayLabel(article.form);
       var statusClass = statusBadgeClass(article.status);
       readingBadges.innerHTML =
-        '<span class="tier-badge-sm">Tier ' + article.tier + '</span> ' +
+        '<span class="tier-badge-sm">Tier ' + esc(article.tier) + '</span> ' +
         '<span class="form-badge form-badge-' + esc(article.form || 'article') + '">' + formLabel + '</span> ' +
-        '<span class="article-status-badge ' + statusClass + '">' + article.status + '</span>';
+        '<span class="article-status-badge ' + statusClass + '">' + esc(article.status) + '</span>';
     }
   }
 
@@ -92,10 +92,10 @@
           '<span class="article-card-title">' + esc(a.title) + '</span>' +
         '</div>' +
         '<div class="article-card-meta">' +
-          '<span class="tier-badge-sm">Tier ' + a.tier + '</span>' +
+          '<span class="tier-badge-sm">Tier ' + esc(a.tier) + '</span>' +
           '<span class="form-badge form-badge-' + esc(a.form || 'article') + '">' + formLabel + '</span>' +
           '<span class="article-card-date">' + fmtDate(a.updatedAt || a.createdAt) + '</span>' +
-          '<span class="article-status-badge ' + statusClass + '">' + a.status + '</span>' +
+          '<span class="article-status-badge ' + statusClass + '">' + esc(a.status) + '</span>' +
           '<span class="article-word-count">' + words + ' words</span>' +
         '</div>' +
         rejectionHtml +
@@ -200,7 +200,7 @@
           '<span class="article-card-title">' + esc(a.title) + '</span>' +
         '</div>' +
         '<div class="article-card-meta">' +
-          '<span class="tier-badge-sm">Tier ' + a.tier + '</span>' +
+          '<span class="tier-badge-sm">Tier ' + esc(a.tier) + '</span>' +
           '<span class="form-badge form-badge-' + esc(a.form || 'article') + '">' + formLabel + '</span>' +
           '<span class="article-card-date">Trashed ' + fmtDate(a.deletedAt || a.updatedAt) + '</span>' +
           '<span class="article-word-count">' + words + ' words</span>' +
