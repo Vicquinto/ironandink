@@ -2,7 +2,8 @@ const express  = require('express');
 const fs       = require('fs');
 const path     = require('path');
 const ExcelJS  = require('exceljs');
-const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
+const { randomUUID } = require('crypto');
+const { requireAuth, renderLayout, getIsAdmin, isAdminRecord } = require('./layout');
 const { sanitizeArticleHtml } = require('../lib/articleHtml');
 const { escapeHtml, inlineJson } = require('../lib/html');
 const { listDevotionals, deleteDevotional, clearAllDevotionals } = require('./dashboard');
@@ -254,7 +255,7 @@ router.get('/admin', requireAuth, requireAdmin, (req, res) => {
     scripts: `<script>window.ADMIN_TABS = ${inlineJson(ADMIN_TABS)};</script>
 <script src="/js/study-badges.js?v=4"></script>
 <script src="/js/article-html.js?v=2"></script>
-<script src="/js/admin.js?v=24"></script>
+<script src="/js/admin.js?v=25"></script>
 <script>
 (function () {
   var form     = document.getElementById('directInviteForm');
@@ -632,7 +633,7 @@ router.get('/api/admin/members', requireAuth, requireAdmin, (req, res) => {
       id:               u.id,
       fullName:         u.fullName || 'Unknown',
       email:            u.email || '',
-      role:             u.role === 'admin' ? 'Admin' : 'Member',
+      role:             isAdminRecord(u) ? 'Admin' : 'Member',
       isActive:         u.isActive !== false,
       comped:           u.comped === true,
       lastLogin:        u.lastLogin || null,
@@ -654,7 +655,7 @@ router.post('/api/admin/members/:id/suspend', requireAuth, requireAdmin, (req, r
   if (users[idx].id === req.session.userId) {
     return res.status(400).json({ success: false, error: 'You cannot suspend your own account.' });
   }
-  if (users[idx].role === 'admin') {
+  if (isAdminRecord(users[idx])) {
     return res.status(400).json({ success: false, error: 'Administrators cannot be suspended.' });
   }
   users[idx].isActive = false;
@@ -670,6 +671,79 @@ router.post('/api/admin/members/:id/reinstate', requireAuth, requireAdmin, (req,
   users[idx].isActive = true;
   writeJSON(USERS_PATH, users);
   res.json({ success: true });
+});
+
+// ─── POST /api/admin/members/:id/role — promote / demote ──────────────────────
+// Body { role: 'admin' | 'user' }. Admin-only (requireAdmin, which re-reads the
+// acting user's record on every request). Rules:
+//  - no changing your own role (another admin must do it) — so nobody locks
+//    themselves out by accident;
+//  - suspended members can't be promoted (reinstate first);
+//  - the last remaining active admin can't be demoted.
+// Writes BOTH fields — `role` and the legacy `isAdmin` — so a stale
+// isAdmin:true can never keep a demoted member an admin. Takes effect on the
+// member's next request (getIsAdmin reads the record, not the session). Every
+// change is appended to data/admin_audit.json and logged to the console.
+const ADMIN_AUDIT_PATH = path.join(__dirname, '../data/admin_audit.json');
+
+function logAdminAudit(entry) {
+  const record = Object.assign({ id: randomUUID(), at: new Date().toISOString() }, entry);
+  try {
+    const log = readJSON(ADMIN_AUDIT_PATH);
+    log.push(record);
+    writeJSON(ADMIN_AUDIT_PATH, log);
+  } catch (err) {
+    console.error('[adminAudit] could not write audit log:', err.message);
+  }
+  console.log('[adminAudit]', JSON.stringify(record));
+}
+
+router.post('/api/admin/members/:id/role', requireAuth, requireAdmin, (req, res) => {
+  const role = req.body && req.body.role;
+  if (role !== 'admin' && role !== 'user') {
+    return res.status(400).json({ success: false, error: 'Role must be "admin" or "user".' });
+  }
+
+  const users = readJSON(USERS_PATH);
+  const idx   = users.findIndex(u => u.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ success: false, error: 'Member not found.' });
+  const target = users[idx];
+
+  if (target.id === req.session.userId) {
+    return res.status(400).json({ success: false, error: 'You cannot change your own role. Ask another administrator.' });
+  }
+
+  const wasAdmin = isAdminRecord(target);
+  if (wasAdmin === (role === 'admin')) {
+    return res.status(400).json({ success: false, error: wasAdmin ? 'This member is already an administrator.' : 'This member is not an administrator.' });
+  }
+  if (role === 'admin' && target.isActive === false) {
+    return res.status(400).json({ success: false, error: 'Reinstate this member before making them an administrator.' });
+  }
+  if (role === 'user') {
+    const activeAdmins = users.filter(u => isAdminRecord(u) && u.isActive !== false);
+    if (activeAdmins.length <= 1 && activeAdmins.some(u => u.id === target.id)) {
+      return res.status(400).json({ success: false, error: 'You cannot remove the last remaining administrator.' });
+    }
+  }
+
+  users[idx].role    = role;
+  users[idx].isAdmin = role === 'admin';
+  writeJSON(USERS_PATH, users);
+
+  const actor = users.find(u => u.id === req.session.userId) || {};
+  logAdminAudit({
+    action:      'role_change',
+    actorId:     req.session.userId,
+    actorName:   actor.fullName || '',
+    targetId:    target.id,
+    targetName:  target.fullName || '',
+    targetEmail: target.email || '',
+    from:        wasAdmin ? 'admin' : 'user',
+    to:          role,
+  });
+
+  res.json({ success: true, role: role === 'admin' ? 'Admin' : 'Member' });
 });
 
 // ─── Comp toggle (billing groundwork) ────────────────────────────────────────

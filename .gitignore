@@ -23,6 +23,7 @@ data/presence.json
 data/password_resets.json
 data/password_resets_legacy_*.json
 data/usage_events.json
+data/admin_audit.json
 
 # Licensed NASB 1995 text — regenerable cache fetched from API.Bible, never committed
 data/nasb-cache.json

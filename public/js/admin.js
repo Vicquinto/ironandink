@@ -1016,10 +1016,20 @@
           '</button>'
         : '';
 
+      // Promote / demote. Never on your own row (the server refuses self-
+      // changes too); a suspended member must be reinstated before promotion.
+      var roleBtn = '';
+      if (!isSelf && isAdminRow) {
+        roleBtn = '<button class="btn-warm member-role-btn" data-id="' + esc(m.id) + '" data-name="' + esc(m.fullName) + '" data-role="user" ' +
+          'style="font-size:0.82rem; padding:6px 14px;">Remove Admin</button>';
+      } else if (!isSelf && m.isActive) {
+        roleBtn = '<button class="btn-warm member-role-btn" data-id="' + esc(m.id) + '" data-name="' + esc(m.fullName) + '" data-role="admin" ' +
+          'style="font-size:0.82rem; padding:6px 14px;">Make Admin</button>';
+      }
       // Comp toggle is shown for every member (self/admin included) since it is
       // billing-only and carries none of suspension's self-lockout risk.
       var actionRow = '<div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">' +
-        moderateBtn + compBtn +
+        moderateBtn + compBtn + roleBtn +
       '</div>';
 
       var compedTag = m.comped
@@ -1054,6 +1064,39 @@
             var data = await res.json();
             if (data.success) {
               showToast('Member ' + (action === 'comp' ? 'comped' : 'un-comped') + '.');
+              loadMembers();
+            } else {
+              showToast(data.error || 'Action failed.', true);
+              btn.disabled = false;
+            }
+          } catch (err) {
+            showToast('Error: ' + err.message, true);
+            btn.disabled = false;
+          }
+        });
+      });
+    });
+
+    memberList.querySelectorAll('.member-role-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id      = btn.dataset.id;
+        var name    = btn.dataset.name || 'this member';
+        var role    = btn.dataset.role;   // 'admin' | 'user'
+        var promote = role === 'admin';
+        var msg = promote
+          ? 'Make ' + name + ' an administrator?\n\nThey will have full access to the Admin panel: members, invites, content, and moderation.'
+          : 'Remove administrator access from ' + name + '?\n\nThey will become a regular member immediately.';
+        showConfirm(msg, promote ? 'Make Admin' : 'Remove Admin', async function () {
+          btn.disabled = true;
+          try {
+            var res  = await fetch('/api/admin/members/' + encodeURIComponent(id) + '/role', {
+              method:  'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body:    JSON.stringify({ role: role }),
+            });
+            var data = await res.json();
+            if (data.success) {
+              showToast(promote ? name + ' is now an administrator.' : name + ' is no longer an administrator.');
               loadMembers();
             } else {
               showToast(data.error || 'Action failed.', true);

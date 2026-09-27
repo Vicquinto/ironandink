@@ -32,16 +32,22 @@ function requireAuth(req, res, next) {
   next();
 }
 
+// Admin status lives on the user record in two fields: `role` ('admin' |
+// 'user') and the legacy boolean `isAdmin`. Either marks an admin. This is the
+// single definition — every admin check goes through it.
+function isAdminRecord(user) {
+  return !!(user && (user.role === 'admin' || user.isAdmin === true));
+}
+
+// Always decided from the CURRENT user record, never the isAdmin copy cached in
+// the session at login — otherwise a demoted admin kept admin access until
+// their session expired. Fails closed if users.json can't be read.
 function getIsAdmin(req) {
-  if (req.session.user && req.session.user.isAdmin) return true;
-  if (req.session.userId) {
-    try {
-      const users = JSON.parse(fs.readFileSync(USERS_PATH_L, 'utf8'));
-      const user  = users.find(u => u.id === req.session.userId);
-      return !!(user && (user.role === 'admin' || user.isAdmin === true));
-    } catch { return false; }
-  }
-  return false;
+  if (!req.session.userId) return false;
+  try {
+    const users = JSON.parse(fs.readFileSync(USERS_PATH_L, 'utf8'));
+    return isAdminRecord(users.find(u => u.id === req.session.userId));
+  } catch { return false; }
 }
 
 function getToursSeen(req) {
@@ -239,4 +245,4 @@ function renderLayout({ req, activeSection, title, content, scripts = '', head =
 </html>`;
 }
 
-module.exports = { requireAuth, renderLayout, getIsAdmin };
+module.exports = { requireAuth, renderLayout, getIsAdmin, isAdminRecord };
