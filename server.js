@@ -398,6 +398,15 @@ app.post('/webhooks/stripe', express.raw({ type: 'application/json' }), billing.
 
 // 5mb is generous for text — a save bundles article + conversation transcript +
 // pendingMessage, which was overflowing the ~100KB default limit and returning a 413.
+// The app runs behind exactly ONE reverse proxy (nginx on the same droplet).
+// Trust that one hop so req.ip is the visitor's address (from the
+// X-Forwarded-For nginx appends) instead of nginx's 127.0.0.1 — without this
+// every rate limiter below keys on the same IP and becomes one global bucket —
+// and so req.secure / req.protocol reflect nginx's X-Forwarded-Proto. Keep this
+// at 1: a higher value (or true) would let clients spoof their IP through
+// X-Forwarded-For.
+app.set('trust proxy', 1);
+
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 app.use(express.static(path.join(__dirname, 'public')));

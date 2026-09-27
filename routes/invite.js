@@ -580,11 +580,9 @@ router.post('/api/invite-request', async (req, res) => {
   }
 
   // ── Auto-invite: create the invite record + email the link to the applicant ─
-  const host      = req.get('host') || 'localhost:4000';
-  const protocol  = req.secure ? 'https' : 'http';
   let emailSent = false;
   try {
-    ({ emailSent } = await createAndSendInvite(record.email, record.name, { host, protocol }));
+    ({ emailSent } = await createAndSendInvite(record.email, record.name));
   } catch (err) {
     console.error('[invite-request] createAndSendInvite failed:', err.message);
     emailSent = false;

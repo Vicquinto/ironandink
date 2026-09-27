@@ -5,6 +5,7 @@ const path     = require('path');
 const crypto   = require('crypto');
 const sgMail   = require('@sendgrid/mail');
 const { escapeHtml } = require('../lib/html');
+const { appBaseUrl } = require('../lib/baseUrl');
 
 const router = express.Router();
 
@@ -51,18 +52,6 @@ function writeJSON(p, data) {
 
 function hashToken(token) {
   return crypto.createHash('sha256').update(String(token)).digest('hex');
-}
-
-// Origin for reset links, from APP_BASE_URL (e.g. https://example.com). Returns
-// null when unset/invalid — callers then send no email and log why.
-function resetBaseUrl() {
-  const raw = (process.env.APP_BASE_URL || '').trim();
-  if (!raw) return null;
-  try {
-    const u = new URL(raw);
-    if (u.protocol !== 'https:' && u.protocol !== 'http:') return null;
-    return u.origin;
-  } catch { return null; }
 }
 
 // ── One-time invalidation of pre-fix tokens ──────────────────────────────────
@@ -173,7 +162,7 @@ function issueReset(email) {
   const user = readJSON(USERS_PATH).find(u => String(u.email || '').toLowerCase() === email);
   if (!user || user.isActive === false) return;
 
-  const base = resetBaseUrl();
+  const base = appBaseUrl();
   if (!base) {
     console.error('[passwordReset] APP_BASE_URL is not set to a valid http(s) URL — cannot build a reset link, no email sent');
     return;

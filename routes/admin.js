@@ -500,9 +500,13 @@ router.post('/api/admin/invite/send', requireAuth, requireAdmin, async (req, res
     return res.json({ success: false, error: 'An active invite for this email already exists.' });
   }
 
-  const host     = req.get('host') || 'localhost:4000';
-  const protocol = req.secure ? 'https' : 'http';
-  const { inviteUrl } = await createAndSendInvite(email, name, { host, protocol });
+  let inviteUrl;
+  try {
+    ({ inviteUrl } = await createAndSendInvite(email, name));
+  } catch (err) {
+    console.error('[admin/invite/send] createAndSendInvite failed:', err.message);
+    return res.status(500).json({ success: false, error: 'Invite not sent: ' + err.message });
+  }
 
   res.json({ success: true, inviteUrl });
 });
@@ -522,9 +526,13 @@ router.post('/api/admin/invite-requests/:id/invite', requireAuth, requireAdmin, 
   if (idx === -1) return res.status(404).json({ success: false, error: 'Request not found.' });
 
   const record   = requests[idx];
-  const host     = req.get('host') || 'localhost:4000';
-  const protocol = req.secure ? 'https' : 'http';
-  const { inviteUrl } = await createAndSendInvite(record.email, record.name, { host, protocol });
+  let inviteUrl;
+  try {
+    ({ inviteUrl } = await createAndSendInvite(record.email, record.name));
+  } catch (err) {
+    console.error('[admin/invite-requests/invite] createAndSendInvite failed:', err.message);
+    return res.status(500).json({ success: false, error: 'Invite not sent: ' + err.message });
+  }
 
   requests[idx].status    = 'invited';
   requests[idx].invitedAt = new Date().toISOString();
