@@ -802,7 +802,7 @@ router.post('/api/register', async (req, res) => {
       // Explicit false flags for every guided-tour page so first-time tours
       // actually fire. Mirrors VALID_TOUR_PAGES in routes/help.js and the
       // init in the setup-password flow (routes/auth.js) — keep in sync.
-      toursSeen: { study: false, scripture: false, selah: false, rooms: false, library: false, dialogue: false, writing: false },
+      toursSeen: { study: false, scripture: false, selah: false, rooms: false, library: false, dialogue: false, writing: false, teacher: false },
       stats:     {},
       createdAt: now,
       updatedAt: now,

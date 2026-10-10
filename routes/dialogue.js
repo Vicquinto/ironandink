@@ -423,3 +423,5 @@ router.delete('/api/dialogues/:id', requireAuth, (req, res) => {
 });
 
 module.exports = router;
+// Shared with routes/teacher.js so the reading register stays identical.
+module.exports.getStudyLevelInstruction = getStudyLevelInstruction;

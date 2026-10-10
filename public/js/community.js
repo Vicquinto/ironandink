@@ -474,6 +474,7 @@
     communityReadTitle.textContent = s.topic;
     communityReadMeta.textContent  = (s.authorName || '') + ' · ' + fmtDate(s.sharedAt);
     communityReadBody.innerHTML    = renderReadingText(s.content || '');
+    if (window.IronInkTeacher) window.IronInkTeacher.attach(communityReadBody, { studyId: s.id });
     if (communityReadBadges) {
       communityReadBadges.innerHTML =
         '<span class="study-card-translation">' + esc(s.translation || 'ASV') + '</span>' +

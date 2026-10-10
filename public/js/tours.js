@@ -109,6 +109,37 @@ export const TOURS = {
       attachTo: { element: '.library-filter-bar', on: 'bottom' },
       title:    'Organize Your Library',
       text:     'Rate your studies and add tags to find them again easily later.',
+      buttons:  ['back', 'next'],
+    },
+    {
+      id:       'library-teacher',
+      attachTo: null,
+      title:    'Study with a Teacher',
+      text:     'Open any study and you’ll find three new buttons: “Study with a Teacher” at the top walks you through the whole study, “Teach me this section” beside each heading starts right there, and “Check my understanding” at the end asks a few short questions and then helps with anything you missed. They’re on shared Community studies too.',
+      buttons:  ['back', 'finish'],
+    },
+  ],
+
+  teacher: [
+    {
+      id:       'teacher-split',
+      attachTo: { element: '.teacher-study-pane', on: 'right' },
+      title:    'The Study Stays Open',
+      text:     'Your study stays right here while you talk with your teacher, so you can look back at the text before you answer.',
+      buttons:  ['skip', 'next'],
+    },
+    {
+      id:       'teacher-quick',
+      attachTo: { element: '#teacherQuickReplies', on: 'top' },
+      title:    'One Question at a Time',
+      text:     'Answer in your own words, or tap a quick reply — “I don’t know” is always a great answer. Ask for a hint, a simpler explanation, or a slower pace anytime.',
+      buttons:  ['back', 'next'],
+    },
+    {
+      id:       'teacher-end',
+      attachTo: { element: '#teacherEndBtn', on: 'bottom' },
+      title:    'Saved as You Go',
+      text:     'Your session saves automatically, so you can pick it up later. When you’re done, End Session shows what you understand well, what’s worth revisiting, and a study to take up next.',
       buttons:  ['back', 'finish'],
     },
   ],

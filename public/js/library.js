@@ -376,6 +376,8 @@
       );
       window.enhanceFurtherStudies(libGuideBody, exploredSet);
     }
+    // Study with a Teacher entry points (top / per-section / end-of-study).
+    if (window.IronInkTeacher) window.IronInkTeacher.attach(libGuideBody, { studyId: study.id });
     renderLineageCrumb(study); // breadcrumb above the body (cleared if root/standalone)
     renderBranchesList(study); // children below the body (cleared if none)
     // "View full tree" launcher: shown only when this study belongs to a tree —

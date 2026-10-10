@@ -18,6 +18,15 @@
 
 const WHATS_NEW = [
   {
+    date:  'October 10, 2026',
+    title: 'Study with a Teacher',
+    body:  `Every study now comes with a patient teacher. Open any study — your own, one in your Library, or one shared in the Community — and tap "Study with a Teacher" at the top. The study stays open on one side while your teacher walks you through it on the other, one short question at a time.
+
+Start wherever you are. "Teach me this section" beside each heading begins right there, and "Check my understanding" at the end of a study asks a few quick questions and then helps with anything you missed. "I don't know" is always a welcome answer — the teacher simply teaches the point, never grades. Quick replies let you ask for a hint, a simpler explanation, or a slower pace.
+
+Your session saves as you go, so you can pick up where you left off. When you finish, you'll see what you understand well, what's worth revisiting (each linked to its section of the study), and a suggested next study.`
+  },
+  {
     date:  'September 17, 2026',
     title: 'Writing, Reimagined',
     body:  `The Writing feature has been rebuilt from the ground up. Instead of filling out a form, you now sit down with a live writing companion — a real, flowing conversation that helps you find your idea, think it through, and shape it into something worth sharing. Choose how you want to work together: write it yourself with the companion as your thinking partner, build it together side by side, or have the companion draft it for you while you steer. Pull the companion's words into your draft whenever they're worth keeping.

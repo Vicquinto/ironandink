@@ -153,7 +153,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '', head =
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/shepherd.css">
   ${head}
-  <link rel="stylesheet" href="/css/styles.css?v=75">
+  <link rel="stylesheet" href="/css/styles.css?v=76">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
@@ -219,9 +219,9 @@ function renderLayout({ req, activeSection, title, content, scripts = '', head =
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/dm-badge.js?v=3"></script>
   <script src="/js/dm-widget.js?v=2"></script>
-  <script src="/js/notepad.js?v=7"></script>
+  <script src="/js/notepad.js?v=8"></script>
   ${scripts}
-  <script type="module" src="/js/tour-runner.js?v=4"></script>
+  <script type="module" src="/js/tour-runner.js?v=5"></script>
   <script>
   (function () {
     function updateSidebarFade() {
