@@ -19,6 +19,19 @@
 const WHATS_NEW = [
   {
     date:  'October 11, 2026',
+    title: 'Your Study Map',
+    body:  `There's a new page in the sidebar: Study Map. It gathers every study you've saved into one place, so you can find a past study and study it again. It's yours alone — no one else can see it — and it isn't a score: no points, no streaks, nothing to keep up with. It's simply a map of where you've been.
+
+Look at it three ways. By area of theology — God, Christ, the Holy Spirit, Scripture, Man and Sin, Salvation, the Church, Last Things, Church History and Christian Living — with studies on the same subject kept together. By book of the Bible, showing which books and passages your studies center on. Or as a timeline, month by month. An area you haven't studied yet has a "Plan a study" link that opens Plan a Study with that area as the starting idea.
+
+Every study has two links: open it, or have the Tutor check your understanding. A small Tutor or Teacher marker shows where you've already had a session. Now and then, an older study will be suggested to revisit — one at a time, and "Not now" puts it away.
+
+Two gentle reminders, too. When you type a topic on the Study page that you've studied before, a short note lets you open your earlier study or create a new one anyway — your choice. And the planner in Plan a Study now knows when you studied what, so it can say "you studied this in March — revisit it, or go deeper?"
+
+On the Dashboard, the Studies Saved count is now a small Study Map snapshot: your three most recent studies, the areas you've studied, and a study worth revisiting.`
+  },
+  {
+    date:  'October 11, 2026',
     title: 'Plan a Study',
     body:  `Not sure exactly what to study? On the Study page, tap "Plan a Study" and talk it through first. A study partner opens beside the study creator and helps you turn a half-formed interest into a clear, well-scoped study — asking a question or two at a time and offering concrete suggestions as you go.
 

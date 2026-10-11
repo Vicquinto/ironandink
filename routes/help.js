@@ -180,7 +180,7 @@ router.get('/help', requireAuth, (req, res) => {
   }));
 });
 
-const VALID_TOUR_PAGES = ['study','scripture','selah','rooms','library','dialogue','writing','teacher'];
+const VALID_TOUR_PAGES = ['study','scripture','selah','rooms','library','dialogue','writing','teacher','study-map'];
 
 router.post('/api/tour-seen', requireAuth, (req, res) => {
   const { page } = req.body;

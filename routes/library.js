@@ -6,6 +6,7 @@ const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
 const notepadRoutes = require('./notepad');
 const { injectWithAttribution, resolve, NASB_ATTRIBUTION } = require('../lib/asv');
+const { takeGeneratedMap, deriveMap } = require('../lib/study-map');
 
 const router      = express.Router();
 const STUDIES_PATH = path.join(__dirname, '../data/studies.json');
@@ -123,7 +124,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/teacher-entry.js?v=2"></script><script src="/js/library.js?v=63"></script>',
+    scripts: '<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/teacher-entry.js?v=2"></script><script src="/js/library.js?v=64"></script>',
   }));
 });
 
@@ -195,6 +196,10 @@ router.post('/api/library/save', requireAuth, (req, res) => {
     parentId,                                 // id of the study this branched from; null if not a branch
     rootId,                                   // id of the tree root for this branch; null if not a branch
     sourcePrompt,                             // exact Further-Studies prompt text this branched from; null if not a prompt-branch
+    // Study Map tags: the ones made when this study was generated (kept in the
+    // member's session, matched by content — never taken from the client), or
+    // tags worked out from the study itself, which the backfill later refines.
+    map:         takeGeneratedMap(req.session, content) || deriveMap({ topic, content }),
     shared:      isShared,                    // community-sharing flag (default false)
     sharedAt:    isShared ? now : null,       // stamp when first shared, for feed sort
     createdAt:   createdAt || now,

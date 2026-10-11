@@ -107,6 +107,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '', head =
     { id: 'dialogue',    label: 'Dialogue',    href: '/dialogue',    icon: '&#9993;' },
     { id: 'writing',     label: 'Writing',     href: '/writing',     icon: '&#9998;' },
     { id: 'library',     label: 'Library',     href: '/library',     icon: '&#8801;' },
+    { id: 'study-map',   label: 'Study Map',   href: '/study-map',   icon: '&#10023;' },
     { id: 'scripture',   label: 'Scripture',   href: '/scripture',   icon: '&#10070;' },
     { id: 'selah',       label: 'Selah',       href: '/selah',       icon: '&#10022;' },
     { id: 'community',   label: 'Community',   href: '/community',   icon: '&#9678;' },
@@ -153,7 +154,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '', head =
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/shepherd.css">
   ${head}
-  <link rel="stylesheet" href="/css/styles.css?v=81">
+  <link rel="stylesheet" href="/css/styles.css?v=82">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
@@ -221,7 +222,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '', head =
   <script src="/js/dm-widget.js?v=2"></script>
   <script src="/js/notepad.js?v=9"></script>
   ${scripts}
-  <script type="module" src="/js/tour-runner.js?v=7"></script>
+  <script type="module" src="/js/tour-runner.js?v=8"></script>
   <script>
   (function () {
     function updateSidebarFade() {

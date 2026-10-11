@@ -5,10 +5,10 @@ const { escapeHtml, inlineJson } = require('../lib/html');
 const Anthropic = require('@anthropic-ai/sdk');
 const { requireAuth, renderLayout, getIsAdmin } = require('./layout');
 const { renderDashboardPanel: renderWhatsNewPanel } = require('./whats-new');
+const { renderDashboardSnapshot: renderStudyMapSnapshot } = require('./study-map');
 const { injectWithAttribution, resolve, NASB_ATTRIBUTION } = require('../lib/asv');
 
 const router          = express.Router();
-const STUDIES_PATH    = path.join(__dirname, '../data/studies.json');
 const DIALOGUES_PATH  = path.join(__dirname, '../data/dialogues.json');
 const ARTICLES_PATH   = path.join(__dirname, '../data/articles.json');
 const DEVOTIONAL_PATH = path.join(__dirname, '../data/devotional.json');
@@ -137,14 +137,6 @@ function getDayOfYear() {
 function getVerseOfTheDay() {
   const raw = RAW_VERSES[(getDayOfYear() - 1) % RAW_VERSES.length];
   return resolveVerse(raw);
-}
-
-function getStudiesCount(userId) {
-  try {
-    if (!fs.existsSync(STUDIES_PATH)) return 0;
-    const data = JSON.parse(fs.readFileSync(STUDIES_PATH, 'utf8'));
-    return data.filter(s => s.userId === userId).length;
-  } catch { return 0; }
 }
 
 function getDialoguesCount(userId) {
@@ -375,7 +367,6 @@ async function getDailyDevotional(req) {
 router.get('/dashboard', requireAuth, (req, res) => {
   const user          = req.session.user;
   const firstName     = (user.fullName || 'Scholar').split(' ')[0];
-  const studyCount    = getStudiesCount(req.session.userId);
   const dialogueCount = getDialoguesCount(req.session.userId);
   const articlesCount = getArticlesCount(req.session.userId);
   const isAdmin       = getIsAdmin(req);
@@ -407,11 +398,8 @@ router.get('/dashboard', requireAuth, (req, res) => {
       ${verse.source === 'NASB 1995' ? `<div class="verse-copyright">${escapeHtml(NASB_ATTRIBUTION)}</div>` : ''}
     </div>
 
-    <div class="stat-cards">
-      <a class="stat-card" href="/library">
-        <div class="stat-label">Studies Saved</div>
-        <div class="stat-value">${studyCount}</div>
-      </a>
+    <div class="stat-cards stat-cards--with-map">
+      ${renderStudyMapSnapshot(req.session.userId)}
       <a class="stat-card" href="/dialogue">
         <div class="stat-label">Dialogue Sessions</div>
         <div class="stat-value">${dialogueCount}</div>
@@ -437,6 +425,7 @@ router.get('/dashboard', requireAuth, (req, res) => {
 `;
 
   const scripts = `
+  <script src="/js/study-map.js?v=1"></script>
   <script>
     (function() {
       const h = new Date().getHours();

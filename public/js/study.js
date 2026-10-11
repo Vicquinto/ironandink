@@ -266,24 +266,157 @@
     });
   });
 
+  // ── "You've studied this before" heads-up (Study Map) ─────────────────────
+  // When the topic closely matches one of the member's saved studies, a gentle
+  // notice offers "Open it" or "Create new anyway". It never blocks: it shows as
+  // the member types, and Generate goes ahead once the notice has been seen for
+  // that topic. A topic filled in some other way (curated list, planner) shows
+  // the notice on the first Generate instead — one more click goes ahead.
+  // Matching is local, against the member's own titles and Study Map subjects
+  // (GET /api/study-map/index); if that can't load, there is simply no notice.
+  var dupIndex = [];
+  var dupSeenFor = null;   // normalized topic the notice was last shown for
+  var dupDismissedFor = null;
+  fetch('/api/study-map/index')
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (data) { if (data && data.success && Array.isArray(data.studies)) dupIndex = data.studies; })
+    .catch(function () {});
+
+  var DUP_STOP = ['the', 'a', 'an', 'of', 'and', 'in', 'on', 'to', 'for', 'with', 'from', 'by', 'its', 'his', 'their',
+    'our', 'my', 'study', 'studies', 'doctrine', 'biblical', 'reformed', 'what', 'is', 'are', 'does', 'do', 'how', 'why',
+    'about', 'vs', 'versus', 'bible', 'teach', 'teaches', 'say', 'says', 'understanding', 'introduction', 'overview'];
+  function dupNorm(s) {
+    return String(s || '').toLowerCase()
+      .replace(/\([^)]*\)/g, ' ')
+      .replace(/['’]s\b/g, 's')
+      .replace(/[^a-z0-9 ]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+  function dupTokens(s) {
+    var seen = {};
+    return dupNorm(s).split(' ').filter(function (t) { return t && DUP_STOP.indexOf(t) === -1; })
+      .map(function (t) { return (t.length > 4 && /s$/.test(t) && !/ss$/.test(t)) ? t.slice(0, -1) : t; })
+      .filter(function (t) { if (seen[t]) return false; seen[t] = true; return true; });
+  }
+  // Token overlap; a short topic wholly inside a longer one (two words or more,
+  // e.g. "Romans 8" and "Romans 8 and assurance") also counts as close.
+  function dupScore(a, b) {
+    if (!a.length || !b.length) return 0;
+    var inter = a.filter(function (t) { return b.indexOf(t) !== -1; }).length;
+    var score = inter / (a.length + b.length - inter);
+    var shorter = Math.min(a.length, b.length);
+    if (shorter >= 2 && inter === shorter) score = Math.max(score, 0.75);
+    return score;
+  }
+  function findDuplicate(topic) {
+    var t = dupTokens(topic);
+    if (!t.length) return null;
+    var best = null, bestScore = 0;
+    dupIndex.forEach(function (s) {
+      var sc = Math.max(dupScore(t, dupTokens(s.topic)), dupScore(t, dupTokens(s.subject)));
+      if (sc > bestScore) { best = s; bestScore = sc; }   // index is newest first: ties keep the newest
+    });
+    return bestScore >= 0.6 ? best : null;
+  }
+
+  function dupNoticeEl() {
+    var el = document.getElementById('studyDupNotice');
+    if (el) return el;
+    el = document.createElement('div');
+    el.id = 'studyDupNotice';
+    el.className = 'study-dup-notice';
+    el.setAttribute('role', 'status');
+    el.hidden = true;
+    var bar = document.querySelector('.study-search-bar');
+    if (bar && bar.parentNode) bar.parentNode.insertBefore(el, bar.nextSibling);
+    else if (topicInput && topicInput.parentNode) topicInput.parentNode.appendChild(el);
+    return el;
+  }
+  function hideDupNotice() {
+    var el = document.getElementById('studyDupNotice');
+    if (el) el.hidden = true;
+    dupSeenFor = null;
+  }
+  // Built with DOM nodes and textContent only — the title is the member's own text.
+  function showDupNotice(topic, match) {
+    var el = dupNoticeEl();
+    el.textContent = '';
+    var msg = document.createElement('span');
+    msg.className = 'study-dup-text';
+    msg.appendChild(document.createTextNode('You studied '));
+    var strong = document.createElement('strong');
+    strong.textContent = match.topic;
+    msg.appendChild(strong);
+    var when = match.savedAt ? new Date(match.savedAt) : null;
+    msg.appendChild(document.createTextNode(
+      (when && !isNaN(when) ? ' in ' + when.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : ' before') +
+      '. Open it to revisit, or create a new study.'));
+    var open = document.createElement('a');
+    open.className = 'study-dup-btn';
+    open.href = '/library?open=' + encodeURIComponent(match.id);
+    open.textContent = 'Open it';
+    var anyway = document.createElement('button');
+    anyway.type = 'button';
+    anyway.className = 'study-dup-btn';
+    anyway.textContent = 'Create new anyway';
+    anyway.addEventListener('click', function () {
+      dupDismissedFor = dupNorm(topic);
+      hideDupNotice();
+      var current = topicInput.value.trim();
+      if (current) generateGuide(current);
+    });
+    el.appendChild(msg);
+    el.appendChild(open);
+    el.appendChild(anyway);
+    el.hidden = false;
+    dupSeenFor = dupNorm(topic);
+  }
+
+  // As the member types: show or clear the notice (never stops anything).
+  var dupTimer = null;
+  function checkDupWhileTyping() {
+    clearTimeout(dupTimer);
+    dupTimer = setTimeout(function () {
+      var topic = topicInput.value.trim();
+      var key = dupNorm(topic);
+      if (!topic || key === dupDismissedFor) { hideDupNotice(); return; }
+      var match = findDuplicate(topic);
+      if (match) showDupNotice(topic, match); else hideDupNotice();
+    }, 500);
+  }
+
+  // At Generate: true when the notice was just shown and generation should wait
+  // for the member's choice. Seen already for this topic → go ahead.
+  function holdForDuplicate(topic) {
+    var key = dupNorm(topic);
+    if (key === dupDismissedFor || key === dupSeenFor) { hideDupNotice(); return false; }
+    var match = findDuplicate(topic);
+    if (!match) { hideDupNotice(); return false; }
+    showDupNotice(topic, match);
+    return true;
+  }
+
   // ── Generate button ────────────────────────────────────────────────────────
   generateBtn.addEventListener('click', function () {
     var topic = topicInput.value.trim();
     if (!topic) { topicInput.focus(); return; }
     clearGenerateReady(); // generation started — drop the "loaded" cue
+    if (holdForDuplicate(topic)) return;
     generateGuide(topic);
   });
 
   topicInput.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') {
       var topic = topicInput.value.trim();
-      if (topic) generateGuide(topic);
+      if (topic && !holdForDuplicate(topic)) generateGuide(topic);
     }
   });
 
   // Once the user starts typing their own topic, the "loaded a curated topic" cue
   // no longer applies — drop it.
   topicInput.addEventListener('input', clearGenerateReady);
+  topicInput.addEventListener('input', checkDupWhileTyping);
 
   // ── Further Studies → clickable branch suggestions ───────────────────────────
   // The anchor-matching / button-building core now lives in the shared module
@@ -732,6 +865,7 @@
   // ── Guide generation ───────────────────────────────────────────────────────
   async function generateGuide(topic) {
     clearGenerateReady(); // generation started — drop any "loaded" cue (covers Enter / branch paths)
+    hideDupNotice();      // and any "you've studied this" notice
     studyGenerated = false;
     savedStudyId   = null;
     // Reset the save button in case a prior draft left it in the "saved" state.

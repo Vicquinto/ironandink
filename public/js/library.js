@@ -2606,5 +2606,22 @@
       });
   }
 
-  loadStudies();
+  // /library?open=<id> — a link from the Study Map (or its Dashboard snapshot)
+  // opens that study straight away. Only the member's own studies are in
+  // allStudies, so any other id falls to the not-available toast. The parameter
+  // is dropped from the address so Back to Library doesn't reopen it on refresh.
+  function openFromAddress() {
+    if (!document.getElementById('studyCardsGrid')) return;
+    var openId = '';
+    try { openId = new URLSearchParams(window.location.search).get('open') || ''; } catch (e) {}
+    if (!openId) return;
+    try {
+      var u = new URL(window.location.href);
+      u.searchParams.delete('open');
+      window.history.replaceState(null, '', u.pathname + u.search + u.hash);
+    } catch (e) {}
+    openStudyById(openId);
+  }
+
+  loadStudies().then(openFromAddress);
 })();

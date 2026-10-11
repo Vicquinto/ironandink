@@ -463,6 +463,25 @@
     // Reopen after a refresh when there's a conversation (or plan) in progress.
     if (state.open && (state.messages.length || state.plan.length)) setOpen(true, false);
     else if (state.open) { state.open = false; saveState(); }
+
+    // ?plan=<area> — the Study Map's "Plan a study" link on an area not studied
+    // yet. Opens the planner with that area as the starting idea, waiting in the
+    // box for the member to send (or change). Nothing is sent on its own, and an
+    // existing conversation is kept. The parameter is dropped from the address
+    // so a refresh doesn't fill the box again.
+    var planIdea = '';
+    try { planIdea = (new URLSearchParams(window.location.search).get('plan') || '').replace(/\s+/g, ' ').trim().slice(0, 80); } catch (e) {}
+    if (planIdea) {
+      try {
+        var u = new URL(window.location.href);
+        u.searchParams.delete('plan');
+        window.history.replaceState(null, '', u.pathname + u.search + u.hash);
+      } catch (e) {}
+      setOpen(true, true);
+      if (!inputEl.value.trim()) {
+        inputEl.value = 'I haven\'t studied ' + planIdea + ' yet. Could you help me plan a study in that area?';
+      }
+    }
   }
 
   // PLANNER_BOOT is assigned by an inline script after this file — wait for it.

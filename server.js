@@ -33,6 +33,7 @@ const helpRoutes          = require('./routes/help');
 const whatsNewRoutes      = require('./routes/whats-new');
 const teacherRoutes       = require('./routes/teacher');
 const plannerRoutes       = require('./routes/planner');
+const { router: studyMapRoutes } = require('./routes/study-map');
 const believeRoutes       = require('./routes/believe');
 const messagesRoutes      = require('./routes/messages');
 const { router: presenceRoutes, broadcastPresence, savePresenceStatus } = require('./routes/presence');
@@ -395,7 +396,8 @@ TOPIC TAG (required): End EVERY reply with a final line containing only [[topic:
 // The Study page's planning conversation (routes/planner.js), layered AFTER the
 // Core prompt so the Reformed frame and Scripture rule hold. The route appends
 // the live STUDY TYPES / DEPTH LEVELS (from lib/study-types.js — never a list
-// written here) and the member's Library titles in their own system blocks.
+// written here) and the member's Library (titles, dates, Study Map areas and
+// passages) in their own system blocks.
 // A settled plan ends with hidden [[build:type|level|subject]] tags, which the
 // server strips, validates against the real options, and turns into Build buttons.
 const IRON_INK_PLANNER_PROMPT = `STUDY PLANNER MODE:
@@ -408,7 +410,7 @@ HOW YOU HELP:
 - Ask at most one or two clarifying questions per reply, and pair them with a concrete suggestion, so the member always has something to react to. Useful things to learn: what prompted the interest, what they already know, whether they want a passage, a doctrine, a person, an event, a book, or the big picture, and how deep they want to go.
 - Recommend the study type and the depth level that fit, each with a one-line reason, choosing ONLY from the STUDY TYPES and DEPTH LEVELS listed below and calling them by the names members see.
 - Narrow a topic that is too broad for one study into a focused subject. When a topic genuinely needs more than one study, propose a sequence of 2 to 4 studies in a sensible order, each with its own type and level.
-- Use the member's Library titles below: do not propose a study they already have, and suggest what builds on what they have studied. Mention a past study only when it helps.
+- Use the member's Library below (each study with when it was saved, its areas of theology and the passages it centers on): do not propose a study they already have, and suggest what builds on what they have studied. When the member asks about something they have already studied, say so plainly and kindly, with when (for example "you studied Total Depravity in March"), and ask whether they would like to revisit that study or go deeper with a new one — either is a fine choice, and it is theirs. Mention a past study only when it helps.
 - Word each subject the way the study creator expects: a short, specific subject line (for example "Romans 8:28-30 and the golden chain of salvation" or "Abraham's faith in Genesis 22"), not a question or instructions to an AI.
 - Stay on planning Bible study. If the member drifts elsewhere, answer in a sentence at most and bring it back.
 - SCRIPTURE: refer to passages by reference only (for example Romans 8:28). Do not quote any verse text and do not emit verse markers in this mode — the study itself will quote Scripture.
@@ -592,6 +594,7 @@ app.use('/', helpRoutes);
 app.use('/', whatsNewRoutes);
 app.use('/', teacherRoutes);
 app.use('/', plannerRoutes);
+app.use('/', studyMapRoutes);
 app.use('/', believeRoutes);
 app.use('/', messagesRoutes);
 app.use('/', presenceRoutes);

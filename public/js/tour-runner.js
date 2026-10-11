@@ -4,7 +4,7 @@
  */
 
 import Shepherd from '/js/shepherd.mjs';
-import { TOURS } from '/js/tours.js?v=7';
+import { TOURS } from '/js/tours.js?v=8';
 
 const PAGE       = window.__currentPage;
 const TOURS_SEEN = window.__toursSeen || {};
@@ -64,6 +64,8 @@ function startTour() {
   });
 
   steps.forEach((def) => {
+    // A step marked optional is left out when its element isn't on the page.
+    if (def.optional && def.attachTo && !document.querySelector(def.attachTo.element)) return;
     const stepOpts = {
       id:      def.id,
       title:   def.title,

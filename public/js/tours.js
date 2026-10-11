@@ -31,6 +31,42 @@ export const TOURS = {
     },
   ],
 
+  // optional: true — skipped when the element isn't on the page (e.g. a member
+  // with no studies yet has no views, entries or Revisit suggestion).
+  'study-map': [
+    {
+      id:       'study-map-intro',
+      attachTo: { element: '.page-title', on: 'bottom' },
+      title:    'Your Study Map',
+      text:     'Every study you’ve saved, gathered in one place — so you can find a past study and study it again. Only you can see it, and there’s nothing to score: it’s simply a map of where you’ve been.',
+      buttons:  ['skip', 'next'],
+    },
+    {
+      id:       'study-map-views',
+      attachTo: { element: '.sm-tabs', on: 'bottom' },
+      optional: true,
+      title:    'Three Ways to Look',
+      text:     'By area of theology, by book of the Bible, or month by month. Studies on the same subject are kept together, and an area you haven’t studied yet has a “Plan a study” link to start one.',
+      buttons:  ['back', 'next'],
+    },
+    {
+      id:       'study-map-entry',
+      attachTo: { element: '.sm-entry', on: 'bottom' },
+      optional: true,
+      title:    'Open It, or Check Yourself',
+      text:     'Open any study, or let the Tutor check your understanding of it. A small Tutor or Teacher marker shows where you’ve already had a session.',
+      buttons:  ['back', 'next'],
+    },
+    {
+      id:       'study-map-revisit',
+      attachTo: { element: '.sm-revisit', on: 'bottom' },
+      optional: true,
+      title:    'Worth Revisiting',
+      text:     'Now and then an older study is suggested here to revisit. Not interested right now? “Not now” hides it.',
+      buttons:  ['back', 'finish'],
+    },
+  ],
+
   scripture: [
     {
       id:       'scripture-nav',

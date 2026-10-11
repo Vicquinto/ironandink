@@ -11,6 +11,7 @@ const { getEntitlements, recordStudy } = require('../lib/entitlements');
 const { aiLimiter } = require('../middleware/rateLimit');
 const STORY_GROUPS = require('../data/childrens-stories');
 const { STUDY_TYPES, STUDY_LEVELS, DEFAULT_STUDY_TYPE } = require('../lib/study-types');
+const { tagStudy, getMap, rememberGeneratedMap } = require('../lib/study-map');
 
 const router = express.Router();
 
@@ -21,6 +22,16 @@ const router = express.Router();
 const USERS_PATH = path.join(__dirname, '../data/users.json');
 function readUsers() { return JSON.parse(fs.readFileSync(USERS_PATH, 'utf8')); }
 function writeUsers(u) { fs.writeFileSync(USERS_PATH, JSON.stringify(u, null, 2)); }
+
+// Read-only, for the Study Map tagger's list of the member's earlier subjects.
+const STUDIES_PATH = path.join(__dirname, '../data/studies.json');
+function readStudiesSafe() {
+  try {
+    if (!fs.existsSync(STUDIES_PATH)) return [];
+    const list = JSON.parse(fs.readFileSync(STUDIES_PATH, 'utf8'));
+    return Array.isArray(list) ? list : [];
+  } catch { return []; }
+}
 
 const STUDY_LENGTH_CONFIG = {
   Short:    { wordCount: 800,  maxTokens: 1600 },
@@ -335,7 +346,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/teacher-entry.js?v=2"></script><script src="/js/study.js?v=27"></script><script src="/js/study-planner.js?v=2"></script><script src="/js/library.js?v=63"></script>
+    scripts: `<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/teacher-entry.js?v=2"></script><script src="/js/study.js?v=28"></script><script src="/js/study-planner.js?v=3"></script><script src="/js/library.js?v=64"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${inlineJson((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};
@@ -747,6 +758,25 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
       // text. The Lockman notice is appended when NASB text was injected.
       // Multi-verse quotations carry each verse's number (lib/asv.js).
       const content = injectWithAttribution(studyText, undefined, { verseNumbers: true });
+
+      // Study Map tags (theology areas, subject, passages) — one quick Haiku call
+      // with a hard timeout; on any failure it falls back to tags worked out from
+      // the study itself, so generation never fails on tagging. The tags wait in
+      // the member's session until the study is saved (routes/library.js).
+      try {
+        const priorSubjects = readStudiesSafe()
+          .filter(s => s && s.userId === req.session.userId)
+          .map(s => getMap(s).subject);
+        const studyMap = await tagStudy({ topic: topic.trim(), content, priorSubjects, timeoutMs: 8000 });
+        // Generation takes minutes; reload the session first so writing the tags
+        // can't put back a stale copy over changes made meanwhile (e.g. Settings).
+        await new Promise(resolve => req.session.reload(err => {
+          if (!err) rememberGeneratedMap(req.session, content, studyMap);
+          resolve();
+        }));
+      } catch (tagErr) {
+        console.error('[study-gen] study map tagging failed:', tagErr.message);
+      }
       console.log(`[study-gen] DONE total time=${Date.now() - reqStart}ms`);
       const su = req.session.user || {};
       logEvent(su.id || req.session.userId, su.fullName, 'study_generated', { topic: topic.trim(), studyType: resolvedStudyType });
