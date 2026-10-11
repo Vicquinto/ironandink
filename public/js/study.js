@@ -557,6 +557,34 @@
     updateLevelVisibility();
   }
 
+  // ── Study Planner bridge ─────────────────────────────────────────────────────
+  // "Build this study" in the planner (study-planner.js) fills the creator here:
+  // type, level and subject — all already validated server-side against the
+  // real options. Like a curated pick it's a fresh intent (no branch lineage),
+  // and like a suggestion it never locks anything: the member reviews and clicks
+  // Generate as usual. level null = leave the member's current level alone
+  // (e.g. Explore, which has no depth dial).
+  window.__ironStudyCreator = {
+    fill: function (plan) {
+      if (!plan || !plan.subject || !topicInput) return false;
+      clearPendingLineage();
+      clearSuggestNote();
+      if (studyTypePicker && plan.type &&
+          studyTypePicker.querySelector('.study-type-option[data-type="' + plan.type + '"]')) {
+        applyBranchDefaultType(plan.type);
+      }
+      if (studyLevelSelect && plan.level &&
+          studyLevelSelect.querySelector('option[value="' + plan.level + '"]')) {
+        studyLevelSelect.value = plan.level;
+        updateStoryModeUI();
+      }
+      topicInput.value = plan.subject;
+      syncSuggestEnabled();
+      markGenerateReady();
+      return true;
+    },
+  };
+
   // Queue an in-place branch generate against a known parent id. Sets the pending
   // lineage, pre-fills the topic, defaults the picker, shows the note, scrolls up.
   // Does NOT auto-generate; the user reviews the type and clicks Generate.

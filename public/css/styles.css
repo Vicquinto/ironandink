@@ -8202,3 +8202,152 @@ body {
   .teacher-topbar { flex-direction: column; align-items: flex-start; }
 }
 a.teacher-review-outside { font-style: italic; text-decoration: underline; }
+
+/* ─── PLAN A STUDY (study page) ─────────────────────────────────────────────
+   The planning conversation beside the study creator (study-planner.js).
+   Side by side on wide screens (.is-planning), stacked below the creator on
+   narrow ones. The conversation is the Tutor/Teacher pane's: the panel's own
+   font-size is the A-/A/A+ zoom (PFONT_*), everything readable inside is
+   em-based so it scales together, and the header stays rem-sized. */
+.study-plan-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-bottom: 14px;
+}
+.plan-study-btn.is-active { color: var(--dark-cream); border-color: var(--dark-cream); }
+.plan-study-hint {
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--warm-brown);
+}
+.study-creator { min-width: 0; }
+
+.plan-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: min(72vh, 720px);
+  min-height: 420px;
+  margin-bottom: 28px;
+  background: rgba(160,132,92,0.05);
+  border: 1px solid rgba(160,132,92,0.18);
+  border-radius: 6px;
+  padding: 12px 16px;
+}
+.plan-panel[hidden] { display: none; }
+
+@media (min-width: 1100px) {
+  .study-creator-row.is-planning {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 42%);
+    gap: 24px;
+    align-items: start;
+  }
+  /* The creator column is narrower while planning: two card columns, and the
+     topic box takes its own line above the level and buttons. */
+  .study-creator-row.is-planning .study-type-picker { grid-template-columns: repeat(2, 1fr); }
+  .study-creator-row.is-planning .study-search-bar { flex-wrap: wrap; }
+  .study-creator-row.is-planning .study-topic-input { flex: 1 1 100%; }
+}
+
+.plan-panel .conversation-header { flex-wrap: wrap; row-gap: 6px; }
+.plan-header-tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-left: auto;
+}
+.plan-panel .btn-end-session:disabled { opacity: 0.45; cursor: not-allowed; }
+.plan-close-btn {
+  background: none;
+  border: none;
+  padding: 0 4px;
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--warm-brown);
+  cursor: pointer;
+}
+.plan-close-btn:hover { color: var(--accent); }
+
+.plan-panel .chat-msg { max-width: 94%; min-width: 0; }
+.plan-panel .msg-content {
+  font-size: 1em;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.plan-panel .chat-textarea {
+  font-size: 1em;
+  line-height: 1.5;
+  max-height: 40vh;
+}
+.plan-panel .plan-input-area {
+  flex-shrink: 1;
+  min-height: 0;
+  max-height: 55%;
+  overflow-y: auto;
+}
+.plan-panel .chat-input-actions { flex-wrap: wrap; }
+.plan-panel .plan-build-btn { margin-left: auto; }
+.plan-panel .plan-build-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.plan-messages .guide-bq {
+  margin: 8px 0;
+  padding: 6px 12px;
+  border-left: 3px solid var(--accent);
+  font-style: italic;
+}
+
+/* Build buttons — under a reply that offered a plan, and in .plan-builds above
+   the input (the rest of a sequence, or the result of "Build this study"). */
+.plan-builds {
+  flex-shrink: 0;
+  max-height: 35%;
+  overflow-y: auto;
+  padding-top: 4px;
+  border-top: 1px solid rgba(160,132,92,0.15);
+}
+.plan-build-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+.plan-build-list-label {
+  margin: 0;
+  font-size: 0.85em;
+  font-style: italic;
+  color: var(--warm-brown);
+}
+.plan-build-option {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 100%;
+  text-align: left;
+  background: var(--card-bg);
+  border: 1.5px solid rgba(92,26,40,0.45);
+  border-radius: 6px;
+  padding: 0.45em 0.8em;
+  font-family: Georgia, serif;
+  font-size: 0.9em;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.plan-build-option:hover {
+  border-color: #5C1A28;
+  background: rgba(92,26,40,0.06);
+}
+.plan-build-option-head {
+  font-weight: 600;
+  color: #5C1A28;
+  overflow-wrap: anywhere;
+}
+.plan-build-option-meta {
+  font-size: 0.85em;
+  color: var(--warm-brown);
+}

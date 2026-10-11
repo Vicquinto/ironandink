@@ -20,6 +20,13 @@ export const TOURS = {
       attachTo: { element: '#generateBtn', on: 'bottom' },
       title:    'Generate',
       text:     'Click here and a structured Reformed study is built for you — with a topic overview, the key Scriptures in full, confessional context, and voices from church history.',
+      buttons:  ['back', 'next'],
+    },
+    {
+      id:       'study-plan',
+      attachTo: { element: '#planStudyBtn', on: 'bottom' },
+      title:    'Plan a Study',
+      text:     'Not sure exactly what to study? Talk it through with the planner first. It helps you shape an idea into a clear study, recommends the type and level, and with “Build this study” fills in the creator for you — then you click Generate.',
       buttons:  ['back', 'finish'],
     },
   ],

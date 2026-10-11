@@ -18,6 +18,17 @@
 
 const WHATS_NEW = [
   {
+    date:  'October 11, 2026',
+    title: 'Plan a Study',
+    body:  `Not sure exactly what to study? On the Study page, tap "Plan a Study" and talk it through first. A study partner opens beside the study creator and helps you turn a half-formed interest into a clear, well-scoped study — asking a question or two at a time and offering concrete suggestions as you go.
+
+The planner knows every study type and level, recommends the ones that fit (and tells you why), and narrows a topic that's too big for one study — or lays out a short sequence of two to four studies when a subject needs more room. It also knows the titles in your Library, so it won't suggest something you've already studied and can point you to what builds on it.
+
+When the plan is ready, tap "Build this study" — the study type, level and subject are filled into the study creator for you. Look it over and click Generate as usual. A planned sequence gets its own Build button for each study.
+
+Your planning conversation stays in your browser until you build a study or tap "Start fresh" — nothing is saved to your Library.`
+  },
+  {
     date:  'October 10, 2026',
     title: 'Study with a Tutor — or a Teacher',
     body:  `Every study now comes with two patient guides. Open any study — your own, one in your Library, or one shared in the Community — and choose at the top. The study stays open on one side while you talk on the other, one question at a time.

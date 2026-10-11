@@ -10,6 +10,7 @@ const { logEvent } = require('../lib/usageLog');
 const { getEntitlements, recordStudy } = require('../lib/entitlements');
 const { aiLimiter } = require('../middleware/rateLimit');
 const STORY_GROUPS = require('../data/childrens-stories');
+const { STUDY_TYPES, STUDY_LEVELS, DEFAULT_STUDY_TYPE } = require('../lib/study-types');
 
 const router = express.Router();
 
@@ -142,6 +143,25 @@ function buildTopicBrowser() {
     </div>`).join('');
 }
 
+// Type cards and level options come from the shared list (lib/study-types.js),
+// so the picker, Suggest a study type and the Study Planner never drift apart.
+function buildTypePicker() {
+  return STUDY_TYPES.map(t => {
+    const active = t.key === DEFAULT_STUDY_TYPE;
+    return `
+      <button class="study-type-option${active ? ' study-type-option--active' : ''}" data-type="${escapeHtml(t.key)}" role="radio" aria-checked="${active}">
+        <span class="study-type-name">${escapeHtml(t.label)}</span>
+        <span class="study-type-sub">${escapeHtml(t.desc)}</span>
+      </button>`;
+  }).join('');
+}
+
+function buildLevelOptions() {
+  return STUDY_LEVELS.map(l =>
+    `<option value="${escapeHtml(l.key)}">${escapeHtml(l.label)}</option>`
+  ).join('\n          ');
+}
+
 // Children's story shelf — twin of buildTopicBrowser() using the SAME accordion
 // markup (.topic-category / .topic-cat-header / .topic-cat-body) so it reuses the
 // existing CSS and the existing .topic-cat-header accordion click handler. The
@@ -170,39 +190,18 @@ router.get('/study', requireAuth, (req, res) => {
       <p class="page-subtitle">Select a curated topic or enter your own to generate a study.</p>
     </div>
 
+    <div class="study-plan-bar">
+      <button type="button" id="planStudyBtn" class="btn-warm plan-study-btn" aria-controls="planPanel" aria-expanded="false">Plan a Study</button>
+      <span class="plan-study-hint">Not sure yet? Talk it through first &#8212; the planner fills in the study for you.</span>
+    </div>
+
+    <!-- The study creator, with the Study Planner beside it (side by side on wide
+         screens, stacked below on narrow — see .study-creator-row in styles.css).
+         The planner pane stays hidden until "Plan a Study" opens it. -->
+    <div class="study-creator-row" id="studyCreatorRow">
+    <div class="study-creator" id="studyCreator">
     <div class="study-type-picker" id="studyTypePicker" role="radiogroup" aria-label="Study type">
-      <button class="study-type-option study-type-option--active" data-type="doctrinal" role="radio" aria-checked="true">
-        <span class="study-type-name">Doctrinal</span>
-        <span class="study-type-sub">Reformed doctrine, confessions &amp; historical voices</span>
-      </button>
-      <button class="study-type-option" data-type="explore" role="radio" aria-checked="false">
-        <span class="study-type-name">Explore</span>
-        <span class="study-type-sub">Big subject? Get oriented, then branch into further studies.</span>
-      </button>
-      <button class="study-type-option" data-type="historical" role="radio" aria-checked="false">
-        <span class="study-type-name">Historical</span>
-        <span class="study-type-sub">Timeline, places, and what happened</span>
-      </button>
-      <button class="study-type-option" data-type="scripture" role="radio" aria-checked="false">
-        <span class="study-type-name">Scripture &amp; Verse</span>
-        <span class="study-type-sub">Study a specific passage, verse by verse</span>
-      </button>
-      <button class="study-type-option" data-type="people" role="radio" aria-checked="false">
-        <span class="study-type-name">Subject</span>
-        <span class="study-type-sub">A person, place, or thing in Scripture &amp; its place in God&#39;s plan</span>
-      </button>
-      <button class="study-type-option" data-type="pathway" role="radio" aria-checked="false">
-        <span class="study-type-name">Pathway</span>
-        <span class="study-type-sub">A full study that follows the subject where it leads — and opens further paths.</span>
-      </button>
-      <button class="study-type-option" data-type="open" role="radio" aria-checked="false">
-        <span class="study-type-name">Open</span>
-        <span class="study-type-sub">Not sure which to pick? Start here — fits the study to the subject.</span>
-      </button>
-      <button class="study-type-option" data-type="book" role="radio" aria-checked="false">
-        <span class="study-type-name">Book</span>
-        <span class="study-type-sub">A whole book of the Bible — who wrote it, when, why, and its place in Scripture.</span>
-      </button>
+      ${buildTypePicker()}
     </div>
 
     <div class="study-search-bar">
@@ -211,15 +210,45 @@ router.get('/study', requireAuth, (req, res) => {
       <div class="study-level-field" id="studyLevelField">
         <label class="form-label" for="studyLevelSelect">Study Level</label>
         <select id="studyLevelSelect" class="study-level-select" title="Writing register">
-          <option value="children">Children&#39;s</option>
-          <option value="foundations">Apprentice</option>
-          <option value="journeyman">Journeyman</option>
-          <option value="scholar">Scholar</option>
+          ${buildLevelOptions()}
         </select>
       </div>
       <button id="generateBtn" class="btn-primary">Generate Study</button>
       <button id="appointedStudyBtn" class="btn-warm">Appointed Study</button>
       <button id="suggestTypeBtn" class="btn-warm" disabled>Suggest a study type</button>
+    </div>
+    </div>
+
+    <section class="plan-panel" id="planPanel" aria-label="Plan a Study" hidden>
+      <div class="conversation-header">
+        <span class="conversation-header-title">Plan a Study</span>
+        <span class="plan-header-tools">
+          <!-- Display-only zoom for the conversation — the Tutor/Teacher page's
+               pattern, own localStorage key; see PFONT_* in study-planner.js. -->
+          <span class="conversation-zoom" role="group" aria-label="Conversation text size">
+            <button type="button" class="guide-font-btn guide-font-btn-sm" id="planFontDec" title="Smaller text" aria-label="Smaller text">A&#8722;</button>
+            <button type="button" class="guide-font-btn guide-font-btn-md" id="planFontReset" title="Reset text size" aria-label="Reset text size">A</button>
+            <button type="button" class="guide-font-btn guide-font-btn-lg" id="planFontInc" title="Larger text" aria-label="Larger text">A+</button>
+          </span>
+          <button type="button" class="btn-end-session" id="planFreshBtn">Start fresh</button>
+          <button type="button" class="plan-close-btn" id="planCloseBtn" title="Close the planner (your conversation is kept)" aria-label="Close the planner">&#215;</button>
+        </span>
+      </div>
+
+      <div id="planMessages" class="chat-messages plan-messages" aria-live="polite"></div>
+
+      <div id="planBuilds" class="plan-builds" style="display:none;"></div>
+
+      <div class="chat-input-area plan-input-area">
+        <textarea id="planInput" class="chat-textarea" rows="2"
+                  placeholder="What would you like to study?&#8230;" maxlength="4000"></textarea>
+        <div class="chat-input-actions">
+          <button type="button" class="btn-primary" id="planSendBtn">Send</button>
+          <button type="button" class="btn-stop" id="planStopBtn" style="display:none;">Stop</button>
+          <button type="button" class="btn-warm plan-build-btn" id="planBuildBtn" disabled title="Fill in the study creator from this conversation">Build this study</button>
+        </div>
+      </div>
+    </section>
     </div>
 
     <div id="childrensStoryPicker" class="topic-browser" style="display:none;">
@@ -306,12 +335,13 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/teacher-entry.js?v=2"></script><script src="/js/study.js?v=26"></script><script src="/js/library.js?v=62"></script>
+    scripts: `<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/teacher-entry.js?v=2"></script><script src="/js/study.js?v=27"></script><script src="/js/study-planner.js?v=1"></script><script src="/js/library.js?v=62"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${inlineJson((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};
 window.STUDY_VERSES    = ${inlineJson(getVersePool())};
 window.NASB_ATTRIBUTION = ${inlineJson(NASB_ATTRIBUTION)};
+window.PLANNER_BOOT    = ${inlineJson({ userKey: req.session.userId })};
 </script>
 <script>
 (function() {
@@ -777,27 +807,17 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
 });
 
 // ─── POST /api/study/suggest-type ────────────────────────────────────────────
-// Recommends which of the seven study types best fits a topic. Advisory only —
+// Recommends which of the study types (lib/study-types.js) best fits a topic. Advisory only —
 // the client highlights the suggestion in the picker, and whatever the member has
 // selected at Generate is what gets used.
 //
 // Classification is on the shape of the SUBJECT, never the reader: no study level
 // or depth is inferred here.
 
-// The keys the picker uses, with the exact card descriptions members read. Kept
-// in step with the .study-type-option cards in GET /study below — if a card's
-// wording changes, change it here too so the model classifies against what the
-// member actually sees.
-const SUGGEST_TYPE_OPTIONS = [
-  { key: 'doctrinal',  label: 'Doctrinal',         desc: 'Reformed doctrine, confessions & historical voices' },
-  { key: 'explore',    label: 'Explore',           desc: 'Big subject? Get oriented, then branch into further studies.' },
-  { key: 'historical', label: 'Historical',        desc: 'Timeline, places, and what happened' },
-  { key: 'scripture',  label: 'Scripture & Verse', desc: 'Study a specific passage, verse by verse' },
-  { key: 'people',     label: 'Subject',           desc: 'A person, place, or thing in Scripture & its place in God\'s plan' },
-  { key: 'pathway',    label: 'Pathway',           desc: 'A full study that follows the subject where it leads — and opens further paths.' },
-  { key: 'open',       label: 'Open',              desc: 'Not sure which to pick? Start here — fits the study to the subject.' },
-  { key: 'book',       label: 'Book',              desc: 'A study of an entire book of the Bible — its authorship, date, themes, and structure.' },
-];
+// The keys the picker uses, with the exact card descriptions members read —
+// the same shared list GET /study renders the cards from (lib/study-types.js),
+// so the model always classifies against what the member actually sees.
+const SUGGEST_TYPE_OPTIONS = STUDY_TYPES;
 
 const SUGGEST_VALID_KEYS = SUGGEST_TYPE_OPTIONS.map(o => o.key);
 
@@ -834,7 +854,7 @@ router.post('/api/study/suggest-type', requireAuth, aiLimiter, async (req, res) 
 
   const systemPrompt =
     'You help a Reformed Bible study platform choose which study type best fits a topic.\n\n' +
-    'The seven study types are:\n' + typeList + '\n\n' +
+    'The ' + SUGGEST_TYPE_OPTIONS.length + ' study types are:\n' + typeList + '\n\n' +
     'Choose the ONE type that best fits the shape of the subject itself — what kind of thing ' +
     'it is and how it is best studied. Do not consider the reader\'s experience level, and do ' +
     'not comment on difficulty or depth.\n\n' +

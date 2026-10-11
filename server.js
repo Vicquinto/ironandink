@@ -32,6 +32,7 @@ const dedicationRoutes    = require('./routes/dedication');
 const helpRoutes          = require('./routes/help');
 const whatsNewRoutes      = require('./routes/whats-new');
 const teacherRoutes       = require('./routes/teacher');
+const plannerRoutes       = require('./routes/planner');
 const believeRoutes       = require('./routes/believe');
 const messagesRoutes      = require('./routes/messages');
 const { router: presenceRoutes, broadcastPresence, savePresenceStatus } = require('./routes/presence');
@@ -390,6 +391,32 @@ QUICK REPLIES: The reader may tap these buttons, sent as their message:
 
 TOPIC TAG (required): End EVERY reply with a final line containing only [[topic:...]], naming in at most eight plain words what the conversation is on right now (for example [[topic:why Romans 8 comes before Romans 9]]). The reader never sees this tag.`;
 
+// ─── Plan a Study ───────────────────────────────────────────────────────────
+// The Study page's planning conversation (routes/planner.js), layered AFTER the
+// Core prompt so the Reformed frame and Scripture rule hold. The route appends
+// the live STUDY TYPES / DEPTH LEVELS (from lib/study-types.js — never a list
+// written here) and the member's Library titles in their own system blocks.
+// A settled plan ends with hidden [[build:type|level|subject]] tags, which the
+// server strips, validates against the real options, and turns into Build buttons.
+const IRON_INK_PLANNER_PROMPT = `STUDY PLANNER MODE:
+You are a thoughtful study partner helping one Iron & Ink member plan a study BEFORE it is generated, in a live conversation beside the study creator. Your aim is to turn a vague interest into a clear, well-scoped study the member will be glad to read. You are planning, not teaching: do not write the study, and do not lecture on the subject.
+
+TONE IN THIS MODE: The general TONE and VOICE guidance above is written for generated studies. Here, be a warm, plain-spoken, unhurried study partner across the table. Concise always — no long lectures.
+
+HOW YOU HELP:
+- Keep every reply short and conversational: a few sentences. No headings. A short list is fine only when laying out options or a sequence of studies.
+- Ask at most one or two clarifying questions per reply, and pair them with a concrete suggestion, so the member always has something to react to. Useful things to learn: what prompted the interest, what they already know, whether they want a passage, a doctrine, a person, an event, a book, or the big picture, and how deep they want to go.
+- Recommend the study type and the depth level that fit, each with a one-line reason, choosing ONLY from the STUDY TYPES and DEPTH LEVELS listed below and calling them by the names members see.
+- Narrow a topic that is too broad for one study into a focused subject. When a topic genuinely needs more than one study, propose a sequence of 2 to 4 studies in a sensible order, each with its own type and level.
+- Use the member's Library titles below: do not propose a study they already have, and suggest what builds on what they have studied. Mention a past study only when it helps.
+- Word each subject the way the study creator expects: a short, specific subject line (for example "Romans 8:28-30 and the golden chain of salvation" or "Abraham's faith in Genesis 22"), not a question or instructions to an AI.
+- Stay on planning Bible study. If the member drifts elsewhere, answer in a sentence at most and bring it back.
+- SCRIPTURE: refer to passages by reference only (for example Romans 8:28). Do not quote any verse text and do not emit verse markers in this mode — the study itself will quote Scripture.
+
+WHEN A PLAN IS READY: When you and the member have settled on a study (or a sequence), say so in a sentence and invite them to build it. Then end that reply with one hidden build tag per study, in order, each on its own line at the very end:
+[[build:TYPE_KEY|LEVEL_KEY|Subject wording]]
+TYPE_KEY and LEVEL_KEY are the exact keys from the lists below; use - as LEVEL_KEY for a type that takes no level. The member never sees these tags — each one becomes a "Build" button that fills in the study creator. Include tags only when a plan is genuinely settled (and again whenever the settled plan changes). Never include them in a reply that is still working out what the member wants.`;
+
 // ─── Writing Types — restyle instructions ──────────────────────────────────
 // Each rewrites a supplied draft in one voice, WITHOUT changing the writer's
 // theology or meaning. Used only by POST /api/writing/restyle, layered after the
@@ -450,7 +477,7 @@ Write nothing else — no study sections, background, or extra questions. A stor
 // ──────────────────────────────────────────────────────────────────────────
 
 // Expose prompts to all route handlers via req.app.locals.prompts
-app.locals.prompts = { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT, IRON_INK_EXPLORE_PROMPT, IRON_INK_HISTORICAL_PROMPT, IRON_INK_SCRIPTURE_PROMPT, IRON_INK_OPEN_PROMPT, IRON_INK_PEOPLE_PROMPT, IRON_INK_PATHWAY_PROMPT, IRON_INK_BOOK_PROMPT, IRON_INK_DIALOGUE_PROMPT, IRON_INK_WRITING_PROMPT, IRON_INK_TUTOR_PROMPT, IRON_INK_TEACHER_PROMPT, IRON_INK_STYLE_WARMER, IRON_INK_STYLE_ENCOURAGING, IRON_INK_STYLE_CONVICTION, IRON_INK_STYLE_RESPOND, IRON_INK_STYLE_LYRICAL, IRON_INK_STYLE_PLAINER, children: IRON_INK_CHILDREN_STORY_PROMPT };
+app.locals.prompts = { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT, IRON_INK_EXPLORE_PROMPT, IRON_INK_HISTORICAL_PROMPT, IRON_INK_SCRIPTURE_PROMPT, IRON_INK_OPEN_PROMPT, IRON_INK_PEOPLE_PROMPT, IRON_INK_PATHWAY_PROMPT, IRON_INK_BOOK_PROMPT, IRON_INK_DIALOGUE_PROMPT, IRON_INK_WRITING_PROMPT, IRON_INK_TUTOR_PROMPT, IRON_INK_TEACHER_PROMPT, IRON_INK_PLANNER_PROMPT, IRON_INK_STYLE_WARMER, IRON_INK_STYLE_ENCOURAGING, IRON_INK_STYLE_CONVICTION, IRON_INK_STYLE_RESPOND, IRON_INK_STYLE_LYRICAL, IRON_INK_STYLE_PLAINER, children: IRON_INK_CHILDREN_STORY_PROMPT };
 
 // Stripe webhook needs the RAW request body for signature verification, so it MUST
 // be registered BEFORE the global express.json() parser. Dormant while dark: the
@@ -564,6 +591,7 @@ app.use('/', dedicationRoutes);
 app.use('/', helpRoutes);
 app.use('/', whatsNewRoutes);
 app.use('/', teacherRoutes);
+app.use('/', plannerRoutes);
 app.use('/', believeRoutes);
 app.use('/', messagesRoutes);
 app.use('/', presenceRoutes);
@@ -805,4 +833,4 @@ httpServer.listen(PORT, () => {
   if (process.send) process.send('ready');
 });
 
-module.exports = { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT, IRON_INK_EXPLORE_PROMPT, IRON_INK_HISTORICAL_PROMPT, IRON_INK_SCRIPTURE_PROMPT, IRON_INK_OPEN_PROMPT, IRON_INK_PEOPLE_PROMPT, IRON_INK_PATHWAY_PROMPT, IRON_INK_BOOK_PROMPT, IRON_INK_DIALOGUE_PROMPT, IRON_INK_WRITING_PROMPT, IRON_INK_TUTOR_PROMPT, IRON_INK_TEACHER_PROMPT, IRON_INK_STYLE_WARMER, IRON_INK_STYLE_ENCOURAGING, IRON_INK_STYLE_CONVICTION, IRON_INK_STYLE_RESPOND, IRON_INK_STYLE_LYRICAL, IRON_INK_STYLE_PLAINER };
+module.exports = { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT, IRON_INK_EXPLORE_PROMPT, IRON_INK_HISTORICAL_PROMPT, IRON_INK_SCRIPTURE_PROMPT, IRON_INK_OPEN_PROMPT, IRON_INK_PEOPLE_PROMPT, IRON_INK_PATHWAY_PROMPT, IRON_INK_BOOK_PROMPT, IRON_INK_DIALOGUE_PROMPT, IRON_INK_WRITING_PROMPT, IRON_INK_TUTOR_PROMPT, IRON_INK_TEACHER_PROMPT, IRON_INK_PLANNER_PROMPT, IRON_INK_STYLE_WARMER, IRON_INK_STYLE_ENCOURAGING, IRON_INK_STYLE_CONVICTION, IRON_INK_STYLE_RESPOND, IRON_INK_STYLE_LYRICAL, IRON_INK_STYLE_PLAINER };
