@@ -19,6 +19,15 @@
 const WHATS_NEW = [
   {
     date:  'October 11, 2026',
+    title: 'Mark a Study Complete',
+    body:  `When you've finished a study, you can now mark it complete. Every study has a "Mark complete" button at the top and at the end, beside Study with a Tutor, Study with a Teacher and Check my understanding. Your studies start out as "Studying", and only you decide when one is done. Change your mind? Undo puts it back to Studying.
+
+After a Tutor or Teacher session, the review also asks, gently, whether you're ready to mark the study complete. It never marks anything for you.
+
+A completed study shows a small check mark with the date it was completed in your Library and on your Study Map, and both now have an All / Studying / Completed filter. The Dashboard snapshot shows what you're currently studying. Now and then, a completed study is suggested to revisit, and a study you set aside a while ago is suggested to continue. The planner in Plan a Study knows which studies you've completed, too, so it can suggest what builds on them.`
+  },
+  {
+    date:  'October 11, 2026',
     title: 'Your Study Map',
     body:  `There's a new page in the sidebar: Study Map. It gathers every study you've saved into one place, so you can find a past study and study it again. It's yours alone — no one else can see it — and it isn't a score: no points, no streaks, nothing to keep up with. It's simply a map of where you've been.
 

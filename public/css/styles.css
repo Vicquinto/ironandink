@@ -8591,3 +8591,73 @@ a.sm-book-tile.is-studied:hover { background: rgba(92,26,40,0.16); }
   .sm-books-grid { grid-template-columns: 1fr; }
   .sm-entry-actions { white-space: normal; }
 }
+
+/* ─── COMPLETED STATUS ──────────────────────────────────────────────────────
+   "Mark complete" / "✓ Completed · <date>" + Undo (public/js/teacher-entry.js,
+   teacher.js review). A quiet outline button — never a badge or a score. */
+.study-complete { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; }
+.teacher-entry-top .study-complete { margin-left: auto; align-self: center; }
+.study-complete-end { margin-left: 14px; vertical-align: middle; }
+@media (max-width: 600px) {
+  .teacher-entry-top .study-complete { margin-left: 0; }
+  .study-complete-end { margin: 10px 0 0; display: flex; justify-content: center; }
+}
+.study-complete-btn {
+  background: transparent;
+  color: var(--warm-brown);
+  border: 1px solid var(--warm-brown);
+  border-radius: 4px;
+  font-family: Georgia, serif;
+  font-size: 0.88rem;
+  padding: 7px 16px;
+  cursor: pointer;
+}
+.study-complete-btn:hover { color: var(--accent); border-color: var(--accent); }
+.study-complete-done { font-size: 0.9rem; color: var(--warm-brown); font-style: italic; }
+.study-complete-undo {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-family: Georgia, serif;
+  font-size: 0.84rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+.study-complete-btn:disabled, .study-complete-undo:disabled { opacity: 0.5; cursor: wait; }
+.teacher-complete-offer { margin-top: 14px; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px 10px; }
+.teacher-complete-offer[hidden] { display: none; }
+
+/* Library card: a quiet check mark with the date */
+.study-card-completed {
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--warm-brown);
+  border: 1px solid rgba(160,132,92,0.45);
+  border-radius: 3px;
+  padding: 0 6px;
+  white-space: nowrap;
+}
+
+/* Study Map: completion mark and the All / Studying / Completed filter */
+.sm-done { font-size: 0.8rem; color: var(--warm-brown); font-style: italic; white-space: nowrap; }
+.sm-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 14px; }
+.sm-filter-label { font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--warm-brown); margin-right: 4px; }
+.sm-filter-btn {
+  background: transparent;
+  border: 1px solid rgba(160,132,92,0.5);
+  border-radius: 14px;
+  color: var(--warm-brown);
+  font-family: Georgia, serif;
+  font-size: 0.82rem;
+  padding: 3px 12px;
+  cursor: pointer;
+}
+.sm-filter-btn.is-active { border-color: var(--accent); color: var(--accent); background: rgba(92,26,40,0.07); }
+.sm-entry[hidden], .sm-entries[hidden], .sm-group[hidden], .sm-book[hidden], .sm-month[hidden],
+.sm-filter-empty[hidden] { display: none !important; }
+a.sm-book-tile.is-studied.is-filtered-out {
+  border-color: rgba(160,132,92,0.3);
+  background: transparent;
+  color: rgba(107,66,38,0.75);
+}

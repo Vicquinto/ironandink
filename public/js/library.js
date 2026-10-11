@@ -14,7 +14,7 @@
       var data = await res.json();
       if (!data.success) throw new Error(data.error);
       allStudies = data.studies;
-      renderCards(allStudies);
+      applyFilters();
     } catch (err) {
       document.getElementById('studyCardsGrid').innerHTML =
         '<p class="library-empty">Failed to load studies. Please refresh.</p>';
@@ -26,7 +26,9 @@
     var grid = document.getElementById('studyCardsGrid');
 
     if (!studies.length) {
-      grid.innerHTML = '<p class="library-empty">No studies saved yet. Head to Study to generate your first study.</p>';
+      grid.innerHTML = allStudies.length
+        ? '<p class="library-empty">No studies match these filters.</p>'
+        : '<p class="library-empty">No studies saved yet. Head to Study to generate your first study.</p>';
       return;
     }
 
@@ -50,6 +52,12 @@
         ? '<span class="study-card-shared" title="Shared to Community">&#128101; Shared</span>'
         : '';
 
+      // A quiet check mark with the date on a study the member marked complete.
+      var completedBadge = s.completedAt
+        ? '<span class="study-card-completed" title="Completed ' + esc(formatDate(s.completedAt)) + '">&#10003; ' +
+            esc(formatDate(s.completedAt)) + '</span>'
+        : '';
+
       return '<div class="study-card" data-id="' + esc(s.id) + '" tabindex="0" role="button">' +
           '<div class="study-card-header">' +
             '<h4 class="study-card-title">' + esc(s.topic) + '</h4>' +
@@ -64,6 +72,7 @@
             studyTypeBadge(s.studyType) +
             studyLevelBadge(s.studyLevel) +
             sharedBadge +
+            completedBadge +
             lineageBadge(s) +
           '</div>' +
           tagsHtml +
@@ -377,7 +386,21 @@
       window.enhanceFurtherStudies(libGuideBody, exploredSet);
     }
     // Study with a Tutor / Teacher entry points (top / per-section / end-of-study).
-    if (window.IronInkTeacher) window.IronInkTeacher.attach(libGuideBody, { studyId: study.id });
+    // Plus Mark complete / Completed · <date> with Undo (every Library study is the member's own).
+    if (window.IronInkTeacher) {
+      window.IronInkTeacher.attach(libGuideBody, {
+        studyId: study.id,
+        completion: { completedAt: study.completedAt || null, canChange: true },
+        onCompletionChange: function (at) {
+          study.completedAt = at;
+          var rec = allStudies.find(function (s) { return s.id === study.id; });
+          if (rec) rec.completedAt = at;
+          applyFilters();
+        },
+      });
+    }
+    // Note the open for the Dashboard's "Currently studying" (best effort).
+    fetch('/api/library/' + encodeURIComponent(study.id) + '/opened', { method: 'POST' }).catch(function () {});
     renderLineageCrumb(study); // breadcrumb above the body (cleared if root/standalone)
     renderBranchesList(study); // children below the body (cleared if none)
     // "View full tree" launcher: shown only when this study belongs to a tree —
@@ -606,14 +629,32 @@
   if (filterTagEl)    filterTagEl.addEventListener('input', applyFilters);
   if (filterRatingEl) filterRatingEl.addEventListener('change', applyFilters);
 
+  // All / Studying / Completed — remembered in this browser, like the Study
+  // Map's filter (its own key).
+  var STATUS_FILTER_KEY = 'ironink_library_status_filter';
+  var filterStatusEl = document.getElementById('filterStatus');
+  if (filterStatusEl) {
+    try {
+      var savedStatus = localStorage.getItem(STATUS_FILTER_KEY);
+      if (savedStatus === 'studying' || savedStatus === 'completed') filterStatusEl.value = savedStatus;
+    } catch (e) {}
+    filterStatusEl.addEventListener('change', function () {
+      try { localStorage.setItem(STATUS_FILTER_KEY, filterStatusEl.value); } catch (e) {}
+      applyFilters();
+    });
+  }
+
   function applyFilters() {
+    if (!document.getElementById('studyCardsGrid')) return;
     var tagVal    = document.getElementById('filterTag').value.toLowerCase().trim();
     var ratingVal = parseInt(document.getElementById('filterRating').value) || 0;
+    var statusVal = filterStatusEl ? filterStatusEl.value : '';
 
     var filtered = allStudies.filter(function (s) {
       var tagOk    = !tagVal    || (s.tags && s.tags.some(function (t) { return t.toLowerCase().includes(tagVal); }));
       var ratingOk = !ratingVal || (s.rating >= ratingVal);
-      return tagOk && ratingOk;
+      var statusOk = !statusVal || (statusVal === 'completed' ? !!s.completedAt : !s.completedAt);
+      return tagOk && ratingOk && statusOk;
     });
 
     renderCards(filtered);

@@ -934,12 +934,14 @@
       guideBody.innerHTML      = renderMarkdown(data.content);
       window.enhanceFurtherStudies(guideBody);
       // Study with a Tutor / Teacher needs a saved study; a fresh draft is saved to the
-      // Library first (same notepad bridge save), then the page opens.
+      // Library first (same notepad bridge save), then the page opens. Mark complete
+      // works the same way: the draft is saved first, then marked.
       if (window.IronInkTeacher) {
         window.IronInkTeacher.attach(guideBody, {
           resolveId: function (cb) {
             window.__ironStudyDraft.save(function (err, saved) { cb(err, saved && saved.id); });
           },
+          completion: { completedAt: null, canChange: true },
         });
       }
       showState('guide');

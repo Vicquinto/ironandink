@@ -24,6 +24,10 @@
   // opts.studyId   — the study's id, when it already has one
   // opts.resolveId — function (cb) for a study that must be saved first (the
   //                  fresh draft on the study page); calls cb(err, id)
+  // opts.completion — { completedAt, canChange }: adds "Mark complete" (or
+  //                  "✓ Completed · <date>" with Undo) at the top and the end.
+  //                  canChange only for the member's own study or draft.
+  // opts.onCompletionChange — function (completedAt, id) after a change
 
   // Section headings in a rendered study. renderMarkdown emits "## " as
   // <h3 class="guide-h3"> (its "# " title is h2.guide-h2); marked emits "## " as
@@ -55,6 +59,56 @@
     return btn;
   }
 
+  // ── Completed status ─────────────────────────────────────────────────────
+  // A study is Studying until the member marks it complete; Undo takes it back
+  // (PUT /api/library/:id/completion — the server allows the study's owner only).
+  // Nothing here ever marks a study complete without a click.
+  function setCompletion(id, completed) {
+    return fetch('/api/library/' + encodeURIComponent(id) + '/completion', {
+      method:  'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ completed: !!completed }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data || !data.success) throw new Error((data && data.error) || 'Could not update this study.');
+        return data.completedAt || null;
+      });
+  }
+
+  function formatCompletedDate(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return '';
+    return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  }
+
+  // "Mark complete", or "✓ Completed · <date>" with Undo. Fills `el` (emptied
+  // first) using textContent only.
+  function renderCompletion(el, completedAt, onToggle) {
+    el.textContent = '';
+    if (completedAt) {
+      var done = document.createElement('span');
+      done.className = 'study-complete-done';
+      done.textContent = '✓ Completed · ' + formatCompletedDate(completedAt);
+      var undo = document.createElement('button');
+      undo.type = 'button';
+      undo.className = 'study-complete-undo';
+      undo.textContent = 'Undo';
+      undo.title = 'Mark this study as still studying';
+      undo.addEventListener('click', function () { onToggle(false, undo); });
+      el.appendChild(done);
+      el.appendChild(undo);
+    } else {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'study-complete-btn';
+      btn.textContent = 'Mark complete';
+      btn.title = 'Mark this study as completed — you can undo it anytime';
+      btn.addEventListener('click', function () { onToggle(true, btn); });
+      el.appendChild(btn);
+    }
+  }
+
   function remove(container) {
     if (!container) return;
     container.querySelectorAll('.teacher-entry').forEach(function (el) { el.remove(); });
@@ -65,8 +119,9 @@
     opts = opts || {};
     remove(container);
 
-    function go(mode, section, btn) {
-      if (opts.studyId) { window.location.href = teacherUrl(opts.studyId, mode, section); return; }
+    // The study's id — at once, or after saving a fresh draft (opts.resolveId).
+    function withId(btn, cb) {
+      if (opts.studyId) { cb(opts.studyId); return; }
       if (typeof opts.resolveId !== 'function') return;
       if (btn) btn.disabled = true;
       opts.resolveId(function (err, id) {
@@ -75,8 +130,13 @@
           if (typeof global.showAlert === 'function') global.showAlert('The study needs to be saved to your Library first. Please try again.');
           return;
         }
-        window.location.href = teacherUrl(id, mode, section);
+        opts.studyId = id;   // saved now — later clicks need no second save
+        cb(id);
       });
+    }
+
+    function go(mode, section, btn) {
+      withId(btn, function (id) { window.location.href = teacherUrl(id, mode, section); });
     }
 
     // Top: the two ways in, side by side, each with a one-line description.
@@ -122,12 +182,51 @@
     end.appendChild(endLabel);
     end.appendChild(endBtn);
     container.appendChild(end);
+
+    // Mark complete — at the top beside the Tutor/Teacher choices and at the
+    // end beside Check my understanding, kept in step with each other. Shown
+    // only when the reader may change it (their own study, or their own fresh
+    // draft, which is saved first).
+    var comp = opts.completion;
+    if (comp && comp.canChange) {
+      var state = { completedAt: comp.completedAt || null, busy: false };
+      var spots = [];
+      var renderAll = function () {
+        spots.forEach(function (el) { renderCompletion(el, state.completedAt, toggle); });
+      };
+      var toggle = function (completed, btn) {
+        if (state.busy) return;
+        withId(btn, function (id) {
+          state.busy = true;
+          spots.forEach(function (el) { el.querySelectorAll('button').forEach(function (b) { b.disabled = true; }); });
+          setCompletion(id, completed)
+            .then(function (at) {
+              state.completedAt = at;
+              if (typeof opts.onCompletionChange === 'function') opts.onCompletionChange(at, id);
+            })
+            .catch(function (err) {
+              if (typeof global.showAlert === 'function') global.showAlert(err.message || 'Could not update this study. Please try again.');
+            })
+            .then(function () { state.busy = false; renderAll(); });
+        });
+      };
+      var topSpot = document.createElement('div');
+      topSpot.className = 'teacher-entry-choice study-complete';
+      top.appendChild(topSpot);
+      var endSpot = document.createElement('span');
+      endSpot.className = 'study-complete study-complete-end';
+      end.appendChild(endSpot);
+      spots.push(topSpot, endSpot);
+      renderAll();
+    }
   }
 
   global.IronInkTeacher = {
-    attach:          attach,
-    remove:          remove,
-    sectionHeadings: sectionHeadings,
+    attach:              attach,
+    remove:              remove,
+    sectionHeadings:     sectionHeadings,
+    setCompletion:       setCompletion,
+    formatCompletedDate: formatCompletedDate,
   };
 
 }(window));

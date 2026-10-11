@@ -228,6 +228,8 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
     saved:       savedSummary(saved, sections),
     isOwner,
     rootId:      study.rootId || study.id,
+    // Completion is the owner's alone: sent only for their own study.
+    completedAt: isOwner ? (study.completedAt || null) : null,
   };
 
   const content = `
@@ -307,6 +309,9 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
             <ul class="teacher-review-list" id="teacherRevisitList"></ul>
           </div>
           <p class="gap-study-next-label" id="teacherNextLine">Suggested next study: <em id="teacherNextText"></em></p>
+          <!-- Owner only, and only while the study is not completed: a gentle offer,
+               never automatic (public/js/teacher.js). -->
+          <div class="teacher-complete-offer" id="teacherCompleteOffer" hidden></div>
         </div>
         <p class="teacher-review-error" id="teacherReviewError" style="display:none;">The review couldn&#8217;t be prepared this time. Your session is still saved.</p>
         <div id="teacherReviewActions" class="end-session-actions" style="display:none;">
@@ -324,9 +329,9 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
     title: label.title,
     content,
     scripts: `<script src="/js/render-markdown.js?v=2"></script>
-<script src="/js/teacher-entry.js?v=2"></script>
+<script src="/js/teacher-entry.js?v=3"></script>
 <script>window.TEACHER_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/teacher.js?v=3"></script>`,
+<script src="/js/teacher.js?v=4"></script>`,
   }));
 });
 

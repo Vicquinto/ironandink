@@ -1,8 +1,9 @@
 (function () {
   'use strict';
 
-  // Study Map (routes/study-map.js) — the page's three views, and "Not now" on
-  // a Revisit suggestion (also used by the Dashboard snapshot). All content is
+  // Study Map (routes/study-map.js) — the page's three views, its All /
+  // Studying / Completed filter, and "Not now" on a Revisit or Continue
+  // suggestion (also used by the Dashboard snapshot). All content is
   // rendered and escaped on the server; this only shows, hides and dismisses.
 
   var VIEW_KEY = 'ironink_study_map_view';
@@ -60,7 +61,59 @@
     });
   }
 
-  function init() { initViews(); initRevisit(); }
+  // All / Studying / Completed — one filter across all three views, remembered
+  // the same way as the view. Entries carry data-status; groups with nothing
+  // left are hidden; a section marked data-filterable="note" says so, one
+  // marked "hide" is hidden; book tiles with no study in that state are quieted.
+  var FILTER_KEY = 'ironink_study_map_filter';
+  var FILTERS = ['all', 'studying', 'completed'];
+  var EMPTY_NOTE = { studying: 'No studies in progress here.', completed: 'No completed studies here yet.' };
+
+  function initFilter() {
+    var btns = document.querySelectorAll('.sm-filter-btn');
+    if (!btns.length) return;
+
+    function apply(filter, remember) {
+      if (FILTERS.indexOf(filter) === -1) filter = 'all';
+      btns.forEach(function (b) {
+        var on = b.dataset.filter === filter;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      function shows(el) { return filter === 'all' || el.dataset.status === filter; }
+
+      document.querySelectorAll('.sm-entry[data-status]').forEach(function (li) { li.hidden = !shows(li); });
+      document.querySelectorAll('.sm-entries').forEach(function (ul) {
+        ul.hidden = !ul.querySelector('.sm-entry:not([hidden])');
+      });
+      document.querySelectorAll('.sm-group').forEach(function (g) {
+        g.hidden = !g.querySelector('.sm-entry:not([hidden])');
+      });
+      document.querySelectorAll('[data-filterable]').forEach(function (sec) {
+        var any = !!sec.querySelector('.sm-entry:not([hidden])');
+        if (sec.dataset.filterable === 'hide') { sec.hidden = !any; return; }
+        var note = sec.querySelector('.sm-filter-empty');
+        if (note) {
+          note.textContent = EMPTY_NOTE[filter] || '';
+          note.hidden = any;
+        }
+      });
+      document.querySelectorAll('.sm-book-tile[data-statuses]').forEach(function (t) {
+        var has = filter === 'all' || t.dataset.statuses.split(' ').indexOf(filter) !== -1;
+        t.classList.toggle('is-filtered-out', !has);
+      });
+      if (remember) { try { localStorage.setItem(FILTER_KEY, filter); } catch (e) {} }
+    }
+
+    btns.forEach(function (b) {
+      b.addEventListener('click', function () { apply(b.dataset.filter, true); });
+    });
+    var start = null;
+    try { start = localStorage.getItem(FILTER_KEY); } catch (e) {}
+    apply(start || 'all', false);
+  }
+
+  function init() { initViews(); initFilter(); initRevisit(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();

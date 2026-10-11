@@ -464,6 +464,7 @@
         nextText.textContent  = nextStudy ? nextStudy.topic : '';
         nextLine.style.display = nextStudy ? '' : 'none';
         nextBtn.style.display  = nextStudy ? '' : 'none';
+        showCompleteOffer();
         reviewResults.style.display = 'block';
       }
     } catch (err) {
@@ -474,6 +475,61 @@
       reviewActions.style.display = 'flex';
     }
   });
+
+  // "Ready to mark this study complete?" — offered on the review of the member's
+  // OWN study while it isn't completed. Only their click marks it (the server
+  // checks ownership too); afterwards it reads "Completed · <date>" with Undo.
+  var completeOffer = document.getElementById('teacherCompleteOffer');
+  var completedAt   = BOOT.completedAt || null;
+  var completeBusy  = false;
+
+  function renderCompleteOffer() {
+    if (!completeOffer) return;
+    completeOffer.textContent = '';
+    if (!completedAt) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'study-complete-btn';
+      btn.textContent = 'Ready to mark this study complete?';
+      btn.addEventListener('click', function () { changeCompletion(true); });
+      completeOffer.appendChild(btn);
+      return;
+    }
+    var done = document.createElement('span');
+    done.className = 'study-complete-done';
+    done.textContent = '✓ Completed · ' + window.IronInkTeacher.formatCompletedDate(completedAt);
+    var undo = document.createElement('button');
+    undo.type = 'button';
+    undo.className = 'study-complete-undo';
+    undo.textContent = 'Undo';
+    undo.addEventListener('click', function () { changeCompletion(false); });
+    completeOffer.appendChild(done);
+    completeOffer.appendChild(undo);
+  }
+
+  function changeCompletion(completed) {
+    if (completeBusy || !window.IronInkTeacher) return;
+    completeBusy = true;
+    completeOffer.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
+    window.IronInkTeacher.setCompletion(BOOT.studyId, completed)
+      .then(function (at) { completedAt = at; })
+      .catch(function (err) { showAlertSafe(err.message || 'Could not update this study. Please try again.'); })
+      .then(function () { completeBusy = false; renderCompleteOffer(); });
+  }
+
+  function showAlertSafe(msg) {
+    if (typeof window.showAlert === 'function') window.showAlert(msg); else window.alert(msg);
+  }
+
+  // Shown with a review only when the member owns the study and it isn't
+  // completed yet (once marked here, it stays visible so Undo is at hand).
+  var offerShown = false;
+  function showCompleteOffer() {
+    if (!completeOffer || !BOOT.isOwner || !window.IronInkTeacher) return;
+    if (!completedAt) offerShown = true;
+    completeOffer.hidden = !offerShown;
+    if (offerShown) renderCompleteOffer();
+  }
 
   keepBtn.addEventListener('click', closeReview);
   reviewModal.addEventListener('click', function (e) { if (e.target === reviewModal) closeReview(); });

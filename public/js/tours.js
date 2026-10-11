@@ -50,6 +50,14 @@ export const TOURS = {
       buttons:  ['back', 'next'],
     },
     {
+      id:       'study-map-filter',
+      attachTo: { element: '.sm-filter', on: 'bottom' },
+      optional: true,
+      title:    'Studying or Completed',
+      text:     'When you finish a study, mark it complete — on the study itself, or after a Tutor or Teacher session. Show all your studies here, just the ones you’re still studying, or the ones you’ve completed. You can undo it anytime.',
+      buttons:  ['back', 'next'],
+    },
+    {
       id:       'study-map-entry',
       attachTo: { element: '.sm-entry', on: 'bottom' },
       optional: true,
@@ -62,7 +70,7 @@ export const TOURS = {
       attachTo: { element: '.sm-revisit', on: 'bottom' },
       optional: true,
       title:    'Worth Revisiting',
-      text:     'Now and then an older study is suggested here to revisit. Not interested right now? “Not now” hides it.',
+      text:     'Now and then a study is suggested here — one you completed a while ago, worth revisiting, or one you started and may want to continue. Not interested right now? “Not now” hides it.',
       buttons:  ['back', 'finish'],
     },
   ],

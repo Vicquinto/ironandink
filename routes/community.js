@@ -155,11 +155,11 @@ router.get('/community', requireAuth, (req, res) => {
       </script>
       <script src="/js/study-badges.js?v=4"></script>
       <script src="/js/article-html.js?v=2"></script>
-      <script src="/js/teacher-entry.js?v=2"></script>
-      <script src="/js/community.js?v=21"></script>
+      <script src="/js/teacher-entry.js?v=3"></script>
+      <script src="/js/community.js?v=22"></script>
       <script src="/js/render-markdown.js?v=2"></script>
       <script src="/js/enhance-further-studies.js?v=2"></script>
-      <script src="/js/library.js?v=64"></script>`,
+      <script src="/js/library.js?v=65"></script>`,
   }));
 });
 
@@ -205,6 +205,10 @@ router.get('/api/community/studies', requireAuth, (req, res) => {
       rootId:      s.rootId || null,          // lineage: tree root id (sent for parity; not resolved client-side)
       authorName:  getAuthorName(s.userId),
       sharedAt:    s.sharedAt || s.savedAt || s.createdAt || null,
+      // The reader's OWN shared study can be marked complete from here; another
+      // member's completion state is never sent.
+      isOwn:       s.userId === req.session.userId,
+      completedAt: s.userId === req.session.userId ? (s.completedAt || null) : null,
     }))
     .sort((a, b) => new Date(b.sharedAt || 0) - new Date(a.sharedAt || 0));
   res.json({ success: true, studies });

@@ -5,6 +5,7 @@ const { requireAuth, renderLayout } = require('./layout');
 const { escapeHtml } = require('../lib/html');
 const {
   AREAS, BOOKS, OT_COUNT, getMap, groupStudies, displayPassage, pickRevisit, dismissRevisit,
+  isCompleted, lastTouched,
 } = require('../lib/study-map');
 
 // ─── Study Map ────────────────────────────────────────────────────────────────
@@ -58,13 +59,17 @@ function memberEntries(userId) {
     .filter(s => s && s.userId === userId && s.id)
     .sort((a, b) => (Date.parse(b.savedAt || b.createdAt) || 0) - (Date.parse(a.savedAt || a.createdAt) || 0))
     .map(s => ({
-      id:       s.id,
-      topic:    String(s.topic || 'Untitled study'),
-      savedAt:  s.savedAt || s.createdAt || null,
-      map:      getMap(s),
-      sessions: sessions[s.id] || {},
+      id:          s.id,
+      topic:       String(s.topic || 'Untitled study'),
+      savedAt:     s.savedAt || s.createdAt || null,
+      openedAt:    s.openedAt || null,
+      completedAt: isCompleted(s) ? s.completedAt : null,
+      map:         getMap(s),
+      sessions:    sessions[s.id] || {},
     }));
 }
+
+function statusOf(e) { return e.completedAt ? 'completed' : 'studying'; }
 
 function revisitPrefs(userId) {
   const u = readJson(USERS_PATH, []).find(x => x && x.id === userId);
@@ -116,11 +121,16 @@ function entryHtml(e, opts) {
   const passages = o.showPassages && e.map.passages.length
     ? `<span class="sm-entry-passages">${e.map.passages.map(p => escapeHtml(displayPassage(p))).join(' &#183; ')}</span>`
     : '';
+  // A quiet check mark with the date on a study the member has marked complete.
+  const done = e.completedAt
+    ? `<span class="sm-done" title="${escapeHtml('Completed ' + fmtDate(e.completedAt))}">&#10003; Completed ${escapeHtml(fmtDate(e.completedAt))}</span>`
+    : '';
   return `
-        <li class="sm-entry">
+        <li class="sm-entry" data-status="${statusOf(e)}">
           <div class="sm-entry-main">
             <a class="sm-entry-title" href="${escapeHtml(openHref(e))}">${escapeHtml(e.topic)}</a>
             <span class="sm-entry-date">${escapeHtml(fmtDate(e.savedAt))}</span>
+            ${done}
             ${markersHtml(e)}
             ${passages}
           </div>
@@ -150,6 +160,12 @@ function groupsHtml(entries, opts) {
 function planHref(area) { return '/study?plan=' + encodeURIComponent(area); }
 
 // ── The three views ───────────────────────────────────────────────────────────
+// The All / Studying / Completed filter (public/js/study-map.js) works on the
+// rendered page: every entry carries data-status; a section marked
+// data-filterable="note" shows this note when the filter leaves it empty, and
+// one marked "hide" is hidden instead.
+const FILTER_EMPTY_NOTE = '<p class="sm-empty sm-filter-empty" hidden></p>';
+
 function areasView(entries) {
   const sections = AREAS.map(area => {
     const inArea = entries.filter(e => e.map.areas.includes(area));
@@ -157,16 +173,18 @@ function areasView(entries) {
       ? groupsHtml(inArea)
       : `<p class="sm-empty">Not studied yet. <a href="${escapeHtml(planHref(area))}">Plan a study</a></p>`;
     return `
-      <section class="sm-area${inArea.length ? '' : ' sm-area--empty'}" id="${areaSlug(area)}">
+      <section class="sm-area${inArea.length ? '' : ' sm-area--empty'}" id="${areaSlug(area)}"${inArea.length ? ' data-filterable="note"' : ''}>
         <h3 class="sm-area-title">${escapeHtml(areaLabel(area))}</h3>
         ${body}
+        ${inArea.length ? FILTER_EMPTY_NOTE : ''}
       </section>`;
   }).join('');
   const unsorted = entries.filter(e => !e.map.areas.length);
   const unsortedHtml = unsorted.length ? `
-      <section class="sm-area" id="area-unsorted">
+      <section class="sm-area" id="area-unsorted" data-filterable="note">
         <h3 class="sm-area-title">Not yet sorted</h3>
         ${groupsHtml(unsorted)}
+        ${FILTER_EMPTY_NOTE}
       </section>` : '';
   return sections + unsortedHtml;
 }
@@ -175,8 +193,11 @@ function booksView(entries) {
   const byBook = {};
   entries.forEach(e => e.map.books.forEach(b => { (byBook[b] || (byBook[b] = [])).push(e); }));
 
+  // data-statuses: which states this book's studies are in, so the filter can
+  // quiet a tile that has none in the chosen state.
+  const statuses = b => Array.from(new Set(byBook[b].map(statusOf))).join(' ');
   const tile = b => byBook[b]
-    ? `<a class="sm-book-tile is-studied" href="#${bookSlug(b)}" title="${escapeHtml(b + ' — studied')}">${escapeHtml(b)}</a>`
+    ? `<a class="sm-book-tile is-studied" href="#${bookSlug(b)}" data-statuses="${statuses(b)}" title="${escapeHtml(b + ' — studied')}">${escapeHtml(b)}</a>`
     : `<span class="sm-book-tile" title="${escapeHtml(b + ' — not studied yet')}">${escapeHtml(b)}</span>`;
 
   const grid = `
@@ -200,7 +221,7 @@ function booksView(entries) {
         }));
         const named = passages.filter(p => p !== b);
         return `
-      <section class="sm-book" id="${bookSlug(b)}">
+      <section class="sm-book" id="${bookSlug(b)}" data-filterable="hide">
         <h3 class="sm-book-title">${escapeHtml(b)}</h3>
         ${named.length ? `<p class="sm-book-passages">${named.map(p => escapeHtml(displayPassage(p))).join(' &#183; ')}</p>` : ''}
         ${groupsHtml(byBook[b], { showPassages: true })}
@@ -220,28 +241,47 @@ function timelineView(entries) {
     byMonth[k].entries.push(e);
   });
   return months.map(k => `
-      <section class="sm-month">
+      <section class="sm-month" data-filterable="hide">
         <h3 class="sm-month-title">${escapeHtml(byMonth[k].label)}</h3>
         <ul class="sm-entries">${byMonth[k].entries.map(e => entryHtml(e)).join('')}</ul>
       </section>`).join('');
 }
 
-// One Revisit suggestion (or ''): "Open" and "Check my understanding with the
-// Tutor", plus "Not now" (public/js/study-map.js posts the dismissal).
-function revisitHtml(entry, compact) {
-  if (!entry) return '';
+// One suggestion (or ''), from pickRevisit: { study, kind }.
+//   revisit  — a completed study: "Open" and "Check my understanding with the Tutor"
+//   continue — a study still in progress: "Open" and "Continue with the Tutor"
+// Either way "Not now" (public/js/study-map.js posts the dismissal).
+function revisitHtml(pick, compact) {
+  if (!pick || !pick.study) return '';
+  const entry = pick.study;
+  const cont = pick.kind === 'continue';
+  const sub = cont
+    ? 'You started this in ' + fmtMonth(entry.savedAt) + '.'
+    : 'You completed this in ' + fmtMonth(entry.completedAt || entry.savedAt) + '.';
+  const tutor = cont
+    ? `<a class="sm-revisit-btn" href="${escapeHtml('/teacher/' + encodeURIComponent(entry.id) + '?mode=full')}">Continue with the Tutor</a>`
+    : `<a class="sm-revisit-btn" href="${escapeHtml(checkHref(entry))}">Check my understanding with the Tutor</a>`;
   return `
     <div class="sm-revisit${compact ? ' sm-revisit--compact' : ''}" data-study-id="${escapeHtml(entry.id)}">
-      <div class="sm-revisit-label">Worth revisiting</div>
+      <div class="sm-revisit-label">${cont ? 'Continue studying' : 'Worth revisiting'}</div>
       <div class="sm-revisit-title">${escapeHtml(entry.topic)}</div>
-      <div class="sm-revisit-sub">You studied this in ${escapeHtml(fmtMonth(entry.savedAt))}.</div>
+      <div class="sm-revisit-sub">${escapeHtml(sub)}</div>
       <div class="sm-revisit-actions">
         <a class="sm-revisit-btn" href="${escapeHtml(openHref(entry))}">Open</a>
-        <a class="sm-revisit-btn" href="${escapeHtml(checkHref(entry))}">Check my understanding with the Tutor</a>
+        ${tutor}
         <button type="button" class="sm-revisit-dismiss" title="Hide this suggestion">Not now</button>
       </div>
     </div>`;
 }
+
+// The All / Studying / Completed filter, shared by all three views.
+const FILTER_HTML = `
+    <div class="sm-filter" role="group" aria-label="Show studies">
+      <span class="sm-filter-label">Show</span>
+      <button type="button" class="sm-filter-btn is-active" data-filter="all" aria-pressed="true">All</button>
+      <button type="button" class="sm-filter-btn" data-filter="studying" aria-pressed="false">Studying</button>
+      <button type="button" class="sm-filter-btn" data-filter="completed" aria-pressed="false">Completed</button>
+    </div>`;
 
 // ─── GET /study-map ───────────────────────────────────────────────────────────
 router.get('/study-map', requireAuth, (req, res) => {
@@ -250,6 +290,8 @@ router.get('/study-map', requireAuth, (req, res) => {
 
   const body = entries.length ? `
     ${revisitHtml(revisit, false)}
+
+    ${FILTER_HTML}
 
     <div class="lib-tabs sm-tabs" role="tablist" aria-label="Study Map views">
       <button type="button" class="lib-tab active" role="tab" data-view="areas" aria-selected="true">By area</button>
@@ -278,7 +320,7 @@ router.get('/study-map', requireAuth, (req, res) => {
     activeSection: 'study-map',
     title: 'Study Map',
     content,
-    scripts: '<script src="/js/study-map.js?v=1"></script>',
+    scripts: '<script src="/js/study-map.js?v=2"></script>',
   }));
 });
 
@@ -318,8 +360,9 @@ router.post('/api/study-map/revisit/dismiss', requireAuth, (req, res) => {
 });
 
 // ─── Dashboard snapshot ───────────────────────────────────────────────────────
-// Replaces the old "Studies Saved" count: the 3 most recent studies, which areas
-// have been studied (filled vs. open — no numbers), and one Revisit suggestion.
+// Replaces the old "Studies Saved" count: "Currently studying" (up to 3 studies
+// not yet marked complete, most recently opened or saved first), which areas
+// have been studied (filled vs. open — no numbers), and one suggestion.
 function renderDashboardSnapshot(userId) {
   let entries = [];
   try { entries = memberEntries(userId); } catch (err) { console.error('[study-map] snapshot:', err.message); }
@@ -327,11 +370,17 @@ function renderDashboardSnapshot(userId) {
   entries.forEach(e => e.map.areas.forEach(a => covered.add(a)));
   const revisit = pickRevisit(entries, revisitPrefs(userId));
 
-  const recent = entries.length
-    ? `<ul class="sm-snap-recent">${entries.slice(0, 3).map(e => `
-          <li><a href="${escapeHtml(openHref(e))}">${escapeHtml(e.topic)}</a> <span class="sm-snap-date">${escapeHtml(fmtDate(e.savedAt))}</span></li>`).join('')}
+  const studying = entries
+    .filter(e => !e.completedAt)
+    .sort((a, b) => lastTouched(b) - lastTouched(a))
+    .slice(0, 3);
+  const recent = studying.length
+    ? `<ul class="sm-snap-recent">${studying.map(e => `
+          <li><a href="${escapeHtml(openHref(e))}">${escapeHtml(e.topic)}</a></li>`).join('')}
         </ul>`
-    : '<p class="sm-snap-empty">No studies yet &#8212; <a href="/study">start one</a>.</p>';
+    : entries.length
+      ? '<p class="sm-snap-empty">Nothing in progress right now &#8212; <a href="/study">start a new study</a> or revisit one from your <a href="/study-map">Study Map</a>.</p>'
+      : '<p class="sm-snap-empty">No studies yet &#8212; <a href="/study">start one</a>.</p>';
 
   const areas = `
         <ul class="sm-snap-areas" aria-label="Areas of theology you have studied">
@@ -346,7 +395,7 @@ function renderDashboardSnapshot(userId) {
           <a class="stat-label sm-snap-heading" href="/study-map">Study Map</a>
           <a class="sm-snap-link" href="/study-map">Open your Study Map &#8594;</a>
         </div>
-        <div class="sm-snap-sub">Most recent</div>
+        <div class="sm-snap-sub">Currently studying</div>
         ${recent}
         <div class="sm-snap-sub">Areas you have studied</div>
         ${areas}

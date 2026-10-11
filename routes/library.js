@@ -47,6 +47,11 @@ router.get('/library', requireAuth, (req, res) => {
           <option value="3">&#9733;&#9733;&#9733; &nbsp;3+ stars</option>
           <option value="1">Any rated</option>
         </select>
+        <select id="filterStatus" class="form-select library-filter-select" aria-label="Show studies">
+          <option value="">All studies</option>
+          <option value="studying">Studying</option>
+          <option value="completed">Completed</option>
+        </select>
       </div>
       <div id="studyCardsGrid" class="study-cards-grid">
         <p class="library-loading-msg">Loading&#8230;</p>
@@ -124,7 +129,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/teacher-entry.js?v=2"></script><script src="/js/library.js?v=64"></script>',
+    scripts: '<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/teacher-entry.js?v=3"></script><script src="/js/library.js?v=65"></script>',
   }));
 });
 
@@ -200,6 +205,7 @@ router.post('/api/library/save', requireAuth, (req, res) => {
     // member's session, matched by content — never taken from the client), or
     // tags worked out from the study itself, which the backfill later refines.
     map:         takeGeneratedMap(req.session, content) || deriveMap({ topic, content }),
+    completedAt: null,                        // Studying until the member marks it complete
     shared:      isShared,                    // community-sharing flag (default false)
     sharedAt:    isShared ? now : null,       // stamp when first shared, for feed sort
     createdAt:   createdAt || now,
@@ -240,6 +246,54 @@ router.put('/api/library/:id', requireAuth, (req, res) => {
   }
   writeStudies(studies);
   res.json({ success: true, study: studies[idx] });
+});
+
+// ─── PUT /api/library/:id/completion ──────────────────────────────────────────
+// "Mark complete" / "Undo". A study is Studying (no completedAt — every study
+// saved before this existed) or Completed (completedAt = when it was marked).
+// Only ever set by the member's own click: nothing marks a study complete on
+// its own. Owner only — the lookup is by id AND the session's userId.
+// Body: { completed: true | false }.
+router.put('/api/library/:id/completion', requireAuth, (req, res) => {
+  const completed = req.body && req.body.completed;
+  if (typeof completed !== 'boolean') {
+    return res.status(400).json({ success: false, error: 'Missing completion state.' });
+  }
+  const studies = readStudies();
+  const idx = studies.findIndex(s => s.id === req.params.id && s.userId === req.session.userId);
+  if (idx === -1) return res.status(404).json({ success: false, error: 'Study not found.' });
+
+  if (completed) {
+    // Marking an already-completed study again keeps its original date.
+    if (!studies[idx].completedAt) studies[idx].completedAt = new Date().toISOString();
+  } else {
+    studies[idx].completedAt = null;   // Undo: back to Studying, date cleared
+  }
+  writeStudies(studies);
+  res.json({ success: true, completedAt: studies[idx].completedAt || null });
+});
+
+// ─── POST /api/library/:id/opened ─────────────────────────────────────────────
+// Notes when the member opens one of their own studies, so the Dashboard's
+// "Currently studying" can put the most recently opened first. Best effort and
+// throttled (at most one write per study per 30 minutes); never an error the
+// member sees.
+const OPENED_THROTTLE_MS = 30 * 60 * 1000;
+router.post('/api/library/:id/opened', requireAuth, (req, res) => {
+  try {
+    const studies = readStudies();
+    const s = studies.find(x => x.id === req.params.id && x.userId === req.session.userId);
+    if (!s) return res.json({ success: false });
+    const last = Date.parse(s.openedAt) || 0;
+    if (Date.now() - last > OPENED_THROTTLE_MS) {
+      s.openedAt = new Date().toISOString();
+      writeStudies(studies);
+    }
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[library/opened]', err.message);
+    res.json({ success: false });
+  }
 });
 
 // ─── DELETE /api/library/:id ──────────────────────────────────────────────────
