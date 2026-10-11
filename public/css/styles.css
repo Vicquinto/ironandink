@@ -8351,3 +8351,15 @@ a.teacher-review-outside { font-style: italic; text-decoration: underline; }
   font-size: 0.85em;
   color: var(--warm-brown);
 }
+
+/* A study already built from the planner: still clickable (fills it in again),
+   but visibly done so the rest of the plan stands out. */
+.plan-build-option.is-built {
+  background: transparent;
+  border-style: dashed;
+  border-color: rgba(160,132,92,0.45);
+}
+.plan-build-option.is-built .plan-build-option-head {
+  font-weight: normal;
+  color: var(--warm-brown);
+}

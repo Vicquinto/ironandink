@@ -5,8 +5,9 @@
   // The streaming client is the Tutor/Teacher page's (public/js/teacher.js:
   // streamExchange / setGenerating / typing indicator / A-/A/A+ zoom), but
   // nothing is saved on the server: the conversation lives in this browser
-  // (localStorage, so a refresh doesn't lose it) only until the member builds a
-  // study or clicks Start fresh. Nothing goes to the Library.
+  // (localStorage, so a refresh doesn't lose it) until the member clicks Start
+  // fresh or it expires (STORE_TTL_MS). Building a study keeps it, so the member
+  // can come back for the next study in a plan. Nothing goes to the Library.
   //
   // "Build" fills the study creator through study.js's bridge
   // (window.__ironStudyCreator.fill); the member reviews and clicks Generate.
@@ -37,19 +38,25 @@
     // messages:  [{ role, content, display?, builds? }] — content is what goes
     //            back to the server (verse markers raw, tags stripped); display
     //            is what was shown; builds are a reply's validated Build buttons.
-    // remaining: the rest of a planned sequence after one study was built.
+    // plan:      the planned sequence (2-4 studies) the member is building from —
+    //            shown above the input as "Next in your plan".
+    // built:     keys (planKey) of studies already filled into the creator, so
+    //            their Build buttons are marked "Built" everywhere they appear.
     var state = loadState();
     var abortController = null;
     var isGenerating    = false;
     var isBuilding      = false;
 
-    function emptyState() { return { messages: [], remaining: [], open: false, at: Date.now() }; }
+    function emptyState() { return { messages: [], plan: [], built: [], open: false, at: Date.now() }; }
 
     function loadState() {
       try {
         var s = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
         if (s && Array.isArray(s.messages) && (Date.now() - (s.at || 0)) < STORE_TTL_MS) {
-          if (!Array.isArray(s.remaining)) s.remaining = [];
+          // v1 stored only the unbuilt rest of a sequence as "remaining".
+          if (!Array.isArray(s.plan)) s.plan = Array.isArray(s.remaining) ? s.remaining : [];
+          if (!Array.isArray(s.built)) s.built = [];
+          delete s.remaining;
           return s;
         }
       } catch (e) {}
@@ -59,7 +66,7 @@
     function saveState() {
       state.at = Date.now();
       try {
-        if (!state.messages.length && !state.remaining.length && !state.open) localStorage.removeItem(STORE_KEY);
+        if (!state.messages.length && !state.plan.length && !state.open) localStorage.removeItem(STORE_KEY);
         else localStorage.setItem(STORE_KEY, JSON.stringify(state));
       } catch (e) { /* storage full or blocked — the conversation still works in this tab */ }
     }
@@ -169,17 +176,26 @@
 
     // ── Build buttons ──────────────────────────────────────────────────────
     // A plan is { type, typeLabel, level, levelLabel, subject } — validated on the
-    // server. Labels and subject go in via textContent only.
+    // server. Labels and subject go in via textContent only. A study already
+    // built is marked (check + "Built") but stays clickable to fill it in again.
+    function planKey(p) {
+      return [p.type, p.level || '', String(p.subject || '').toLowerCase()].join('|');
+    }
+    function isBuilt(p) { return state.built.indexOf(planKey(p)) !== -1; }
+
     function buildButton(plan, sequence, index) {
+      var built = isBuilt(plan);
       var b = document.createElement('button');
       b.type = 'button';
-      b.className = 'plan-build-option';
+      b.className = 'plan-build-option' + (built ? ' is-built' : '');
+      if (built) b.title = 'Already filled into the study creator — click to fill it in again';
       var head = document.createElement('span');
       head.className = 'plan-build-option-head';
-      head.textContent = (sequence.length > 1 ? (index + 1) + '. ' : '') + 'Build: ' + plan.subject;
+      head.textContent = (built ? '✓ ' : '') + (sequence.length > 1 ? (index + 1) + '. ' : '') +
+        (built ? 'Built: ' : 'Build: ') + plan.subject;
       var meta = document.createElement('span');
       meta.className = 'plan-build-option-meta';
-      meta.textContent = plan.typeLabel + (plan.levelLabel ? ' · ' + plan.levelLabel : '');
+      meta.textContent = plan.typeLabel + (plan.levelLabel ? ' · ' + plan.levelLabel : '') + (built ? ' · Built' : '');
       b.appendChild(head);
       b.appendChild(meta);
       b.addEventListener('click', function () { applyPlan(plan, sequence); });
@@ -206,17 +222,13 @@
       scrollChat();
     }
 
-    // The area above the input: the rest of a sequence after one was built, or
-    // the result of "Build this study".
+    // The area above the input: the planned sequence ("Next in your plan"),
+    // set when a study is built from a sequence or "Build this study" returns one.
     function showBuildsArea(plans, label) {
       buildsEl.innerHTML = '';
       if (!plans || !plans.length) { buildsEl.style.display = 'none'; return; }
       buildsEl.appendChild(buildList(plans, label));
       buildsEl.style.display = '';
-    }
-
-    function samePlan(a, b) {
-      return a && b && a.subject === b.subject && a.type === b.type && a.level === b.level;
     }
 
     function applyPlan(plan, sequence) {
@@ -226,10 +238,11 @@
         addSystemMsg('The study creator couldn\'t be filled in. Please refresh the page and try again.');
         return;
       }
-      // Built → the conversation ends here (nothing is kept). The rest of a planned
-      // sequence stays as Build buttons until it's built or Start fresh.
-      state.messages  = [];
-      state.remaining = (sequence || []).filter(function (p) { return !samePlan(p, plan); });
+      // Building keeps the conversation: the member can come back for the next
+      // study, or keep talking. The study is marked Built, and a sequence it came
+      // from becomes "Next in your plan". Only Start fresh (or expiry) clears it.
+      if (!isBuilt(plan)) state.built = state.built.concat([planKey(plan)]).slice(-50);
+      if (sequence && sequence.length > 1) state.plan = sequence;
       saveState();
       render();
       addSystemMsg('Filled in the study creator: “' + plan.subject + '” — ' + plan.typeLabel +
@@ -250,7 +263,8 @@
         if (m.role === 'user') addUserMessage(m.content);
         else attachBuilds(addPlannerMessage(m.display || m.content), m.builds);
       });
-      showBuildsArea(state.remaining, state.remaining.length ? 'Next in your plan:' : null);
+      var anyBuilt = state.plan.some(isBuilt);
+      showBuildsArea(state.plan, anyBuilt ? 'Next in your plan:' : 'Your study plan — build them one at a time:');
       syncControls();
     }
 
@@ -415,7 +429,7 @@
         }
         isBuilding = false;
         if (data.studies.length === 1) applyPlan(data.studies[0], data.studies);
-        else showBuildsArea(data.studies, 'Your study plan — build them one at a time:');
+        else { state.plan = data.studies; saveState(); render(); }
       } catch (err) {
         addSystemMsg(BUILD_ERROR);
       } finally {
@@ -438,7 +452,7 @@
     }
 
     freshBtn.addEventListener('click', function () {
-      if (!state.messages.length && !state.remaining.length) { startFresh(); return; }
+      if (!state.messages.length && !state.plan.length) { startFresh(); return; }
       var msg = 'Start fresh? This planning conversation will be cleared.';
       if (typeof showConfirm === 'function') showConfirm(msg, 'Start fresh', startFresh, function () {});
       else if (window.confirm(msg)) startFresh();
@@ -447,7 +461,7 @@
     // ── Boot ───────────────────────────────────────────────────────────────
     render();
     // Reopen after a refresh when there's a conversation (or plan) in progress.
-    if (state.open && (state.messages.length || state.remaining.length)) setOpen(true, false);
+    if (state.open && (state.messages.length || state.plan.length)) setOpen(true, false);
     else if (state.open) { state.open = false; saveState(); }
   }
 
