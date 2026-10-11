@@ -502,7 +502,7 @@
     while ((node = walker.nextNode())) {
       var parent = node.parentNode;
       if (parent && parent.classList && parent.classList.contains('notepad-marker')) continue;
-      // Study-with-a-Teacher buttons (teacher-entry.js) are UI, not study text.
+      // Tutor / Teacher entry buttons (teacher-entry.js) are UI, not study text.
       if (parent && parent.closest && parent.closest('.teacher-entry')) continue;
       var v = node.nodeValue || '';
       if (!v) continue;

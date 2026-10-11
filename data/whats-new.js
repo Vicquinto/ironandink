@@ -19,12 +19,14 @@
 const WHATS_NEW = [
   {
     date:  'October 10, 2026',
-    title: 'Study with a Teacher',
-    body:  `Every study now comes with a patient teacher. Open any study — your own, one in your Library, or one shared in the Community — and tap "Study with a Teacher" at the top. The study stays open on one side while your teacher walks you through it on the other, one short question at a time.
+    title: 'Study with a Tutor — or a Teacher',
+    body:  `Every study now comes with two patient guides. Open any study — your own, one in your Library, or one shared in the Community — and choose at the top. The study stays open on one side while you talk on the other, one question at a time.
 
-Start wherever you are. "Teach me this section" beside each heading begins right there, and "Check my understanding" at the end of a study asks a few quick questions and then helps with anything you missed. "I don't know" is always a welcome answer — the teacher simply teaches the point, never grades. Quick replies let you ask for a hint, a simpler explanation, or a slower pace.
+Study with a Tutor walks you through the study section by section. Start wherever you are: "Tutor me on this section" beside each heading begins right there, and "Check my understanding" at the end of a study asks a few quick questions and then helps with anything you missed.
 
-Your session saves as you go, so you can pick up where you left off. When you finish, you'll see what you understand well, what's worth revisiting (each linked to its section of the study), and a suggested next study.`
+Study with a Teacher talks through the big questions behind the study. It opens with the question the whole study answers, then follows your questions wherever they lead — even back to an earlier chapter or across to another part of Scripture when that's what makes it click.
+
+Either way, "I don't know" is always a welcome answer — you're taught, never graded — and quick replies let you ask for a hint, a simpler explanation, or a slower pace. Your Tutor and Teacher sessions save separately as you go, so you can pick up where you left off. When you finish, you'll see what you understand well, what's worth revisiting, and a suggested next study.`
   },
   {
     date:  'September 17, 2026',

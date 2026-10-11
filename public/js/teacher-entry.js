@@ -1,16 +1,18 @@
 (function (global) {
   'use strict';
 
-  // Shared "Study with a Teacher" entry points. Single source of truth for every
+  // Shared Tutor / Teacher entry points. Single source of truth for every
   // place a study is read: the study page (study.js), the Library inline view
   // (library.js) and shared Community studies (community.js). Each caller renders
   // the study as usual, then calls IronInkTeacher.attach(container, opts):
   //
-  //   • a "Study with a Teacher" button at the top of the study
-  //   • a small "Teach me this section" button beside each section heading
-  //   • a "Check my understanding" button at the end of the study
+  //   • "Study with a Tutor" and "Study with a Teacher" side by side at the top,
+  //     each with a one-line description underneath
+  //   • a small "Tutor me on this section" button beside each section heading
+  //   • a "Check my understanding" button at the end of the study (uses Tutor)
   //
-  // Every button navigates to /teacher/<studyId>?mode=…&section=N. Sections are
+  // Every button navigates to /teacher/<studyId>?mode=…&section=N (modes full /
+  // section / check are Tutor; mode teacher is the big-picture Teacher). Sections are
   // the study's "## " headings, numbered from 1 in document order — the same rule
   // routes/teacher.js uses, so the numbers agree.
   //
@@ -77,37 +79,45 @@
       });
     }
 
-    // Top: teach the whole study from the beginning.
+    // Top: the two ways in, side by side, each with a one-line description.
     var top = document.createElement('div');
     top.className = 'teacher-entry teacher-entry-top';
-    var topBtn = makeButton('teacher-start-btn', 'Study with a Teacher',
-      'A patient teacher walks you through this study, one question at a time');
-    var topNote = document.createElement('span');
-    topNote.className = 'teacher-entry-note';
-    topNote.textContent = 'One question at a time — “I don’t know” is a great answer.';
-    top.appendChild(topBtn);
-    top.appendChild(topNote);
-    topBtn.addEventListener('click', function () { go('full', null, topBtn); });
+    function topChoice(label, desc, title, mode) {
+      var wrap = document.createElement('div');
+      wrap.className = 'teacher-entry-choice';
+      var btn = makeButton('teacher-start-btn', label, title);
+      var note = document.createElement('span');
+      note.className = 'teacher-entry-note';
+      note.textContent = desc;
+      btn.addEventListener('click', function () { go(mode, null, btn); });
+      wrap.appendChild(btn);
+      wrap.appendChild(note);
+      top.appendChild(wrap);
+    }
+    topChoice('Study with a Tutor', 'Walk through the study section by section.',
+      'A patient tutor takes you through this study one question at a time', 'full');
+    topChoice('Study with a Teacher', 'Talk through the big questions behind the study.',
+      'A teacher talks through the big picture with you, following your questions', 'teacher');
     container.insertBefore(top, container.firstChild);
 
-    // Beside each section heading: start the teacher at that section.
+    // Beside each section heading: start the tutor at that section.
     sectionHeadings(container).forEach(function (h, i) {
       if (!isTeachable(h)) return;
       var n = i + 1;
-      var btn = makeButton('teacher-section-btn', 'Teach me this section',
-        'Start the teacher at “' + (h.textContent || '').trim() + '”');
+      var btn = makeButton('teacher-section-btn', 'Tutor me on this section',
+        'Start the tutor at “' + (h.textContent || '').trim() + '”');
       btn.addEventListener('click', function () { go('section', n, btn); });
       h.appendChild(btn);
     });
 
-    // End: a short understanding check, then teach what was missed.
+    // End: a short understanding check (Tutor), then teach what was missed.
     var end = document.createElement('div');
     end.className = 'teacher-entry teacher-entry-end';
     var endLabel = document.createElement('p');
     endLabel.className = 'teacher-entry-end-label';
     endLabel.textContent = 'Finished reading?';
     var endBtn = makeButton('teacher-check-btn', 'Check my understanding',
-      'A few short questions, then the teacher helps with anything you missed');
+      'A few short questions, then your tutor helps with anything you missed');
     endBtn.addEventListener('click', function () { go('check', null, endBtn); });
     end.appendChild(endLabel);
     end.appendChild(endBtn);

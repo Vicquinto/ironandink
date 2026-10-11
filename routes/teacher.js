@@ -11,8 +11,15 @@ const { getEntitlements } = require('../lib/entitlements');
 const { aiLimiter } = require('../middleware/rateLimit');
 const { getStudyLevelInstruction } = require('./dialogue');
 
-// ─── Study with a Teacher ─────────────────────────────────────────────────────
-// An AI teacher that tutors the reader through one study, one question at a time.
+// ─── Study with a Tutor / Study with a Teacher ─────────────────────────────────
+// AI conversations that teach the reader one study, one question at a time, in
+// two kinds on ONE engine (same page, streaming, save/resume, quick replies and
+// review — only the instructions differ):
+//   tutor   — section by section (modes full / section / check); [[at:N]] tag
+//   teacher — the big questions behind the study (mode teacher); [[topic:…]] tag
+// Saved sessions are kept per user, per study, PER KIND, so a Tutor session and
+// a Teacher session on the same study never overwrite each other. (Sessions
+// saved before the split carry no kind and are read as tutor.)
 // Built on the Dialogue engine (marker-safe SSE streaming + end-of-session review)
 // and the Writing companion's study-as-context handling (cached system block).
 //
@@ -53,8 +60,13 @@ function writeSessions(data) {
   fs.writeFileSync(SESSIONS_PATH, JSON.stringify(data, null, 2));
 }
 
-function findSession(sessions, userId, studyId) {
-  return sessions.find(s => s.userId === userId && s.studyId === studyId) || null;
+function sessionKind(s) { return s.kind || 'tutor'; }
+function findSessionIndex(sessions, userId, studyId, kind) {
+  return sessions.findIndex(s => s.userId === userId && s.studyId === studyId && sessionKind(s) === kind);
+}
+function findSession(sessions, userId, studyId, kind) {
+  const i = findSessionIndex(sessions, userId, studyId, kind);
+  return i === -1 ? null : sessions[i];
 }
 
 // A study the reader may be taught from: their own, or one shared to Community.
@@ -93,20 +105,34 @@ function parseFurtherPrompts(content) {
   return out;
 }
 
-const VALID_MODES = ['full', 'section', 'check'];
+const VALID_MODES = ['full', 'section', 'check', 'teacher'];
+const KINDS = ['tutor', 'teacher'];
+function kindOfMode(mode) { return mode === 'teacher' ? 'teacher' : 'tutor'; }
+function cleanKind(k) { return KINDS.includes(k) ? k : 'tutor'; }
+const KIND_LABEL = {
+  tutor:   { title: 'Study with a Tutor',   who: 'tutor',   Who: 'Tutor' },
+  teacher: { title: 'Study with a Teacher', who: 'teacher', Who: 'Teacher' },
+};
 const MAX_MESSAGE_CHARS  = 4000;
 const MAX_SESSION_MESSAGES = 300;
 
-// [[at:N]] — the hidden progress tag the teacher ends every reply with.
-const AT_TAG_RE = /\s*\[\[\s*at\s*:\s*(\d+)\s*\]\]/gi;
-function stripAtTags(text) {
-  let last = null;
-  const out = String(text).replace(AT_TAG_RE, (_m, n) => { last = parseInt(n, 10); return ''; });
-  return { text: out, at: last };
+// Hidden tags each reply ends with: [[at:N]] (Tutor — the section it's in) or
+// [[topic:…]] (Teacher — what the conversation is on). Both are stripped from
+// everything the reader sees and stored; the last one of each wins.
+const TAG_RE = /\s*\[\[\s*(at|topic)\s*:\s*([^\]\n]*?)\s*\]\]/gi;
+function stripTags(text) {
+  let at = null, topic = null;
+  const out = String(text).replace(TAG_RE, (_m, kind, val) => {
+    if (kind.toLowerCase() === 'at') { const n = parseInt(val, 10); if (n >= 0) at = n; }
+    else topic = String(val).replace(/[{}\[\]<>]/g, '').trim().slice(0, 80) || topic;
+    return '';
+  });
+  return { text: out, at, topic };
 }
 
 function coveredLabel(session, sections) {
   if (!session) return '';
+  if (sessionKind(session) === 'teacher') return session.coveredTopic || 'the big question behind this study';
   const n = session.coveredSection;
   if (n && sections[n - 1]) return sections[n - 1].title;
   if (session.mode === 'check') return 'a check of your understanding';
@@ -128,6 +154,7 @@ function displayTranscript(session) {
 function savedSummary(session, sections) {
   if (!session) return null;
   return {
+    kind:         sessionKind(session),
     mode:         session.mode,
     coveredLabel: coveredLabel(session, sections),
     updatedAt:    session.updatedAt,
@@ -140,12 +167,16 @@ const HOW_IT_WORKS = 'Open with ONE short line explaining how this works: one qu
 function openingTurn(mode, sectionNum, sections) {
   if (mode === 'section') {
     const s = sections[sectionNum - 1];
-    return 'The reader tapped "Teach me this section" on section ' + s.n + ', "' + s.title + '". ' + HOW_IT_WORKS +
+    return 'The reader tapped "Tutor me on this section" on section ' + s.n + ', "' + s.title + '". ' + HOW_IT_WORKS +
       ' Then begin teaching that section: one or two plain sentences to orient them, then your first question on it.';
   }
   if (mode === 'check') {
     return 'The reader has finished the study and tapped "Check my understanding". ' + HOW_IT_WORKS +
       ' Say you will start with a few quick check questions. Then ask 3-4 short check questions covering the study\'s main points — ONE per reply, waiting for each answer. During the check, respond to each answer with at most one short sentence (a brief affirmation or a gentle note) before the next question; save fuller teaching for afterward. After the last check question is answered, tell them in a sentence or two what they have well, then teach whatever they missed, one point at a time, following your normal teaching method.';
+  }
+  if (mode === 'teacher') {
+    return 'The reader tapped "Study with a Teacher" to talk through the big questions behind this study. Open with ONE short line explaining how this works: we\'ll talk through the big questions together, one question at a time, and "I don\'t know" is a great answer. ' +
+      'Then state, in plain everyday words, the BIG question the whole study answers, and ask what the reader already understands about it. Do not start teaching yet.';
   }
   return 'The reader wants to be taught this study from the beginning. ' + HOW_IT_WORKS +
     ' Then ask which section of the study they have already reached, so you know where to begin. Do not start teaching yet.';
@@ -161,10 +192,10 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
     return res.status(404).send(renderLayout({
       req,
       activeSection: 'teacher',
-      title: 'Study with a Teacher',
+      title: 'Study with a Tutor or Teacher',
       content: `
         <div class="page-header">
-          <h2 class="page-title">Study with a Teacher</h2>
+          <h2 class="page-title">Study with a Tutor or Teacher</h2>
           <p class="page-subtitle">That study isn&#8217;t available. It may have been deleted or un-shared.</p>
         </div>
         <a class="btn-warm" href="/library">Back to Library</a>`,
@@ -176,8 +207,10 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
   let section = parseInt(req.query.section, 10);
   if (mode === 'section' && !(section >= 1 && section <= sections.length)) mode = 'full';
   if (mode !== 'section') section = null;
+  const kind  = kindOfMode(mode);
+  const label = KIND_LABEL[kind];
 
-  const saved = findSession(readSessions(), req.session.userId, study.id);
+  const saved = findSession(readSessions(), req.session.userId, study.id, kind);
   const isOwner = study.userId === req.session.userId;
 
   const boot = {
@@ -186,6 +219,7 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
     content:     study.content,
     translation: study.translation || 'ASV',
     sections,
+    kind,
     entry:       { mode, section },
     saved:       savedSummary(saved, sections),
     isOwner,
@@ -196,7 +230,7 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
     <div class="teacher-page">
       <div class="teacher-topbar">
         <div class="teacher-topbar-meta">
-          <span class="teacher-topbar-label">Study with a Teacher</span>
+          <span class="teacher-topbar-label">${label.title}</span>
           <h2 class="teacher-topbar-title">${escapeHtml(study.topic)}</h2>
         </div>
         <a class="btn-warm teacher-back-link" href="${isOwner ? '/library' : '/community'}">&#8592; Back</a>
@@ -209,7 +243,7 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
 
         <section class="teacher-conversation" aria-label="Teacher conversation">
           <div class="conversation-header">
-            <span class="conversation-header-title">Your teacher</span>
+            <span class="conversation-header-title">Your ${label.who}</span>
             <button class="btn-end-session" id="teacherEndBtn" disabled>End Session</button>
           </div>
 
@@ -273,12 +307,12 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
   res.send(renderLayout({
     req,
     activeSection: 'teacher',
-    title: 'Study with a Teacher',
+    title: label.title,
     content,
     scripts: `<script src="/js/render-markdown.js?v=2"></script>
-<script src="/js/teacher-entry.js?v=1"></script>
+<script src="/js/teacher-entry.js?v=2"></script>
 <script>window.TEACHER_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/teacher.js?v=1"></script>`,
+<script src="/js/teacher.js?v=2"></script>`,
   }));
 });
 
@@ -286,7 +320,7 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
 router.get('/api/teacher/:studyId/session', requireAuth, (req, res) => {
   const study = findReadableStudy(req, req.params.studyId);
   if (!study) return res.status(404).json({ success: false, error: 'Study not found.' });
-  const session = findSession(readSessions(), req.session.userId, study.id);
+  const session = findSession(readSessions(), req.session.userId, study.id, cleanKind(req.query.kind));
   if (!session) return res.json({ success: true, session: null });
   const sections = parseSections(study.content);
   res.json({
@@ -303,7 +337,7 @@ router.get('/api/teacher/:studyId/session', requireAuth, (req, res) => {
 // study itself was deleted or un-shared (the reader can always clear their data).
 router.delete('/api/teacher/:studyId/session', requireAuth, (req, res) => {
   const sessions = readSessions();
-  const idx = sessions.findIndex(s => s.userId === req.session.userId && s.studyId === req.params.studyId);
+  const idx = findSessionIndex(sessions, req.session.userId, req.params.studyId, cleanKind(req.query.kind));
   if (idx === -1) return res.status(404).json({ success: false, error: 'No saved session.' });
   sessions.splice(idx, 1);
   writeSessions(sessions);
@@ -311,20 +345,22 @@ router.delete('/api/teacher/:studyId/session', requireAuth, (req, res) => {
 });
 
 // ─── POST /api/teacher/exchange (streaming SSE) ───────────────────────────────
-// Body: { studyId, start?: { mode, section }, resume?: true, message?: string }
-//   start  → begin a NEW session for this study (replaces any saved one)
+// Body: { studyId, kind, start?: { mode, section }, resume?: true, message?: string }
+//   start  → begin a NEW session (replaces any saved one of the same kind; the
+//            kind comes from start.mode)
 //   resume → continue the saved session with a hidden "welcome back" turn
 //   else   → the reader's next message in the saved session
 router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) => {
   if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
   const { studyId, start, resume, message } = req.body || {};
+  const kind = start ? kindOfMode(start.mode) : cleanKind(req.body && req.body.kind);
 
   const study = findReadableStudy(req, studyId);
   if (!study) return res.status(404).json({ success: false, error: 'That study is no longer available.' });
   const sections = parseSections(study.content);
 
   const sessions = readSessions();
-  const existing = findSession(sessions, req.session.userId, study.id);
+  const existing = findSession(sessions, req.session.userId, study.id, kind);
 
   // Work out the session this turn belongs to and the new user turn to add.
   let session;
@@ -340,9 +376,11 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
       userId:         req.session.userId,
       studyId:        study.id,
       studyTopic:     study.topic,
+      kind,
       mode,
       startSection:   sectionNum,
       coveredSection: mode === 'section' ? sectionNum : null,
+      coveredTopic:   null,
       messages:       [],
       review:         null,
       createdAt:      now,
@@ -350,7 +388,7 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
     };
     newTurn = { role: 'user', content: openingTurn(mode, sectionNum, sections), hidden: true };
     const du = req.session.user || {};
-    logEvent(du.id || req.session.userId, du.fullName, 'teacher_started', { mode });
+    logEvent(du.id || req.session.userId, du.fullName, 'teacher_started', { kind, mode });
   } else {
     if (!existing) return res.status(409).json({ success: false, error: 'No saved session to continue. Please start again.' });
     session = existing;
@@ -367,22 +405,23 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
     }
   }
 
-  const { IRON_INK_CORE_PROMPT, IRON_INK_TEACHER_PROMPT } = req.app.locals.prompts;
+  const { IRON_INK_CORE_PROMPT, IRON_INK_TUTOR_PROMPT, IRON_INK_TEACHER_PROMPT } = req.app.locals.prompts;
+  const modePrompt = kind === 'teacher' ? IRON_INK_TEACHER_PROMPT : IRON_INK_TUTOR_PROMPT;
   const userSettings = req.session.user && req.session.user.settings;
   const studyLevelInstruction = getStudyLevelInstruction(userSettings);
 
-  // System prompt as blocks (Writing companion pattern): the teacher prompt, then
+  // System prompt as blocks (Writing companion pattern): the Tutor/Teacher prompt, then
   // the study itself. The cache breakpoint sits on the study block, so a long
   // study is billed at the cached rate on every turn after the first.
   const sectionList = sections.length
     ? sections.map(s => s.n + '. ' + s.title).join('\n')
-    : '(This study has no numbered sections. Use [[at:0]].)';
+    : '(This study has no numbered sections.' + (kind === 'tutor' ? ' Use [[at:0]].)' : ')');
   const systemBlocks = [
-    { type: 'text', text: studyLevelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_TEACHER_PROMPT },
+    { type: 'text', text: studyLevelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + modePrompt },
     {
       type: 'text',
       text: 'THE STUDY YOU ARE TEACHING\nTitle: ' + study.topic + '\n\n' +
-        'SECTION LIST (numbers for the [[at:N]] tag):\n' + sectionList + '\n\n' +
+        'SECTION LIST' + (kind === 'tutor' ? ' (numbers for the [[at:N]] tag)' : '') + ':\n' + sectionList + '\n\n' +
         'FULL STUDY TEXT (the reader sees this rendered beside the conversation; verse markers in it are filled with real text on their screen):\n"""\n' +
         study.content + '\n"""',
       cache_control: { type: 'ephemeral' },
@@ -404,11 +443,11 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
 
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   let closed = false;
-  const GENERIC_ERROR = "The teacher couldn't respond. Please try again.";
+  const GENERIC_ERROR = 'The ' + KIND_LABEL[kind].who + " couldn't respond. Please try again.";
 
   try {
     // Opus 5.5 always thinks and thinking counts toward max_tokens, so the
-    // ceiling carries headroom well above these deliberately short replies.
+    // ceiling carries headroom well above these replies (Teacher's run fuller).
     const stream = client.messages.stream({
       model:         'claude-opus-5-5',
       max_tokens:    6000,
@@ -442,7 +481,7 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
         if (holds.length) cut = Math.min.apply(null, holds);
         else if (buf.endsWith('{') || buf.endsWith('[')) cut = buf.length - 1;
       }
-      const slice = stripAtTags(buf.slice(0, cut)).text;
+      const slice = stripTags(buf.slice(0, cut)).text;
       buf = buf.slice(cut);
       const { text: emit, sources } = injectVersesTracked(slice, atLineStart);
       if (sources.nasb) usedNasb = true;
@@ -459,14 +498,14 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
 
     const finalMsg = await stream.finalMessage();
     const u = finalMsg.usage || {};
-    console.log(`[Teacher] usage — input:${u.input_tokens} cache_read:${u.cache_read_input_tokens} cache_write:${u.cache_creation_input_tokens} output:${u.output_tokens} stop:${finalMsg.stop_reason}`);
+    console.log(`[Teacher/${kind}] usage — input:${u.input_tokens} cache_read:${u.cache_read_input_tokens} cache_write:${u.cache_creation_input_tokens} output:${u.output_tokens} stop:${finalMsg.stop_reason}`);
 
-    const { text: replyText, at } = stripAtTags(raw);
+    const { text: replyText, at, topic } = stripTags(raw);
     const reply = replyText.trim();
 
     // Opus 5.5 safety classifiers can decline with stop_reason 'refusal' (HTTP 200).
     if (finalMsg.stop_reason === 'refusal') {
-      console.error('[Teacher] refusal — category:', finalMsg.stop_details && finalMsg.stop_details.category);
+      console.error('[Teacher/' + kind + '] refusal — category:', finalMsg.stop_details && finalMsg.stop_details.category);
     }
     if (!reply) {
       if (!closed && !res.writableEnded) {
@@ -480,7 +519,7 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
     // Re-read the file so a concurrent write (another tab, a delete) isn't lost.
     if (!closed) {
       const all = readSessions();
-      const idx = all.findIndex(s => s.userId === req.session.userId && s.studyId === study.id);
+      const idx = findSessionIndex(all, req.session.userId, study.id, kind);
       if (start) {
         if (idx !== -1) all.splice(idx, 1);
         all.push(session);
@@ -492,7 +531,8 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
       }
       if (session) {
         session.messages = (session.messages || []).concat([newTurn, { role: 'assistant', content: reply }]);
-        if (at && sections[at - 1]) session.coveredSection = at;
+        if (kind === 'tutor' && at && sections[at - 1]) session.coveredSection = at;
+        if (kind === 'teacher' && topic) session.coveredTopic = topic;
         session.review    = null;          // a stale review no longer describes the session
         session.updatedAt = new Date().toISOString();
         writeSessions(all);
@@ -509,7 +549,7 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
   } catch (err) {
     if (!res.writableEnded) {
       if (!closed) {
-        console.error('[Teacher] API error — status:', err.status, '| type:', err.error?.type, '| message:', err.message);
+        console.error('[Teacher/' + kind + '] API error — status:', err.status, '| type:', err.error?.type, '| message:', err.message);
         res.write(`data: ${JSON.stringify({ error: GENERIC_ERROR })}\n\n`);
       }
       res.end();
@@ -524,10 +564,11 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
 router.post('/api/teacher/review', requireAuth, aiLimiter, async (req, res) => {
   if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
   const { studyId } = req.body || {};
+  const kind = cleanKind(req.body && req.body.kind);
   const study = findReadableStudy(req, studyId);
   if (!study) return res.status(404).json({ success: false, error: 'That study is no longer available.' });
 
-  const session = findSession(readSessions(), req.session.userId, study.id);
+  const session = findSession(readSessions(), req.session.userId, study.id, kind);
   const visible = session ? (session.messages || []).filter(m => !m.hidden) : [];
   if (!visible.some(m => m.role === 'user')) {
     return res.json({ success: true, review: null });   // nothing answered yet — nothing to review
@@ -537,13 +578,15 @@ router.post('/api/teacher/review', requireAuth, aiLimiter, async (req, res) => {
   const further  = parseFurtherPrompts(study.content);
 
   const transcriptText = visible
-    .map(m => (m.role === 'assistant' ? 'Teacher' : 'Reader') + ': ' + m.content)
+    .map(m => (m.role === 'assistant' ? KIND_LABEL[kind].Who : 'Reader') + ': ' + m.content)
     .join('\n\n');
   const sectionList = sections.length ? sections.map(s => s.n + '. ' + s.title).join('\n') : '(none)';
   const furtherList = further.length ? further.map((p, i) => (i + 1) + '. ' + p).join('\n') : '(none)';
 
   const userPrompt =
-    'A reader has just finished a one-on-one teaching session on the study "' + study.topic + '".\n\n' +
+    'A reader has just finished a one-on-one ' +
+      (kind === 'teacher' ? 'big-picture conversation with a teacher about' : 'tutoring session, section by section, on') +
+      ' the study "' + study.topic + '".\n\n' +
     'STUDY SECTIONS:\n' + sectionList + '\n\n' +
     'THIS STUDY\'S FURTHER STUDIES LIST:\n' + furtherList + '\n\n' +
     'SESSION TRANSCRIPT:\n' + transcriptText + '\n\n' +
@@ -551,8 +594,11 @@ router.post('/api/teacher/review', requireAuth, aiLimiter, async (req, res) => {
     '1. understandWell — 1 to 3 things the reader showed they genuinely understand. Be concrete, never flattery. If they struggled throughout, name something real (for example, a point they grasped once it was explained).\n' +
     '2. revisit — 1 to 3 points worth going back over, where their answers were thin or the teaching had to correct them. If nothing needs revisiting, return an empty list.\n' +
     'Each item is one plain sentence (no Scripture quotations, no verse markers) plus the number of the study section it belongs to (from STUDY SECTIONS), or null if none fits.\n' +
+    (kind === 'teacher'
+      ? 'This conversation was free to range beyond the study. For a revisit item that no study section fits, set section to null and give "topic": the outside subject or passage worth revisiting, in 8 words or fewer (for example "Romans 8 and the Spirit\'s work"). Otherwise set "topic" to null.\n'
+      : '') +
     '3. nextStudy — one study to take up next. If an item on the FURTHER STUDIES LIST fits what this reader most needs, give its number as furtherIndex. Otherwise set furtherIndex to null and give a topic of 8 words or fewer.\n\n' +
-    'Return ONLY this JSON: { "understandWell": [{ "point": "...", "section": 1 }], "revisit": [{ "point": "...", "section": 2 }], "nextStudy": { "furtherIndex": 1, "topic": "..." } }';
+    'Return ONLY this JSON: { "understandWell": [{ "point": "...", "section": 1 }], "revisit": [{ "point": "...", "section": 2' + (kind === 'teacher' ? ', "topic": null' : '') + ' }], "nextStudy": { "furtherIndex": 1, "topic": "..." } }';
 
   const { IRON_INK_CORE_PROMPT } = req.app.locals.prompts;
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -578,10 +624,12 @@ router.post('/api/teacher/review', requireAuth, aiLimiter, async (req, res) => {
     // marker collapses to its reference), section numbers checked against the
     // real section list, the next study resolved against the real Further list.
     const plain = s => String(s || '').replace(/\{\{\s*verse\s*:\s*([^}]+?)\s*\}\}/gi, '$1').trim().slice(0, 400);
-    const items = list => (Array.isArray(list) ? list : []).slice(0, 3).map(it => {
+    // An outside topic (Teacher only) is kept only when no study section fits.
+    const items = (list, allowTopic) => (Array.isArray(list) ? list : []).slice(0, 3).map(it => {
       const n = parseInt(it && it.section, 10);
       const sec = sections[n - 1] || null;
-      return { point: plain(it && it.point), section: sec ? sec.n : null, sectionTitle: sec ? sec.title : null };
+      const topic = (allowTopic && !sec) ? (plain(it && it.topic).slice(0, 80) || null) : null;
+      return { point: plain(it && it.point), section: sec ? sec.n : null, sectionTitle: sec ? sec.title : null, topic };
     }).filter(it => it.point);
 
     let nextStudy = null;
@@ -591,15 +639,15 @@ router.post('/api/teacher/review', requireAuth, aiLimiter, async (req, res) => {
     else if (plain(ns.topic)) nextStudy = { topic: plain(ns.topic).slice(0, 120), fromFurther: false };
 
     const review = {
-      understandWell: items(parsed.understandWell),
-      revisit:        items(parsed.revisit),
+      understandWell: items(parsed.understandWell, false),
+      revisit:        items(parsed.revisit, kind === 'teacher'),
       nextStudy,
       at:             new Date().toISOString(),
     };
 
     // Keep the review with the saved session (best effort — re-read before write).
     const all = readSessions();
-    const s = findSession(all, req.session.userId, study.id);
+    const s = findSession(all, req.session.userId, study.id, kind);
     if (s && s.id === session.id) { s.review = review; writeSessions(all); }
 
     res.json({ success: true, review });

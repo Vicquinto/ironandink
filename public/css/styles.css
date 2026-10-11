@@ -7933,12 +7933,24 @@ body {
    (study page, Library inline view, Community reader). All carry .teacher-entry. */
 .teacher-entry-top {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: wrap;
-  gap: 8px 14px;
+  gap: 12px 22px;
   padding: 0 0 18px;
   margin-bottom: 14px;
   border-bottom: 1px solid rgba(160,132,92,0.18);
+}
+/* One Tutor / Teacher choice: the button with its one-line description under it. */
+.teacher-entry-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  max-width: 260px;
+}
+@media (max-width: 600px) {
+  .teacher-entry-top { flex-direction: column; }
+  .teacher-entry-choice { max-width: none; }
 }
 .teacher-start-btn,
 .teacher-check-btn {
@@ -8151,3 +8163,4 @@ body {
   }
   .teacher-topbar { flex-direction: column; align-items: flex-start; }
 }
+a.teacher-review-outside { font-style: italic; text-decoration: underline; }

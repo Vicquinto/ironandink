@@ -114,8 +114,8 @@ export const TOURS = {
     {
       id:       'library-teacher',
       attachTo: null,
-      title:    'Study with a Teacher',
-      text:     'Open any study and you’ll find three new buttons: “Study with a Teacher” at the top walks you through the whole study, “Teach me this section” beside each heading starts right there, and “Check my understanding” at the end asks a few short questions and then helps with anything you missed. They’re on shared Community studies too.',
+      title:    'Study with a Tutor or a Teacher',
+      text:     'Open any study and you’ll find two ways in at the top: “Study with a Tutor” walks you through it section by section, and “Study with a Teacher” talks through the big questions behind it. “Tutor me on this section” beside each heading starts the tutor right there, and “Check my understanding” at the end asks a few short questions, then helps with anything you missed. They’re on shared Community studies too.',
       buttons:  ['back', 'finish'],
     },
   ],
@@ -125,7 +125,7 @@ export const TOURS = {
       id:       'teacher-split',
       attachTo: { element: '.teacher-study-pane', on: 'right' },
       title:    'The Study Stays Open',
-      text:     'Your study stays right here while you talk with your teacher, so you can look back at the text before you answer.',
+      text:     'Your study stays right here while you talk, so you can look back at the text before you answer. A Tutor goes section by section; a Teacher talks through the big picture and follows your questions.',
       buttons:  ['skip', 'next'],
     },
     {
@@ -139,7 +139,7 @@ export const TOURS = {
       id:       'teacher-end',
       attachTo: { element: '#teacherEndBtn', on: 'bottom' },
       title:    'Saved as You Go',
-      text:     'Your session saves automatically, so you can pick it up later. When you’re done, End Session shows what you understand well, what’s worth revisiting, and a study to take up next.',
+      text:     'Your session saves automatically — Tutor and Teacher sessions are kept separately — so you can pick it up later. When you’re done, End Session shows what you understand well, what’s worth revisiting, and a study to take up next.',
       buttons:  ['back', 'finish'],
     },
   ],

@@ -1,13 +1,18 @@
 (function () {
   'use strict';
 
-  // Study with a Teacher — page client. The streaming client is cloned from
+  // Study with a Tutor / Study with a Teacher — page client (one page, two
+  // kinds: BOOT.kind is 'tutor' or 'teacher'). The streaming client is cloned from
   // Dialogue (public/js/dialogue.js: streamExchange / setGenerating / typing
   // indicator / end-of-session review), but the transcript lives on the server:
   // this page sends only the new message and the server saves each exchange.
 
   var BOOT = window.TEACHER_BOOT || {};
   var sections = BOOT.sections || [];
+  var KIND = BOOT.kind === 'teacher' ? 'teacher' : 'tutor';
+  var WHO  = KIND === 'teacher' ? 'Teacher' : 'Tutor';          // role label on messages
+  var GENERIC_ERROR = 'The ' + WHO.toLowerCase() + ' couldn\'t respond. Please try again.';
+  var SESSION_URL = '/api/teacher/' + encodeURIComponent(BOOT.studyId) + '/session?kind=' + KIND;
 
   // ── State ────────────────────────────────────────────────────────────────
   var abortController = null;
@@ -102,7 +107,8 @@
   function addTeacherMessage(text) {
     var div = document.createElement('div');
     div.className = 'chat-msg engine-msg';
-    div.innerHTML = '<div class="msg-role">Teacher</div><div class="msg-content"></div>';
+    div.innerHTML = '<div class="msg-role"></div><div class="msg-content"></div>';
+    div.querySelector('.msg-role').textContent = WHO;
     div.querySelector('.msg-content').innerHTML = renderTeacherText(text);
     messagesEl.appendChild(div);
     scrollChat();
@@ -138,7 +144,7 @@
     div.id        = 'teacherTyping';
     div.className = 'chat-msg engine-msg';
     div.innerHTML =
-      '<div class="msg-role">Teacher</div>' +
+      '<div class="msg-role">' + WHO + '</div>' +
       '<div class="typing-indicator">' +
         '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>' +
       '</div>';
@@ -172,7 +178,7 @@
       var response = await fetch('/api/teacher/exchange', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(Object.assign({ studyId: BOOT.studyId }, body)),
+        body:    JSON.stringify(Object.assign({ studyId: BOOT.studyId, kind: KIND }, body)),
         signal:  abortController.signal,
       });
 
@@ -180,7 +186,7 @@
         var info = null;
         try { info = await response.json(); } catch (e) { /* not JSON */ }
         if (response.status === 402 && info && info.upgradeUrl) { window.location.href = info.upgradeUrl; }
-        throw new Error((info && info.error && info.error !== 'member_feature') ? info.error : 'The teacher couldn\'t respond. Please try again.');
+        throw new Error((info && info.error && info.error !== 'member_feature') ? info.error : GENERIC_ERROR);
       }
 
       hideTypingIndicator();
@@ -216,7 +222,7 @@
         }
       }
 
-      if (!fullText) throw new Error('The teacher couldn\'t respond. Please try again.');
+      if (!fullText) throw new Error(GENERIC_ERROR);
       msgEl.classList.remove('streaming');
       return fullText;
     } catch (err) {
@@ -239,7 +245,7 @@
     } catch (err) {
       if (userEl) { userEl.remove(); inputEl.value = userText; }
       if (err.name !== 'AbortError') {
-        addSystemMsg(err.message || 'The teacher couldn\'t respond. Please try again.');
+        addSystemMsg(err.message || GENERIC_ERROR);
       }
       return false;
     } finally {
@@ -265,7 +271,7 @@
     hideResume();
     messagesEl.innerHTML = '';
     try {
-      var res  = await fetch('/api/teacher/' + encodeURIComponent(BOOT.studyId) + '/session');
+      var res  = await fetch(SESSION_URL);
       var data = await res.json();
       if (!data.success || !data.session) { await startNew(); return; }
       (data.session.transcript || []).forEach(function (m) {
@@ -294,6 +300,7 @@
   }
 
   function startOverLabel() {
+    if (KIND === 'teacher') return 'Start a fresh conversation';
     if (BOOT.entry.mode === 'section' && sections[BOOT.entry.section - 1]) {
       return 'Start over at “' + sections[BOOT.entry.section - 1].title + '”';
     }
@@ -303,7 +310,7 @@
 
   async function deleteSaved(onDone) {
     try {
-      var res  = await fetch('/api/teacher/' + encodeURIComponent(BOOT.studyId) + '/session', { method: 'DELETE' });
+      var res  = await fetch(SESSION_URL, { method: 'DELETE' });
       var data = await res.json();
       if (!data.success && res.status !== 404) throw new Error();
       onDone();
@@ -366,6 +373,14 @@
       });
       li.appendChild(document.createTextNode(' '));
       li.appendChild(link);
+    } else if (item.topic) {
+      var out = document.createElement('a');
+      out.className = 'teacher-review-link teacher-review-outside';
+      out.href = '/study?studyNext=' + encodeURIComponent(item.topic);
+      out.textContent = '→ Study: ' + item.topic;
+      out.title = 'Outside this study — opens a new study on it';
+      li.appendChild(document.createTextNode(' '));
+      li.appendChild(out);
     }
     return li;
   }
@@ -395,7 +410,7 @@
       var res  = await fetch('/api/teacher/review', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ studyId: BOOT.studyId }),
+        body:    JSON.stringify({ studyId: BOOT.studyId, kind: KIND }),
       });
       var data = await res.json();
       if (!data.success) throw new Error();
@@ -458,7 +473,10 @@
   setGenerating(false);
   if (BOOT.saved) {
     startOverBtn.textContent = startOverLabel();
-    showResumePanel('Last time we covered ' + (BOOT.saved.coveredLabel || 'part of this study') + '. Ready to continue?', { begin: false });
+    var lastTime = KIND === 'teacher'
+      ? 'Last time we talked about ' + (BOOT.saved.coveredLabel || 'the big question behind this study')
+      : 'Last time we covered ' + (BOOT.saved.coveredLabel || 'part of this study');
+    showResumePanel(lastTime + '. Ready to continue?', { begin: false });
   } else {
     startNew();
   }

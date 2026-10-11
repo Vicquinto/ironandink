@@ -771,8 +771,8 @@
       guideBadge.textContent   = data.translation || 'ASV';
       guideBody.innerHTML      = renderMarkdown(data.content);
       window.enhanceFurtherStudies(guideBody);
-      // Study with a Teacher needs a saved study; a fresh draft is saved to the
-      // Library first (same notepad bridge save), then the teacher opens.
+      // Study with a Tutor / Teacher needs a saved study; a fresh draft is saved to the
+      // Library first (same notepad bridge save), then the page opens.
       if (window.IronInkTeacher) {
         window.IronInkTeacher.attach(guideBody, {
           resolveId: function (cb) {
