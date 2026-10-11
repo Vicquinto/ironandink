@@ -1424,6 +1424,22 @@
     ));
   }
 
+  // Verse numbers in study quotations (<sup class="guide-vnum">, html-sanitizer.js)
+  // are for reading only. A highlight that spans one must not carry it into the
+  // note quote, the Ask panel or a lookup: the quote has to match the number-free
+  // text notepad.js anchors against. Unchanged when no number is selected.
+  function selectionTextWithoutNumbers(sel, range) {
+    var t = (window.IronInkSanitize && window.IronInkSanitize.rangeTextWithoutNumbers)
+      ? window.IronInkSanitize.rangeTextWithoutNumbers(range) : null;
+    return t != null ? t : sel.toString();
+  }
+  function textWithoutVerseNumbers(el) {
+    if (!el.querySelector || !el.querySelector('.guide-vnum')) return el.textContent;
+    var copy = el.cloneNode(true);
+    copy.querySelectorAll('.guide-vnum, .notepad-marker').forEach(function (n) { n.remove(); });
+    return copy.textContent;
+  }
+
   document.addEventListener('mouseup', function (e) {
     if (e.target.closest && (
           e.target.closest('#unifiedPopup') ||
@@ -1458,14 +1474,14 @@
     var selText, rect, anchorNode;
 
     if (emTarget) {
-      selText    = emTarget.textContent.trim();
+      selText    = textWithoutVerseNumbers(emTarget).trim();
       if (!selText || selText.length < 2) return;
       rect       = emTarget.getBoundingClientRect();
       anchorNode = emTarget;
     } else {
-      selText = sel.toString().trim();
-      if (!selText || selText.length < 4) return;
       var range  = sel.getRangeAt(0);
+      selText = selectionTextWithoutNumbers(sel, range).trim();
+      if (!selText || selText.length < 4) return;
       rect       = range.getBoundingClientRect();
       // Normalize text node → parent element: text nodes inside <em>/<i> and other
       // inline elements may not pass Node.contains() uniformly across all browsers

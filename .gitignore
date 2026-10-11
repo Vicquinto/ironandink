@@ -31,3 +31,6 @@ data/nasb-cache.json
 
 # Local review artifact (generated diff) — not part of the codebase
 nasb.diff
+
+# Backups written by scripts/number-study-verses.js --apply
+data/*.backup-verse-numbers-*.json

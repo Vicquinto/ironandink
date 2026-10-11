@@ -55,7 +55,12 @@ function renderMarkdown(text) {
     .replace(/^# (.+)$/gm,    '<h2 class="guide-h2">$1</h2>')
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g,     '<em>$1</em>')
-    .replace(/^---$/gm,        '<hr class="guide-hr">');
+    .replace(/^---$/gm,        '<hr class="guide-hr">')
+    // Verse numbers (superscript digits in multi-verse quotations, lib/asv.js) →
+    // the same <sup class="guide-vnum"> the client sanitizer builds. Runs only
+    // after escaping, and emits nothing but fixed markup and plain ASCII digits.
+    .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]+/g, run =>
+      '<sup class="guide-vnum">' + run.split('').map(c => '⁰¹²³⁴⁵⁶⁷⁸⁹'.indexOf(c)).join('') + ' </sup>');
   const lines = html.split('\n');
   const result = [];
   let inUl = false, inOl = false;
@@ -123,7 +128,7 @@ router.get('/rooms', requireAuth, (req, res) => {
     activeSection: 'rooms',
     title:         'Live Study Rooms',
     content,
-    scripts: `<script>window.USER_STUDY_LEVEL = ${inlineJson((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};</script><script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/rooms.js?v=6"></script><script src="/js/library.js?v=62"></script>`,
+    scripts: `<script>window.USER_STUDY_LEVEL = ${inlineJson((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};</script><script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/rooms.js?v=6"></script><script src="/js/library.js?v=63"></script>`,
   }));
 });
 
@@ -271,7 +276,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
   <script src="/js/study-badges.js?v=4"></script>
   <script src="/js/render-markdown.js?v=2"></script>
   <script src="/js/enhance-further-studies.js?v=2"></script>
-  <script src="/js/library.js?v=62"></script>`,
+  <script src="/js/library.js?v=63"></script>`,
     }));
   }
 
@@ -364,7 +369,7 @@ router.get('/room/:code', requireAuth, (req, res) => {
   <script src="/js/render-markdown.js?v=2"></script>
   <script src="/js/enhance-further-studies.js?v=2"></script>
   <script src="/js/room.js?v=25"></script>
-  <script src="/js/library.js?v=62"></script>`,
+  <script src="/js/library.js?v=63"></script>`,
   }));
 });
 

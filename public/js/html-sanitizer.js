@@ -34,7 +34,7 @@
   }
 
   var SIZE_CLASS_RE  = /^ql-size-(small|large|huge)$/;
-  var GUIDE_CLASS_RE = /^guide-(h2|h3|h4|h5|hr|bq|list|ol|spacer|p)$/;
+  var GUIDE_CLASS_RE = /^guide-(h2|h3|h4|h5|hr|bq|list|ol|spacer|p|vnum)$/;
   var COLOR_RE = /^(#[0-9a-f]{3}|#[0-9a-f]{6}|rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\))$/i;
   var SAFE_HREF_RE = /^(https?:|mailto:)/i;
 
@@ -51,8 +51,96 @@
       classOk:   function (t) { return GUIDE_CLASS_RE.test(t) || SIZE_CLASS_RE.test(t); },
       highlight: true,
       links:     true,
+      verseNums: true,
     },
   };
+
+  // ── Verse numbers ───────────────────────────────────────────────────────────
+  // Multi-verse quotations in studies store each verse's number as Unicode
+  // superscript digits ("¹⁰And not only this… ¹¹for though…" — lib/asv.js),
+  // plain text that every renderer passes through safely. Here, on the inert
+  // parsed tree (after cleaning, so nothing from the input can ride along), each
+  // run becomes <sup class="guide-vnum">10</sup>: small and styled, and a real
+  // element that note anchoring (notepad.js buildCleanText), copy and the Ask
+  // panel can skip — so the text around it is exactly what it was before verse
+  // numbers existed. Built with createElement/textContent only; never strings.
+  var SUPER_DIGITS = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+  var SUPER_RUN_RE = /[⁰¹²³⁴⁵⁶⁷⁸⁹]+/g;
+  var VNUM_SKIP = { CODE: 1, PRE: 1, SUP: 1, SUB: 1, A: 1 };
+
+  function plainDigits(run) {
+    var out = '';
+    for (var i = 0; i < run.length; i++) out += String(SUPER_DIGITS.indexOf(run.charAt(i)));
+    return out;
+  }
+
+  function markVerseNumbers(doc, root) {
+    var walker = doc.createTreeWalker(root, 4 /* NodeFilter.SHOW_TEXT */, null);
+    var nodes = [], node;
+    while ((node = walker.nextNode())) {
+      if (!/[⁰¹²³⁴⁵⁶⁷⁸⁹]/.test(node.nodeValue || '')) continue;
+      var skip = false;
+      for (var p = node.parentNode; p && p !== root; p = p.parentNode) {
+        if (VNUM_SKIP[String(p.tagName).toUpperCase()]) { skip = true; break; }
+      }
+      if (!skip) nodes.push(node);
+    }
+    nodes.forEach(function (tn) {
+      var text = tn.nodeValue, frag = doc.createDocumentFragment(), last = 0, m;
+      SUPER_RUN_RE.lastIndex = 0;
+      while ((m = SUPER_RUN_RE.exec(text))) {
+        if (m.index > last) frag.appendChild(doc.createTextNode(text.slice(last, m.index)));
+        var sup = doc.createElement('sup');
+        sup.className = 'guide-vnum';
+        // The trailing space lives INSIDE the number, so a double-click on the
+        // first word selects "for", not "11for" — and since anchoring, copy and
+        // the Ask panel skip the whole <sup>, the space never reaches their text.
+        sup.textContent = plainDigits(m[0]) + ' ';
+        frag.appendChild(sup);
+        last = m.index + m[0].length;
+      }
+      if (last < text.length) frag.appendChild(doc.createTextNode(text.slice(last)));
+      tn.parentNode.replaceChild(frag, tn);
+    });
+  }
+
+  // The selected/copied text of a Range WITHOUT verse numbers (or note markers):
+  // what the reader means when they highlight "Isaac; for though the twins".
+  // Returns null when the range holds no number, so callers keep their usual
+  // Selection.toString() result unchanged in every other case.
+  function rangeTextWithoutNumbers(range) {
+    if (!range) return null;
+    var frag = range.cloneContents();
+    if (!frag.querySelector || !frag.querySelector('.guide-vnum')) return null;
+    frag.querySelectorAll('.guide-vnum, .notepad-marker').forEach(function (el) { el.remove(); });
+    return frag.textContent || '';
+  }
+
+  // Copy from a study: leave the verse numbers out, so pasted Scripture reads
+  // "…Isaac; for though…" rather than "…Isaac; 11for though…". Only steps in when
+  // the selection actually contains a number; anything else copies as normal.
+  document.addEventListener('copy', function (e) {
+    try {
+      var sel = global.getSelection && global.getSelection();
+      if (!sel || !sel.rangeCount || !e.clipboardData) return;
+      var parts = [], html = [], found = false;
+      for (var i = 0; i < sel.rangeCount; i++) {
+        var r = sel.getRangeAt(i);
+        var t = rangeTextWithoutNumbers(r);
+        if (t != null) found = true;
+        var frag = r.cloneContents();
+        frag.querySelectorAll('.guide-vnum, .notepad-marker').forEach(function (el) { el.remove(); });
+        var box = document.createElement('div');
+        box.appendChild(frag);
+        html.push(box.innerHTML);
+        parts.push(t != null ? t : r.toString());
+      }
+      if (!found) return;
+      e.clipboardData.setData('text/plain', parts.join('\n'));
+      e.clipboardData.setData('text/html', html.join('\n'));
+      e.preventDefault();
+    } catch (err) { /* fall back to the browser's own copy */ }
+  });
 
   function cleanAttributes(el, tag, profile) {
     var classes = [];
@@ -126,6 +214,7 @@
     var profile = PROFILES[profileName] || PROFILES.markdown;
     var doc = new DOMParser().parseFromString('<!DOCTYPE html><body>' + String(html) + '</body>', 'text/html');
     cleanChildren(doc.body, profile);
+    if (profile.verseNums) markVerseNumbers(doc, doc.body);
     return doc.body.innerHTML;
   }
 
@@ -160,5 +249,6 @@
     sanitize: sanitize,
     markdown: markdown,
     escape:   escapeHtml,
+    rangeTextWithoutNumbers: rangeTextWithoutNumbers,
   };
 }(window));

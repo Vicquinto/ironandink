@@ -504,6 +504,10 @@
       if (parent && parent.classList && parent.classList.contains('notepad-marker')) continue;
       // Tutor / Teacher entry buttons (teacher-entry.js) are UI, not study text.
       if (parent && parent.closest && parent.closest('.teacher-entry')) continue;
+      // Verse numbers in multi-verse quotations (html-sanitizer.js) are added for
+      // reading only: leaving them out keeps every note's quote + occurrence
+      // matching the same text it was saved against, before or after numbers.
+      if (parent && parent.closest && parent.closest('.guide-vnum')) continue;
       var v = node.nodeValue || '';
       if (!v) continue;
       map.push({ start: text.length, node: node, len: v.length });
@@ -542,7 +546,7 @@
       pre.setStart(container, 0);
       pre.setEnd(node, offset);
       var frag = pre.cloneContents();
-      frag.querySelectorAll('.notepad-marker').forEach(function (m) { m.remove(); });
+      frag.querySelectorAll('.notepad-marker, .guide-vnum').forEach(function (m) { m.remove(); });
       var pointOffset = (frag.textContent || '').length;
       // Count only whole occurrences that END at/before the highlight point; the
       // highlighted occurrence itself starts AT the point and must not be counted.

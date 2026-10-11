@@ -335,7 +335,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/teacher-entry.js?v=2"></script><script src="/js/study.js?v=27"></script><script src="/js/study-planner.js?v=2"></script><script src="/js/library.js?v=62"></script>
+    scripts: `<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/teacher-entry.js?v=2"></script><script src="/js/study.js?v=27"></script><script src="/js/study-planner.js?v=2"></script><script src="/js/library.js?v=63"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${inlineJson((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};
@@ -745,7 +745,8 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
       // never writes Scripture; all verse text is inserted here. Unresolvable
       // markers collapse to the plain reference — never model-generated verse
       // text. The Lockman notice is appended when NASB text was injected.
-      const content = injectWithAttribution(studyText);
+      // Multi-verse quotations carry each verse's number (lib/asv.js).
+      const content = injectWithAttribution(studyText, undefined, { verseNumbers: true });
       console.log(`[study-gen] DONE total time=${Date.now() - reqStart}ms`);
       const su = req.session.user || {};
       logEvent(su.id || req.session.userId, su.fullName, 'study_generated', { topic: topic.trim(), studyType: resolvedStudyType });

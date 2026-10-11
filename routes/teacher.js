@@ -105,6 +105,10 @@ function parseFurtherPrompts(content) {
   return out;
 }
 
+// Multi-verse quotations in Tutor/Teacher replies carry verse numbers, the same
+// as the study beside them (lib/asv.js numberedVerseText).
+const VERSE_NUMBERS = { verseNumbers: true };
+
 const VALID_MODES = ['full', 'section', 'check', 'teacher'];
 const KINDS = ['tutor', 'teacher'];
 function kindOfMode(mode) { return mode === 'teacher' ? 'teacher' : 'tutor'; }
@@ -147,7 +151,7 @@ function displayTranscript(session) {
     .filter(m => !m.hidden)
     .map(m => ({
       role:    m.role,
-      content: m.role === 'assistant' ? injectWithAttribution(m.content) : m.content,
+      content: m.role === 'assistant' ? injectWithAttribution(m.content, undefined, VERSE_NUMBERS) : m.content,
     }));
 }
 
@@ -432,7 +436,8 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
       type: 'text',
       text: 'THE STUDY YOU ARE TEACHING\nTitle: ' + study.topic + '\n\n' +
         'SECTION LIST' + (kind === 'tutor' ? ' (numbers for the [[at:N]] tag)' : '') + ':\n' + sectionList + '\n\n' +
-        'FULL STUDY TEXT (the reader sees this rendered beside the conversation; verse markers in it are filled with real text on their screen):\n"""\n' +
+        'FULL STUDY TEXT (the reader sees this rendered beside the conversation; verse markers in it are filled with real text on their screen). ' +
+        'In a multi-verse quotation, each verse begins with its verse number in superscript (e.g. "¹¹for though the twins…" is verse 11), and the reader sees those numbers too — so you can point them to a verse by number ("look at verse 11"):\n"""\n' +
         study.content + '\n"""',
       cache_control: { type: 'ephemeral' },
     },
@@ -493,7 +498,7 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
       }
       const slice = stripTags(buf.slice(0, cut)).text;
       buf = buf.slice(cut);
-      const { text: emit, sources } = injectVersesTracked(slice, atLineStart);
+      const { text: emit, sources } = injectVersesTracked(slice, atLineStart, VERSE_NUMBERS);
       if (sources.nasb) usedNasb = true;
       if (slice) atLineStart = slice.endsWith('\n');
       if (emit) res.write(`data: ${JSON.stringify({ text: emit })}\n\n`);

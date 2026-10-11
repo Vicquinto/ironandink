@@ -160,7 +160,10 @@
         var sel = window.getSelection();
         if (!sel || sel.rangeCount === 0) return;
 
-        var text = sel.toString().trim();
+        // Leave out any verse number (<sup class="guide-vnum">) inside the selection.
+        var noNums = (window.IronInkSanitize && window.IronInkSanitize.rangeTextWithoutNumbers)
+          ? window.IronInkSanitize.rangeTextWithoutNumbers(sel.getRangeAt(0)) : null;
+        var text = (noNums != null ? noNums : sel.toString()).trim();
         if (!text) return;
         if (countWords(text) > 5) return;
 

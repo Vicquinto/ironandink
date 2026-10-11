@@ -8363,3 +8363,19 @@ a.teacher-review-outside { font-style: italic; text-decoration: underline; }
   font-weight: normal;
   color: var(--warm-brown);
 }
+
+/* Verse numbers inside multi-verse Scripture quotations in studies. Stored as
+   superscript digits (lib/asv.js); html-sanitizer.js turns each run into this
+   <sup>. Notes, copy and the Ask panel skip it (notepad.js / library.js). */
+.guide-vnum {
+  font-size: 0.66em;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 0;
+  vertical-align: super;
+  letter-spacing: 0;
+  color: var(--warm-brown);
+}
+@media print {
+  #printArea .guide-vnum { color: #555 !important; }
+}
