@@ -4,7 +4,7 @@ const path    = require('path');
 const { requireAuth, renderLayout } = require('./layout');
 const { escapeHtml } = require('../lib/html');
 const {
-  AREAS, BOOKS, OT_COUNT, getMap, groupKey, displayPassage, pickRevisit, dismissRevisit,
+  AREAS, BOOKS, OT_COUNT, getMap, groupStudies, displayPassage, pickRevisit, dismissRevisit,
 } = require('../lib/study-map');
 
 // ─── Study Map ────────────────────────────────────────────────────────────────
@@ -132,22 +132,12 @@ function entryHtml(e, opts) {
         </li>`;
 }
 
-// Studies on the same subject become one topic with several entries. Groups
-// keep the newest-first order of their newest study; a topic is named by the
-// subject of its most recent study.
-function groupBySubject(entries) {
-  const groups = [];
-  const byKey = {};
-  entries.forEach(e => {
-    const k = groupKey(e.map.subject) || ('id:' + e.id);
-    if (!byKey[k]) { byKey[k] = { subject: e.map.subject, entries: [] }; groups.push(byKey[k]); }
-    byKey[k].entries.push(e);
-  });
-  return groups;
-}
-
+// Studies on the same topic become one topic with several entries: matching
+// subjects AND a shared area or overlapping passages (groupStudies in
+// lib/study-map.js). Groups keep the newest-first order of their newest study;
+// a topic is named by the subject of its most recent study.
 function groupsHtml(entries, opts) {
-  return groupBySubject(entries).map(g => {
+  return groupStudies(entries).map(g => {
     if (g.entries.length === 1) return `<ul class="sm-entries">${entryHtml(g.entries[0], opts)}</ul>`;
     return `
       <div class="sm-group">

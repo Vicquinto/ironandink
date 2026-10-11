@@ -11,7 +11,7 @@ const { getEntitlements, recordStudy } = require('../lib/entitlements');
 const { aiLimiter } = require('../middleware/rateLimit');
 const STORY_GROUPS = require('../data/childrens-stories');
 const { STUDY_TYPES, STUDY_LEVELS, DEFAULT_STUDY_TYPE } = require('../lib/study-types');
-const { tagStudy, getMap, rememberGeneratedMap } = require('../lib/study-map');
+const { tagStudy, rememberGeneratedMap } = require('../lib/study-map');
 
 const router = express.Router();
 
@@ -22,16 +22,6 @@ const router = express.Router();
 const USERS_PATH = path.join(__dirname, '../data/users.json');
 function readUsers() { return JSON.parse(fs.readFileSync(USERS_PATH, 'utf8')); }
 function writeUsers(u) { fs.writeFileSync(USERS_PATH, JSON.stringify(u, null, 2)); }
-
-// Read-only, for the Study Map tagger's list of the member's earlier subjects.
-const STUDIES_PATH = path.join(__dirname, '../data/studies.json');
-function readStudiesSafe() {
-  try {
-    if (!fs.existsSync(STUDIES_PATH)) return [];
-    const list = JSON.parse(fs.readFileSync(STUDIES_PATH, 'utf8'));
-    return Array.isArray(list) ? list : [];
-  } catch { return []; }
-}
 
 const STUDY_LENGTH_CONFIG = {
   Short:    { wordCount: 800,  maxTokens: 1600 },
@@ -764,10 +754,7 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
       // the study itself, so generation never fails on tagging. The tags wait in
       // the member's session until the study is saved (routes/library.js).
       try {
-        const priorSubjects = readStudiesSafe()
-          .filter(s => s && s.userId === req.session.userId)
-          .map(s => getMap(s).subject);
-        const studyMap = await tagStudy({ topic: topic.trim(), content, priorSubjects, timeoutMs: 8000 });
+        const studyMap = await tagStudy({ topic: topic.trim(), content, timeoutMs: 8000 });
         // Generation takes minutes; reload the session first so writing the tags
         // can't put back a stale copy over changes made meanwhile (e.g. Settings).
         await new Promise(resolve => req.session.reload(err => {
