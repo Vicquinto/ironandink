@@ -8063,6 +8063,40 @@ body {
 }
 .teacher-conversation .btn-end-session:disabled { opacity: 0.45; cursor: not-allowed; }
 
+/* Conversation zoom (TFONT_* in teacher.js) sets .teacher-conversation's own
+   font-size, default 16px = the study pane's reading size. Everything readable
+   inside is em-based so it scales together; the header stays rem-sized so the
+   zoom and End Session controls never move or grow. */
+.teacher-conversation .conversation-header { flex-wrap: wrap; row-gap: 6px; }
+.teacher-header-tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-left: auto;
+}
+.teacher-conversation .chat-msg { max-width: 94%; min-width: 0; }
+.teacher-conversation .msg-content {
+  font-size: 1em;                 /* match the study pane (was 0.92em) */
+  line-height: 1.8;
+  overflow-wrap: anywhere;        /* long words / references never push the pane wider */
+  min-width: 0;
+}
+.teacher-conversation .chat-textarea {
+  font-size: 1em;                 /* was a fixed 0.9rem */
+  line-height: 1.5;
+  max-height: 40vh;
+}
+/* Keep the messages visible at the largest sizes: the input block may shrink
+   and scroll rather than squeeze the conversation out of the pane. */
+.teacher-conversation .teacher-input-area {
+  flex-shrink: 1;
+  min-height: 0;
+  max-height: 55%;
+  overflow-y: auto;
+}
+
 /* Brief highlight on a section the reader jumped to from the review. */
 @keyframes teacherSecFlash {
   0%   { background: rgba(160,132,92,0.35); }
@@ -8101,8 +8135,12 @@ body {
   border-radius: 999px;
   color: var(--warm-brown);
   font-family: Georgia, serif;
-  font-size: 0.78rem;
-  padding: 4px 12px;
+  font-size: 0.85em;              /* scales with the conversation zoom */
+  line-height: 1.3;
+  max-width: 100%;
+  white-space: normal;            /* a long label wraps inside its pill at big sizes */
+  text-align: left;
+  padding: 0.3em 0.85em;
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s, background 0.15s;
 }

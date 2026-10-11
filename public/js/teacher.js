@@ -73,6 +73,45 @@
     setTimeout(function () { scrollToSection(BOOT.entry.section); }, 50);
   }
 
+  // ── Conversation zoom ────────────────────────────────────────────────────
+  // Writing companion's CFONT_* pattern (public/js/writing.js): same default,
+  // bounds and step, persisted in localStorage — under its OWN key, so it never
+  // changes the Writing page's setting. Sets the conversation pane's font-size;
+  // messages, input and quick replies are em-based (styles.css) and scale off it.
+  // The default (16px) is the study pane's reading size.
+  var TFONT_DEFAULT = 16, TFONT_MIN = 12, TFONT_MAX = 28, TFONT_STEP = 2;
+  var TFONT_KEY = 'ironink_teacher_conversation_font_size';
+
+  var conversationEl = document.getElementById('teacherConversation');
+  var teacherFontDec   = document.getElementById('teacherFontDec');
+  var teacherFontReset = document.getElementById('teacherFontReset');
+  var teacherFontInc   = document.getElementById('teacherFontInc');
+
+  function loadTeacherFont() {
+    try {
+      var v = parseInt(localStorage.getItem(TFONT_KEY), 10);
+      if (v) return Math.min(TFONT_MAX, Math.max(TFONT_MIN, v));
+    } catch (e) {}
+    return TFONT_DEFAULT;
+  }
+  function saveTeacherFont(v) {
+    try { localStorage.setItem(TFONT_KEY, v); } catch (e) {}
+  }
+
+  var teacherFontSize = loadTeacherFont();
+
+  function applyTeacherFontSize(size) {
+    teacherFontSize = Math.min(TFONT_MAX, Math.max(TFONT_MIN, size));
+    if (conversationEl) conversationEl.style.fontSize = teacherFontSize + 'px';
+    saveTeacherFont(teacherFontSize);
+  }
+
+  applyTeacherFontSize(teacherFontSize);
+
+  if (teacherFontDec)   teacherFontDec.addEventListener('click',   function () { applyTeacherFontSize(teacherFontSize - TFONT_STEP); });
+  if (teacherFontReset) teacherFontReset.addEventListener('click', function () { applyTeacherFontSize(TFONT_DEFAULT); });
+  if (teacherFontInc)   teacherFontInc.addEventListener('click',   function () { applyTeacherFontSize(teacherFontSize + TFONT_STEP); });
+
   // ── Rendering (escape-first, then sanitized) ─────────────────────────────
   function esc(str) {
     return String(str)

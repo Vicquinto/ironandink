@@ -241,10 +241,20 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
           <div class="guide-body teacher-study-body" id="teacherStudyBody"></div>
         </section>
 
-        <section class="teacher-conversation" aria-label="Teacher conversation">
+        <section class="teacher-conversation" id="teacherConversation" aria-label="Conversation">
           <div class="conversation-header">
             <span class="conversation-header-title">Your ${label.who}</span>
-            <button class="btn-end-session" id="teacherEndBtn" disabled>End Session</button>
+            <span class="teacher-header-tools">
+              <!-- Display-only zoom for the conversation (messages, input, quick
+                   replies) — Writing companion's pattern, own localStorage key;
+                   see TFONT_* in teacher.js. -->
+              <span class="conversation-zoom" role="group" aria-label="Conversation text size">
+                <button class="guide-font-btn guide-font-btn-sm" id="teacherFontDec" title="Smaller text" aria-label="Smaller text">A&#8722;</button>
+                <button class="guide-font-btn guide-font-btn-md" id="teacherFontReset" title="Reset text size" aria-label="Reset text size">A</button>
+                <button class="guide-font-btn guide-font-btn-lg" id="teacherFontInc" title="Larger text" aria-label="Larger text">A+</button>
+              </span>
+              <button class="btn-end-session" id="teacherEndBtn" disabled>End Session</button>
+            </span>
           </div>
 
           <div id="teacherResume" class="teacher-resume" style="display:none;">
@@ -312,7 +322,7 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
     scripts: `<script src="/js/render-markdown.js?v=2"></script>
 <script src="/js/teacher-entry.js?v=2"></script>
 <script>window.TEACHER_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/teacher.js?v=2"></script>`,
+<script src="/js/teacher.js?v=3"></script>`,
   }));
 });
 
