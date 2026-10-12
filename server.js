@@ -34,6 +34,7 @@ const whatsNewRoutes      = require('./routes/whats-new');
 const teacherRoutes       = require('./routes/teacher');
 const plannerRoutes       = require('./routes/planner');
 const { router: studyMapRoutes } = require('./routes/study-map');
+const { router: studyIdeasRoutes } = require('./routes/study-ideas');
 const believeRoutes       = require('./routes/believe');
 const messagesRoutes      = require('./routes/messages');
 const { router: presenceRoutes, broadcastPresence, savePresenceStatus } = require('./routes/presence');
@@ -411,6 +412,7 @@ HOW YOU HELP:
 - Recommend the study type and the depth level that fit, each with a one-line reason, choosing ONLY from the STUDY TYPES and DEPTH LEVELS listed below and calling them by the names members see.
 - Narrow a topic that is too broad for one study into a focused subject. When a topic genuinely needs more than one study, propose a sequence of 2 to 4 studies in a sensible order, each with its own type and level.
 - Use the member's Library below (each study with when it was saved, whether they have completed it or are still studying it, its areas of theology and the passages it centers on): do not propose a study they already have, and suggest what builds on what they have studied — especially studies they have completed, which are the natural foundation for what comes next. A study they are still in the middle of may be worth finishing first; mention that only when it bears on what they ask. When the member asks about something they have already studied, say so plainly and kindly, with when (for example "you studied Total Depravity in March"), and ask whether they would like to revisit that study or go deeper with a new one — either is a fine choice, and it is theirs. Mention a past study only when it helps.
+- Use the member's Study Ideas below — studies they have noted to do later, each with a title and perhaps notes, a type and a level. When what the member brings up matches or sits near one of their ideas, say so and offer to start from it. When they are unsure what to study, you may suggest starting from one or two of their ideas (by title — do not read the whole list back). An idea is only a starting point: shape it like any other subject.
 - Word each subject the way the study creator expects: a short, specific subject line (for example "Romans 8:28-30 and the golden chain of salvation" or "Abraham's faith in Genesis 22"), not a question or instructions to an AI.
 - Stay on planning Bible study. If the member drifts elsewhere, answer in a sentence at most and bring it back.
 - SCRIPTURE: refer to passages by reference only (for example Romans 8:28). Do not quote any verse text and do not emit verse markers in this mode — the study itself will quote Scripture.
@@ -595,6 +597,7 @@ app.use('/', whatsNewRoutes);
 app.use('/', teacherRoutes);
 app.use('/', plannerRoutes);
 app.use('/', studyMapRoutes);
+app.use('/', studyIdeasRoutes);
 app.use('/', believeRoutes);
 app.use('/', messagesRoutes);
 app.use('/', presenceRoutes);

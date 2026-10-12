@@ -947,6 +947,11 @@
       showState('guide');
       studyGenerated = true;
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Tell Study Ideas (study-ideas.js) which subject was just generated, so an
+      // idea built into the creator is taken off the list once its study exists.
+      try {
+        document.dispatchEvent(new CustomEvent('ironink:study-generated', { detail: { topic: topic } }));
+      } catch (e) { /* very old browser — ideas simply stay listed */ }
 
     } catch (err) {
       if (err.name === 'AbortError') {

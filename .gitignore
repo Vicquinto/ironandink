@@ -20,6 +20,7 @@ data/messages.json
 data/reading_tracker.json
 data/selah.json
 data/notepads.json
+data/study-ideas.json
 data/presence.json
 data/password_resets.json
 data/password_resets_legacy_*.json

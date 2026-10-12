@@ -8684,3 +8684,180 @@ a.sm-book-tile.is-studied.is-filtered-out {
   background: transparent;
   color: rgba(107,66,38,0.75);
 }
+
+/* ─── STUDY IDEAS (study page + Library) ──────────────────────────────────────
+   The member's private list of studies to do later (study-ideas.js), opened
+   from the button beside Plan a Study. A quiet .btn-warm toggle — Plan a Study
+   stays the stronger secondary and Generate Study the one filled primary. */
+.ideas-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+}
+.ideas-toggle-btn:hover,
+.ideas-toggle-btn.is-active {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: rgba(179,140,51,0.10);
+}
+.ideas-toggle-btn:focus-visible { outline: 2px solid #B38C33; outline-offset: 2px; }
+
+.ideas-panel {
+  margin-bottom: 22px;
+  background: rgba(160,132,92,0.05);
+  border: 1px solid rgba(160,132,92,0.18);
+  border-radius: 6px;
+  padding: 12px 16px 14px;
+  min-width: 0;
+}
+.ideas-panel[hidden] { display: none; }
+.ideas-panel-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-bottom: 10px;
+}
+.ideas-panel-title {
+  font-family: 'Cinzel', Georgia, serif;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+}
+.ideas-panel-sub {
+  flex: 1 1 auto;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--warm-brown);
+}
+.ideas-panel-head .plan-close-btn { margin-left: auto; }
+
+.ideas-form { display: flex; flex-direction: column; gap: 8px; }
+.ideas-form-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.ideas-title-input,
+.ideas-notes-input { width: 100%; box-sizing: border-box; }
+.ideas-notes-input { resize: vertical; min-height: 2.8em; font-family: Georgia, serif; }
+.ideas-opt { display: inline-flex; align-items: center; gap: 6px; }
+.ideas-opt[hidden] { display: none; }
+.ideas-opt-label { font-size: 0.82rem; color: var(--warm-brown); }
+.ideas-form-btns { display: inline-flex; gap: 8px; margin-left: auto; }
+.ideas-form-btns .btn-primary,
+.ideas-form-btns .btn-warm { padding: 8px 18px; }
+.ideas-form-btns [hidden] { display: none; }
+.ideas-form-error { margin: 0; font-size: 0.85rem; color: #8b1a1a; }
+.ideas-form-error[hidden] { display: none; }
+
+.ideas-status {
+  margin-top: 10px;
+  padding: 8px 10px;
+  font-size: 0.88rem;
+  color: var(--text);
+  background: rgba(179,140,51,0.10);
+  border-left: 3px solid #B38C33;
+  border-radius: 3px;
+  overflow-wrap: anywhere;
+}
+.ideas-status[hidden] { display: none; }
+.ideas-status-btn {
+  margin-left: 10px;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.ideas-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+.ideas-empty {
+  font-size: 0.88rem;
+  font-style: italic;
+  color: var(--warm-brown);
+}
+.ideas-item {
+  background: var(--card-bg);
+  border: 1px solid rgba(160,132,92,0.22);
+  border-radius: 5px;
+  padding: 9px 12px;
+  min-width: 0;
+}
+.ideas-item.is-editing { border-color: var(--accent); }
+.ideas-item-title {
+  font-weight: 600;
+  color: #5C1A28;
+  overflow-wrap: anywhere;
+}
+.ideas-item-meta {
+  margin-top: 2px;
+  font-size: 0.8rem;
+  color: var(--warm-brown);
+  overflow-wrap: anywhere;
+}
+.ideas-item-notes {
+  margin-top: 5px;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.ideas-item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.ideas-act {
+  background: transparent;
+  border: 1px solid rgba(160,132,92,0.45);
+  border-radius: 4px;
+  padding: 4px 11px;
+  font-family: Georgia, serif;
+  font-size: 0.82rem;
+  color: var(--warm-brown);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.ideas-act:hover { color: var(--accent); border-color: var(--accent); }
+.ideas-act--plan,
+.ideas-act--build { color: #5C1A28; border-color: rgba(92,26,40,0.45); }
+.ideas-act--plan:hover,
+.ideas-act--build:hover { background: rgba(92,26,40,0.06); border-color: #5C1A28; }
+.ideas-act--del:hover { color: #5a0a0a; border-color: #5a0a0a; }
+
+/* Library card: "Save as idea and delete" beside Delete. */
+.card-idea-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 2px 4px;
+  line-height: 1;
+  color: rgba(160,132,92,0.5);
+  transition: color 0.15s;
+}
+.card-idea-btn:hover { color: var(--accent); }
+
+/* Study Map: the link to Study Ideas under the page header. */
+.sm-ideas-link {
+  margin: -6px 0 16px;
+  font-size: 0.9rem;
+  color: var(--warm-brown);
+}
+.sm-ideas-link a { color: var(--accent); }
+
+@media (max-width: 600px) {
+  .ideas-form-btns { margin-left: 0; }
+  .ideas-panel { padding: 10px 12px 12px; }
+}

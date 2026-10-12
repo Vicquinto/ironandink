@@ -164,7 +164,7 @@ router.get('/scripture', requireAuth, async (req, res) => {
     activeSection: 'scripture',
     title:         'Scripture',
     content,
-    scripts:       `<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/scripture.js?v=9"></script><script src="/js/library.js?v=65"></script>`,
+    scripts:       `<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/scripture.js?v=9"></script><script src="/js/library.js?v=66"></script>`,
   }));
 });
 

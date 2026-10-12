@@ -313,6 +313,7 @@ router.get('/study-map', requireAuth, (req, res) => {
       <h2 class="page-title">Study Map</h2>
       <p class="page-subtitle">Everything you have studied, in one place &#8212; to find a past study and study it again. Only you can see this page.</p>
     </div>
+    <p class="sm-ideas-link">Studies you&#8217;d like to do later are kept in your <a href="/study?ideas=1">Study Ideas &#8594;</a></p>
     <div class="study-map">${body}</div>`;
 
   res.send(renderLayout({

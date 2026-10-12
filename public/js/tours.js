@@ -27,6 +27,13 @@ export const TOURS = {
       attachTo: { element: '#planStudyBtn', on: 'bottom' },
       title:    'Plan a Study',
       text:     'Not sure exactly what to study? Talk it through with the planner first. It helps you shape an idea into a clear study, recommends the type and level, and with “Build this study” fills in the creator for you — then you click Generate.',
+      buttons:  ['back', 'next'],
+    },
+    {
+      id:       'study-ideas',
+      attachTo: { element: '#ideasToggleBtn', on: 'bottom' },
+      title:    'Study Ideas',
+      text:     'Keep a private list of studies you’d like to do later. “Plan it” talks an idea through with the planner; “Build it” fills in the study creator, and once the study is generated the idea comes off your list. Only you can see it.',
       buttons:  ['back', 'finish'],
     },
   ],

@@ -18,6 +18,15 @@
 
 const WHATS_NEW = [
   {
+    date:  'October 12, 2026',
+    title: 'Study Ideas',
+    body:  `Have a study in mind for later? The Study page now has Study Ideas, beside Plan a Study: a private list of studies you'd like to do someday. Give an idea a short title, add notes if you like, and pick a study type and level if you already know them. Only you can see your ideas, and they follow you to any device you sign in on.
+
+Each idea has "Plan it", which opens Plan a Study with the idea waiting in the box for you to send, and "Build it", which fills in the study creator so you can adjust the type or level and click Generate Study. Once the study is generated, the idea comes off your list (with an Undo, in case you change your mind). The planner can see your ideas too, so it can suggest starting from one.
+
+In your Library, each study now has "Save as idea and delete" beside Delete. It keeps the study's title, subject, type and level as a Study Idea, then deletes the study just as Delete does, including any notes and highlights on it. Your Study Map links to your Study Ideas as well.`
+  },
+  {
     date:  'October 11, 2026',
     title: 'Mark a Study Complete',
     body:  `When you've finished a study, you can now mark it complete. Every study has a "Mark complete" button at the top and at the end, beside Study with a Tutor, Study with a Teacher and Check my understanding. Your studies start out as "Studying", and only you decide when one is done. Change your mind? Undo puts it back to Studying.

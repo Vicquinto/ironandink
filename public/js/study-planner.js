@@ -464,6 +464,21 @@
     if (state.open && (state.messages.length || state.plan.length)) setOpen(true, false);
     else if (state.open) { state.open = false; saveState(); }
 
+    // "Plan it" on a Study Idea (study-ideas.js): open the planner with the
+    // idea waiting in the box — never sent on its own. Text the member had
+    // already typed is kept, with the idea after it.
+    window.__ironStudyPlanner = {
+      prefill: function (text) {
+        text = String(text || '').trim().slice(0, 4000);
+        if (!text) return false;
+        setOpen(true, true);
+        var had = inputEl.value.trim();
+        inputEl.value = had && had !== text ? (had + '\n\n' + text).slice(0, 4000) : text;
+        try { inputEl.setSelectionRange(inputEl.value.length, inputEl.value.length); } catch (e) {}
+        return true;
+      },
+    };
+
     // ?plan=<area> — the Study Map's "Plan a study" link on an area not studied
     // yet. Opens the planner with that area as the starting idea, waiting in the
     // box for the member to send (or change). Nothing is sent on its own, and an

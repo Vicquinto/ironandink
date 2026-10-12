@@ -63,6 +63,7 @@
             '<h4 class="study-card-title">' + esc(s.topic) + '</h4>' +
             '<div class="card-header-btns">' +
               '<button class="card-edit-btn" data-id="' + esc(s.id) + '" title="Edit">&#9998;</button>' +
+              '<button class="card-idea-btn" data-id="' + esc(s.id) + '" title="Save as idea and delete" aria-label="Save as idea and delete">&#9734;&#xFE0E;</button>' +
               '<button class="card-delete-btn" data-id="' + esc(s.id) + '" title="Delete">&#10005;</button>' +
             '</div>' +
           '</div>' +
@@ -90,6 +91,7 @@
       // Card click → render study inline (skip if clicking the action buttons)
       card.addEventListener('click', function (e) {
         if (e.target.classList.contains('card-edit-btn') ||
+            e.target.classList.contains('card-idea-btn') ||
             e.target.classList.contains('card-delete-btn')) return;
         if (study) showStudyInline(study);
       });
@@ -109,6 +111,16 @@
         var message = await buildDeleteMessage(study);
         showConfirm(message, 'Delete', async function () {
           await deleteStudy(id);
+        });
+      });
+
+      // Save as idea and delete — keep the title, subject, type and depth as a
+      // Study Idea, then delete through the same flow as Delete.
+      card.querySelector('.card-idea-btn').addEventListener('click', async function (e) {
+        e.stopPropagation();
+        var message = await buildSaveAsIdeaMessage(study);
+        showConfirm(message, 'Save as idea and delete', async function () {
+          await saveAsIdeaAndDelete(study);
         });
       });
     });
@@ -615,12 +627,43 @@
       if (data.success) {
         allStudies = allStudies.filter(function (s) { return s.id !== id; });
         applyFilters();
+        return true;
       } else {
         showAlert('Could not delete study.');
       }
     } catch (err) {
       showAlert('Error: ' + err.message);
     }
+    return false;
+  }
+
+  // ── Save as idea and delete ────────────────────────────────────────────────
+  // The delete confirmation (same footprint warnings), led by what is kept and
+  // what goes: the idea keeps only the title, subject, type and depth.
+  async function buildSaveAsIdeaMessage(study) {
+    var del = await buildDeleteMessage(study);
+    var lead = 'Save “' + (study.topic || 'this study') + '” to your Study Ideas, then delete the study?\n\n' +
+      'The idea keeps its title, subject, type and depth, so you can study it again later from the Study page. ' +
+      'The study itself, and any notes and highlights on it, are deleted with it.';
+    return lead + '\n\n' + del.replace(/^Delete this study\? This cannot be undone\./, 'Deleting the study cannot be undone.');
+  }
+
+  // Idea first, then the existing delete — so a failed save never costs a study.
+  async function saveAsIdeaAndDelete(study) {
+    var data = null;
+    try {
+      var res = await fetch('/api/study-ideas/from-study/' + encodeURIComponent(study.id), { method: 'POST' });
+      try { data = await res.json(); } catch (e) { data = null; }
+    } catch (err) {
+      data = null;
+    }
+    if (!data || !data.success) {
+      showAlert((data && data.error) || 'The idea couldn’t be saved, so the study was not deleted. Please try again.');
+      return;
+    }
+    var deleted = await deleteStudy(study.id);
+    if (deleted) showToast('Saved to your Study Ideas and deleted the study.');
+    else showToast('Saved to your Study Ideas. The study was not deleted.', true);
   }
 
   // ── Filters ────────────────────────────────────────────────────────────────

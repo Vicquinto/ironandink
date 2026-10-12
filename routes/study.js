@@ -12,6 +12,7 @@ const { aiLimiter } = require('../middleware/rateLimit');
 const STORY_GROUPS = require('../data/childrens-stories');
 const { STUDY_TYPES, STUDY_LEVELS, DEFAULT_STUDY_TYPE } = require('../lib/study-types');
 const { tagStudy, rememberGeneratedMap } = require('../lib/study-map');
+const { ideaOptions } = require('./study-ideas');
 
 const router = express.Router();
 
@@ -197,7 +198,40 @@ router.get('/study', requireAuth, (req, res) => {
            it a text glyph rather than an emoji on phones. -->
       <button type="button" id="planStudyBtn" class="btn-warm plan-study-btn" aria-controls="planPanel" aria-expanded="false"><span class="plan-study-icon" aria-hidden="true">&#10002;&#xFE0E;</span>Plan a Study</button>
       <span class="plan-study-hint">Not sure what to study? Talk it through first.</span>
+      <button type="button" id="ideasToggleBtn" class="btn-warm ideas-toggle-btn" aria-controls="ideasPanel" aria-expanded="false"><span class="plan-study-icon" aria-hidden="true">&#9733;&#xFE0E;</span>Study Ideas</button>
     </div>
+
+    <!-- Study Ideas: the member's private list of studies to do later
+         (public/js/study-ideas.js; routes/study-ideas.js). Collapsible; the
+         open/closed state is remembered in this browser. -->
+    <section class="ideas-panel" id="ideasPanel" aria-label="Study Ideas" hidden>
+      <div class="ideas-panel-head">
+        <span class="ideas-panel-title">Study Ideas</span>
+        <span class="ideas-panel-sub">Studies you&#8217;d like to do later. Only you can see these.</span>
+        <button type="button" class="plan-close-btn" id="ideasCloseBtn" title="Close Study Ideas" aria-label="Close Study Ideas">&#215;</button>
+      </div>
+      <form class="ideas-form" id="ideasForm" autocomplete="off" novalidate>
+        <div class="ideas-form-row">
+          <input type="text" id="ideaTitleInput" class="form-input ideas-title-input" maxlength="200"
+                 placeholder="An idea for a study&#8230; (e.g. Abraham&#8217;s faith in Genesis 22)" aria-label="Idea title" required>
+        </div>
+        <textarea id="ideaNotesInput" class="form-input ideas-notes-input" rows="2" maxlength="1000"
+                  placeholder="Notes (optional) &#8212; what prompted it, what you want to find out&#8230;" aria-label="Notes"></textarea>
+        <div class="ideas-form-row ideas-form-opts">
+          <label class="ideas-opt"><span class="ideas-opt-label">Type</span>
+            <select id="ideaTypeSelect" class="study-level-select" aria-label="Study type (optional)"></select></label>
+          <label class="ideas-opt" id="ideaLevelField"><span class="ideas-opt-label">Level</span>
+            <select id="ideaLevelSelect" class="study-level-select" aria-label="Study level (optional)"></select></label>
+          <span class="ideas-form-btns">
+            <button type="submit" class="btn-primary ideas-save-btn" id="ideaSaveBtn">Add idea</button>
+            <button type="button" class="btn-warm" id="ideaCancelEditBtn" hidden>Cancel</button>
+          </span>
+        </div>
+        <p class="ideas-form-error" id="ideasFormError" role="alert" hidden></p>
+      </form>
+      <div class="ideas-status" id="ideasStatus" aria-live="polite" hidden></div>
+      <ul class="ideas-list" id="ideasList"></ul>
+    </section>
 
     <!-- The study creator, with the Study Planner beside it (side by side on wide
          screens, stacked below on narrow — see .study-creator-row in styles.css).
@@ -339,13 +373,14 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/teacher-entry.js?v=3"></script><script src="/js/study.js?v=29"></script><script src="/js/study-planner.js?v=3"></script><script src="/js/library.js?v=65"></script>
+    scripts: `<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/teacher-entry.js?v=3"></script><script src="/js/study.js?v=30"></script><script src="/js/study-planner.js?v=4"></script><script src="/js/study-ideas.js?v=1"></script><script src="/js/library.js?v=66"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${inlineJson((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};
 window.STUDY_VERSES    = ${inlineJson(getVersePool())};
 window.NASB_ATTRIBUTION = ${inlineJson(NASB_ATTRIBUTION)};
 window.PLANNER_BOOT    = ${inlineJson({ userKey: req.session.userId })};
+window.STUDY_IDEAS_BOOT = ${inlineJson(ideaOptions())};
 </script>
 <script>
 (function() {
