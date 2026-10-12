@@ -89,6 +89,13 @@ function memberIdeas(all, userId) {
     .sort((a, b) => (Date.parse(b.createdAt) || 0) - (Date.parse(a.createdAt) || 0));
 }
 
+// The member's idea with this title (case-insensitive), if any — so the same
+// study is never listed twice (Save to Ideas, Start fresh, Library, Undo).
+function findSameTitle(mine, title) {
+  const key = String(title).toLowerCase();
+  return mine.find(i => String(i.title).toLowerCase() === key) || null;
+}
+
 // For the planner's context (routes/planner.js): the member's ideas, newest first.
 function ideasForMember(userId) {
   return memberIdeas(readIdeas(), userId).map(publicIdea);
@@ -101,6 +108,8 @@ router.get('/api/study-ideas', requireAuth, (req, res) => {
 
 // ─── POST /api/study-ideas ────────────────────────────────────────────────────
 // Body: { title, notes?, type?, level? }
+// An idea with the same title already on the member's list is returned as is
+// ({ existing: true }) rather than added again.
 router.post('/api/study-ideas', requireAuth, (req, res) => {
   const body  = req.body || {};
   const title = cleanTitle(body.title);
@@ -111,8 +120,11 @@ router.post('/api/study-ideas', requireAuth, (req, res) => {
   const { type, level } = cleanTypeLevel(body.type, body.level);
 
   try {
-    const all = readIdeas();
-    if (memberIdeas(all, req.session.userId).length >= MAX_IDEAS) {
+    const all  = readIdeas();
+    const mine = memberIdeas(all, req.session.userId);
+    const same = findSameTitle(mine, title);
+    if (same) return res.json({ success: true, idea: publicIdea(same), existing: true });
+    if (mine.length >= MAX_IDEAS) {
       return res.status(400).json({ success: false, error: FULL_ERROR });
     }
     const now  = new Date().toISOString();
@@ -194,7 +206,7 @@ router.post('/api/study-ideas/from-study/:studyId', requireAuth, (req, res) => {
   try {
     const all  = readIdeas();
     const mine = memberIdeas(all, req.session.userId);
-    const same = mine.find(i => String(i.title).toLowerCase() === title.toLowerCase());
+    const same = findSameTitle(mine, title);
     if (same) return res.json({ success: true, idea: publicIdea(same), existing: true });
     if (mine.length >= MAX_IDEAS) return res.status(400).json({ success: false, error: FULL_ERROR });
 

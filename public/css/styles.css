@@ -8387,6 +8387,31 @@ a.teacher-review-outside { font-style: italic; text-decoration: underline; }
   color: var(--warm-brown);
 }
 
+/* A Build button with "Save to Ideas" beside it (unbuilt studies only). em-
+   sized so it follows the conversation zoom like the Build button. */
+.plan-build-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  min-width: 0;
+}
+.plan-build-row .plan-build-option { min-width: 0; }
+.plan-save-idea-btn {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid rgba(160,132,92,0.45);
+  border-radius: 4px;
+  padding: 0.3em 0.7em;
+  font-family: Georgia, serif;
+  font-size: 0.8em;
+  color: var(--warm-brown);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.plan-save-idea-btn:hover:not(:disabled) { color: var(--accent); border-color: var(--accent); }
+.plan-save-idea-btn:disabled { cursor: default; color: var(--accent); border-color: rgba(179,140,51,0.6); }
+
 /* A study already built from the planner: still clickable (fills it in again),
    but visibly done so the rest of the plan stands out. */
 .plan-build-option.is-built {

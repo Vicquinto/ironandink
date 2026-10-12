@@ -240,11 +240,12 @@
       req.then(function (data) {
         if (wasEditing) {
           ideas = ideas.map(function (i) { return i.id === wasEditing ? data.idea : i; });
-        } else {
+        } else if (!data.existing) {
           ideas.unshift(data.idea);
         }
         resetForm();
         render();
+        if (data.existing && !wasEditing) setStatus('“' + data.idea.title + '” is already in your Study Ideas.');
         try { titleIn.focus({ preventScroll: true }); } catch (e2) {}
       }).catch(function (err) {
         showFormError(err.message);
@@ -329,7 +330,7 @@
     function restoreIdea(idea) {
       request('POST', '/api/study-ideas', { title: idea.title, notes: idea.notes, type: idea.type, level: idea.level })
         .then(function (data) {
-          ideas.unshift(data.idea);
+          if (!data.existing) ideas.unshift(data.idea);
           render();
           setStatus('“' + idea.title + '” is back in your Study Ideas.');
         })
@@ -353,6 +354,16 @@
         }
       }
     }
+
+    // For Plan a Study's "Save to Ideas" / "Start fresh" (study-planner.js):
+    // ideas were added elsewhere on the page — reload the list if it's showing,
+    // otherwise on the next open.
+    window.__ironStudyIdeas = {
+      refresh: function () {
+        if (!panel.hidden) load();
+        else loaded = false;
+      },
+    };
 
     toggleBtn.addEventListener('click', function () { setOpen(panel.hidden, true); });
     closeBtn.addEventListener('click', function () { setOpen(false); toggleBtn.focus(); });

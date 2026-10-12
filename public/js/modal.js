@@ -82,7 +82,10 @@
     overlay.addEventListener('click', function (e) {
       if (e.target === overlay) {
         document.body.removeChild(overlay);
-        var cancel = buttons.find(function (b) { return !b.primary; });
+        // A button marked cancel wins (showChoice); otherwise the first
+        // non-primary one, as before.
+        var cancel = buttons.find(function (b) { return b.cancel; }) ||
+                     buttons.find(function (b) { return !b.primary; });
         if (cancel && cancel.onClick) cancel.onClick();
       }
     });
@@ -95,6 +98,12 @@
       { label: confirmLabel || 'Confirm', primary: true,  onClick: onConfirm },
       { label: 'Cancel',                  primary: false, onClick: onCancel  },
     ]);
+  };
+
+  // Several choices: [{ label, primary?, cancel?, onClick }], shown in order.
+  // Clicking outside the card runs the one marked cancel.
+  global.showChoice = function (message, choices) {
+    buildModal(message, choices || []);
   };
 
   global.showAlert = function (message, onClose) {

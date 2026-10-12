@@ -202,6 +202,70 @@
       return b;
     }
 
+    // ── Save to Ideas ──────────────────────────────────────────────────────
+    // An unbuilt planned study can go to the member's Study Ideas
+    // (routes/study-ideas.js) instead: its subject becomes the idea's title,
+    // with its type and level. The server skips a title already listed.
+    function postIdea(plan) {
+      return fetch('/api/study-ideas', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ title: plan.subject, type: plan.type || null, level: plan.level || null }),
+      }).then(function (r) {
+        return r.json().catch(function () { return null; }).then(function (data) {
+          if (!data || !data.success) throw new Error((data && data.error) || 'That couldn\'t be saved to your Study Ideas. Please try again.');
+          return data;
+        });
+      });
+    }
+
+    // One at a time, in plan order; resolves to the saved ideas' results.
+    function saveIdeas(plans) {
+      var results = [];
+      return plans.reduce(function (p, plan) {
+        return p.then(function () { return postIdea(plan).then(function (d) { results.push(d); }); });
+      }, Promise.resolve()).then(function () { return results; }, function (err) {
+        refreshIdeas();   // any saved before the failure still show
+        throw err;
+      });
+    }
+
+    function refreshIdeas() {
+      if (window.__ironStudyIdeas) window.__ironStudyIdeas.refresh();
+    }
+
+    function saveIdeaButton(plan) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'plan-save-idea-btn';
+      b.textContent = 'Save to Ideas';
+      b.title = 'Keep this study in your Study Ideas for later';
+      b.addEventListener('click', function () {
+        if (b.disabled) return;
+        b.disabled = true;
+        b.textContent = 'Saving…';
+        saveIdeas([plan]).then(function (results) {
+          refreshIdeas();
+          b.textContent = (results[0] && results[0].existing) ? '✓ Already in Study Ideas' : '✓ Saved to Study Ideas';
+          setTimeout(function () { b.textContent = 'Save to Ideas'; b.disabled = false; }, 2500);
+        }).catch(function (err) {
+          b.textContent = 'Save to Ideas';
+          b.disabled = false;
+          addSystemMsg(err.message);
+        });
+      });
+      return b;
+    }
+
+    // A Build button, with Save to Ideas beside it while it isn't built yet.
+    function buildRow(plan, sequence, index) {
+      var row = document.createElement('div');
+      row.className = 'plan-build-row';
+      row.appendChild(buildButton(plan, sequence, index));
+      if (!isBuilt(plan)) row.appendChild(saveIdeaButton(plan));
+      return row;
+    }
+
     function buildList(plans, label) {
       var wrap = document.createElement('div');
       wrap.className = 'plan-build-list';
@@ -211,7 +275,7 @@
         p.textContent = label;
         wrap.appendChild(p);
       }
-      plans.forEach(function (plan, i) { wrap.appendChild(buildButton(plan, plans, i)); });
+      plans.forEach(function (plan, i) { wrap.appendChild(buildRow(plan, plans, i)); });
       return wrap;
     }
 
@@ -451,9 +515,51 @@
       try { inputEl.focus({ preventScroll: true }); } catch (e) {}
     }
 
+    // The studies in the current plan not built yet: the planned sequence
+    // ("Next in your plan") if there is one, else the Build buttons under the
+    // latest reply that offered any. One per subject.
+    function unbuiltPlans() {
+      var source = state.plan;
+      if (!source.length) {
+        for (var i = state.messages.length - 1; i >= 0; i--) {
+          var m = state.messages[i];
+          if (m.role === 'assistant' && Array.isArray(m.builds) && m.builds.length) { source = m.builds; break; }
+        }
+      }
+      var seen = {};
+      return (source || []).filter(function (p) {
+        var k = String(p && p.subject || '').toLowerCase();
+        if (!k || seen[k] || isBuilt(p)) return false;
+        seen[k] = true;
+        return true;
+      });
+    }
+
+    function saveUnbuiltAndStartFresh(plans) {
+      freshBtn.disabled = true;
+      saveIdeas(plans).then(function () {
+        refreshIdeas();
+        startFresh();
+        addSystemMsg('Saved to Study Ideas: ' + plans.map(function (p) { return '“' + p.subject + '”'; }).join(', ') + '.');
+      }).catch(function (err) {
+        syncControls();
+        addSystemMsg((err && err.message ? err.message + ' ' : '') + 'Your conversation was kept, so you can try again.');
+      });
+    }
+
     freshBtn.addEventListener('click', function () {
       if (!state.messages.length && !state.plan.length) { startFresh(); return; }
       var msg = 'Start fresh? This planning conversation will be cleared.';
+      var unbuilt = unbuiltPlans();
+      if (unbuilt.length && typeof showChoice === 'function') {
+        msg += '\n\nNot built yet:\n' + unbuilt.map(function (p) { return '• ' + p.subject; }).join('\n');
+        showChoice(msg, [
+          { label: 'Save them to Study Ideas and start fresh', primary: true, onClick: function () { saveUnbuiltAndStartFresh(unbuilt); } },
+          { label: 'Start fresh without saving', onClick: startFresh },
+          { label: 'Cancel', cancel: true, onClick: function () {} },
+        ]);
+        return;
+      }
       if (typeof showConfirm === 'function') showConfirm(msg, 'Start fresh', startFresh, function () {});
       else if (window.confirm(msg)) startFresh();
     });
