@@ -8209,12 +8209,24 @@ a.teacher-review-outside { font-style: italic; text-decoration: underline; }
    narrow ones. The conversation is the Tutor/Teacher pane's: the panel's own
    font-size is the A-/A/A+ zoom (PFONT_*), everything readable inside is
    em-based so it scales together, and the header stays rem-sized. */
+/* Two separate tools side by side, each a .plan-bar-group: the button with
+   its own caption left-aligned beneath it. Stacked on narrow screens. */
 .study-plan-bar {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: wrap;
-  gap: 8px 14px;
+  gap: 14px 44px;
   margin-bottom: 14px;
+}
+.plan-bar-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+}
+@media (max-width: 600px) {
+  .study-plan-bar { flex-direction: column; gap: 16px; }
 }
 /* "Plan a Study": an outlined secondary button (the .btn-warm shape) in oxblood,
    a step up from a plain .btn-warm so it doesn't read as minor, but never

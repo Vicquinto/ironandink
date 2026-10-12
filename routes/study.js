@@ -196,9 +196,15 @@ router.get('/study', requireAuth, (req, res) => {
       <!-- Outlined secondary action: Generate Study stays the one filled primary.
            The nib glyph is an HTML entity like the sidebar icons; &#xFE0E; keeps
            it a text glyph rather than an emoji on phones. -->
-      <button type="button" id="planStudyBtn" class="btn-warm plan-study-btn" aria-controls="planPanel" aria-expanded="false"><span class="plan-study-icon" aria-hidden="true">&#10002;&#xFE0E;</span>Plan a Study</button>
-      <span class="plan-study-hint">Not sure what to study? Talk it through first.</span>
-      <button type="button" id="ideasToggleBtn" class="btn-warm ideas-toggle-btn" aria-controls="ideasPanel" aria-expanded="false"><span class="plan-study-icon" aria-hidden="true">&#9733;&#xFE0E;</span>Study Ideas</button>
+      <!-- Each tool is a group: its button with its own caption beneath it. -->
+      <div class="plan-bar-group">
+        <button type="button" id="planStudyBtn" class="btn-warm plan-study-btn" aria-controls="planPanel" aria-expanded="false" aria-describedby="planStudyHint"><span class="plan-study-icon" aria-hidden="true">&#10002;&#xFE0E;</span>Plan a Study</button>
+        <span class="plan-study-hint" id="planStudyHint">Not sure what to study? Talk it through first.</span>
+      </div>
+      <div class="plan-bar-group">
+        <button type="button" id="ideasToggleBtn" class="btn-warm ideas-toggle-btn" aria-controls="ideasPanel" aria-expanded="false" aria-describedby="ideasHint"><span class="plan-study-icon" aria-hidden="true">&#9733;&#xFE0E;</span>Study Ideas</button>
+        <span class="plan-study-hint" id="ideasHint">Save an idea to come back to later.</span>
+      </div>
     </div>
 
     <!-- Study Ideas: the member's private list of studies to do later
