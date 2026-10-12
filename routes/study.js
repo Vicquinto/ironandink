@@ -192,8 +192,11 @@ router.get('/study', requireAuth, (req, res) => {
     </div>
 
     <div class="study-plan-bar">
-      <button type="button" id="planStudyBtn" class="btn-warm plan-study-btn" aria-controls="planPanel" aria-expanded="false">Plan a Study</button>
-      <span class="plan-study-hint">Not sure yet? Talk it through first &#8212; the planner fills in the study for you.</span>
+      <!-- Outlined secondary action: Generate Study stays the one filled primary.
+           The nib glyph is an HTML entity like the sidebar icons; &#xFE0E; keeps
+           it a text glyph rather than an emoji on phones. -->
+      <button type="button" id="planStudyBtn" class="btn-warm plan-study-btn" aria-controls="planPanel" aria-expanded="false"><span class="plan-study-icon" aria-hidden="true">&#10002;&#xFE0E;</span>Plan a Study</button>
+      <span class="plan-study-hint">Not sure what to study? Talk it through first.</span>
     </div>
 
     <!-- The study creator, with the Study Planner beside it (side by side on wide

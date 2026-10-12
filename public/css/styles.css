@@ -8216,7 +8216,30 @@ a.teacher-review-outside { font-style: italic; text-decoration: underline; }
   gap: 8px 14px;
   margin-bottom: 14px;
 }
-.plan-study-btn.is-active { color: var(--dark-cream); border-color: var(--dark-cream); }
+/* "Plan a Study": an outlined secondary button (the .btn-warm shape) in oxblood,
+   a step up from a plain .btn-warm so it doesn't read as minor, but never
+   filled — Generate Study stays the one filled oxblood primary. Hover and the
+   open state get a light gold tint on the parchment, no dark fill. */
+.plan-study-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+  background: transparent;
+  font-size: 0.97rem;
+  padding: 11px 24px;
+  letter-spacing: 0.04em;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.plan-study-btn:hover,
+.plan-study-btn.is-active {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: rgba(179,140,51,0.14);
+}
+.plan-study-btn:focus-visible { outline: 2px solid #B38C33; outline-offset: 2px; }
+.plan-study-icon { font-size: 1.05em; line-height: 1; }
 .plan-study-hint {
   font-size: 0.85rem;
   font-style: italic;
