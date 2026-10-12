@@ -245,6 +245,7 @@
         }
         resetForm();
         render();
+        notifyPlanner();
         if (data.existing && !wasEditing) setStatus('“' + data.idea.title + '” is already in your Study Ideas.');
         try { titleIn.focus({ preventScroll: true }); } catch (e2) {}
       }).catch(function (err) {
@@ -255,6 +256,13 @@
       });
     });
 
+    // Plan a Study shows "✓ Saved to Ideas" on planned studies already here;
+    // after an add, edit or delete it re-checks (study-planner.js).
+    function notifyPlanner() {
+      var planner = window.__ironStudyPlanner;
+      if (planner && typeof planner.ideasChanged === 'function') planner.ideasChanged();
+    }
+
     // ── Delete ─────────────────────────────────────────────────────────────
     function removeIdea(idea) {
       return request('DELETE', '/api/study-ideas/' + encodeURIComponent(idea.id)).then(function () {
@@ -262,6 +270,7 @@
         if (editingId === idea.id) resetForm();
         if (pending && pending.idea.id === idea.id) pending = null;
         render();
+        notifyPlanner();
       });
     }
 
@@ -332,6 +341,7 @@
         .then(function (data) {
           if (!data.existing) ideas.unshift(data.idea);
           render();
+          notifyPlanner();
           setStatus('“' + idea.title + '” is back in your Study Ideas.');
         })
         .catch(function (err) { setStatus(err.message); });

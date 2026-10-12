@@ -42,12 +42,15 @@
     //            shown above the input as "Next in your plan".
     // built:     keys (planKey) of studies already filled into the creator, so
     //            their Build buttons are marked "Built" everywhere they appear.
+    // saved:     subjects (ideaKey) already in the member's Study Ideas, so their
+    //            "Save to Ideas" shows "✓ Saved to Ideas" instead. Re-checked
+    //            against the real list (syncSavedWithIdeas) when the panel opens.
     var state = loadState();
     var abortController = null;
     var isGenerating    = false;
     var isBuilding      = false;
 
-    function emptyState() { return { messages: [], plan: [], built: [], open: false, at: Date.now() }; }
+    function emptyState() { return { messages: [], plan: [], built: [], saved: [], open: false, at: Date.now() }; }
 
     function loadState() {
       try {
@@ -56,6 +59,7 @@
           // v1 stored only the unbuilt rest of a sequence as "remaining".
           if (!Array.isArray(s.plan)) s.plan = Array.isArray(s.remaining) ? s.remaining : [];
           if (!Array.isArray(s.built)) s.built = [];
+          if (!Array.isArray(s.saved)) s.saved = [];
           delete s.remaining;
           return s;
         }
@@ -234,23 +238,108 @@
       if (window.__ironStudyIdeas) window.__ironStudyIdeas.refresh();
     }
 
+    // ── "Saved to Ideas" tracking ──────────────────────────────────────────
+    // Keyed by subject, the server's dedupe rule (routes/study-ideas.js
+    // findSameTitle on a cleaned title): whitespace collapsed, case ignored.
+    function ideaKey(s) { return String(s || '').replace(/\s+/g, ' ').trim().toLowerCase(); }
+    function isSaved(p) { return state.saved.indexOf(ideaKey(p && p.subject)) !== -1; }
+
+    // Saves made here are numbered, so a sync whose request was already in
+    // flight still counts them; syncs are numbered so an older reply never
+    // overwrites a newer one.
+    var saveSeq = 0, recentSaves = [];
+    var syncSeq = 0, appliedSync = 0;
+
+    function markSaved(p) {
+      var k = ideaKey(p && p.subject);
+      if (!k) return;
+      if (state.saved.indexOf(k) === -1) state.saved = state.saved.concat([k]).slice(-200);
+      recentSaves.push({ key: k, seq: ++saveSeq });
+      if (recentSaves.length > 50) recentSaves.shift();
+      saveState();
+    }
+
+    // Every subject the planner has offered in this conversation.
+    function plannedKeys() {
+      var keys = {};
+      state.plan.forEach(function (p) { keys[ideaKey(p.subject)] = true; });
+      state.messages.forEach(function (m) {
+        if (m.role === 'assistant' && Array.isArray(m.builds)) {
+          m.builds.forEach(function (p) { keys[ideaKey(p.subject)] = true; });
+        }
+      });
+      delete keys[''];
+      return keys;
+    }
+
+    // Re-check "saved" against the member's real Study Ideas: a planned study
+    // is saved exactly when an idea has its subject as title — so one saved
+    // elsewhere counts, and one deleted from Study Ideas no longer does.
+    // Resolves true when the list was read, false if it couldn't be (the
+    // flags are then left as they were).
+    function syncSavedWithIdeas() {
+      var planned = plannedKeys();
+      if (!Object.keys(planned).length) {
+        if (state.saved.length) { state.saved = []; saveState(); }
+        return Promise.resolve(true);
+      }
+      var mySync = ++syncSeq, fromSave = saveSeq;
+      return fetch('/api/study-ideas')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (!data || !data.success || !Array.isArray(data.ideas)) throw new Error('ideas unavailable');
+          if (mySync < appliedSync) return true;   // a newer sync already applied
+          appliedSync = mySync;
+          var titles = {};
+          data.ideas.forEach(function (i) { titles[ideaKey(i.title)] = true; });
+          var next = Object.keys(planned).filter(function (k) { return titles[k]; });
+          recentSaves.forEach(function (s) {
+            if (s.seq > fromSave && next.indexOf(s.key) === -1) next.push(s.key);
+          });
+          state.saved = next;
+          saveState();
+          refreshSaveButtons();
+          return true;
+        })
+        .catch(function () { return false; });
+    }
+
+    function setSaveButtonLook(b, saved) {
+      b.disabled = saved;
+      b.classList.toggle('is-saved', saved);
+      b.textContent = saved ? '✓ Saved to Ideas' : 'Save to Ideas';
+      b.title = saved ? 'Already in your Study Ideas' : 'Keep this study in your Study Ideas for later';
+    }
+
+    // Bring every Save button on screen in line with state.saved (one subject
+    // can appear under several replies and in the plan list).
+    function refreshSaveButtons() {
+      panel.querySelectorAll('.plan-save-idea-btn').forEach(function (b) {
+        if (b.dataset.saving === '1') return;
+        setSaveButtonLook(b, state.saved.indexOf(b.dataset.key) !== -1);
+      });
+    }
+
     function saveIdeaButton(plan) {
       var b = document.createElement('button');
       b.type = 'button';
       b.className = 'plan-save-idea-btn';
-      b.textContent = 'Save to Ideas';
-      b.title = 'Keep this study in your Study Ideas for later';
+      b.dataset.key = ideaKey(plan.subject);
+      setSaveButtonLook(b, isSaved(plan));
       b.addEventListener('click', function () {
         if (b.disabled) return;
         b.disabled = true;
+        b.dataset.saving = '1';
         b.textContent = 'Saving…';
-        saveIdeas([plan]).then(function (results) {
+        saveIdeas([plan]).then(function () {
+          // Saved now or already there: either way it's in Study Ideas.
+          markSaved(plan);
           refreshIdeas();
-          b.textContent = (results[0] && results[0].existing) ? '✓ Already in Study Ideas' : '✓ Saved to Study Ideas';
-          setTimeout(function () { b.textContent = 'Save to Ideas'; b.disabled = false; }, 2500);
+          delete b.dataset.saving;
+          refreshSaveButtons();
         }).catch(function (err) {
-          b.textContent = 'Save to Ideas';
-          b.disabled = false;
+          delete b.dataset.saving;
+          setSaveButtonLook(b, false);
           addSystemMsg(err.message);
         });
       });
@@ -355,6 +444,7 @@
       saveState();
       if (open) {
         scrollChat();
+        syncSavedWithIdeas();
         if (focus) {
           if (panel.scrollIntoView) panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
           try { inputEl.focus({ preventScroll: true }); } catch (e) { inputEl.focus(); }
@@ -517,8 +607,9 @@
 
     // The studies in the current plan not built yet: the planned sequence
     // ("Next in your plan") if there is one, else the Build buttons under the
-    // latest reply that offered any. One per subject.
-    function unbuiltPlans() {
+    // latest reply that offered any. One per subject. skipSaved also leaves out
+    // studies already in Study Ideas.
+    function unbuiltPlans(skipSaved) {
       var source = state.plan;
       if (!source.length) {
         for (var i = state.messages.length - 1; i >= 0; i--) {
@@ -529,7 +620,7 @@
       var seen = {};
       return (source || []).filter(function (p) {
         var k = String(p && p.subject || '').toLowerCase();
-        if (!k || seen[k] || isBuilt(p)) return false;
+        if (!k || seen[k] || isBuilt(p) || (skipSaved && isSaved(p))) return false;
         seen[k] = true;
         return true;
       });
@@ -549,8 +640,18 @@
 
     freshBtn.addEventListener('click', function () {
       if (!state.messages.length && !state.plan.length) { startFresh(); return; }
+      // Check the real Study Ideas first, so a study already saved isn't
+      // offered again. If they can't be read, every unbuilt study is offered
+      // (the server's dedupe still keeps the list clean).
+      freshBtn.disabled = true;
+      syncSavedWithIdeas().then(function (ok) {
+        syncControls();
+        confirmStartFresh(unbuiltPlans(ok));
+      });
+    });
+
+    function confirmStartFresh(unbuilt) {
       var msg = 'Start fresh? This planning conversation will be cleared.';
-      var unbuilt = unbuiltPlans();
       if (unbuilt.length && typeof showChoice === 'function') {
         msg += '\n\nNot built yet:\n' + unbuilt.map(function (p) { return '• ' + p.subject; }).join('\n');
         showChoice(msg, [
@@ -562,7 +663,7 @@
       }
       if (typeof showConfirm === 'function') showConfirm(msg, 'Start fresh', startFresh, function () {});
       else if (window.confirm(msg)) startFresh();
-    });
+    }
 
     // ── Boot ───────────────────────────────────────────────────────────────
     render();
@@ -582,6 +683,11 @@
         inputEl.value = had && had !== text ? (had + '\n\n' + text).slice(0, 4000) : text;
         try { inputEl.setSelectionRange(inputEl.value.length, inputEl.value.length); } catch (e) {}
         return true;
+      },
+      // Study Ideas changed on this page (added, edited or deleted there):
+      // re-check the Saved labels if the planner is showing.
+      ideasChanged: function () {
+        if (!panel.hidden) syncSavedWithIdeas();
       },
     };
 

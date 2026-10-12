@@ -8411,6 +8411,8 @@ a.teacher-review-outside { font-style: italic; text-decoration: underline; }
 }
 .plan-save-idea-btn:hover:not(:disabled) { color: var(--accent); border-color: var(--accent); }
 .plan-save-idea-btn:disabled { cursor: default; color: var(--accent); border-color: rgba(179,140,51,0.6); }
+/* Already in Study Ideas: a quiet persistent label, not a button to press. */
+.plan-save-idea-btn.is-saved { border-color: transparent; padding-left: 0.2em; padding-right: 0.2em; font-style: italic; }
 
 /* A study already built from the planner: still clickable (fills it in again),
    but visibly done so the rest of the plan stands out. */
