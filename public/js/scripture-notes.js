@@ -119,7 +119,7 @@
     if (!body.contains(range.commonAncestorContainer)) return null;
 
     var quote = stripNonText(range.cloneContents()).trim();
-    if (!quote || quote.length > QUOTE_MAX) return null;
+    if (!quote || quote.length > QUOTE_MAX) return null;   // same cap as the server
 
     // Verses the highlight actually covers: those whose own text (number left
     // out) overlaps the selection. Robust to a triple-click, which ends the range
@@ -139,6 +139,8 @@
       }
     });
     if (!verses.length) return null;
+    var text = parts.join(' ');
+    if (text.length > QUOTE_MAX) return null;   // stored as displayQuote, same cap
 
     var occurrence = (np() && np().occurrenceOf)
       ? np().occurrenceOf(body, quote, range.startContainer, range.startOffset) : 0;
@@ -147,7 +149,7 @@
       book:       cur.book,
       chapter:    cur.chapter,
       quote:      quote,
-      text:       parts.join(' '),
+      text:       text,
       occurrence: occurrence,
       verseStart: Math.min.apply(null, verses),
       verseEnd:   Math.max.apply(null, verses),
@@ -188,6 +190,9 @@
     if (!np() || !np().noteHtml) { listEl.innerHTML = ''; return; }
     listEl.innerHTML = notes.map(function (n) {
       return np().noteHtml(n, {
+        // The spaced copy on notes that have one; older notes show the stored
+        // quote. Display only — markers are placed from n.quote.
+        quote:    n.displayQuote || n.quote,
         editing:  editingId === n.id,
         refLabel: refLabel(n),
         quoteMax: SNIPPET_MAX,
@@ -330,6 +335,8 @@
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({
         quote:      anchor.quote,
+        // Card display only; the note is anchored by quote + occurrence alone.
+        displayQuote: anchor.text || null,
         occurrence: anchor.occurrence,
         verseStart: anchor.verseStart,
         verseEnd:   anchor.verseEnd,

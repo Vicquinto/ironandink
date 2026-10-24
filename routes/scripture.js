@@ -184,7 +184,7 @@ router.get('/scripture', requireAuth, async (req, res) => {
     activeSection: 'scripture',
     title:         'Scripture',
     content,
-    scripts:       `<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/scripture.js?v=10"></script><script src="/js/scripture-notes.js?v=3"></script><script src="/js/library.js?v=68"></script>`,
+    scripts:       `<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/scripture.js?v=10"></script><script src="/js/scripture-notes.js?v=4"></script><script src="/js/library.js?v=68"></script>`,
   }));
 });
 
@@ -319,10 +319,14 @@ router.post('/api/reading/set-count', requireAuth, (req, res) => {
 //
 // Store shape: an array of chapter records, one per (userId, book, chapter):
 //   { userId, book, chapter, notes: [ note, ... ] }
-// note: { id, marker, quote, occurrence, verseStart, verseEnd, question, content,
-//         source, ts, updatedAt? }
+// note: { id, marker, quote, displayQuote, occurrence, verseStart, verseEnd,
+//         question, content, source, ts, updatedAt? }
 //   marker     — sequential number per chapter record (as in the study notepad)
-//   quote      — the highlighted chapter text, verse numbers left out
+//   quote      — the highlighted chapter text, verse numbers left out and verses
+//                run together: the anchor that markers are placed by
+//   displayQuote — the same passage with a space between verses, shown on the
+//                card only (never used to place a marker). null on notes saved
+//                before it existed; the card then shows quote.
 //   occurrence — 0-based index of which occurrence of quote in the chapter body
 //   verseStart / verseEnd — the verse range the highlight covers
 //   question   — what was asked (Explore); null otherwise
@@ -390,13 +394,17 @@ router.post('/api/scripture-notes/:book/:chapter/note', requireAuth, async (req,
   const ref = resolveNoteChapter(req.params);
   if (!ref) return res.status(400).json({ success: false, error: 'Unknown book or chapter.' });
 
-  const { quote, question, content, source, occurrence, verseStart, verseEnd } = req.body || {};
+  const { quote, displayQuote, question, content, source, occurrence, verseStart, verseEnd } = req.body || {};
   const quoteStr   = quote != null ? String(quote).trim() : '';
+  const displayStr = displayQuote != null ? String(displayQuote).trim() : '';
   const contentStr = content != null ? String(content) : '';
   const questionStr = (question != null && String(question).trim() !== '') ? String(question) : null;
 
   if (!quoteStr) return res.status(400).json({ success: false, error: 'A highlighted passage is required.' });
   if (quoteStr.length > NOTE_QUOTE_MAX) {
+    return res.status(400).json({ success: false, error: 'The highlighted passage is too long to keep with a note.' });
+  }
+  if (displayStr.length > NOTE_QUOTE_MAX) {
     return res.status(400).json({ success: false, error: 'The highlighted passage is too long to keep with a note.' });
   }
   if (contentStr.length > NOTE_MAX) {
@@ -426,6 +434,7 @@ router.post('/api/scripture-notes/:book/:chapter/note', requireAuth, async (req,
         id:         randomUUID(),
         marker:     maxMarker + 1,
         quote:      quoteStr,
+        displayQuote: displayStr || null,
         occurrence: (Number.isInteger(occurrence) && occurrence >= 0) ? occurrence : null,
         verseStart,
         verseEnd,

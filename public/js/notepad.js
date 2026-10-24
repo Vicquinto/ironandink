@@ -231,7 +231,8 @@
 
   // One note card. Shared with the Scripture chapter notes (scripture-notes.js),
   // which pass opts: editing (show the inline editor), refLabel (a verse
-  // reference shown in the head) and quoteMax (shorten the quote to a snippet).
+  // reference shown in the head), quote (text to show in place of note.quote —
+  // display only) and quoteMax (shorten the quote to a snippet).
   // Every stored value is escaped or goes through the sanitized markdown path.
   function noteHtml(note, opts) {
     opts = opts || {};
@@ -243,7 +244,7 @@
     var refHtml = opts.refLabel
       ? '<span class="notepad-note-ref">' + esc(opts.refLabel) + '</span>'
       : '';
-    var quoteText = String(note.quote || '');
+    var quoteText = String((opts.quote != null ? opts.quote : note.quote) || '');
     if (opts.quoteMax && quoteText.length > opts.quoteMax) {
       quoteText = quoteText.slice(0, opts.quoteMax).replace(/\s+\S*$/, '') + '…';
     }
