@@ -93,9 +93,12 @@
 
   // ── Selection → anchor ────────────────────────────────────────────────────
   // Called by the highlight panel while the selection is still live. Returns
-  // { book, chapter, quote, occurrence, verseStart, verseEnd }, or null when the
-  // selection holds no verse text. The quote leaves verse numbers and markers
-  // out, so it matches the clean text placeMarker searches.
+  // { book, chapter, quote, text, occurrence, verseStart, verseEnd }, or null
+  // when the selection holds no verse text. The quote leaves verse numbers and
+  // markers out, so it matches the clean text placeMarker searches — verses run
+  // straight together in it ("…life.For God…"), as they do in that text. `text`
+  // is the same passage with a space between verses: what the panel shows and
+  // looks up. Only `quote` is ever used as the anchor.
 
   function stripNonText(frag) {
     frag.querySelectorAll('.verse-num, .' + MARKER_CLASS).forEach(function (n) { n.remove(); });
@@ -121,14 +124,16 @@
     // Verses the highlight actually covers: those whose own text (number left
     // out) overlaps the selection. Robust to a triple-click, which ends the range
     // at the very start of the next verse.
-    var verses = [];
+    var verses = [], parts = [];
     body.querySelectorAll('.scripture-verse').forEach(function (p) {
       if (!range.intersectsNode(p)) return;
       var r = document.createRange();
       r.selectNodeContents(p);
       if (range.compareBoundaryPoints(Range.START_TO_START, r) > 0) r.setStart(range.startContainer, range.startOffset);
       if (range.compareBoundaryPoints(Range.END_TO_END, r) < 0) r.setEnd(range.endContainer, range.endOffset);
-      if (stripNonText(r.cloneContents()).trim()) {
+      var part = stripNonText(r.cloneContents()).trim();
+      if (part) {
+        parts.push(part);
         var n = verseNumOf(p);
         if (n != null) verses.push(n);
       }
@@ -142,6 +147,7 @@
       book:       cur.book,
       chapter:    cur.chapter,
       quote:      quote,
+      text:       parts.join(' '),
       occurrence: occurrence,
       verseStart: Math.min.apply(null, verses),
       verseEnd:   Math.max.apply(null, verses),

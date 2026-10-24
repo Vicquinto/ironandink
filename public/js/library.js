@@ -1582,10 +1582,12 @@
     _lookupOnly    = (ctx.lookupOnly === true);
     // Scripture reader: capture the chapter-note anchor (scripture-notes.js) while
     // the selection is live — the quote without verse numbers, which occurrence
-    // of it, and the verses it covers. Its quote becomes the selection text.
+    // of it, and the verses it covers. Its `text` (the passage with a space
+    // between verses) becomes the selection text the panel shows and looks up;
+    // the anchor's own quote is what a chapter note is saved against.
     var scriptureAnchor = (ctx.inScripture && window.__scriptureNotes)
       ? window.__scriptureNotes.captureSelection() : null;
-    if (scriptureAnchor) selText = scriptureAnchor.quote;
+    if (scriptureAnchor) selText = scriptureAnchor.text || scriptureAnchor.quote;
     ctx.scriptureAnchor = scriptureAnchor;
     upSelectedText = selText;
     // Capture which occurrence was highlighted now, while the selection is live.
