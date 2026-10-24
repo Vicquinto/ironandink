@@ -364,9 +364,11 @@
   function startNote(anchor) {
     if (!anchor || key(anchor.book, anchor.chapter) !== curKey() || !composer) return;
     pendingAnchor = anchor;
-    var snippet = anchor.quote.length > SNIPPET_MAX
-      ? anchor.quote.slice(0, SNIPPET_MAX).replace(/\s+\S*$/, '') + '…'
-      : anchor.quote;
+    // Display only: the spaced passage. The note still saves against anchor.quote.
+    var shown   = anchor.text || anchor.quote;
+    var snippet = shown.length > SNIPPET_MAX
+      ? shown.slice(0, SNIPPET_MAX).replace(/\s+\S*$/, '') + '…'
+      : shown;
     var ref = anchor.book + ' ' + anchor.chapter + ':' + anchor.verseStart +
       (anchor.verseEnd !== anchor.verseStart ? '–' + anchor.verseEnd : '');
     anchorEl.innerHTML = '<span class="notepad-anchor-label">Anchored to ' + esc(ref) + ':</span> ' +
