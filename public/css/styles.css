@@ -5579,6 +5579,30 @@ body {
 
 .scripture-notes-toggle { margin-left: auto; }
 
+/* ── Read-aloud (scripture-audio.js) — hidden unless the browser can speak ── */
+.scripture-audio {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+}
+.scripture-audio .guide-print-btn { margin-left: 0; padding: 6px 12px; }
+.scripture-audio .guide-print-btn:disabled { opacity: 0.45; cursor: default; background: transparent; }
+.scripture-audio-select { padding: 6px 8px; font-size: 0.85rem; }
+.scripture-audio-voice { max-width: 220px; }
+@media (max-width: 600px) {
+  .scripture-audio-voice { max-width: 100%; }
+}
+
+/* The verse being read aloud (cleared on stop). */
+.scripture-reading-verse {
+  background: rgba(92,26,40,0.09);
+  box-shadow: -6px 0 0 rgba(92,26,40,0.09), 6px 0 0 rgba(92,26,40,0.09);
+  border-radius: 3px;
+}
+
 /* ── Chapter notes (scripture-notes.js) — cards reuse the notepad's note card ── */
 .scripture-notes-wrap { margin-bottom: 20px; }
 .scripture-notes-composer { margin-bottom: 12px; }

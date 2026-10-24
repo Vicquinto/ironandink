@@ -109,8 +109,39 @@
     loadChapter(bookSelect.value, chapter);
   });
 
+  // The chapter after the one selected, as { book, chapter } — the next book's
+  // first chapter at the end of a book — or null at the end of Revelation.
+  function nextChapterRef() {
+    var bi    = bookSelect.selectedIndex;
+    var count = parseInt(bookSelect.options[bi].dataset.chapters, 10);
+    var ch    = parseInt(chapterSelect.value, 10);
+    if (ch < count) return { book: bookSelect.options[bi].text, chapter: ch + 1 };
+    if (bi + 1 < bookSelect.options.length) return { book: bookSelect.options[bi + 1].text, chapter: 1 };
+    return null;
+  }
+
+  // Select and load a chapter by book name (same steps as goToSpot).
+  function goToChapter(bookName, chapter) {
+    for (var b = 0; b < bookSelect.options.length; b++) {
+      if (bookSelect.options[b].text === bookName) {
+        bookSelect.selectedIndex = b;
+        rebuildChapterSelect(parseInt(bookSelect.options[b].dataset.chapters, 10), chapter);
+        localStorage.setItem('ironink_scripture_book', bookSelect.value);
+        localStorage.setItem('ironink_scripture_chapter', chapter);
+        loadChapter(bookSelect.value, chapter);
+        return true;
+      }
+    }
+    return false;
+  }
+
   // For the chapter notes (scripture-notes.js): scroll to + flash a verse.
-  window.__scriptureReader = { scrollToVerse: scrollToVerse };
+  // For read-aloud (scripture-audio.js): move on to the next chapter.
+  window.__scriptureReader = {
+    scrollToVerse:  scrollToVerse,
+    nextChapterRef: nextChapterRef,
+    goToChapter:    goToChapter,
+  };
 
   // ── Restore last position ───────────────────────────────────────────────────
   (function () {
@@ -328,7 +359,11 @@
   body.addEventListener('click', function (e) {
     if (e.target.classList.contains('verse-num')) {
       var verse = parseInt(e.target.textContent, 10);
-      if (!isNaN(verse)) markVerseSpot(verse);
+      if (isNaN(verse)) return;
+      // While read-aloud is on (playing or paused), a verse number means "read
+      // from here" (scripture-audio.js) rather than marking the spot.
+      if (window.__scriptureAudio && window.__scriptureAudio.readFromVerse(verse)) return;
+      markVerseSpot(verse);
     }
   });
 

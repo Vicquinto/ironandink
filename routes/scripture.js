@@ -115,6 +115,19 @@ router.get('/scripture', requireAuth, async (req, res) => {
           <select id="chapterSelect" class="scripture-select">
             ${chapterOptions}
           </select>
+          <span class="scripture-audio" id="scriptureAudio" style="display:none;">
+            <button class="guide-print-btn" id="ttsPlay" type="button" title="Read the chapter aloud">Read Aloud</button>
+            <button class="guide-print-btn" id="ttsStop" type="button" disabled>Stop</button>
+            <select class="scripture-select scripture-audio-select" id="ttsRate" aria-label="Reading speed" title="Reading speed">
+              <option value="0.75">0.75&times;</option>
+              <option value="0.9">0.9&times;</option>
+              <option value="1" selected>1&times;</option>
+              <option value="1.1">1.1&times;</option>
+              <option value="1.25">1.25&times;</option>
+              <option value="1.5">1.5&times;</option>
+            </select>
+            <select class="scripture-select scripture-audio-select scripture-audio-voice" id="ttsVoice" aria-label="Voice" title="Voice"></select>
+          </span>
           <button class="guide-print-btn scripture-notes-toggle" id="scriptureNotesToggle" type="button" title="Hide or show the notes panel">Hide Notes</button>
         </div>
 
@@ -184,7 +197,7 @@ router.get('/scripture', requireAuth, async (req, res) => {
     activeSection: 'scripture',
     title:         'Scripture',
     content,
-    scripts:       `<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/scripture.js?v=10"></script><script src="/js/scripture-notes.js?v=4"></script><script src="/js/library.js?v=68"></script>`,
+    scripts:       `<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/scripture.js?v=11"></script><script src="/js/scripture-notes.js?v=4"></script><script src="/js/scripture-audio.js?v=1"></script><script src="/js/library.js?v=68"></script>`,
   }));
 });
 
