@@ -50,12 +50,19 @@
 
   function verseEls() { return body.querySelectorAll('.scripture-verse'); }
 
-  // The words of a verse only: no verse number, no note markers.
+  // NASB editorial symbols, kept on the page but not spoken: * marks a verb in
+  // the historical present ("Jesus *said"); [ ] enclose passages absent from the
+  // earliest manuscripts (e.g. Mark 16:9-20); ¶ † ‡ in case an edition uses
+  // them. Voices otherwise read them out ("asterisk").
+  var UNSPOKEN = /[*\[\]¶†‡]/g;
+
+  // The words of a verse only, as they should be spoken: no verse number, no
+  // note markers, no editorial symbols.
   function verseText(p) {
     var c = p.cloneNode(true);
     c.querySelectorAll('.verse-num, .scripture-note-marker, .notepad-marker')
       .forEach(function (n) { n.remove(); });
-    return (c.textContent || '').replace(/\s+/g, ' ').trim();
+    return (c.textContent || '').replace(UNSPOKEN, '').replace(/\s+/g, ' ').trim();
   }
 
   // Split a long verse at sentence (then comma, then word) boundaries so no one

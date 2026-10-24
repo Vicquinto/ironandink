@@ -579,10 +579,33 @@
     } catch (e) { return 0; }
   }
 
+  // Whitespace-insensitive fallback: the end offset in `text` of the target-th
+  // occurrence of `quote` when all whitespace is ignored on both sides, or -1.
+  // Lets a note saved against differently spaced text (the NASB small-caps fix:
+  // "B ehold , the" → "Behold, the") still find its passage.
+  function looseOccurrenceEnd(text, quote, target) {
+    var q = quote.replace(/\s+/g, '');
+    if (!q) return -1;
+    var stripped = '', pos = [];
+    for (var i = 0; i < text.length; i++) {
+      var ch = text.charAt(i);
+      if (!/\s/.test(ch)) { stripped += ch; pos.push(i); }
+    }
+    var from = 0, idx, seen = 0;
+    while ((idx = stripped.indexOf(q, from)) !== -1) {
+      if (seen === target) return pos[idx + q.length - 1] + 1;
+      seen++;
+      from = idx + q.length;
+    }
+    return -1;
+  }
+
   // className: 'notepad-marker' (default, study notes — opens the notepad on
-  // click) or 'scripture-note-marker' (Scripture chapter notes). Returns the
-  // marker element, or null when the quote could not be matched.
-  function placeMarker(container, note, className) {
+  // click) or 'scripture-note-marker' (Scripture chapter notes). opts.looseSpace:
+  // if the exact quote isn't found, retry ignoring whitespace (Scripture chapter
+  // notes only; study notes keep exact matching). Returns the marker element, or
+  // null when the quote could not be matched.
+  function placeMarker(container, note, className, opts) {
     var quote = String(note.quote || '').trim();
     if (!quote) return null;
 
@@ -601,12 +624,14 @@
       seen++;
       from = idx + quote.length;
     }
+    var end = (hit === -1) ? -1 : hit + quote.length;
+    if (end === -1 && opts && opts.looseSpace) end = looseOccurrenceEnd(text, quote, target);
     // Occurrence genuinely not found → render NO marker rather than a wrong one.
-    if (hit === -1) return null;
+    if (end === -1) return null;
 
     // Anchor at the end of the matched phrase. The phrase may span several text
     // nodes; locateOffset resolves the node holding its final character.
-    var pos = locateOffset(built.map, hit + quote.length);
+    var pos = locateOffset(built.map, end);
     if (!pos || !pos.node.parentNode) return null; // unmappable → no marker, never a wrong one
 
     var parent = pos.node.parentNode;

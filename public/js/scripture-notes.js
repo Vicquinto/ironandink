@@ -209,7 +209,10 @@
     np().removeMarkers(body, MARKER_CLASS);
     if (loadedKey !== curKey() || renderedKey !== curKey()) return;
     notes.slice().sort(function (a, b) { return a.marker - b.marker; }).forEach(function (n) {
-      np().placeMarker(body, n, MARKER_CLASS);
+      // looseSpace: a note saved on text spaced differently from today's (the
+      // NASB small-caps fix turned "B ehold ," into "Behold,") still finds its
+      // passage. Exact matching is tried first.
+      np().placeMarker(body, n, MARKER_CLASS, { looseSpace: true });
     });
   }
 
