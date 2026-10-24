@@ -5572,6 +5572,30 @@ body {
   font-size: 0.8rem;
 }
 
+/* Hidden via #scriptureNotesToggle (public/js/scripture-notes.js) — same shape
+   as the Writing page's Companion toggle: drops the panel from the flex row so
+   the reading column takes the freed width. */
+.scripture-pin-sidebar.collapsed { display: none; }
+
+.scripture-notes-toggle { margin-left: auto; }
+
+/* ── Chapter notes (scripture-notes.js) — cards reuse the notepad's note card ── */
+.scripture-notes-wrap { margin-bottom: 20px; }
+.scripture-notes-composer { margin-bottom: 12px; }
+.scripture-notes-list .notepad-note {
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.scripture-notes-list .notepad-note:hover { border-color: rgba(92,26,40,0.35); }
+.scripture-notes-list .notepad-note-content { cursor: auto; }
+.notepad-note-ref {
+  font-family: Georgia, serif;
+  font-size: 0.76rem;
+  font-style: italic;
+  color: var(--accent);
+}
+.sps-legacy-pins { margin-top: 4px; }
+
 @media (max-width: 1060px) {
   .scripture-page-layout { flex-direction: column; }
   .scripture-pin-sidebar {
@@ -7801,8 +7825,10 @@ body {
 .notepad-widget.notepad-minimized .notepad-body,
 .notepad-widget.notepad-minimized .notepad-composer { display: none !important; }
 
-/* Display-only marker injected into the study reader (never stored) */
-.notepad-marker {
+/* Display-only marker injected into the study reader (never stored). The
+   Scripture chapter notes draw the same marker under their own class. */
+.notepad-marker,
+.scripture-note-marker {
   display: inline-block;
   font-family: 'Cinzel', serif;
   font-size: 0.62em;
@@ -7818,7 +7844,9 @@ body {
   cursor: pointer;
   user-select: none;
 }
-.notepad-marker:hover { background: #b38c33; color: #1E1208; }
+.notepad-marker:hover,
+.scripture-note-marker:hover { background: #b38c33; color: #1E1208; }
+.scripture-note-marker--flash { animation: notepadFlash 1.6s ease; }
 
 /* ══ Global notes view (Library "Notes" tab) ════════════════════════════════ */
 .notes-group {

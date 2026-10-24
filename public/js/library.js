@@ -1580,9 +1580,16 @@
 
     _inScripture   = ctx.inScripture;
     _lookupOnly    = (ctx.lookupOnly === true);
+    // Scripture reader: capture the chapter-note anchor (scripture-notes.js) while
+    // the selection is live — the quote without verse numbers, which occurrence
+    // of it, and the verses it covers. Its quote becomes the selection text.
+    var scriptureAnchor = (ctx.inScripture && window.__scriptureNotes)
+      ? window.__scriptureNotes.captureSelection() : null;
+    if (scriptureAnchor) selText = scriptureAnchor.quote;
+    ctx.scriptureAnchor = scriptureAnchor;
     upSelectedText = selText;
     // Capture which occurrence was highlighted now, while the selection is live.
-    upOccurrence   = computeSelectionOccurrence(selText);
+    upOccurrence   = scriptureAnchor ? scriptureAnchor.occurrence : computeSelectionOccurrence(selText);
     icmTopic       = ctx.topic;
     // Phase 1: the highlight-selection trigger now opens the unified conversation
     // panel (grounded), not the old #unifiedPopup tooltip. showUp() and the rest
@@ -2005,6 +2012,11 @@
     var empty = document.getElementById('spsEmpty');
     if (!list) return;
 
+    // Pin to Sidebar is retired (chapter notes replaced it): the section shows
+    // only for a member who still has pins saved from before.
+    var legacy = document.getElementById('spsLegacyPins');
+    if (legacy) legacy.style.display = (pins && pins.length) ? '' : 'none';
+
     list.innerHTML = '';
 
     if (!pins || !pins.length) {
@@ -2215,6 +2227,7 @@
   var ucpPendingBroadcast = null;
   var ucpLastPin          = null;    // pin payload for the most recent answer
   var ucpLastPinned       = false;   // per-answer duplicate-pin guard
+  var ucpScriptureAnchor  = null;    // chapter-note anchor when grounded in Scripture
 
   function buildUnifiedPanel() {
     var el = document.createElement('div');
@@ -2310,6 +2323,7 @@
     // (which read _lookupOnly) resolve correctly for this grounding.
     _lookupOnly   = ucpLookupOnly;
     _inScripture  = !!(ctx && ctx.inScripture);
+    ucpScriptureAnchor = (ctx && ctx.scriptureAnchor) || null;
 
     ucpResetConversation();
     ucpEl.querySelector('.ucp-context').style.display = '';
@@ -2331,6 +2345,7 @@
     ucpLookupOnly = !!(ctx && ctx.lookupOnly);
     _lookupOnly   = ucpLookupOnly;
     _inScripture  = !!(ctx && ctx.inScripture);
+    ucpScriptureAnchor = null;
 
     ucpResetConversation();
     ucpEl.querySelector('.ucp-context').style.display = 'none';
@@ -2385,11 +2400,20 @@
     if (el) { el.textContent = ''; el.style.display = 'none'; }
   }
 
-  // Add Note shows only where a notepad study is bound (or a saveable draft) —
-  // the same gate as the pin affordance. Hidden (not errored) elsewhere.
+  // Scripture reader: notes go to the chapter notes (scripture-notes.js) rather
+  // than a study notepad. Only a highlighted passage can carry one — every
+  // chapter note is anchored — so an ungrounded panel offers no note there.
+  function ucpScriptureNotes() {
+    return (ucpGrounded && ucpScriptureAnchor && _inScripture && !_lookupOnly && window.__scriptureNotes)
+      ? window.__scriptureNotes : null;
+  }
+
+  // Add Note shows only where a notepad study is bound (or a saveable draft), or
+  // on a highlighted Scripture passage — the same gate as the pin affordance.
+  // Hidden (not errored) elsewhere.
   function ucpUpdateNoteBtn() {
     var noteBtn = ucpEl && ucpEl.querySelector('.ucp-note-btn');
-    if (noteBtn) noteBtn.style.display = canTakeNotes() ? '' : 'none';
+    if (noteBtn) noteBtn.style.display = (canTakeNotes() || ucpScriptureNotes()) ? '' : 'none';
   }
 
   // Open the notepad after a pin / note lands so the member sees the entry. Uses
@@ -2411,12 +2435,12 @@
     var pinBtn   = ucpEl.querySelector('.ucp-pin-btn');
     var shareBtn = ucpEl.querySelector('.ucp-share-btn');
 
-    var canPin   = canTakeNotes();
+    var canPin   = canTakeNotes() || !!ucpScriptureNotes();
     var canShare = !ucpLookupOnly && !!window.ROOM_CODE && !!window.isHost;
 
     pinBtn.style.display = canPin ? '' : 'none';
     pinBtn.disabled      = false;
-    pinBtn.textContent   = 'Pin to Notepad';
+    pinBtn.textContent   = ucpPinLabel();
 
     shareBtn.style.display = canShare ? '' : 'none';
     shareBtn.disabled      = false;
@@ -2428,12 +2452,37 @@
     footer.style.display = (canPin || canShare) ? 'flex' : 'none';
   }
 
+  function ucpPinLabel() {
+    return ucpScriptureNotes() ? 'Pin to Chapter Notes' : 'Pin to Notepad';
+  }
+
   // Pin the most recent answer to the notepad. Grounded → anchored note (carries
   // quote + occurrence, so the notepad's superscript-marker machinery fires);
-  // ungrounded → free note (quote null). Never closes or resets the panel.
+  // ungrounded → free note (quote null). Never closes or resets the panel. On a
+  // highlighted Scripture passage it pins to the chapter notes instead.
   function ucpPin() {
     var btn = ucpEl.querySelector('.ucp-pin-btn');
-    if (!ucpLastPin || ucpLastPinned || !window.__notepad) return;
+    if (!ucpLastPin || ucpLastPinned) return;
+
+    // Scripture reader → the chapter notes, anchored to the highlighted passage.
+    var sn = ucpScriptureNotes();
+    if (sn) {
+      var pin = ucpLastPin;
+      btn.disabled    = true;
+      btn.textContent = 'Pinning…';
+      sn.saveNote(ucpScriptureAnchor,
+        { question: pin.question, content: pin.content, source: pin.source },
+        function (ok) {
+          if (!ok) { btn.textContent = ucpPinLabel(); btn.disabled = false; return; }
+          ucpLastPinned   = true;
+          btn.textContent = 'Pinned ✓';
+          btn.disabled    = true;
+          showToast('Saved to Chapter Notes');
+        });
+      return;
+    }
+
+    if (!window.__notepad) return;
     var data = ucpLastPin;
     ensureNotepadCtx(function (ctx) {
       btn.disabled    = true;
@@ -2546,6 +2595,27 @@
   // note. Degrades: the button is hidden where no notepad study is bound, so
   // this rarely runs without a context.
   function ucpAddNote() {
+    // Scripture reader → the chapter notes. Same two grounded paths as below:
+    // empty input opens the composer (in the side panel) anchored to the
+    // passage; typed text saves straight away as the note body.
+    var sn = ucpScriptureNotes();
+    if (sn) {
+      var typedNote = ucpEl.querySelector('.ucp-input').value.trim();
+      var anchor    = ucpScriptureAnchor;
+      ucpClearNotice();
+      if (!typedNote) {
+        closeUnifiedPanel();   // the composer sits in the side panel, under this one
+        sn.startNote(anchor);
+        return;
+      }
+      sn.saveNote(anchor, { question: null, content: typedNote, source: 'personal' }, function (ok) {
+        if (!ok) return;
+        ucpEl.querySelector('.ucp-input').value = '';
+        showToast('Saved to Chapter Notes');
+      });
+      return;
+    }
+
     if (!window.__notepad) return;
     var typed = ucpEl.querySelector('.ucp-input').value.trim();
 

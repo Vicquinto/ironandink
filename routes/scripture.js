@@ -2,6 +2,7 @@ const express = require('express');
 const { escapeHtml, inlineJson } = require('../lib/html');
 const fs      = require('fs');
 const path    = require('path');
+const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
 const nasb = require('../lib/nasb');
 const { chapterVerses: asvChapterVerses, NASB_ATTRIBUTION } = require('../lib/asv');
@@ -9,6 +10,7 @@ const { chapterVerses: asvChapterVerses, NASB_ATTRIBUTION } = require('../lib/as
 const router       = express.Router();
 const KJV_PATH     = path.join(__dirname, '../data/kjv.json');
 const TRACKER_PATH = path.join(__dirname, '../data/reading_tracker.json');
+const NOTES_PATH   = path.join(__dirname, '../data/scripture_notes.json');
 
 // Public-domain fallback notice, shown when a chapter resolved to ASV (NASB not
 // cached and API.Bible unreachable) so Scripture never fails to display.
@@ -65,14 +67,16 @@ async function resolveChapter(bookName, chapterNum) {
 
 // Server-side render of a chapter body (verses + copyright footer), matching the
 // markup the client produces so the SSR initial paint and later client renders
-// are identical.
+// are identical. Joined with no whitespace between verses, exactly as the client
+// does: chapter notes anchor on the body's text (quote + occurrence), so a note
+// saved on the first paint must find the same text after a client re-render.
 function renderVerses(verses) {
   return verses.map(v =>
     `<p class="scripture-verse"><sup class="verse-num">${escapeHtml(v.verse)}</sup>${escapeHtml(v.text)}</p>`
-  ).join('\n        ');
+  ).join('');
 }
 function renderChapterBody(verses, copyright) {
-  return renderVerses(verses) + `\n        <p class="scripture-copyright">${escapeHtml(copyright)}</p>`;
+  return renderVerses(verses) + `<p class="scripture-copyright">${escapeHtml(copyright)}</p>`;
 }
 
 // ─── GET /scripture ──────────────────────────────────────────────────────────
@@ -110,6 +114,7 @@ router.get('/scripture', requireAuth, async (req, res) => {
           <select id="chapterSelect" class="scripture-select">
             ${chapterOptions}
           </select>
+          <button class="guide-print-btn scripture-notes-toggle" id="scriptureNotesToggle" type="button" title="Hide or show the notes panel">Hide Notes</button>
         </div>
 
         <div class="scripture-card" id="scriptureCard">
@@ -119,9 +124,7 @@ router.get('/scripture', requireAuth, async (req, res) => {
             <button class="guide-font-btn guide-font-btn-md" id="scriptFontReset">A</button>
             <button class="guide-font-btn guide-font-btn-lg" id="scriptFontInc">A+</button>
           </div>
-          <div class="scripture-body" id="scriptureBody">
-            ${initBody}
-          </div>
+          <div class="scripture-body" id="scriptureBody">${initBody}</div>
         </div>
 
         <div class="tracker-section">
@@ -137,9 +140,25 @@ router.get('/scripture', requireAuth, async (req, res) => {
           <div class="sps-heading">Last Marked</div>
           <div class="spot-note-list" id="spotNoteList"></div>
         </div>
-        <div class="sps-heading">Pinned Notes</div>
-        <div class="sps-empty-msg" id="spsEmpty">Pin a tooltip result to keep it here.</div>
-        <div class="sps-list" id="spsList"></div>
+        <div class="scripture-notes-wrap" id="scriptureNotesWrap">
+          <div class="sps-heading">Chapter Notes</div>
+          <div class="scripture-notes-composer" id="scriptureNotesComposer" style="display:none;">
+            <div class="notepad-anchor-banner" id="scriptureNotesAnchor"></div>
+            <textarea class="notepad-input" id="scriptureNotesInput" rows="3" maxlength="5000"
+              placeholder="Write a note… (markdown: **bold**, *italic*, &gt; quote, - list)"></textarea>
+            <div class="notepad-composer-actions">
+              <button class="notepad-cancel-anchor" id="scriptureNotesCancel" type="button">Cancel</button>
+              <button class="notepad-add-btn" id="scriptureNotesSave" type="button">Save Note</button>
+            </div>
+          </div>
+          <div class="sps-empty-msg" id="scriptureNotesEmpty">Highlight a passage and choose Add Note to keep a note on this chapter.</div>
+          <div class="scripture-notes-list" id="scriptureNotesList"></div>
+        </div>
+        <div class="sps-legacy-pins" id="spsLegacyPins" style="display:none;">
+          <div class="sps-heading">Pinned Notes</div>
+          <div class="sps-empty-msg" id="spsEmpty">Pin a tooltip result to keep it here.</div>
+          <div class="sps-list" id="spsList"></div>
+        </div>
       </div>
     </div>
 
@@ -164,7 +183,7 @@ router.get('/scripture', requireAuth, async (req, res) => {
     activeSection: 'scripture',
     title:         'Scripture',
     content,
-    scripts:       `<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/scripture.js?v=9"></script><script src="/js/library.js?v=66"></script>`,
+    scripts:       `<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/scripture.js?v=10"></script><script src="/js/scripture-notes.js?v=1"></script><script src="/js/library.js?v=67"></script>`,
   }));
 });
 
@@ -290,6 +309,176 @@ router.post('/api/reading/set-count', requireAuth, (req, res) => {
   tracker[email][bookName].count = parsed;
   writeTracker(tracker);
   res.json({ success: true, book: tracker[email][bookName] });
+});
+
+// ─── Chapter notes ───────────────────────────────────────────────────────────
+// Personal notes pinned to a passage of a Scripture chapter. Modeled on the study
+// notepad (routes/notepad.js): same note fields and the same quote + occurrence
+// anchor, plus where in Scripture the passage sits. Shown only on this page.
+//
+// Store shape: an array of chapter records, one per (userId, book, chapter):
+//   { userId, book, chapter, notes: [ note, ... ] }
+// note: { id, marker, quote, occurrence, verseStart, verseEnd, question, content,
+//         source, ts, updatedAt? }
+//   marker     — sequential number per chapter record (as in the study notepad)
+//   quote      — the highlighted chapter text, verse numbers left out
+//   occurrence — 0-based index of which occurrence of quote in the chapter body
+//   verseStart / verseEnd — the verse range the highlight covers
+//   question   — what was asked (Explore); null otherwise
+//   content    — the note body (markdown text)
+//   source     — 'define' | 'explore' | 'verse' | 'personal'
+//
+// Every note is anchored: there are no free notes on a chapter.
+
+const NOTE_SOURCES    = ['define', 'explore', 'verse', 'personal'];
+const NOTE_MAX        = 5000;
+const NOTE_QUOTE_MAX  = 2000;
+const NOTE_QUESTION_MAX = 1000;
+
+function readChapterNotes() {
+  try {
+    if (!fs.existsSync(NOTES_PATH)) return [];
+    return JSON.parse(fs.readFileSync(NOTES_PATH, 'utf8'));
+  } catch { return []; }
+}
+
+// Write to a temp file and rename over the store (as lib/nasb.js does for its
+// cache): a crash mid-write can't leave a truncated file that the next read
+// would treat as empty and the next write would then overwrite.
+function writeChapterNotes(data) {
+  const tmp = NOTES_PATH + '.tmp';
+  fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
+  fs.renameSync(tmp, NOTES_PATH);
+}
+
+// Resolve :book/:chapter to a canonical book name and chapter number, or null.
+// The book must be one of the reader's own book names; the chapter must exist.
+function resolveNoteChapter(params) {
+  const book = getBible().find(b => b.name === params.book);
+  if (!book) return null;
+  const chapter = /^\d+$/.test(String(params.chapter)) ? parseInt(params.chapter, 10) : NaN;
+  if (!(chapter >= 1 && chapter <= book.chapters.length)) return null;
+  // Verse ceiling: the skeleton's count, with slack for translations whose
+  // versification runs a verse or two longer than the KJV skeleton.
+  const verseMax = (Array.isArray(book.chapters[chapter - 1]) ? book.chapters[chapter - 1].length : 176) + 5;
+  return { book: book.name, chapter, verseMax };
+}
+
+function findChapterRecord(records, userId, book, chapter) {
+  return records.find(r => r.userId === userId && r.book === book && r.chapter === chapter);
+}
+
+// Verse order (first verse, then last), then the order they were written.
+function sortChapterNotes(notes) {
+  return notes.slice().sort((a, b) =>
+    (a.verseStart - b.verseStart) ||
+    (a.verseEnd - b.verseEnd) ||
+    (new Date(a.ts) - new Date(b.ts)));
+}
+
+function isVerseNum(v, max) {
+  return Number.isInteger(v) && v >= 1 && v <= max;
+}
+
+// ─── GET /api/scripture-notes/:book/:chapter ─────────────────────────────────
+router.get('/api/scripture-notes/:book/:chapter', requireAuth, (req, res) => {
+  const ref = resolveNoteChapter(req.params);
+  if (!ref) return res.status(400).json({ success: false, error: 'Unknown book or chapter.' });
+  const rec = findChapterRecord(readChapterNotes(), req.session.userId, ref.book, ref.chapter);
+  res.json({ success: true, book: ref.book, chapter: ref.chapter, notes: rec ? sortChapterNotes(rec.notes) : [] });
+});
+
+// ─── POST /api/scripture-notes/:book/:chapter/note ───────────────────────────
+router.post('/api/scripture-notes/:book/:chapter/note', requireAuth, (req, res) => {
+  const ref = resolveNoteChapter(req.params);
+  if (!ref) return res.status(400).json({ success: false, error: 'Unknown book or chapter.' });
+
+  const { quote, question, content, source, occurrence, verseStart, verseEnd } = req.body || {};
+  const quoteStr   = quote != null ? String(quote).trim() : '';
+  const contentStr = content != null ? String(content) : '';
+  const questionStr = (question != null && String(question).trim() !== '') ? String(question) : null;
+
+  if (!quoteStr) return res.status(400).json({ success: false, error: 'A highlighted passage is required.' });
+  if (quoteStr.length > NOTE_QUOTE_MAX) {
+    return res.status(400).json({ success: false, error: 'The highlighted passage is too long to keep with a note.' });
+  }
+  if (contentStr.length > NOTE_MAX) {
+    return res.status(400).json({ success: false, error: `Note is too long (${NOTE_MAX} characters max).` });
+  }
+  if (questionStr && questionStr.length > NOTE_QUESTION_MAX) {
+    return res.status(400).json({ success: false, error: 'Question is too long.' });
+  }
+  if (!isVerseNum(verseStart, ref.verseMax) || !isVerseNum(verseEnd, ref.verseMax) || verseEnd < verseStart) {
+    return res.status(400).json({ success: false, error: 'Invalid verse.' });
+  }
+
+  const records = readChapterNotes();
+  let rec = findChapterRecord(records, req.session.userId, ref.book, ref.chapter);
+  if (!rec) {
+    rec = { userId: req.session.userId, book: ref.book, chapter: ref.chapter, notes: [] };
+    records.push(rec);
+  }
+
+  const maxMarker = rec.notes.reduce(
+    (m, n) => (typeof n.marker === 'number' && n.marker > m ? n.marker : m), 0);
+
+  const note = {
+    id:         randomUUID(),
+    marker:     maxMarker + 1,
+    quote:      quoteStr,
+    occurrence: (Number.isInteger(occurrence) && occurrence >= 0) ? occurrence : null,
+    verseStart,
+    verseEnd,
+    question:   questionStr,
+    content:    contentStr,
+    source:     NOTE_SOURCES.includes(source) ? source : 'personal',
+    ts:         new Date().toISOString(),
+  };
+
+  rec.notes.push(note);
+  writeChapterNotes(records);
+  res.json({ success: true, note });
+});
+
+// ─── PUT /api/scripture-notes/:book/:chapter/note/:noteId ────────────────────
+router.put('/api/scripture-notes/:book/:chapter/note/:noteId', requireAuth, (req, res) => {
+  const ref = resolveNoteChapter(req.params);
+  if (!ref) return res.status(400).json({ success: false, error: 'Unknown book or chapter.' });
+
+  const content = (req.body && req.body.content != null) ? String(req.body.content) : '';
+  if (content.length > NOTE_MAX) {
+    return res.status(400).json({ success: false, error: `Note is too long (${NOTE_MAX} characters max).` });
+  }
+
+  // Only the signed-in member's own record is ever searched, so a note id from
+  // anyone else's notes is simply not found.
+  const records = readChapterNotes();
+  const rec  = findChapterRecord(records, req.session.userId, ref.book, ref.chapter);
+  const note = rec && rec.notes.find(n => n.id === req.params.noteId);
+  if (!note) return res.status(404).json({ success: false, error: 'Note not found.' });
+
+  note.content   = content;
+  note.updatedAt = new Date().toISOString();
+  writeChapterNotes(records);
+  res.json({ success: true, note });
+});
+
+// ─── DELETE /api/scripture-notes/:book/:chapter/note/:noteId ─────────────────
+router.delete('/api/scripture-notes/:book/:chapter/note/:noteId', requireAuth, (req, res) => {
+  const ref = resolveNoteChapter(req.params);
+  if (!ref) return res.status(400).json({ success: false, error: 'Unknown book or chapter.' });
+
+  const records = readChapterNotes();
+  const rec = findChapterRecord(records, req.session.userId, ref.book, ref.chapter);
+  if (!rec) return res.status(404).json({ success: false, error: 'Note not found.' });
+
+  const before = rec.notes.length;
+  rec.notes = rec.notes.filter(n => n.id !== req.params.noteId);
+  if (rec.notes.length === before) {
+    return res.status(404).json({ success: false, error: 'Note not found.' });
+  }
+  writeChapterNotes(records);
+  res.json({ success: true });
 });
 
 module.exports = router;

@@ -46,6 +46,10 @@
       html += '<p class="scripture-copyright">' + escText(copyright) + '</p>';
     }
     body.innerHTML = html;
+    // Chapter notes (scripture-notes.js) redraw their markers on the new text.
+    document.dispatchEvent(new CustomEvent('scripture:chapter-rendered', {
+      detail: { book: bookName, chapter: chapter },
+    }));
     var v = pendingScrollVerse;
     pendingScrollVerse = null;
     if (v !== null) {
@@ -57,6 +61,12 @@
 
   function loadChapter(abbrev, chapter) {
     setLoading();
+    // Chapter notes (scripture-notes.js) swap to this chapter's notes. The book
+    // select is always moved to `abbrev` before a load, so its text is the
+    // canonical book name the notes are stored under.
+    document.dispatchEvent(new CustomEvent('scripture:chapter-change', {
+      detail: { book: bookSelect.options[bookSelect.selectedIndex].text, chapter: parseInt(chapter, 10) },
+    }));
     fetch('/api/scripture/' + abbrev + '/' + chapter)
       .then(function (r) { return r.json(); })
       .then(function (data) {
@@ -98,6 +108,9 @@
     localStorage.setItem('ironink_scripture_chapter', chapter);
     loadChapter(bookSelect.value, chapter);
   });
+
+  // For the chapter notes (scripture-notes.js): scroll to + flash a verse.
+  window.__scriptureReader = { scrollToVerse: scrollToVerse };
 
   // ── Restore last position ───────────────────────────────────────────────────
   (function () {

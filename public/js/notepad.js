@@ -229,19 +229,31 @@
       });
   }
 
-  function noteHtml(note) {
+  // One note card. Shared with the Scripture chapter notes (scripture-notes.js),
+  // which pass opts: editing (show the inline editor), refLabel (a verse
+  // reference shown in the head) and quoteMax (shorten the quote to a snippet).
+  // Every stored value is escaped or goes through the sanitized markdown path.
+  function noteHtml(note, opts) {
+    opts = opts || {};
     var markerBadge = (note.marker != null)
       ? '<span class="notepad-note-marker">' + esc(String(note.marker)) + '</span>'
       : '';
     var sourceBadge = '<span class="notepad-note-source notepad-src-' + esc(note.source) + '">' +
       esc(SOURCE_LABEL[note.source] || 'Note') + '</span>';
+    var refHtml = opts.refLabel
+      ? '<span class="notepad-note-ref">' + esc(opts.refLabel) + '</span>'
+      : '';
+    var quoteText = String(note.quote || '');
+    if (opts.quoteMax && quoteText.length > opts.quoteMax) {
+      quoteText = quoteText.slice(0, opts.quoteMax).replace(/\s+\S*$/, '') + '…';
+    }
     var quoteHtml = note.quote
-      ? '<div class="notepad-note-quote">' + esc(note.quote) + '</div>'
+      ? '<div class="notepad-note-quote">' + esc(quoteText) + '</div>'
       : '';
     var questionHtml = note.question
       ? '<div class="notepad-note-question">Asked: ' + esc(note.question) + '</div>'
       : '';
-    var bodyHtml = (editingId === note.id)
+    var bodyHtml = opts.editing
       ? '<div class="notepad-note-edit">' +
           '<textarea class="notepad-edit-input" rows="4">' + esc(note.content || '') + '</textarea>' +
           '<div class="notepad-edit-actions">' +
@@ -256,7 +268,7 @@
     return '<div class="notepad-note" data-note-id="' + esc(note.id) + '"' +
              (note.marker != null ? ' data-marker="' + esc(String(note.marker)) + '"' : '') + '>' +
         '<div class="notepad-note-head">' +
-          markerBadge + sourceBadge +
+          markerBadge + sourceBadge + refHtml +
           '<span class="notepad-note-spacer"></span>' +
           '<button class="notepad-note-edit-btn" data-id="' + esc(note.id) + '" title="Edit">&#9998;</button>' +
           '<button class="notepad-note-del-btn" data-id="' + esc(note.id) + '" title="Delete">&times;</button>' +
@@ -278,7 +290,9 @@
       return;
     }
 
-    listEl.innerHTML = notesCache.map(noteHtml).join('');
+    listEl.innerHTML = notesCache.map(function (n) {
+      return noteHtml(n, { editing: editingId === n.id });
+    }).join('');
 
     listEl.querySelectorAll('.notepad-note-del-btn').forEach(function (btn) {
       btn.addEventListener('click', function () { deleteNote(btn.dataset.id); });
@@ -485,9 +499,15 @@
       .catch(function () {});
   }
 
-  function removeMarkers(container) {
-    container.querySelectorAll('.notepad-marker').forEach(function (m) { m.remove(); });
+  // className: the marker class to clear — 'notepad-marker' (default) for study
+  // markers, 'scripture-note-marker' for the Scripture chapter notes.
+  function removeMarkers(container, className) {
+    container.querySelectorAll('.' + (className || 'notepad-marker')).forEach(function (m) { m.remove(); });
   }
+
+  // Display-only elements that are never part of the anchored text: note markers
+  // (study + Scripture) and verse numbers (study quotations + the Scripture reader).
+  var NON_TEXT_SELECTOR = '.notepad-marker, .scripture-note-marker, .guide-vnum, .verse-num';
 
   // Flatten `container` into marker-free text plus a map from each global char
   // offset back to the DOM text node that supplies it. Save-time occurrence
@@ -501,13 +521,13 @@
     var text = '', map = [], node;
     while ((node = walker.nextNode())) {
       var parent = node.parentNode;
-      if (parent && parent.classList && parent.classList.contains('notepad-marker')) continue;
       // Tutor / Teacher entry buttons (teacher-entry.js) are UI, not study text.
       if (parent && parent.closest && parent.closest('.teacher-entry')) continue;
-      // Verse numbers in multi-verse quotations (html-sanitizer.js) are added for
-      // reading only: leaving them out keeps every note's quote + occurrence
-      // matching the same text it was saved against, before or after numbers.
-      if (parent && parent.closest && parent.closest('.guide-vnum')) continue;
+      // Note markers, and verse numbers — in multi-verse study quotations
+      // (html-sanitizer.js) and in the Scripture reader — are display-only:
+      // leaving them out keeps every note's quote + occurrence matching the same
+      // text it was saved against, before or after numbers.
+      if (parent && parent.closest && parent.closest(NON_TEXT_SELECTOR)) continue;
       var v = node.nodeValue || '';
       if (!v) continue;
       map.push({ start: text.length, node: node, len: v.length });
@@ -546,7 +566,7 @@
       pre.setStart(container, 0);
       pre.setEnd(node, offset);
       var frag = pre.cloneContents();
-      frag.querySelectorAll('.notepad-marker, .guide-vnum').forEach(function (m) { m.remove(); });
+      frag.querySelectorAll(NON_TEXT_SELECTOR).forEach(function (m) { m.remove(); });
       var pointOffset = (frag.textContent || '').length;
       // Count only whole occurrences that END at/before the highlight point; the
       // highlighted occurrence itself starts AT the point and must not be counted.
@@ -558,9 +578,12 @@
     } catch (e) { return 0; }
   }
 
-  function placeMarker(container, note) {
+  // className: 'notepad-marker' (default, study notes — opens the notepad on
+  // click) or 'scripture-note-marker' (Scripture chapter notes). Returns the
+  // marker element, or null when the quote could not be matched.
+  function placeMarker(container, note, className) {
     var quote = String(note.quote || '').trim();
-    if (!quote) return;
+    if (!quote) return null;
 
     // Place the marker on the SAME occurrence the user highlighted. `occurrence`
     // is a 0-based index of the match within the study body (stable because the
@@ -578,12 +601,12 @@
       from = idx + quote.length;
     }
     // Occurrence genuinely not found → render NO marker rather than a wrong one.
-    if (hit === -1) return;
+    if (hit === -1) return null;
 
     // Anchor at the end of the matched phrase. The phrase may span several text
     // nodes; locateOffset resolves the node holding its final character.
     var pos = locateOffset(built.map, hit + quote.length);
-    if (!pos || !pos.node.parentNode) return; // unmappable → no marker, never a wrong one
+    if (!pos || !pos.node.parentNode) return null; // unmappable → no marker, never a wrong one
 
     var parent = pos.node.parentNode;
     var after  = (pos.offset >= (pos.node.nodeValue || '').length)
@@ -591,7 +614,7 @@
       : pos.node.splitText(pos.offset); // split so the marker sits right after it
 
     var sup = document.createElement('sup');
-    sup.className = 'notepad-marker';
+    sup.className = className || 'notepad-marker';
     sup.setAttribute('data-note-id', note.id);
     sup.setAttribute('data-marker', String(note.marker));
     sup.setAttribute('role', 'button');
@@ -599,6 +622,7 @@
     sup.title = 'Note ' + note.marker;
     sup.textContent = note.marker;
     parent.insertBefore(sup, after); // `after` null → appended at end of parent
+    return sup;
   }
 
   // Marker click → open notepad and reveal the note.
@@ -659,5 +683,9 @@
     injectMarkers:     injectMarkers,
     occurrenceOf:      occurrenceOf,
     revealNote:        revealNote,
+    // Shared with the Scripture chapter notes (scripture-notes.js).
+    noteHtml:          noteHtml,
+    placeMarker:       placeMarker,
+    removeMarkers:     removeMarkers,
   };
 })();

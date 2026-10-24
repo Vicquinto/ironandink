@@ -20,6 +20,8 @@ data/messages.json
 data/reading_tracker.json
 data/selah.json
 data/notepads.json
+data/scripture_notes.json
+data/scripture_notes.json.tmp
 data/study-ideas.json
 data/presence.json
 data/password_resets.json
