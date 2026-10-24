@@ -3,6 +3,7 @@ const fs             = require('fs');
 const path           = require('path');
 const { randomUUID } = require('crypto');
 const { requireAuth } = require('./layout');
+const { createJsonStore } = require('../lib/jsonStore');
 
 const router        = express.Router();
 const NOTEPADS_PATH = path.join(__dirname, '../data/notepads.json');
@@ -18,15 +19,13 @@ const STUDIES_PATH  = path.join(__dirname, '../data/studies.json');
 //   content  — the note body (markdown text from the editor)
 //   source   — 'define' | 'explore' | 'verse' | 'personal' | 'free'
 
-function readNotepads() {
-  try {
-    if (!fs.existsSync(NOTEPADS_PATH)) return [];
-    return JSON.parse(fs.readFileSync(NOTEPADS_PATH, 'utf8'));
-  } catch { return []; }
-}
+// Fail-closed, atomic, one-write-at-a-time store (lib/jsonStore.js). read()
+// throws if the file exists but is damaged; update() never overwrites it then.
+const notepadStore = createJsonStore(NOTEPADS_PATH, 'notepads');
 
-function writeNotepads(data) {
-  fs.writeFileSync(NOTEPADS_PATH, JSON.stringify(data, null, 2));
+// The store file is damaged (already logged by the store): nothing was changed.
+function storeUnavailable(res) {
+  return res.status(500).json({ success: false, error: 'Notes are unavailable right now. Nothing was changed.' });
 }
 
 function readStudies() {
@@ -45,15 +44,17 @@ function findNotepad(pads, studyId, userId) {
 // Cascade helper: remove the notepad (and all its notes) for a given study. Used
 // when a study is deleted from the Library so notes are never left orphaned. If
 // userId is provided, only that user's notepad for the study is removed; pass null
-// to remove every user's notepad for the study. Returns the number of pads removed.
+// to remove every user's notepad for the study. Resolves with the number of pads
+// removed; rejects (removing nothing) if the store can't be read.
 function deleteNotepadsForStudy(studyId, userId) {
-  const pads = readNotepads();
-  const remaining = pads.filter(
-    p => !(p.studyId === studyId && (userId == null || p.userId === userId))
-  );
-  const removed = pads.length - remaining.length;
-  if (removed > 0) writeNotepads(remaining);
-  return removed;
+  return notepadStore.update(pads => {
+    const before = pads.length;
+    for (let i = pads.length - 1; i >= 0; i--) {
+      const p = pads[i];
+      if (p.studyId === studyId && (userId == null || p.userId === userId)) pads.splice(i, 1);
+    }
+    return { changed: pads.length !== before, removed: before - pads.length };
+  }).then(r => r.removed);
 }
 
 function sortNotes(notes) {
@@ -71,7 +72,9 @@ function sortNotes(notes) {
 // before /:studyId so "all" is never captured as a studyId param.
 router.get('/api/notepad/all', requireAuth, (req, res) => {
   const userId  = req.session.userId;
-  const pads    = readNotepads().filter(p => p.userId === userId);
+  let pads;
+  try { pads = notepadStore.read().filter(p => p.userId === userId); }
+  catch { return storeUnavailable(res); }
   const studies = readStudies();
 
   const titleById = {};
@@ -97,7 +100,9 @@ router.get('/api/notepad/all', requireAuth, (req, res) => {
 // ─── GET /api/notepad/:studyId ────────────────────────────────────────────────
 router.get('/api/notepad/:studyId', requireAuth, (req, res) => {
   const userId = req.session.userId;
-  const pad    = findNotepad(readNotepads(), req.params.studyId, userId);
+  let pad;
+  try { pad = findNotepad(notepadStore.read(), req.params.studyId, userId); }
+  catch { return storeUnavailable(res); }
   res.json({
     success:  true,
     notepad: { studyId: req.params.studyId, notes: pad ? sortNotes(pad.notes) : [] },
@@ -105,7 +110,7 @@ router.get('/api/notepad/:studyId', requireAuth, (req, res) => {
 });
 
 // ─── POST /api/notepad/:studyId/note ──────────────────────────────────────────
-router.post('/api/notepad/:studyId/note', requireAuth, (req, res) => {
+router.post('/api/notepad/:studyId/note', requireAuth, async (req, res) => {
   const userId    = req.session.userId;
   const { studyId } = req.params;
   const { quote, question, content, source, occurrence } = req.body;
@@ -113,71 +118,83 @@ router.post('/api/notepad/:studyId/note', requireAuth, (req, res) => {
   const src      = VALID_SOURCES.includes(source) ? source : 'free';
   const hasQuote = quote != null && String(quote).trim() !== '';
 
-  const pads = readNotepads();
-  let pad    = findNotepad(pads, studyId, userId);
-  if (!pad) { pad = { studyId, userId, notes: [] }; pads.push(pad); }
+  let result;
+  try {
+    result = await notepadStore.update(pads => {
+      let pad = findNotepad(pads, studyId, userId);
+      if (!pad) { pad = { studyId, userId, notes: [] }; pads.push(pad); }
 
-  // Marker: sequential per notepad, assigned only to anchored notes.
-  let marker = null;
-  if (hasQuote) {
-    const maxMarker = pad.notes.reduce(
-      (m, n) => (typeof n.marker === 'number' && n.marker > m ? n.marker : m), 0);
-    marker = maxMarker + 1;
-  }
+      // Marker: sequential per notepad, assigned only to anchored notes.
+      let marker = null;
+      if (hasQuote) {
+        const maxMarker = pad.notes.reduce(
+          (m, n) => (typeof n.marker === 'number' && n.marker > m ? n.marker : m), 0);
+        marker = maxMarker + 1;
+      }
 
-  const note = {
-    id:       randomUUID(),
-    marker,
-    quote:    hasQuote ? String(quote) : null,
-    // 0-based index of which occurrence of `quote` in the study body was
-    // highlighted, so the display-only marker lands on the right one. null when
-    // not anchored or not provided (older clients) → render falls back to first.
-    occurrence: (hasQuote && typeof occurrence === 'number' && occurrence >= 0) ? occurrence : null,
-    question: (question != null && String(question).trim() !== '') ? String(question) : null,
-    content:  content != null ? String(content) : '',
-    source:   src,
-    ts:       new Date().toISOString(),
-  };
+      const note = {
+        id:       randomUUID(),
+        marker,
+        quote:    hasQuote ? String(quote) : null,
+        // 0-based index of which occurrence of `quote` in the study body was
+        // highlighted, so the display-only marker lands on the right one. null when
+        // not anchored or not provided (older clients) → render falls back to first.
+        occurrence: (hasQuote && typeof occurrence === 'number' && occurrence >= 0) ? occurrence : null,
+        question: (question != null && String(question).trim() !== '') ? String(question) : null,
+        content:  content != null ? String(content) : '',
+        source:   src,
+        ts:       new Date().toISOString(),
+      };
 
-  pad.notes.push(note);
-  writeNotepads(pads);
-  res.json({ success: true, note });
+      pad.notes.push(note);
+      return { changed: true, note };
+    });
+  } catch { return storeUnavailable(res); }
+  res.json({ success: true, note: result.note });
 });
 
 // ─── PUT /api/notepad/:studyId/note/:noteId ───────────────────────────────────
-router.put('/api/notepad/:studyId/note/:noteId', requireAuth, (req, res) => {
+router.put('/api/notepad/:studyId/note/:noteId', requireAuth, async (req, res) => {
   const userId = req.session.userId;
   const { studyId, noteId } = req.params;
   const { content } = req.body;
 
-  const pads = readNotepads();
-  const pad  = findNotepad(pads, studyId, userId);
-  if (!pad) return res.status(404).json({ success: false, error: 'Notepad not found.' });
+  let result;
+  try {
+    result = await notepadStore.update(pads => {
+      const pad = findNotepad(pads, studyId, userId);
+      if (!pad) return { changed: false, error: 'Notepad not found.' };
 
-  const note = pad.notes.find(n => n.id === noteId);
-  if (!note) return res.status(404).json({ success: false, error: 'Note not found.' });
+      const note = pad.notes.find(n => n.id === noteId);
+      if (!note) return { changed: false, error: 'Note not found.' };
 
-  note.content   = content != null ? String(content) : '';
-  note.updatedAt = new Date().toISOString();
-  writeNotepads(pads);
-  res.json({ success: true, note });
+      note.content   = content != null ? String(content) : '';
+      note.updatedAt = new Date().toISOString();
+      return { changed: true, note };
+    });
+  } catch { return storeUnavailable(res); }
+  if (result.error) return res.status(404).json({ success: false, error: result.error });
+  res.json({ success: true, note: result.note });
 });
 
 // ─── DELETE /api/notepad/:studyId/note/:noteId ────────────────────────────────
-router.delete('/api/notepad/:studyId/note/:noteId', requireAuth, (req, res) => {
+router.delete('/api/notepad/:studyId/note/:noteId', requireAuth, async (req, res) => {
   const userId = req.session.userId;
   const { studyId, noteId } = req.params;
 
-  const pads = readNotepads();
-  const pad  = findNotepad(pads, studyId, userId);
-  if (!pad) return res.status(404).json({ success: false, error: 'Notepad not found.' });
+  let result;
+  try {
+    result = await notepadStore.update(pads => {
+      const pad = findNotepad(pads, studyId, userId);
+      if (!pad) return { changed: false, error: 'Notepad not found.' };
 
-  const before = pad.notes.length;
-  pad.notes = pad.notes.filter(n => n.id !== noteId);
-  if (pad.notes.length === before) {
-    return res.status(404).json({ success: false, error: 'Note not found.' });
-  }
-  writeNotepads(pads);
+      const before = pad.notes.length;
+      pad.notes = pad.notes.filter(n => n.id !== noteId);
+      if (pad.notes.length === before) return { changed: false, error: 'Note not found.' };
+      return { changed: true };
+    });
+  } catch { return storeUnavailable(res); }
+  if (result.error) return res.status(404).json({ success: false, error: result.error });
   res.json({ success: true });
 });
 

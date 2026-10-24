@@ -313,11 +313,10 @@ router.delete('/api/library/:id', requireAuth, (req, res) => {
   writeStudies(studies);
 
   // Cascade: delete this study's notepad + all its notes so nothing is orphaned.
-  try {
-    notepadRoutes.deleteNotepadsForStudy(req.params.id, req.session.userId);
-  } catch (err) {
-    console.error('Notepad cascade delete failed:', err.message);
-  }
+  // Queued with other notepad writes; if the notepad store is damaged it removes
+  // nothing (the notes are left orphaned rather than the store overwritten).
+  notepadRoutes.deleteNotepadsForStudy(req.params.id, req.session.userId)
+    .catch(err => console.error('Notepad cascade delete failed:', err.message));
 
   res.json({ success: true });
 });

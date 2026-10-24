@@ -3,6 +3,7 @@ const { escapeHtml, inlineJson } = require('../lib/html');
 const fs      = require('fs');
 const path    = require('path');
 const { randomUUID } = require('crypto');
+const { createJsonStore } = require('../lib/jsonStore');
 const { requireAuth, renderLayout } = require('./layout');
 const nasb = require('../lib/nasb');
 const { chapterVerses: asvChapterVerses, NASB_ATTRIBUTION } = require('../lib/asv');
@@ -335,20 +336,14 @@ const NOTE_MAX        = 5000;
 const NOTE_QUOTE_MAX  = 2000;
 const NOTE_QUESTION_MAX = 1000;
 
-function readChapterNotes() {
-  try {
-    if (!fs.existsSync(NOTES_PATH)) return [];
-    return JSON.parse(fs.readFileSync(NOTES_PATH, 'utf8'));
-  } catch { return []; }
-}
+// Fail-closed, atomic, one-write-at-a-time store (lib/jsonStore.js), shared
+// with the study notepad. read() throws if the file exists but is damaged, and
+// update() then writes nothing.
+const chapterNoteStore = createJsonStore(NOTES_PATH, 'scripture_notes');
 
-// Write to a temp file and rename over the store (as lib/nasb.js does for its
-// cache): a crash mid-write can't leave a truncated file that the next read
-// would treat as empty and the next write would then overwrite.
-function writeChapterNotes(data) {
-  const tmp = NOTES_PATH + '.tmp';
-  fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
-  fs.renameSync(tmp, NOTES_PATH);
+// The store file is damaged (already logged by the store): nothing was changed.
+function notesUnavailable(res) {
+  return res.status(500).json({ success: false, error: 'Notes are unavailable right now. Nothing was changed.' });
 }
 
 // Resolve :book/:chapter to a canonical book name and chapter number, or null.
@@ -384,12 +379,14 @@ function isVerseNum(v, max) {
 router.get('/api/scripture-notes/:book/:chapter', requireAuth, (req, res) => {
   const ref = resolveNoteChapter(req.params);
   if (!ref) return res.status(400).json({ success: false, error: 'Unknown book or chapter.' });
-  const rec = findChapterRecord(readChapterNotes(), req.session.userId, ref.book, ref.chapter);
+  let rec;
+  try { rec = findChapterRecord(chapterNoteStore.read(), req.session.userId, ref.book, ref.chapter); }
+  catch { return notesUnavailable(res); }
   res.json({ success: true, book: ref.book, chapter: ref.chapter, notes: rec ? sortChapterNotes(rec.notes) : [] });
 });
 
 // ─── POST /api/scripture-notes/:book/:chapter/note ───────────────────────────
-router.post('/api/scripture-notes/:book/:chapter/note', requireAuth, (req, res) => {
+router.post('/api/scripture-notes/:book/:chapter/note', requireAuth, async (req, res) => {
   const ref = resolveNoteChapter(req.params);
   if (!ref) return res.status(400).json({ success: false, error: 'Unknown book or chapter.' });
 
@@ -412,36 +409,41 @@ router.post('/api/scripture-notes/:book/:chapter/note', requireAuth, (req, res) 
     return res.status(400).json({ success: false, error: 'Invalid verse.' });
   }
 
-  const records = readChapterNotes();
-  let rec = findChapterRecord(records, req.session.userId, ref.book, ref.chapter);
-  if (!rec) {
-    rec = { userId: req.session.userId, book: ref.book, chapter: ref.chapter, notes: [] };
-    records.push(rec);
-  }
+  const userId = req.session.userId;
+  let result;
+  try {
+    result = await chapterNoteStore.update(records => {
+      let rec = findChapterRecord(records, userId, ref.book, ref.chapter);
+      if (!rec) {
+        rec = { userId, book: ref.book, chapter: ref.chapter, notes: [] };
+        records.push(rec);
+      }
 
-  const maxMarker = rec.notes.reduce(
-    (m, n) => (typeof n.marker === 'number' && n.marker > m ? n.marker : m), 0);
+      const maxMarker = rec.notes.reduce(
+        (m, n) => (typeof n.marker === 'number' && n.marker > m ? n.marker : m), 0);
 
-  const note = {
-    id:         randomUUID(),
-    marker:     maxMarker + 1,
-    quote:      quoteStr,
-    occurrence: (Number.isInteger(occurrence) && occurrence >= 0) ? occurrence : null,
-    verseStart,
-    verseEnd,
-    question:   questionStr,
-    content:    contentStr,
-    source:     NOTE_SOURCES.includes(source) ? source : 'personal',
-    ts:         new Date().toISOString(),
-  };
+      const note = {
+        id:         randomUUID(),
+        marker:     maxMarker + 1,
+        quote:      quoteStr,
+        occurrence: (Number.isInteger(occurrence) && occurrence >= 0) ? occurrence : null,
+        verseStart,
+        verseEnd,
+        question:   questionStr,
+        content:    contentStr,
+        source:     NOTE_SOURCES.includes(source) ? source : 'personal',
+        ts:         new Date().toISOString(),
+      };
 
-  rec.notes.push(note);
-  writeChapterNotes(records);
-  res.json({ success: true, note });
+      rec.notes.push(note);
+      return { changed: true, note };
+    });
+  } catch { return notesUnavailable(res); }
+  res.json({ success: true, note: result.note });
 });
 
 // ─── PUT /api/scripture-notes/:book/:chapter/note/:noteId ────────────────────
-router.put('/api/scripture-notes/:book/:chapter/note/:noteId', requireAuth, (req, res) => {
+router.put('/api/scripture-notes/:book/:chapter/note/:noteId', requireAuth, async (req, res) => {
   const ref = resolveNoteChapter(req.params);
   if (!ref) return res.status(400).json({ success: false, error: 'Unknown book or chapter.' });
 
@@ -452,32 +454,39 @@ router.put('/api/scripture-notes/:book/:chapter/note/:noteId', requireAuth, (req
 
   // Only the signed-in member's own record is ever searched, so a note id from
   // anyone else's notes is simply not found.
-  const records = readChapterNotes();
-  const rec  = findChapterRecord(records, req.session.userId, ref.book, ref.chapter);
-  const note = rec && rec.notes.find(n => n.id === req.params.noteId);
-  if (!note) return res.status(404).json({ success: false, error: 'Note not found.' });
-
-  note.content   = content;
-  note.updatedAt = new Date().toISOString();
-  writeChapterNotes(records);
-  res.json({ success: true, note });
+  const userId = req.session.userId;
+  let result;
+  try {
+    result = await chapterNoteStore.update(records => {
+      const rec  = findChapterRecord(records, userId, ref.book, ref.chapter);
+      const note = rec && rec.notes.find(n => n.id === req.params.noteId);
+      if (!note) return { changed: false };
+      note.content   = content;
+      note.updatedAt = new Date().toISOString();
+      return { changed: true, note };
+    });
+  } catch { return notesUnavailable(res); }
+  if (!result.note) return res.status(404).json({ success: false, error: 'Note not found.' });
+  res.json({ success: true, note: result.note });
 });
 
 // ─── DELETE /api/scripture-notes/:book/:chapter/note/:noteId ─────────────────
-router.delete('/api/scripture-notes/:book/:chapter/note/:noteId', requireAuth, (req, res) => {
+router.delete('/api/scripture-notes/:book/:chapter/note/:noteId', requireAuth, async (req, res) => {
   const ref = resolveNoteChapter(req.params);
   if (!ref) return res.status(400).json({ success: false, error: 'Unknown book or chapter.' });
 
-  const records = readChapterNotes();
-  const rec = findChapterRecord(records, req.session.userId, ref.book, ref.chapter);
-  if (!rec) return res.status(404).json({ success: false, error: 'Note not found.' });
-
-  const before = rec.notes.length;
-  rec.notes = rec.notes.filter(n => n.id !== req.params.noteId);
-  if (rec.notes.length === before) {
-    return res.status(404).json({ success: false, error: 'Note not found.' });
-  }
-  writeChapterNotes(records);
+  const userId = req.session.userId;
+  let result;
+  try {
+    result = await chapterNoteStore.update(records => {
+      const rec = findChapterRecord(records, userId, ref.book, ref.chapter);
+      if (!rec) return { changed: false };
+      const before = rec.notes.length;
+      rec.notes = rec.notes.filter(n => n.id !== req.params.noteId);
+      return { changed: rec.notes.length !== before };
+    });
+  } catch { return notesUnavailable(res); }
+  if (!result.changed) return res.status(404).json({ success: false, error: 'Note not found.' });
   res.json({ success: true });
 });
 
