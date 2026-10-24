@@ -18,6 +18,29 @@
 
 const WHATS_NEW = [
   {
+    date:  'October 24, 2026',
+    title: 'Chapter Notes on the Scripture Page',
+    body:  `You can now take notes right in the Scripture reader. Highlight any word, phrase or passage and choose Add Note to write a note anchored to that spot. Answers from Define, Explore and Verse Lookup can be saved with Pin to Chapter Notes.
+
+Your notes appear beside the text in verse order, each showing its reference and the passage it's tied to. Click a note to jump to its verse, or click the small numbered marker in the text to find its note. You can edit or delete notes anytime, and Hide Notes / Show Notes gives the text the full page.
+
+Your chapter notes are private to you.`
+  },
+  {
+    date:  'October 24, 2026',
+    title: 'Listen to Scripture',
+    body:  `A new Read Aloud button reads the chapter to you, verse by verse, highlighting each verse as it goes and continuing into the next chapter on its own.
+
+Choose your voice and reading speed, and your choices are remembered. While listening, click any verse number to jump to that verse. Tip: Microsoft Edge offers the most natural-sounding voices.`
+  },
+  {
+    date:  'October 24, 2026',
+    title: 'Fixes and Improvements',
+    body:  `Fixed a display problem where words in Old Testament quotations, such as "God" and "Behold," appeared split apart.
+
+Behind the scenes, we've also improved how your notes are saved and protected.`
+  },
+  {
     date:  'October 12, 2026',
     title: 'Study Ideas',
     body:  `Have a study in mind for later? The Study page now has Study Ideas, beside Plan a Study: a private list of studies you'd like to do someday. Give an idea a short title, add notes if you like, and pick a study type and level if you already know them. Only you can see your ideas, and they follow you to any device you sign in on.
