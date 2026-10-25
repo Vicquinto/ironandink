@@ -8172,6 +8172,20 @@ body {
 }
 .teacher-study-body .teacher-sec-done { color: var(--warm-brown); }
 
+/* Coming back to a saved session: the last Teacher message is briefly ringed,
+   with a quiet note under it (teacher.js resumeSaved; page-only, never stored). */
+@keyframes teacherMsgReturn {
+  0%, 40% { box-shadow: 0 0 0 2px var(--accent); }
+  100%    { box-shadow: 0 0 0 2px transparent; }
+}
+.teacher-messages .teacher-msg-return { animation: teacherMsgReturn 2.6s ease-out; border-radius: 4px; }
+.teacher-welcome-back {
+  margin: 4px 0 10px;
+  font-size: 0.85em;
+  font-style: italic;
+  color: var(--warm-brown);
+}
+
 /* "Your Teacher" with the current section beside it, in plain muted text. */
 .teacher-header-meta {
   display: inline-flex;

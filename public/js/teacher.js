@@ -108,6 +108,13 @@
     shownSection = cur;
   }
 
+  // Start over: clear the old lesson's marks before the new opening arrives.
+  function resetLessonView() {
+    heads.forEach(function (h) { h.classList.remove('teacher-sec-current', 'teacher-sec-done'); });
+    if (nowEl) nowEl.textContent = '';
+    shownSection = (BOOT.entry && BOOT.entry.mode === 'section') ? BOOT.entry.section : null;
+  }
+
   // Drop ?mode=section&section=N once the lesson has moved there, so a reload
   // continues the lesson instead of jumping again.
   function settleUrl() {
@@ -321,6 +328,7 @@
   // was saved). A button's label is never put in the input.
   async function runTurn(body, userText) {
     if (isGenerating) return false;
+    clearWelcomeBack();
     var userEl = userText ? addUserMessage(userText) : null;
     showTypingIndicator();
     setGenerating(true);
@@ -346,6 +354,7 @@
     hideResume();
     messagesEl.innerHTML = '';
     sessionActive = false;
+    resetLessonView();
     var ok = await runTurn({ start: { mode: BOOT.entry.mode, section: BOOT.entry.section } });
     if (ok) { sessionActive = true; setGenerating(false); settleUrl(); inputEl.focus(); }
     else if (!messagesEl.querySelector('.engine-msg')) showRetry();
@@ -355,30 +364,58 @@
     showResumePanel('Ready when you are.', { begin: true });
   }
 
-  // Redraws the saved transcript. Resolves false when there is no saved session.
+  // Redraws the saved transcript. Resolves to the saved session (with its lesson
+  // state), or null when there is none.
   async function loadSaved() {
     var res  = await fetch(SESSION_URL);
     var data = await res.json();
-    if (!data.success || !data.session) return false;
+    if (!data.success || !data.session) return null;
     (data.session.transcript || []).forEach(function (m) {
       if (m.role === 'assistant') addTeacherMessage(m.content); else addUserMessage(m.content);
     });
-    return true;
+    return data.session;
   }
 
+  // "Welcome back" note under the last Teacher message — on this page only:
+  // never sent, never stored, gone as soon as the reader does anything.
+  var welcomeEl = null;
+  function clearWelcomeBack() {
+    if (welcomeEl) { welcomeEl.remove(); welcomeEl = null; }
+  }
+
+  // "Pick up where we left off": NO AI call, for a lesson or a check. Redraw the
+  // saved conversation, put the start of the last Teacher message at the top of
+  // the conversation pane (briefly highlighted), move the study pane to the
+  // saved section, and wait for the reader. Nothing is saved or changed.
   async function resumeSaved() {
     hideResume();
     messagesEl.innerHTML = '';
+    clearWelcomeBack();
+    var saved;
     try {
-      if (!(await loadSaved())) { await startNew(); return; }
+      saved = await loadSaved();
     } catch (err) {
       addSystemMsg('Your saved session couldn\'t be loaded. Please refresh and try again.');
       return;
     }
+    if (!saved) { BOOT.saved = null; showRetry(); return; }   // deleted elsewhere
+    setLessonState(saved);
     sessionActive = true;
-    var ok = await runTurn({ resume: true });
     setGenerating(false);
-    if (ok) inputEl.focus();
+
+    var teacherMsgs = messagesEl.querySelectorAll('.engine-msg');
+    var last = teacherMsgs.length ? teacherMsgs[teacherMsgs.length - 1] : null;
+    if (last) {
+      welcomeEl = document.createElement('p');
+      welcomeEl.className = 'teacher-welcome-back';
+      welcomeEl.textContent = 'Welcome back. This is where we stopped. Tap Continue when you\'re ready.';
+      last.insertAdjacentElement('afterend', welcomeEl);
+      messagesEl.scrollTop += last.getBoundingClientRect().top - messagesEl.getBoundingClientRect().top;
+      last.classList.remove('teacher-msg-return');
+      void last.offsetWidth;                  // restart the highlight animation
+      last.classList.add('teacher-msg-return');
+    }
+    inputEl.focus({ preventScroll: true });
   }
 
   // "Teach me this section" with a lesson already saved: carry on in the SAME
@@ -387,7 +424,7 @@
     hideResume();
     messagesEl.innerHTML = '';
     try {
-      if (!(await loadSaved())) { await startNew(); return; }
+      if (!(await loadSaved())) { await startNew(); return; }   // no lesson to move: begin one at N
     } catch (err) {
       addSystemMsg('Your saved session couldn\'t be loaded. Please refresh and try again.');
       return;
@@ -455,6 +492,7 @@
   }
 
   sendBtn.addEventListener('click', function () { send(inputEl.value); });
+  inputEl.addEventListener('input', clearWelcomeBack);
   inputEl.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(inputEl.value); }
   });
@@ -512,6 +550,7 @@
   }
 
   endBtn.addEventListener('click', async function () {
+    clearWelcomeBack();
     if (isGenerating) return;
     reviewModal.style.display     = 'flex';
     reviewLoading.style.display   = 'block';

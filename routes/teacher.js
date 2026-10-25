@@ -279,11 +279,6 @@ function openingTurn(mode, sec) {
   return '(The reader tapped Study with a Teacher. Begin the lesson. First, in one short paragraph, tell them what this study is about and why it matters for them. Then name the route in one sentence or a short plain list of the section titles from LESSON STATE. Then begin teaching section 1 — actually teach its first part, don\'t just introduce it. Do not ask the reader any question in this reply; end at a natural stopping place so they can tap Continue.)';
 }
 
-const RESUME_TURN = {
-  lesson: '(The reader has come back to continue the lesson. In one sentence, remind them where you were. Then carry on teaching from there. Do not quiz them on what came before. If your last reply ended with a question the reader never answered, don\'t re-ask it; just carry on teaching.)',
-  check:  '(The reader has come back to continue this session after a break. In one short sentence, remind them where you were, then ask your last question again — or the next one, if they had already answered it.)',
-};
-
 // Reader controls. Each button posts an action; the server adds the hidden
 // instruction and the transcript shows the button's label as the reader's turn.
 const ACTIONS = {
@@ -478,7 +473,7 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
     scripts: `<script src="/js/render-markdown.js?v=2"></script>
 <script src="/js/teacher-entry.js?v=4"></script>
 <script>window.TEACHER_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/teacher.js?v=6"></script>`,
+<script src="/js/teacher.js?v=7"></script>`,
   }));
 });
 
@@ -510,16 +505,17 @@ router.delete('/api/teacher/:studyId/session', requireAuth, (req, res) => {
 });
 
 // ─── POST /api/teacher/exchange (streaming SSE) ───────────────────────────────
-// Body: { studyId, kind, start?: { mode, section }, resume?: true,
+// Body: { studyId, kind, start?: { mode, section },
 //         action?: 'continue'|'deeper'|'simpler'|'quiz'|'jump', section?: N, message?: string }
 //   start  → begin a NEW session (replaces any saved one of the same kind; the
 //            kind comes from start.mode)
-//   resume → continue the saved session with a hidden "welcome back" turn
 //   action → a reader control (jump: move the saved lesson to section N)
 //   else   → the reader's typed message in the saved session
+// Coming back to a saved session ("Pick up where we left off") never comes
+// here: the page redraws the saved transcript itself, with no AI call.
 router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) => {
   if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
-  const { studyId, start, resume, action, message } = req.body || {};
+  const { studyId, start, action, message } = req.body || {};
   const kind = start ? kindOfMode(cleanMode(start.mode)) : cleanKind(req.body && req.body.kind);
 
   const study = findReadableStudy(req, studyId);
@@ -563,9 +559,7 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
     if (!existing) return res.status(409).json({ success: false, error: 'No saved session to continue. Please start again.' });
     session = existing;
     if (!Array.isArray(session.lessonSections)) session.lessonSections = parseLessonSections(study.content);
-    if (resume) {
-      newTurn = { role: 'user', content: RESUME_TURN[kind], hidden: true };
-    } else if (action !== undefined && action !== null) {
+    if (action !== undefined && action !== null) {
       if (typeof action !== 'string') return res.status(400).json({ success: false, error: 'Unknown action.' });
       if (action === 'jump') {
         if (kind !== 'lesson') return res.status(400).json({ success: false, error: 'Unknown action.' });
