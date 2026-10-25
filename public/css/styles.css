@@ -7998,7 +7998,7 @@ body {
   margin-bottom: 14px;
   border-bottom: 1px solid rgba(160,132,92,0.18);
 }
-/* One Tutor / Teacher choice: the button with its one-line description under it. */
+/* The Study with a Teacher choice: the button with its one-line description under it. */
 .teacher-entry-choice {
   display: flex;
   flex-direction: column;
@@ -8161,6 +8161,32 @@ body {
   100% { background: transparent; }
 }
 .teacher-sec-flash { animation: teacherSecFlash 1.8s ease-out; border-radius: 3px; }
+
+/* The study pane follows the lesson (teacher.js setLessonState): a quiet
+   oxblood rule on the section being taught, and finished sections a touch
+   muted. No checkmarks or counts. */
+.teacher-study-body .teacher-sec-current {
+  border-left: 3px solid var(--accent);
+  padding-left: 10px;
+  margin-left: -13px;
+}
+.teacher-study-body .teacher-sec-done { color: var(--warm-brown); }
+
+/* "Your Teacher" with the current section beside it, in plain muted text. */
+.teacher-header-meta {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  min-width: 0;
+}
+.teacher-now {
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: 0.82rem;
+  color: var(--warm-brown);
+  overflow-wrap: anywhere;
+}
 
 /* Verse lines inside a teacher message (guide-bq comes from the sanitizer allowlist). */
 .teacher-messages .guide-bq {

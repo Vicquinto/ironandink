@@ -1,20 +1,19 @@
 (function (global) {
   'use strict';
 
-  // Shared Tutor / Teacher entry points. Single source of truth for every
+  // Shared Study with a Teacher entry points. Single source of truth for every
   // place a study is read: the study page (study.js), the Library inline view
   // (library.js) and shared Community studies (community.js). Each caller renders
   // the study as usual, then calls IronInkTeacher.attach(container, opts):
   //
-  //   • "Study with a Tutor" and "Study with a Teacher" side by side at the top,
-  //     each with a one-line description underneath
-  //   • a small "Tutor me on this section" button beside each section heading
-  //   • a "Check my understanding" button at the end of the study (uses Tutor)
+  //   • "Study with a Teacher" at the top, with a one-line description underneath
+  //   • a small "Teach me this section" button beside each section heading
+  //   • a "Check my understanding" button at the end of the study
   //
-  // Every button navigates to /teacher/<studyId>?mode=…&section=N (modes full /
-  // section / check are Tutor; mode teacher is the big-picture Teacher). Sections are
-  // the study's "## " headings, numbered from 1 in document order — the same rule
-  // routes/teacher.js uses, so the numbers agree.
+  // Every button navigates to /teacher/<studyId>?mode=…&section=N (modes lesson /
+  // section share the lesson session; check has its own). Sections are the
+  // study's "## " headings except Further Studies, numbered from 1 in document
+  // order — the same rule routes/teacher.js uses, so the numbers agree.
   //
   // Elements are built with createElement + textContent (never innerHTML). All of
   // them carry .teacher-entry so the notepad's text walker skips them and print
@@ -42,6 +41,11 @@
   // "Further Studies" is a jumping-off list, not something to be taught.
   function isTeachable(heading) {
     return !/further\s+stud/i.test(heading.textContent || '');
+  }
+
+  // The lesson's sections: teachable headings, numbered 1..N in that order.
+  function teachableHeadings(container) {
+    return sectionHeadings(container).filter(isTeachable);
   }
 
   function teacherUrl(id, mode, section) {
@@ -139,7 +143,7 @@
       withId(btn, function (id) { window.location.href = teacherUrl(id, mode, section); });
     }
 
-    // Top: the two ways in, side by side, each with a one-line description.
+    // Top: the way in, with a one-line description.
     var top = document.createElement('div');
     top.className = 'teacher-entry teacher-entry-top';
     function topChoice(label, desc, title, mode) {
@@ -154,36 +158,33 @@
       wrap.appendChild(note);
       top.appendChild(wrap);
     }
-    topChoice('Study with a Tutor', 'Walk through the study section by section.',
-      'A patient tutor takes you through this study one question at a time', 'full');
-    topChoice('Study with a Teacher', 'Talk through the big questions behind the study.',
-      'A teacher talks through the big picture with you, following your questions', 'teacher');
+    topChoice('Study with a Teacher', 'Walk through this study with a teacher, section by section.',
+      'A teacher takes you through this study in order, and you can ask anything along the way', 'lesson');
     container.insertBefore(top, container.firstChild);
 
-    // Beside each section heading: start the tutor at that section.
-    sectionHeadings(container).forEach(function (h, i) {
-      if (!isTeachable(h)) return;
+    // Beside each section heading: take the lesson to that section.
+    teachableHeadings(container).forEach(function (h, i) {
       var n = i + 1;
-      var btn = makeButton('teacher-section-btn', 'Tutor me on this section',
-        'Start the tutor at “' + (h.textContent || '').trim() + '”');
+      var btn = makeButton('teacher-section-btn', 'Teach me this section',
+        'Have the teacher take you through “' + (h.textContent || '').trim() + '”');
       btn.addEventListener('click', function () { go('section', n, btn); });
       h.appendChild(btn);
     });
 
-    // End: a short understanding check (Tutor), then teach what was missed.
+    // End: a short understanding check, then teach what was missed.
     var end = document.createElement('div');
     end.className = 'teacher-entry teacher-entry-end';
     var endLabel = document.createElement('p');
     endLabel.className = 'teacher-entry-end-label';
     endLabel.textContent = 'Finished reading?';
     var endBtn = makeButton('teacher-check-btn', 'Check my understanding',
-      'A few short questions, then your tutor helps with anything you missed');
+      'A few short questions, then your teacher helps with anything you missed');
     endBtn.addEventListener('click', function () { go('check', null, endBtn); });
     end.appendChild(endLabel);
     end.appendChild(endBtn);
     container.appendChild(end);
 
-    // Mark complete — at the top beside the Tutor/Teacher choices and at the
+    // Mark complete — at the top beside Study with a Teacher and at the
     // end beside Check my understanding, kept in step with each other. Shown
     // only when the reader may change it (their own study, or their own fresh
     // draft, which is saved first).
@@ -225,6 +226,7 @@
     attach:              attach,
     remove:              remove,
     sectionHeadings:     sectionHeadings,
+    teachableHeadings:   teachableHeadings,
     setCompletion:       setCompletion,
     formatCompletedDate: formatCompletedDate,
   };

@@ -1,17 +1,18 @@
 (function () {
   'use strict';
 
-  // Study with a Tutor / Study with a Teacher — page client (one page, two
-  // kinds: BOOT.kind is 'tutor' or 'teacher'). The streaming client is cloned from
+  // Study with a Teacher — page client (one page, two kinds of session:
+  // BOOT.kind is 'lesson' or 'check'). The streaming client is cloned from
   // Dialogue (public/js/dialogue.js: streamExchange / setGenerating / typing
-  // indicator / end-of-session review), but the transcript lives on the server:
-  // this page sends only the new message and the server saves each exchange.
+  // indicator / end-of-session review), but the transcript and the lesson state
+  // live on the server: this page sends only the new message or reader action,
+  // and the server saves each exchange and reports where the lesson now is.
 
   var BOOT = window.TEACHER_BOOT || {};
   var sections = BOOT.sections || [];
-  var KIND = BOOT.kind === 'teacher' ? 'teacher' : 'tutor';
-  var WHO  = KIND === 'teacher' ? 'Teacher' : 'Tutor';          // role label on messages
-  var GENERIC_ERROR = 'The ' + WHO.toLowerCase() + ' couldn\'t respond. Please try again.';
+  var KIND = BOOT.kind === 'check' ? 'check' : 'lesson';
+  var WHO  = 'Teacher';                                          // role label on messages
+  var GENERIC_ERROR = 'The teacher couldn\'t respond. Please try again.';
   var SESSION_URL = '/api/teacher/' + encodeURIComponent(BOOT.studyId) + '/session?kind=' + KIND;
 
   // ── State ────────────────────────────────────────────────────────────────
@@ -48,14 +49,26 @@
   var keepBtn         = document.getElementById('teacherKeepBtn');
   var reviewDeleteBtn = document.getElementById('teacherReviewDeleteBtn');
   var backLink        = document.querySelector('.teacher-back-link');
+  var nowEl           = document.getElementById('teacherNow');
+
+  // Reader controls: each posts an action; the bubble shows the button's label.
+  var ACTION_LABELS = {
+    continue: 'Continue',
+    deeper:   'Go deeper',
+    simpler:  'Say that more simply',
+    quiz:     'Ask me a question',
+  };
 
   // ── The study (left pane) ────────────────────────────────────────────────
   // renderMarkdown output is sanitized by the shared allowlist sanitizer.
-  // Each section heading gets an id so review links can jump straight to it.
+  // Each lesson section heading (Further Studies skipped, numbered like the
+  // server's lesson sections) gets an id so the lesson and review links can
+  // jump straight to it.
+  var heads = [];
   if (studyBody && window.renderMarkdown) {
     studyBody.innerHTML = window.renderMarkdown(BOOT.content || '');
-    var heads = window.IronInkTeacher ? window.IronInkTeacher.sectionHeadings(studyBody)
-                                      : Array.prototype.slice.call(studyBody.querySelectorAll('h3.guide-h3'));
+    heads = window.IronInkTeacher ? window.IronInkTeacher.teachableHeadings(studyBody)
+                                  : Array.prototype.slice.call(studyBody.querySelectorAll('h3.guide-h3'));
     heads.forEach(function (h, i) { h.id = 'teacher-sec-' + (i + 1); });
   }
 
@@ -69,8 +82,39 @@
   }
 
   // Open at the section the reader picked, so the text matches the teacher.
+  var shownSection = null;   // the section the pane last moved to for the lesson
   if (BOOT.entry && BOOT.entry.mode === 'section' && BOOT.entry.section) {
+    shownSection = BOOT.entry.section;
     setTimeout(function () { scrollToSection(BOOT.entry.section); }, 50);
+  }
+
+  // ── The pane follows the lesson ──────────────────────────────────────────
+  // The current section's heading carries a quiet "current" style, finished
+  // ones are slightly muted, and the header names the section. The pane
+  // scrolls only when the section CHANGES, never on every reply, so it doesn't
+  // pull away from wherever the reader is looking.
+  function setLessonState(lesson) {
+    if (!lesson) return;
+    var cur  = parseInt(lesson.currentSection, 10) || 0;
+    var done = Array.isArray(lesson.doneSections) ? lesson.doneSections : [];
+    heads.forEach(function (h, i) {
+      var n = i + 1;
+      h.classList.toggle('teacher-sec-current', n === cur);
+      h.classList.toggle('teacher-sec-done', n !== cur && done.indexOf(n) !== -1);
+    });
+    var title = cur && sections[cur - 1] ? sections[cur - 1].title : '';
+    if (nowEl) nowEl.textContent = title ? 'Now: ' + title : '';
+    if (cur && cur !== shownSection) scrollToSection(cur);
+    shownSection = cur;
+  }
+
+  // Drop ?mode=section&section=N once the lesson has moved there, so a reload
+  // continues the lesson instead of jumping again.
+  function settleUrl() {
+    if (KIND !== 'lesson' || !window.history || !window.history.replaceState) return;
+    try {
+      window.history.replaceState(null, '', '/teacher/' + encodeURIComponent(BOOT.studyId) + '?mode=lesson');
+    } catch (e) {}
   }
 
   // ── Conversation zoom ────────────────────────────────────────────────────
@@ -252,6 +296,7 @@
             var parsed;
             try { parsed = JSON.parse(data); } catch (e) { continue; }
             if (parsed.error) throw new Error(parsed.error);
+            if (parsed.lesson) setLessonState(parsed.lesson);
             if (parsed.text) {
               fullText += parsed.text;
               contentEl.innerHTML = renderTeacherText(fullText);
@@ -272,7 +317,8 @@
   }
 
   // Runs one exchange. userText (optional) is shown as the reader's bubble; on
-  // a Stop it is removed again and put back in the input (nothing was saved).
+  // a Stop it is removed again and, if typed, put back in the input (nothing
+  // was saved). A button's label is never put in the input.
   async function runTurn(body, userText) {
     if (isGenerating) return false;
     var userEl = userText ? addUserMessage(userText) : null;
@@ -282,7 +328,10 @@
       await streamExchange(body);
       return true;
     } catch (err) {
-      if (userEl) { userEl.remove(); inputEl.value = userText; }
+      if (userEl) {
+        userEl.remove();
+        if (body.message) inputEl.value = userText;
+      }
       if (err.name !== 'AbortError') {
         addSystemMsg(err.message || GENERIC_ERROR);
       }
@@ -298,7 +347,7 @@
     messagesEl.innerHTML = '';
     sessionActive = false;
     var ok = await runTurn({ start: { mode: BOOT.entry.mode, section: BOOT.entry.section } });
-    if (ok) { sessionActive = true; setGenerating(false); inputEl.focus(); }
+    if (ok) { sessionActive = true; setGenerating(false); settleUrl(); inputEl.focus(); }
     else if (!messagesEl.querySelector('.engine-msg')) showRetry();
   }
 
@@ -306,16 +355,22 @@
     showResumePanel('Ready when you are.', { begin: true });
   }
 
+  // Redraws the saved transcript. Resolves false when there is no saved session.
+  async function loadSaved() {
+    var res  = await fetch(SESSION_URL);
+    var data = await res.json();
+    if (!data.success || !data.session) return false;
+    (data.session.transcript || []).forEach(function (m) {
+      if (m.role === 'assistant') addTeacherMessage(m.content); else addUserMessage(m.content);
+    });
+    return true;
+  }
+
   async function resumeSaved() {
     hideResume();
     messagesEl.innerHTML = '';
     try {
-      var res  = await fetch(SESSION_URL);
-      var data = await res.json();
-      if (!data.success || !data.session) { await startNew(); return; }
-      (data.session.transcript || []).forEach(function (m) {
-        if (m.role === 'assistant') addTeacherMessage(m.content); else addUserMessage(m.content);
-      });
+      if (!(await loadSaved())) { await startNew(); return; }
     } catch (err) {
       addSystemMsg('Your saved session couldn\'t be loaded. Please refresh and try again.');
       return;
@@ -324,6 +379,24 @@
     var ok = await runTurn({ resume: true });
     setGenerating(false);
     if (ok) inputEl.focus();
+  }
+
+  // "Teach me this section" with a lesson already saved: carry on in the SAME
+  // lesson, moved to that section (no resume panel).
+  async function jumpInSaved(n) {
+    hideResume();
+    messagesEl.innerHTML = '';
+    try {
+      if (!(await loadSaved())) { await startNew(); return; }
+    } catch (err) {
+      addSystemMsg('Your saved session couldn\'t be loaded. Please refresh and try again.');
+      return;
+    }
+    sessionActive = true;
+    var title = sections[n - 1] ? sections[n - 1].title : '';
+    var ok = await runTurn({ action: 'jump', section: n }, 'Teach me this section: ' + title);
+    setGenerating(false);
+    if (ok) { settleUrl(); inputEl.focus(); }
   }
 
   function hideResume() { resumePanel.style.display = 'none'; }
@@ -339,11 +412,7 @@
   }
 
   function startOverLabel() {
-    if (KIND === 'teacher') return 'Start a fresh conversation';
-    if (BOOT.entry.mode === 'section' && sections[BOOT.entry.section - 1]) {
-      return 'Start over at “' + sections[BOOT.entry.section - 1].title + '”';
-    }
-    if (BOOT.entry.mode === 'check') return 'Start a fresh understanding check';
+    if (KIND === 'check') return 'Start a fresh understanding check';
     return 'Start over';
   }
 
@@ -389,8 +458,15 @@
   inputEl.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(inputEl.value); }
   });
+  // Reader controls. Only the four known actions are sent; the server checks
+  // them again.
+  function sendAction(action) {
+    if (!Object.prototype.hasOwnProperty.call(ACTION_LABELS, action)) return;
+    if (isGenerating || !sessionActive) return;
+    runTurn({ action: action }, ACTION_LABELS[action]);
+  }
   quickBtns.forEach(function (b) {
-    b.addEventListener('click', function () { send(b.getAttribute('data-reply')); });
+    b.addEventListener('click', function () { sendAction(b.getAttribute('data-action')); });
   });
   stopBtn.addEventListener('click', function () { if (abortController) abortController.abort(); });
 
@@ -566,11 +642,19 @@
 
   // ── Boot ─────────────────────────────────────────────────────────────────
   setGenerating(false);
-  if (BOOT.saved) {
+  if (BOOT.saved && KIND === 'lesson' && BOOT.entry.mode === 'section' && BOOT.entry.section) {
+    // Mark where the lesson was, without moving the pane off the chosen section.
+    var jumpTo = BOOT.entry.section;
+    shownSection = parseInt(BOOT.saved.currentSection, 10) || 0;
+    setLessonState(BOOT.saved);
+    shownSection = jumpTo;
+    jumpInSaved(jumpTo);
+  } else if (BOOT.saved) {
+    setLessonState(BOOT.saved);
     startOverBtn.textContent = startOverLabel();
-    var lastTime = KIND === 'teacher'
-      ? 'Last time we talked about ' + (BOOT.saved.coveredLabel || 'the big question behind this study')
-      : 'Last time we covered ' + (BOOT.saved.coveredLabel || 'part of this study');
+    var lastTime = KIND === 'check'
+      ? 'Last time we were partway through checking your understanding'
+      : 'Last time we were on ' + (BOOT.saved.coveredLabel || 'the overview');
     showResumePanel(lastTime + '. Ready to continue?', { begin: false });
   } else {
     startNew();

@@ -15,7 +15,7 @@ const {
 // percentages or comparisons, and nothing about any other member.
 //
 // Everything is read from the member's own records only (studies.json filtered
-// by userId; their own Tutor/Teacher sessions) and rendered server-side with
+// by userId; their own Study with a Teacher sessions) and rendered server-side with
 // every member-supplied string escaped. Tags come from lib/study-map.js (stored
 // at generation or by the backfill; worked out on the spot for an untagged study).
 
@@ -34,16 +34,18 @@ function readJson(file, fallback) {
 function readUsers() { return JSON.parse(fs.readFileSync(USERS_PATH, 'utf8')); }
 function writeUsers(u) { fs.writeFileSync(USERS_PATH, JSON.stringify(u, null, 2)); }
 
-// The member's Tutor/Teacher sessions on their OWN studies: studyId →
-// { tutor: updatedAt, teacher: updatedAt }. (Sessions saved before the
-// Tutor/Teacher split carry no kind and are tutor sessions.)
+// The member's Study with a Teacher sessions on their OWN studies: studyId →
+// { lesson: updatedAt, check: updatedAt, legacy: updatedAt }. Records from the
+// old Tutor/Teacher modes (kind "tutor" / "teacher" / none) count only as
+// `legacy` — still "touched" for the Worth revisiting pick, but no marker.
+// A reader turn is typed text or a button tap (hidden, with a `display` label).
 function sessionsByStudy(userId) {
   const out = {};
   const list = readJson(SESSIONS_PATH, []);
   (Array.isArray(list) ? list : []).forEach(s => {
     if (!s || s.userId !== userId || typeof s.studyId !== 'string') return;
-    const kind = s.kind === 'teacher' ? 'teacher' : 'tutor';
-    const hasTurn = (s.messages || []).some(m => m && !m.hidden && m.role === 'user');
+    const kind = (s.kind === 'lesson' || s.kind === 'check') ? s.kind : 'legacy';
+    const hasTurn = (s.messages || []).some(m => m && (!m.hidden || m.display) && m.role === 'user');
     if (!hasTurn) return;
     const e = out[s.studyId] || (out[s.studyId] = {});
     if (!e[kind] || Date.parse(s.updatedAt) > Date.parse(e[kind])) e[kind] = s.updatedAt || null;
@@ -104,16 +106,13 @@ function areaSlug(a) { return 'area-' + a.toLowerCase().replace(/[^a-z0-9]+/g, '
 function openHref(e)  { return '/library?open=' + encodeURIComponent(e.id); }
 function checkHref(e) { return '/teacher/' + encodeURIComponent(e.id) + '?mode=check'; }
 
-// Quiet markers for the member's own Tutor/Teacher sessions on a study.
+// A quiet marker for the member's own Teacher sessions (lesson or check) on a study.
 function markersHtml(e) {
-  const out = [];
-  if (e.sessions.tutor) {
-    out.push(`<span class="sm-marker" title="${escapeHtml('Tutor session — last ' + fmtDate(e.sessions.tutor))}">Tutor</span>`);
-  }
-  if (e.sessions.teacher) {
-    out.push(`<span class="sm-marker" title="${escapeHtml('Teacher session — last ' + fmtDate(e.sessions.teacher))}">Teacher</span>`);
-  }
-  return out.join('');
+  const last = [e.sessions.lesson, e.sessions.check]
+    .filter(t => t && !isNaN(Date.parse(t)))
+    .sort((a, b) => Date.parse(b) - Date.parse(a))[0];
+  if (!last) return '';
+  return `<span class="sm-marker" title="${escapeHtml('Teacher session — last ' + fmtDate(last))}">Teacher</span>`;
 }
 
 function entryHtml(e, opts) {
@@ -248,8 +247,8 @@ function timelineView(entries) {
 }
 
 // One suggestion (or ''), from pickRevisit: { study, kind }.
-//   revisit  — a completed study: "Open" and "Check my understanding with the Tutor"
-//   continue — a study still in progress: "Open" and "Continue with the Tutor"
+//   revisit  — a completed study: "Open" and "Check my understanding"
+//   continue — a study still in progress: "Open" and "Continue with the Teacher"
 // Either way "Not now" (public/js/study-map.js posts the dismissal).
 function revisitHtml(pick, compact) {
   if (!pick || !pick.study) return '';
@@ -258,9 +257,9 @@ function revisitHtml(pick, compact) {
   const sub = cont
     ? 'You started this in ' + fmtMonth(entry.savedAt) + '.'
     : 'You completed this in ' + fmtMonth(entry.completedAt || entry.savedAt) + '.';
-  const tutor = cont
-    ? `<a class="sm-revisit-btn" href="${escapeHtml('/teacher/' + encodeURIComponent(entry.id) + '?mode=full')}">Continue with the Tutor</a>`
-    : `<a class="sm-revisit-btn" href="${escapeHtml(checkHref(entry))}">Check my understanding with the Tutor</a>`;
+  const teacher = cont
+    ? `<a class="sm-revisit-btn" href="${escapeHtml('/teacher/' + encodeURIComponent(entry.id) + '?mode=lesson')}">Continue with the Teacher</a>`
+    : `<a class="sm-revisit-btn" href="${escapeHtml(checkHref(entry))}">Check my understanding</a>`;
   return `
     <div class="sm-revisit${compact ? ' sm-revisit--compact' : ''}" data-study-id="${escapeHtml(entry.id)}">
       <div class="sm-revisit-label">${cont ? 'Continue studying' : 'Worth revisiting'}</div>
@@ -268,7 +267,7 @@ function revisitHtml(pick, compact) {
       <div class="sm-revisit-sub">${escapeHtml(sub)}</div>
       <div class="sm-revisit-actions">
         <a class="sm-revisit-btn" href="${escapeHtml(openHref(entry))}">Open</a>
-        ${tutor}
+        ${teacher}
         <button type="button" class="sm-revisit-dismiss" title="Hide this suggestion">Not now</button>
       </div>
     </div>`;
