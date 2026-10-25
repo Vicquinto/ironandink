@@ -404,7 +404,7 @@
   // The resume panel doubles as the "begin" panel after a delete or a failed start.
   function showResumePanel(text, opts) {
     resumeText.textContent = text;
-    resumeBtn.textContent  = opts.begin ? 'Begin' : 'Continue';
+    resumeBtn.textContent  = opts.begin ? 'Begin' : 'Pick up where we left off';
     startOverBtn.style.display = opts.begin ? 'none' : '';
     deleteBtn.style.display    = opts.begin ? 'none' : '';
     resumeBtn.onclick = opts.begin ? startNew : resumeSaved;
@@ -652,10 +652,8 @@
   } else if (BOOT.saved) {
     setLessonState(BOOT.saved);
     startOverBtn.textContent = startOverLabel();
-    var lastTime = KIND === 'check'
-      ? 'Last time we were partway through checking your understanding'
-      : 'Last time we were on ' + (BOOT.saved.coveredLabel || 'the overview');
-    showResumePanel(lastTime + '. Ready to continue?', { begin: false });
+    // The line comes from the server (routes/teacher.js resumeText).
+    showResumePanel(BOOT.saved.resumeText || 'Last time we had just started the lesson.', { begin: false });
   } else {
     startNew();
   }

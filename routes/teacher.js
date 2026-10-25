@@ -167,14 +167,44 @@ function stripTags(text) {
   return { text: out, at, done };
 }
 
-// Lesson state from a reply's tags, validated against the session's sections.
-function applyTags(session, at, done) {
-  const sections = session.lessonSections || [];
-  if (at !== null && at >= 0 && at <= sections.length) session.currentSection = at;
-  const finished = new Set(session.doneSections || []);
-  done.forEach(n => { if (n >= 1 && n <= sections.length) finished.add(n); });
-  session.doneSections = Array.from(finished).sort((a, b) => a - b);
-  session.finished = sections.length > 0 && finished.has(sections.length);
+// Lesson state from a reply's tags. The SERVER keeps the lesson in order; the
+// tags are only proposals:
+//   opening (top button)      → section 1, whatever the tags say; [[done]] ignored
+//   opening (section N) / jump → section N; [[done]] ignored
+//   any other reply           → [[done:N]] only for N = the current section, and
+//       only if an EARLIER reply was already teaching it (taughtSections);
+//       [[at:N]] only for the current section, or the next one once the current
+//       section is done (a [[done]] accepted in this same reply counts)
+// So a section can never be started and finished in the reply that first enters
+// it, and the lesson can never skip a section. A check session isn't a
+// walk-through: any valid [[at]] is accepted there, [[done]] never.
+// Returns what was accepted, for the log line.
+function applyTags(session, turnType, at, done, jumpSection) {
+  const len     = (session.lessonSections || []).length;
+  const doneSet = new Set(session.doneSections || []);
+  const taught  = new Set(session.taughtSections || []);
+  const prev    = session.currentSection || 0;
+  let cur = prev;
+  const acceptedDone = [];
+  if (session.kind === 'check') {
+    if (at !== null && at >= 0 && at <= len) cur = at;
+  } else if (turnType === 'opening') {
+    cur = session.mode === 'section' ? (session.startSection || 0) : (len ? 1 : 0);
+  } else if (turnType === 'jump') {
+    cur = jumpSection;
+  } else {
+    if (prev >= 1 && taught.has(prev) && done.includes(prev) && !doneSet.has(prev)) {
+      doneSet.add(prev);
+      acceptedDone.push(prev);
+    }
+    if (at !== null && at === prev + 1 && at <= len && (prev === 0 || doneSet.has(prev))) cur = at;
+  }
+  if (cur >= 1) taught.add(cur);           // this reply was teaching `cur`
+  session.currentSection = cur;
+  session.doneSections   = Array.from(doneSet).sort((a, b) => a - b);
+  session.taughtSections = Array.from(taught).sort((a, b) => a - b);
+  session.finished       = len > 0 && doneSet.has(len);
+  return { at: cur, done: acceptedDone };
 }
 
 function sectionTitle(session, n) {
@@ -182,11 +212,21 @@ function sectionTitle(session, n) {
   return s ? s.title : '';
 }
 
-// "Last time we were on …" — the current section, or the overview.
-function coveredLabel(session) {
+// The resume panel's line. "Just started" while the only teaching reply so far
+// is the opening; otherwise where the lesson stands in its current section.
+function resumeText(session) {
   if (!session) return '';
-  const t = session.currentSection ? sectionTitle(session, session.currentSection) : '';
-  return t ? '“' + t + '”' : 'the overview';
+  if (session.kind === 'check') return 'Last time we were partway through checking your understanding.';
+  const replies = (session.messages || []).filter(m => m.role === 'assistant').length;
+  const cur = session.currentSection || 0;
+  const t = cur ? sectionTitle(session, cur) : '';
+  if (replies <= 1 || !t) return 'Last time we had just started the lesson.';
+  if ((session.doneSections || []).includes(cur)) {
+    const next = sectionTitle(session, cur + 1);
+    return next ? 'Last time we finished “' + t + '”. Next is “' + next + '”.'
+                : 'Last time we finished “' + t + '”, the last section.';
+  }
+  return 'Last time we were partway through “' + t + '”.';
 }
 
 function lessonSummary(session) {
@@ -195,7 +235,7 @@ function lessonSummary(session) {
     doneSections:   session.doneSections || [],
     finished:       !!session.finished,
     currentTitle:   session.currentSection ? sectionTitle(session, session.currentSection) : '',
-    coveredLabel:   coveredLabel(session),
+    resumeText:     resumeText(session),
   };
 }
 
@@ -231,16 +271,16 @@ function savedSummary(session) {
 // The opening (hidden) user turn for each entry point.
 function openingTurn(mode, sec) {
   if (mode === 'section') {
-    return "(The reader tapped Teach me this section on section " + sec.n + ", '" + sec.title + "'. In one or two sentences, tell them where this section sits in the study's argument and what came before it. Then begin teaching section " + sec.n + '. Do not ask them anything before you start teaching.)';
+    return "(The reader tapped Teach me this section on section " + sec.n + ", '" + sec.title + "'. In one or two sentences, tell them where this section sits in the study's argument and what came before it. Then begin teaching section " + sec.n + ' — actually teach its first part. Do not ask the reader any question in this reply.)';
   }
   if (mode === 'check') {
     return 'The reader has finished the study and tapped "Check my understanding". Open with one short line saying you\'ll ask a few questions to see how the study has settled, and that \'I\'m not sure\' is a fine answer. Then ask 3-4 short check questions covering the study\'s main points — ONE per reply, waiting for each answer. During the check, respond to each answer with at most one short sentence (a brief affirmation or a gentle note) before the next question; save fuller teaching for afterward. After the last check question is answered, tell them in a sentence or two what they have well, then teach whatever they missed, one point at a time, following your normal teaching method.';
   }
-  return '(The reader tapped Study with a Teacher. Begin the lesson. First, in one short paragraph, tell them what this study is about and why it matters for them. Then name the route in one sentence or a short plain list of the section titles from LESSON STATE. Then begin teaching section 1. Do not ask them anything before you start teaching.)';
+  return '(The reader tapped Study with a Teacher. Begin the lesson. First, in one short paragraph, tell them what this study is about and why it matters for them. Then name the route in one sentence or a short plain list of the section titles from LESSON STATE. Then begin teaching section 1 — actually teach its first part, don\'t just introduce it. Do not ask the reader any question in this reply; end at a natural stopping place so they can tap Continue.)';
 }
 
 const RESUME_TURN = {
-  lesson: '(The reader has come back to continue the lesson. In one sentence, remind them where you were. Then carry on teaching from there. Do not quiz them on what came before.)',
+  lesson: '(The reader has come back to continue the lesson. In one sentence, remind them where you were. Then carry on teaching from there. Do not quiz them on what came before. If your last reply ended with a question the reader never answered, don\'t re-ask it; just carry on teaching.)',
   check:  '(The reader has come back to continue this session after a break. In one short sentence, remind them where you were, then ask your last question again — or the next one, if they had already answered it.)',
 };
 
@@ -373,7 +413,7 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
           <div id="teacherResume" class="teacher-resume" style="display:none;">
             <p class="teacher-resume-text" id="teacherResumeText"></p>
             <div class="teacher-resume-actions">
-              <button class="btn-primary" id="teacherResumeBtn">Continue</button>
+              <button class="btn-primary" id="teacherResumeBtn">Pick up where we left off</button>
               <button class="btn-warm" id="teacherStartOverBtn">Start over</button>
               <button class="btn-discard" id="teacherDeleteBtn">Delete saved session</button>
             </div>
@@ -438,7 +478,7 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
     scripts: `<script src="/js/render-markdown.js?v=2"></script>
 <script src="/js/teacher-entry.js?v=4"></script>
 <script>window.TEACHER_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/teacher.js?v=5"></script>`,
+<script src="/js/teacher.js?v=6"></script>`,
   }));
 });
 
@@ -509,6 +549,7 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
       lessonSections,
       currentSection: sectionNum || 0,
       doneSections:   [],
+      taughtSections: [],
       finished:       false,
       messages:       [],
       review:         null,
@@ -675,8 +716,10 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
       }
       if (session) {
         session.messages = (session.messages || []).concat([newTurn, { role: 'assistant', content: reply }]);
-        if (newTurn.action === 'jump') session.currentSection = newTurn.section;   // even if the reply drops its tag
-        applyTags(session, at, done);
+        const turnType = start ? 'opening' : (newTurn.action === 'jump' ? 'jump' : 'reply');
+        const accepted = applyTags(session, turnType, at, done, newTurn.section);
+        console.log(`[Teacher/${kind}] tags at:${at === null ? 'none' : at} done:${done.length ? done.join(',') : 'none'}` +
+          ` -> accepted at:${accepted.at} done:${accepted.done.length ? accepted.done.join(',') : 'none'} (${turnType})`);
         session.review    = null;          // a stale review no longer describes the session
         session.updatedAt = new Date().toISOString();
         writeSessions(all);
