@@ -1290,6 +1290,12 @@ body {
 
 .library-filter-input  { flex: 1; max-width: 280px; }
 .library-filter-select { width: 180px; }
+.library-study-count {
+  margin-left: auto;
+  color: var(--warm-brown);
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
 
 .library-loading-msg,
 .library-empty {

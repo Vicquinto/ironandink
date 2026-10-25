@@ -701,6 +701,19 @@
     });
 
     renderCards(filtered);
+    renderStudyCount(filtered.length, !!(tagVal || ratingVal || statusVal));
+  }
+
+  // Plain count beside the filters: "42 studies", or "Showing 12 of 42 studies"
+  // while a filter narrows the list. Counts the same allStudies the cards render from.
+  function renderStudyCount(shown, isFiltered) {
+    var el = document.getElementById('libStudyCount');
+    if (!el) return;
+    var total = allStudies.length;
+    var noun  = total === 1 ? 'study' : 'studies';
+    el.textContent = !total ? ''
+      : isFiltered ? 'Showing ' + shown + ' of ' + total + ' ' + noun
+      : total + ' ' + noun;
   }
 
   // ── Markdown renderer (shared) ─────────────────────────────────────────────
