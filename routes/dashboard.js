@@ -297,7 +297,7 @@ async function ensureTodaysDevotional(prompts) {
   const userPrompt = `Write the Iron & Ink Daily Devotional for ${dateStr}. Today's date is ${today}. Select a Scripture passage appropriate for this specific day — ${exclusionNote} Choose from across the full breadth of Scripture — Psalms, Proverbs, the Gospels, the Epistles, the Old Testament prophets — varying the selection each day. Use exactly these four section headings:
 
 ## Scripture
-Choose a passage of 3–5 verses — a psalm, a prophet, a Gospel, or an epistle. Choose for doctrinal richness. Do NOT write the verse text yourself; emit a single verse marker for the whole passage in the form {{verse:Book Chapter:Verse-Verse}} (e.g. {{verse:Romans 8:1-4}}) on its own line. The system inserts the real, verified ASV text.
+Choose a passage of 3–5 verses — a psalm, a prophet, a Gospel, or an epistle. Choose for doctrinal richness. Do NOT write the verse text yourself; emit a single verse marker for the whole passage in the form {{verse:Book Chapter:Verse-Verse}} (e.g. {{verse:Romans 8:1-4}}) on its own line. The system inserts the real, verified NASB 1995 text, with ASV as a fallback.
 
 ## Exposition
 Write 2–3 paragraphs of careful, doctrinally serious exposition. Engage the theology directly — what does this passage teach about God, man, sin, grace, or redemption? Think like a Reformed pastor who takes the student seriously. No shallow encouragement. No moralism.
