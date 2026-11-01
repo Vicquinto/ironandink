@@ -131,7 +131,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/teacher-entry.js?v=4"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/library.js?v=72"></script>',
+    scripts: '<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/teacher-entry.js?v=4"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/library.js?v=73"></script>',
   }));
 });
 

@@ -798,6 +798,9 @@
                 '<div class="notes-allnote-full" style="display:none;">' +
                   quoteBlock +
                   '<div class="notes-allnote-body">' + renderMarkdown(n.content || '') + '</div>' +
+                  // "Show map" for a note pinned from an answer with a map —
+                  // the same link and behaviour as the notepad cards (notepad.js).
+                  ((window.__notepad && window.__notepad.noteMapHtml) ? window.__notepad.noteMapHtml(n) : '') +
                 '</div>' +
               '</div>';
           }).join('');

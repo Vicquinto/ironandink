@@ -820,6 +820,9 @@
     revealNote:        revealNote,
     // Shared with the Scripture chapter notes (scripture-notes.js).
     noteHtml:          noteHtml,
+    // The "Show map" link for a note with saved map references ('' when none);
+    // also used by the Library All Notes overview. Opening is handled here.
+    noteMapHtml:       noteMapHtml,
     placeMarker:       placeMarker,
     removeMarkers:     removeMarkers,
   };
