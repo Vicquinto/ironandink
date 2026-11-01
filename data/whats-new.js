@@ -18,6 +18,15 @@
 
 const WHATS_NEW = [
   {
+    date:  'November 1, 2026',
+    title: 'Maps for Ancient Places and Roman Roads',
+    body:  `When you Explore a passage or Define a word, Iron & Ink can now show you where things were. If the answer mentions ancient cities or Roman roads, a small map appears beneath it with the cities pinned and the roads drawn in. Click a place name in the answer and the map moves to it. Defining a single place, like Philippi or Capernaum, shows its location too.
+
+Try it with Paul's journeys in Acts 16 and 17, where the map traces the Via Egnatia through Philippi, Amphipolis and Thessalonica. Stretches of road whose exact course is uncertain are shown dashed. You can hide the map anytime with Hide map.
+
+Map data comes from scholarly open sources: the Digital Atlas of the Roman Empire, the Pleiades gazetteer of ancient places, and the Itiner-e atlas of Roman roads. When a location can't be confirmed, Iron & Ink leaves it off the map rather than guess.`
+  },
+  {
     date:  'October 24, 2026',
     title: 'Chapter Notes on the Scripture Page',
     body:  `You can now take notes right in the Scripture reader. Highlight any word, phrase or passage and choose Add Note to write a note anchored to that spot. Answers from Define, Explore and Verse Lookup can be saved with Pin to Chapter Notes.
