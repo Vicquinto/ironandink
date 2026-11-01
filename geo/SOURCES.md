@@ -1,6 +1,6 @@
 # geo/ — map data for tooltip answers
 
-Built by `scripts/build-geo-data.js` on 2026-11-01T16:24:59.339Z. Re-run it to refresh:
+Built by `scripts/build-geo-data.js` on 2026-11-01T16:56:07.832Z. Re-run it to refresh:
 
     node scripts/build-geo-data.js
 
@@ -13,7 +13,7 @@ Read by `lib/geo.js`. Not member data — kept out of `data/` on purpose.
   (https://atlantides.org/downloads/pleiades/dumps/pleiades-places-latest.csv.gz,
   https://atlantides.org/downloads/pleiades/dumps/pleiades-names-latest.csv.gz) — the same data published in
   https://github.com/isawnyu/pleiades.datasets
-- Snapshot: latest export as of 2026-11-01T16:24:59.339Z (newest record modified 2026-11-01T10:25:13Z)
+- Snapshot: latest export as of 2026-11-01T16:56:07.832Z (newest record modified 2026-11-01T10:25:13Z)
 - License: Creative Commons Attribution 3.0 (CC BY 3.0)
 - Required attribution: "Places: Pleiades (CC BY)" — linked to https://pleiades.stoa.org
 - Kept: places with a location (precise, rough or related); id, title, names, lat/lon,

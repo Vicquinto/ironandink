@@ -110,6 +110,7 @@ const CURATED = [
   [697725, 'Petra', 'Nabataea, Arabia', ['Petra']],
   [678106, 'Damascus', 'Syria', ['Damascus']],
   [981550, 'Syria (Roman', 'Syria', ['Syria']],
+  [658483, 'Seleukeia Pieria', 'Syria, port of Antioch', ['Seleucia', 'Seleucia Pieria']],
   [658381, 'Antiochia/Theoupolis', 'Syria, on the Orontes', ['Antioch', 'Syrian Antioch', 'Antioch of Syria', 'Antioch in Syria', 'Antioch on the Orontes']],
   [29475, 'Arabia (region)', 'Arabia', ['Arabia']],
   // Mesopotamia, Persia
@@ -189,6 +190,7 @@ const CURATED = [
   [501482, 'Philippi', 'Macedonia', ['Philippi']],
   [491741, 'Thessalonica', 'Macedonia', ['Thessalonica', 'Thessalonika']],
   [491546, 'Ber(r)oia', 'Macedonia', ['Berea', 'Beroea', 'Beroia']],
+  [501523, 'Neapolis (Kavalla)', 'Macedonia, Thrace coast, port of Philippi', ['Neapolis']],
   [501347, 'Amphipolis', 'Macedonia, on the Strymon', ['Amphipolis']],
   [491526, 'Apollonia', 'Macedonia, Mygdonia, Via Egnatia', ['Apollonia']],
   [481728, 'Apollonia', 'Illyria, Illyricum, Via Egnatia', ['Apollonia']],
@@ -218,7 +220,7 @@ const CURATED = [
   [462311, 'Melita/Malta', 'Malta', ['Malta', 'Melita']],
   [1027, 'Hispania', 'Spain', ['Spain', 'Hispania']],
 ];
-const NO_PRIMARY = new Set(['nicopolis']);
+const NO_PRIMARY = new Set(['nicopolis', 'neapolis', 'seleucia']);
 
 // Itiner-e keeps road names in the `Itinerary` field, mixed in with the ancient
 // itineraries and texts the segment is attested in. These are sources, not roads.
@@ -350,6 +352,10 @@ function buildPlaces(placesCsv, namesCsv) {
       types: (p.featureTypes || '').split(',').map(s => s.trim()).filter(t => t && t !== 'unknown').join(','),
       region: regionText(p),
       names: new Map(),   // normalized → display
+      // Every part of the title marked uncertain ("Cana? (island)"): the place's
+      // identification is doubtful, so its other names aren't indexed either —
+      // otherwise a plain "Cana" in the names file would pin it.
+      uncertain: p.title.split('/').every(part => part.includes('?')),
     });
   }
   const addName = (pl, n) => { const k = normName(n); if (k && !pl.names.has(k)) pl.names.set(k, n); };
@@ -357,7 +363,7 @@ function buildPlaces(placesCsv, namesCsv) {
   for (const pl of byId.values()) nameVariants(pl.title).forEach(n => addName(pl, n));
   for (const n of nameRows) {
     const pl = byId.get(String(n.pid || '').split('/').pop());
-    if (!pl) continue;
+    if (!pl || pl.uncertain) continue;
     for (const src of [n.title, n.nameTransliterated]) nameVariants(src).forEach(v => addName(pl, v));
   }
 

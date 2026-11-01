@@ -112,12 +112,18 @@ router.post('/api/dictionary/define', requireAuth, async (req, res) => {
     if (eastonsHit.word && eastonsHit.word.toLowerCase() !== key) {
       sourceLabel += ` (s.v. ${eastonsHit.word})`;
     }
-    return res.json({
+    const out = {
       term:       cleanTerm,
       definition: eastons.toMarkdown(eastonsHit),
       source:     'eastons',
       sourceLabel,
-    });
+    };
+    // A headword that is a known road, or a single known place the entry
+    // describes as a place, gets a one-pin map (lib/geo.js mapForHeadword).
+    // Still no AI call on this path.
+    const map = geo.mapForHeadword(eastonsHit.word, eastonsHit.senses.join(' '));
+    if (map) out.map = map;
+    return res.json(out);
   }
 
   // Multi-word phrase → Anthropic (Reformed theological context)

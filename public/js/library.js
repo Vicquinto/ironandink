@@ -2559,7 +2559,9 @@
             ? '<div class="ucp-src" style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(107,66,38,0.2);font-size:0.72rem;color:#6B4226;opacity:0.85;font-style:italic;">' + esc(data.sourceLabel) + '</div>'
             : '';
           body.innerHTML = renderMarkdown(data.definition) + srcHtml;
-          ucpAttachMap(body, data.map);
+          // Easton's text is shown as published — its one-pin map comes from the
+          // headword, so no words in it are turned into links.
+          ucpAttachMap(body, data.map, data.source === 'eastons' ? { linkNames: false } : null);
           ucpShowAnswerFooter(
             { quote: anchored ? term : null, question: null, content: data.definition,
               source: 'define', occurrence: anchored ? ucpOccurrence : null },
@@ -2690,9 +2692,9 @@
   // Map under an answer that names ancient places / Roman roads (Define and
   // Explore). The answer text already carries the plain names — that is what
   // pins and history keep; the map is display only (public/js/geo-map.js).
-  function ucpAttachMap(body, map) {
+  function ucpAttachMap(body, map, opts) {
     if (!map || !window.IronInkGeoMap) return;
-    try { window.IronInkGeoMap.attach(body, map); } catch (e) { /* the answer stands without it */ }
+    try { window.IronInkGeoMap.attach(body, map, opts); } catch (e) { /* the answer stands without it */ }
   }
 
   // Explore — an open AI question about the target text. Already conforms to the

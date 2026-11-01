@@ -13,7 +13,9 @@
   // Leaflet (vendored, BSD-2-Clause) is loaded on first use only. Every label is
   // set as text (textContent / DOM nodes), never as HTML.
   //
-  //   window.IronInkGeoMap.attach(answerBodyEl, map)
+  //   window.IronInkGeoMap.attach(answerBodyEl, map[, { linkNames: false }])
+  // linkNames:false leaves the answer text untouched (Easton's entries, whose
+  // one-pin map comes from the headword, not from markers in the text).
 
   var LEAFLET_JS  = '/vendor/leaflet-1.9.4/leaflet.js';
   var LEAFLET_CSS = '/vendor/leaflet-1.9.4/leaflet.css';
@@ -189,7 +191,7 @@
   }
 
   // ── Attach a map under an answer ──────────────────────────────────────────
-  function attach(body, rawMap) {
+  function attach(body, rawMap, opts) {
     var m = cleanMap(rawMap);
     if (!body || !m) return;
 
@@ -224,7 +226,7 @@
     var targets = [];
     m.places.forEach(function (p, i) { targets.push({ name: p.name, kind: 'place', idx: i }); });
     m.roads.forEach(function (r, i)  { targets.push({ name: r.name, kind: 'road',  idx: i }); });
-    linkNames(body, targets, wrap);
+    if (!opts || opts.linkNames !== false) linkNames(body, targets, wrap);
 
     var lmap = null, markers = [], roadBounds = [], building = null;
 
