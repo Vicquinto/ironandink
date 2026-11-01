@@ -118,10 +118,10 @@ router.post('/api/dictionary/define', requireAuth, async (req, res) => {
       source:     'eastons',
       sourceLabel,
     };
-    // A headword that is a known road, or a single known place the entry
-    // describes as a place, gets a one-pin map (lib/geo.js mapForHeadword).
-    // Still no AI call on this path.
-    const map = geo.mapForHeadword(eastonsHit.word, eastonsHit.senses.join(' '));
+    // A headword that is a known road, or a single known place the entry's
+    // first sense describes as a place, gets a one-pin map (lib/geo.js
+    // mapForHeadword). Still no AI call on this path.
+    const map = geo.mapForHeadword(eastonsHit.word, eastonsHit.senses);
     if (map) out.map = map;
     return res.json(out);
   }
