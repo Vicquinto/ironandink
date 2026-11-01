@@ -6,6 +6,11 @@ const Anthropic = require('@anthropic-ai/sdk');
 const { requireAuth } = require('./layout');
 const { injectWithAttribution, SCRIPTURE_RULE } = require('../lib/asv');
 const eastons = require('../lib/eastons');
+const geo     = require('../lib/geo');
+
+// Ancient-places gazetteer for the tooltip maps — loaded once at startup (a
+// missing geo/ folder logs one warning and the maps simply never appear).
+geo.init();
 
 const router = express.Router();
 
@@ -62,11 +67,11 @@ function fetchDictionaryApi(word) {
 const PROMPT_THEOLOGICAL =
   "You are a friendly Bible study helper. Explain this theological term in plain English first — " +
   "what it means in simple words. Then one sentence on why it matters in Reformed theology. " +
-  "Maximum 2-3 sentences. Avoid jargon where possible.\n\n" + SCRIPTURE_RULE;
+  "Maximum 2-3 sentences. Avoid jargon where possible.\n\n" + SCRIPTURE_RULE + "\n\n" + geo.GEO_RULE;
 
 const PROMPT_COMMON =
   "Define this single English word in one plain sentence. Just the basic meaning. " +
-  "No theology. No philosophy. No examples. One sentence only.\n\n" + SCRIPTURE_RULE;
+  "No theology. No philosophy. No examples. One sentence only.\n\n" + SCRIPTURE_RULE + "\n\n" + geo.GEO_RULE;
 
 async function fetchAnthropicDefinition(term, system) {
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -76,9 +81,12 @@ async function fetchAnthropicDefinition(term, system) {
     system,
     messages:   [{ role: 'user', content: 'Define: ' + term }],
   });
-  // Insert verified verse text (NASB primary, ASV fallback) for any {{verse:...}}
-  // marker the definition emits, with the Lockman notice when NASB text appears.
-  return injectWithAttribution(message.content[0].text.trim());
+  // Resolve {{place:...}} / {{road:...}} markers against the gazetteer first
+  // (plain names in the text, a map payload alongside), then insert verified
+  // verse text (NASB primary, ASV fallback) for any {{verse:...}} marker, with
+  // the Lockman notice when NASB text appears.
+  const { text, map } = geo.processGeoMarkers(message.content[0].text.trim());
+  return { definition: injectWithAttribution(text), map };
 }
 
 // ─── POST /api/dictionary/define ─────────────────────────────────────────────
@@ -115,8 +123,10 @@ router.post('/api/dictionary/define', requireAuth, async (req, res) => {
   // Multi-word phrase → Anthropic (Reformed theological context)
   if (isMultiWord(cleanTerm)) {
     try {
-      const definition = await fetchAnthropicDefinition(cleanTerm, PROMPT_THEOLOGICAL);
-      return res.json({ term: cleanTerm, definition, source: 'theological', sourceLabel: 'Iron & Ink (AI, Reformed context)' });
+      const { definition, map } = await fetchAnthropicDefinition(cleanTerm, PROMPT_THEOLOGICAL);
+      const out = { term: cleanTerm, definition, source: 'theological', sourceLabel: 'Iron & Ink (AI, Reformed context)' };
+      if (map) out.map = map;
+      return res.json(out);
     } catch (err) {
       console.error('[Dict] Anthropic error:', err.message);
       return res.json({ error: 'Definition unavailable. Try again.' });
@@ -134,8 +144,10 @@ router.post('/api/dictionary/define', requireAuth, async (req, res) => {
     return res.json({ term: cleanTerm, definition, source: 'dictionary', sourceLabel: 'Dictionary' });
   } catch {
     try {
-      const definition = await fetchAnthropicDefinition(cleanTerm, PROMPT_COMMON);
-      return res.json({ term: cleanTerm, definition, source: 'dictionary', sourceLabel: 'Iron & Ink (AI)' });
+      const { definition, map } = await fetchAnthropicDefinition(cleanTerm, PROMPT_COMMON);
+      const out = { term: cleanTerm, definition, source: 'dictionary', sourceLabel: 'Iron & Ink (AI)' };
+      if (map) out.map = map;
+      return res.json(out);
     } catch (err) {
       console.error('[Dict] Anthropic error:', err.message);
       return res.json({ error: 'Definition unavailable. Try again.' });

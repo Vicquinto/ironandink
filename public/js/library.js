@@ -2559,6 +2559,7 @@
             ? '<div class="ucp-src" style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(107,66,38,0.2);font-size:0.72rem;color:#6B4226;opacity:0.85;font-style:italic;">' + esc(data.sourceLabel) + '</div>'
             : '';
           body.innerHTML = renderMarkdown(data.definition) + srcHtml;
+          ucpAttachMap(body, data.map);
           ucpShowAnswerFooter(
             { quote: anchored ? term : null, question: null, content: data.definition,
               source: 'define', occurrence: anchored ? ucpOccurrence : null },
@@ -2686,6 +2687,14 @@
     });
   }
 
+  // Map under an answer that names ancient places / Roman roads (Define and
+  // Explore). The answer text already carries the plain names — that is what
+  // pins and history keep; the map is display only (public/js/geo-map.js).
+  function ucpAttachMap(body, map) {
+    if (!map || !window.IronInkGeoMap) return;
+    try { window.IronInkGeoMap.attach(body, map); } catch (e) { /* the answer stands without it */ }
+  }
+
   // Explore — an open AI question about the target text. Already conforms to the
   // trigger-decides rule and needs no precedence of its own: when grounded, typed
   // text is a FOLLOW-UP QUESTION about the selection (the ask endpoint carries
@@ -2743,12 +2752,16 @@
     fetch('/api/library/ask', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ history: ucpHistory }),
+      // geo: a highlighted passage's Explore conversation gets map-aware answers
+      // (places/roads it names are pinned under the answer). The ungrounded
+      // Ctrl+Alt+T Ask panel does not.
+      body:    JSON.stringify({ history: ucpHistory, geo: ucpGrounded }),
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (data.success) {
           body.innerHTML = renderMarkdown(data.answer);
+          ucpAttachMap(body, data.map);
           ucpHistory.push({ role: 'assistant', content: data.answer });
           ucpShowAnswerFooter(
             { quote:      ucpGrounded ? ucpSelection : null,

@@ -8998,3 +8998,87 @@ a.sm-book-tile.is-studied.is-filtered-out {
   .ideas-form-btns { margin-left: 0; }
   .ideas-panel { padding: 10px 12px 12px; }
 }
+
+/* ─── TOOLTIP MAPS (highlight-panel answers) ─────────────────────────── */
+/* public/js/geo-map.js — ancient places + Roman roads named in a Define / */
+/* Explore answer. Muted parchment frame; pins and roads in oxblood.       */
+
+.ucp-msg-assistant:has(.geo-map-wrap) { align-self: stretch; max-width: 100%; }
+
+.geo-map-wrap {
+  margin-top: 10px;
+  max-width: 100%;
+  font-size: 0.8rem;
+}
+.geo-map-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.geo-map-label {
+  font-size: 0.64rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--warm-brown);
+}
+.geo-map-toggle {
+  background: transparent;
+  border: 1px solid rgba(107,66,38,0.45);
+  border-radius: 4px;
+  color: var(--warm-brown);
+  cursor: pointer;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 0.75rem;
+  padding: 1px 8px;
+}
+.geo-map-toggle:hover { color: var(--accent); border-color: var(--accent); }
+.geo-map-frame {
+  border: 1px solid #A0845C;
+  border-radius: 5px;
+  overflow: hidden;
+  background: #E8D9B8;
+}
+.geo-map {
+  width: 100%;
+  height: 260px;
+  background: #E3D5B2;   /* shows through where a tile is missing */
+}
+.geo-map.leaflet-container { background: #E3D5B2; font-family: 'EB Garamond', Georgia, serif; }
+.geo-map-failed .geo-map { display: none; }
+.geo-map-attrib {
+  padding: 3px 7px;
+  font-size: 0.66rem;
+  line-height: 1.4;
+  color: var(--warm-brown);
+  border-top: 1px solid rgba(160,132,92,0.35);
+  overflow-wrap: anywhere;
+}
+.geo-map-attrib a { color: var(--warm-brown); text-decoration: underline; }
+.geo-map-attrib a:hover { color: var(--accent); }
+
+.geo-place-link {
+  color: var(--accent);
+  border-bottom: 1px dotted rgba(92,26,40,0.55);
+  cursor: pointer;
+}
+.geo-place-link:hover,
+.geo-place-link:focus { border-bottom-style: solid; outline: none; }
+
+.leaflet-tooltip.geo-tip {
+  background: #F1E6CC;
+  border: 1px solid #A0845C;
+  color: #1E1208;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 0.85rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  max-width: 240px;
+  white-space: normal;
+}
+.leaflet-tooltip.geo-tip strong { color: var(--accent); }
+.geo-tip-sub { font-size: 0.72rem; color: var(--warm-brown); }
+.leaflet-tooltip-top.geo-tip::before    { border-top-color: #A0845C; }
+.leaflet-tooltip-bottom.geo-tip::before { border-bottom-color: #A0845C; }
+.leaflet-tooltip-left.geo-tip::before   { border-left-color: #A0845C; }
+.leaflet-tooltip-right.geo-tip::before  { border-right-color: #A0845C; }

@@ -7,6 +7,7 @@ const { requireAuth, renderLayout } = require('./layout');
 const notepadRoutes = require('./notepad');
 const { injectWithAttribution, resolve, NASB_ATTRIBUTION } = require('../lib/asv');
 const { takeGeneratedMap, deriveMap } = require('../lib/study-map');
+const geo = require('../lib/geo');
 
 const router      = express.Router();
 const STUDIES_PATH = path.join(__dirname, '../data/studies.json');
@@ -130,7 +131,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/teacher-entry.js?v=4"></script><script src="/js/library.js?v=69"></script>',
+    scripts: '<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/teacher-entry.js?v=4"></script><script src="/js/geo-map.js?v=1"></script><script src="/js/library.js?v=70"></script>',
   }));
 });
 
@@ -325,6 +326,10 @@ router.delete('/api/library/:id', requireAuth, (req, res) => {
 // ─── POST /api/library/ask ────────────────────────────────────────────────────
 router.post('/api/library/ask', requireAuth, async (req, res) => {
   const { question, highlightedText, studyTopic, history } = req.body;
+  // The highlight panel's Explore conversation (public/js/library.js ucpRunAsk,
+  // grounded) asks for map-aware answers. Every other caller — the Ask AI panel,
+  // Study Chat — leaves it off and gets exactly what it always got.
+  const geoMaps = req.body.geo === true;
   const hasHistory = history && Array.isArray(history) && history.length > 0;
   if (!hasHistory && (!question || !String(question).trim())) {
     return res.status(400).json({ success: false, error: 'Question is required.' });
@@ -334,7 +339,8 @@ router.post('/api/library/ask', requireAuth, async (req, res) => {
   const systemPrompt = IRON_INK_CORE_PROMPT +
     '\n\nYou are answering inline questions from a student reading a saved study guide. ' +
     'Be concise and precise — 2–4 sentences for quick questions, more thorough for follow-ups in a chat. ' +
-    'Stay within the confessionally Reformed framework at all times.';
+    'Stay within the confessionally Reformed framework at all times.' +
+    (geoMaps ? '\n\n' + geo.GEO_RULE : '');
 
   let messages;
   if (hasHistory) {
@@ -364,10 +370,15 @@ router.post('/api/library/ask', requireAuth, async (req, res) => {
       console.error('Inline ask: no text returned — stop_reason:', message.stop_reason);
       return res.status(500).json({ success: false, error: 'Failed to get answer. Please try again.' });
     }
+    // Map-aware answers: resolve {{place:...}} / {{road:...}} markers against the
+    // gazetteer (plain names in the text, a map payload alongside).
+    const geoOut = geoMaps ? geo.processGeoMarkers(text) : { text, map: null };
     // Inline answers use the core prompt, so the model quotes Scripture via
     // {{verse:...}} markers too — insert the verified verse text (NASB primary,
     // ASV fallback) and append the Lockman notice when NASB text appears.
-    res.json({ success: true, answer: injectWithAttribution(text) });
+    const out = { success: true, answer: injectWithAttribution(geoOut.text) };
+    if (geoOut.map) out.map = geoOut.map;
+    res.json(out);
   } catch (err) {
     console.error('Inline ask error:', err.message);
     res.status(500).json({ success: false, error: 'Failed to get answer. Please try again.' });
