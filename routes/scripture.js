@@ -4,6 +4,7 @@ const fs      = require('fs');
 const path    = require('path');
 const { randomUUID } = require('crypto');
 const { createJsonStore } = require('../lib/jsonStore');
+const geo     = require('../lib/geo');
 const { requireAuth, renderLayout } = require('./layout');
 const nasb = require('../lib/nasb');
 const { chapterVerses: asvChapterVerses, NASB_ATTRIBUTION } = require('../lib/asv');
@@ -197,7 +198,7 @@ router.get('/scripture', requireAuth, async (req, res) => {
     activeSection: 'scripture',
     title:         'Scripture',
     content,
-    scripts:       `<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/scripture.js?v=11"></script><script src="/js/scripture-notes.js?v=5"></script><script src="/js/scripture-audio.js?v=2"></script><script src="/js/geo-map.js?v=2"></script><script src="/js/library.js?v=71"></script>`,
+    scripts:       `<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/scripture.js?v=11"></script><script src="/js/scripture-notes.js?v=6"></script><script src="/js/scripture-audio.js?v=2"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/library.js?v=72"></script>`,
   }));
 });
 
@@ -345,6 +346,10 @@ router.post('/api/reading/set-count', requireAuth, (req, res) => {
 //   question   — what was asked (Explore); null otherwise
 //   content    — the note body (markdown text)
 //   source     — 'define' | 'explore' | 'verse' | 'personal'
+//   geo        — optional map references from a pinned tooltip answer:
+//                { places: ['<pleiadesId>', …], roads: ['<road name>', …] },
+//                validated by lib/geo.js sanitizeGeoRefs; absent when none.
+//                Never coordinates — the map is resolved on demand.
 //
 // Every note is anchored: there are no free notes on a chapter.
 
@@ -408,6 +413,7 @@ router.post('/api/scripture-notes/:book/:chapter/note', requireAuth, async (req,
   if (!ref) return res.status(400).json({ success: false, error: 'Unknown book or chapter.' });
 
   const { quote, displayQuote, question, content, source, occurrence, verseStart, verseEnd } = req.body || {};
+  const geoRefs = geo.sanitizeGeoRefs(req.body && req.body.geo);
   const quoteStr   = quote != null ? String(quote).trim() : '';
   const displayStr = displayQuote != null ? String(displayQuote).trim() : '';
   const contentStr = content != null ? String(content) : '';
@@ -456,6 +462,7 @@ router.post('/api/scripture-notes/:book/:chapter/note', requireAuth, async (req,
         source:     NOTE_SOURCES.includes(source) ? source : 'personal',
         ts:         new Date().toISOString(),
       };
+      if (geoRefs) note.geo = geoRefs;
 
       rec.notes.push(note);
       return { changed: true, note };

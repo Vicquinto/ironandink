@@ -9082,3 +9082,30 @@ a.sm-book-tile.is-studied.is-filtered-out {
 .leaflet-tooltip-bottom.geo-tip::before { border-bottom-color: #A0845C; }
 .leaflet-tooltip-left.geo-tip::before   { border-left-color: #A0845C; }
 .leaflet-tooltip-right.geo-tip::before  { border-right-color: #A0845C; }
+
+/* ─── SAVED NOTE MAPS (notepad.js noteMapHtml) ───────────────────────── */
+/* A note pinned from a tooltip answer with a map: quiet "Show map" link,  */
+/* map opened inside the card. Shared by chapter notes and study notepad.  */
+.notepad-note-geo { margin-top: 6px; max-width: 100%; }
+.notepad-note-map-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 0.78rem;
+  color: var(--warm-brown);
+  text-decoration: underline;
+  text-decoration-color: rgba(107,66,38,0.4);
+  cursor: pointer;
+}
+.notepad-note-map-link:hover,
+.notepad-note-map-link:focus-visible { color: var(--accent); text-decoration-color: currentColor; }
+.notepad-note-map { margin-top: 6px; max-width: 100%; cursor: auto; }
+.notepad-note-map .geo-map-wrap { margin-top: 0; }
+.notepad-note-map .geo-map { height: 220px; }
+.notepad-note-map-msg {
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--warm-brown);
+  padding: 4px 0;
+}

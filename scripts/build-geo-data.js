@@ -371,6 +371,7 @@ function buildPlaces(placesCsv, namesCsv) {
 
   // Curated biblical / English names.
   const curatedCount = new Map();   // normalized name → [ids]
+  const labels = {};                // id → the curated English name (map labels)
   let curatedOk = 0;
   for (const [id, expect, region, names] of CURATED) {
     const pl = byId.get(String(id));
@@ -381,6 +382,7 @@ function buildPlaces(placesCsv, namesCsv) {
     }
     curatedOk++;
     if (region) pl.region = region;
+    if (!labels[pl.id] && names.length) labels[pl.id] = names[0];
     for (const n of names) {
       addName(pl, n);
       const k = normName(n);
@@ -401,7 +403,7 @@ function buildPlaces(placesCsv, namesCsv) {
     const names = [...pl.names.entries()].filter(([k]) => k !== titleKey).map(([, v]) => v);
     out.push([Number(pl.id) || pl.id, pl.title, names, round(pl.lat), round(pl.lon), pl.types, pl.region]);
   }
-  return { places: out, primary, curatedOk };
+  return { places: out, primary, labels, curatedOk };
 }
 
 // ── Roads ─────────────────────────────────────────────────────────────────────
@@ -518,6 +520,7 @@ async function main() {
     generated,
     format: '[id, title, names[], lat, lon, types, region]',
     primary: P.primary,
+    labels: P.labels,
     places: P.places,
   }));
 

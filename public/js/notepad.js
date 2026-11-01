@@ -274,9 +274,116 @@
           '<button class="notepad-note-edit-btn" data-id="' + esc(note.id) + '" title="Edit">&#9998;</button>' +
           '<button class="notepad-note-del-btn" data-id="' + esc(note.id) + '" title="Delete">&times;</button>' +
         '</div>' +
-        quoteHtml + questionHtml + bodyHtml +
+        quoteHtml + questionHtml + bodyHtml + noteMapHtml(note) +
       '</div>';
   }
+
+  // ── Saved note maps ─────────────────────────────────────────────────────────
+  // A note pinned from a tooltip answer that had a map keeps references to its
+  // places and roads (note.geo: Pleiades ids, road names — never coordinates).
+  // The card shows a quiet "Show map" link; opening it resolves the references
+  // (/api/geo/resolve) and draws the map in the card with the tooltip map
+  // component (public/js/geo-map.js). One note map is open at a time.
+  var GEO_MAP_JS = '/js/geo-map.js?v=3';
+  var openNoteMap = null;   // { link, host } of the open note map
+
+  function noteGeo(note) {
+    var g = note && note.geo;
+    if (!g || typeof g !== 'object') return null;
+    var places = Array.isArray(g.places) ? g.places.filter(function (id) { return /^\d{1,12}$/.test(String(id)); }) : [];
+    var roads  = Array.isArray(g.roads)  ? g.roads.filter(function (r) { return typeof r === 'string' && r; }) : [];
+    return (places.length || roads.length) ? { places: places, roads: roads } : null;
+  }
+
+  function noteMapHtml(note) {
+    var g = noteGeo(note);
+    if (!g) return '';
+    return '<div class="notepad-note-geo">' +
+        '<button type="button" class="notepad-note-map-link" aria-expanded="false"' +
+          ' data-geo-places="' + esc(g.places.join(',')) + '"' +
+          ' data-geo-roads="' + esc(g.roads.join(',')) + '">Show map</button>' +
+        '<div class="notepad-note-map" style="display:none;"></div>' +
+      '</div>';
+  }
+
+  var geoMapLoading = null;
+  function loadGeoMap() {
+    if (window.IronInkGeoMap) return Promise.resolve(window.IronInkGeoMap);
+    if (geoMapLoading) return geoMapLoading;
+    geoMapLoading = new Promise(function (resolve, reject) {
+      var s = document.createElement('script');
+      s.src = GEO_MAP_JS;
+      s.onload  = function () { window.IronInkGeoMap ? resolve(window.IronInkGeoMap) : reject(new Error('missing')); };
+      s.onerror = function () { geoMapLoading = null; reject(new Error('load failed')); };
+      document.head.appendChild(s);
+    });
+    return geoMapLoading;
+  }
+
+  function closeNoteMap(state) {
+    if (!state) return;
+    state.host.innerHTML = '';
+    state.host.style.display = 'none';
+    state.link.textContent = 'Show map';
+    state.link.setAttribute('aria-expanded', 'false');
+    if (openNoteMap === state) openNoteMap = null;
+  }
+
+  function openNoteMapFor(link) {
+    var host = link.parentNode && link.parentNode.querySelector('.notepad-note-map');
+    if (!host) return;
+    // Only one note map at a time (a card re-render may already have removed it).
+    if (openNoteMap) closeNoteMap(openNoteMap);
+    // Clicks inside a note's map belong to the map — they stop at its container
+    // (after Leaflet has handled them) and never reach the card, which on the
+    // Scripture page scrolls to its verse and flashes the marker on click.
+    if (!host.__geoClickGuard) {
+      host.__geoClickGuard = true;
+      host.addEventListener('click', function (e) { e.stopPropagation(); });
+    }
+    var state = { link: link, host: host };
+    openNoteMap = state;
+    link.textContent = 'Hide map';
+    link.setAttribute('aria-expanded', 'true');
+    host.style.display = '';
+    host.innerHTML = '';
+    var loading = document.createElement('div');
+    loading.className = 'notepad-note-map-msg';
+    loading.textContent = 'Loading map…';
+    host.appendChild(loading);
+
+    function unavailable() {
+      if (openNoteMap !== state) return;
+      host.innerHTML = '';
+      var msg = document.createElement('div');
+      msg.className = 'notepad-note-map-msg';
+      msg.textContent = 'Map unavailable';
+      host.appendChild(msg);
+    }
+
+    var qs = 'places=' + encodeURIComponent(link.getAttribute('data-geo-places') || '') +
+             '&roads=' + encodeURIComponent(link.getAttribute('data-geo-roads') || '');
+    Promise.all([
+      fetch('/api/geo/resolve?' + qs).then(function (r) { return r.json(); }),
+      loadGeoMap(),
+    ]).then(function (res) {
+      var data = res[0], G = res[1];
+      if (openNoteMap !== state) return;               // closed while loading
+      if (!data || !data.success || !data.map) { unavailable(); return; }
+      host.innerHTML = '';
+      G.attach(host, data.map, { bare: true, linkNames: false });
+      if (!host.querySelector('.geo-map-wrap')) unavailable();
+    }).catch(unavailable);
+  }
+
+  document.addEventListener('click', function (e) {
+    var link = e.target.closest && e.target.closest('.notepad-note-map-link');
+    if (!link) return;
+    e.preventDefault();
+    if (openNoteMap && openNoteMap.link === link) closeNoteMap(openNoteMap);
+    else openNoteMapFor(link);
+  });
+
 
   function renderNotesList() {
     var listEl = document.getElementById('notepadNotesList');
@@ -470,6 +577,8 @@
       content:    data.content || '',
       source:     data.source || 'personal',
       occurrence: (typeof data.occurrence === 'number' ? data.occurrence : null),
+      // A pinned answer's map, as references (lib/geo.js sanitizeGeoRefs).
+      geo:        data.geo || null,
     }, function (ok, note) {
       if (ok) {
         renderNotesList();

@@ -322,7 +322,7 @@
 
   // ── Saving (from the highlight panel, or the composer below) ──────────────
 
-  // anchor: from captureSelection(). data: { question, content, source }.
+  // anchor: from captureSelection(). data: { question, content, source, geo? }.
   // cb(ok) — errors are reported here, so callers only handle success.
   function saveNote(anchor, data, cb) {
     data = data || {};
@@ -346,6 +346,8 @@
         question:   data.question || null,
         content:    content,
         source:     data.source || 'personal',
+        // A pinned answer's map, as references (lib/geo.js sanitizeGeoRefs).
+        geo:        data.geo || null,
       }),
     })
       .then(function (r) { return r.json(); })

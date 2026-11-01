@@ -16,6 +16,9 @@
   //   window.IronInkGeoMap.attach(answerBodyEl, map[, { linkNames: false }])
   // linkNames:false leaves the answer text untouched (Easton's entries, whose
   // one-pin map comes from the headword, not from markers in the text).
+  // bare:true is a map with no header or Hide/Show toggle, always shown and
+  // independent of the remembered preference — a saved note's map, which the
+  // note card opens and closes itself (public/js/notepad.js).
 
   var LEAFLET_JS  = '/vendor/leaflet-1.9.4/leaflet.js';
   var LEAFLET_CSS = '/vendor/leaflet-1.9.4/leaflet.css';
@@ -216,7 +219,9 @@
     frame.appendChild(canvas);
     frame.appendChild(attributionNode());
 
-    wrap.appendChild(head);
+    var bare = !!(opts && opts.bare);
+    if (bare) wrap.classList.add('geo-map-wrap--bare');
+    else wrap.appendChild(head);
     wrap.appendChild(frame);
 
     // Under the answer text, above the provenance caption when there is one.
@@ -327,7 +332,7 @@
     body.addEventListener('click', onLink);
     body.addEventListener('keydown', onLink);
 
-    setHidden(prefHidden());
+    setHidden(bare ? false : prefHidden());
   }
 
   global.IronInkGeoMap = { attach: attach };

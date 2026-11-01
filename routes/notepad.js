@@ -4,6 +4,7 @@ const path           = require('path');
 const { randomUUID } = require('crypto');
 const { requireAuth } = require('./layout');
 const { createJsonStore } = require('../lib/jsonStore');
+const geo = require('../lib/geo');
 
 const router        = express.Router();
 const NOTEPADS_PATH = path.join(__dirname, '../data/notepads.json');
@@ -18,6 +19,9 @@ const STUDIES_PATH  = path.join(__dirname, '../data/studies.json');
 //   question — what was asked (Explore); null otherwise
 //   content  — the note body (markdown text from the editor)
 //   source   — 'define' | 'explore' | 'verse' | 'personal' | 'free'
+//   geo      — optional map references from a pinned tooltip answer:
+//              { places: ['<pleiadesId>', …], roads: ['<road name>', …] },
+//              validated by lib/geo.js sanitizeGeoRefs; absent when none.
 
 // Fail-closed, atomic, one-write-at-a-time store (lib/jsonStore.js). read()
 // throws if the file exists but is damaged; update() never overwrites it then.
@@ -117,6 +121,7 @@ router.post('/api/notepad/:studyId/note', requireAuth, async (req, res) => {
 
   const src      = VALID_SOURCES.includes(source) ? source : 'free';
   const hasQuote = quote != null && String(quote).trim() !== '';
+  const geoRefs  = geo.sanitizeGeoRefs(req.body.geo);
 
   let result;
   try {
@@ -145,6 +150,7 @@ router.post('/api/notepad/:studyId/note', requireAuth, async (req, res) => {
         source:   src,
         ts:       new Date().toISOString(),
       };
+      if (geoRefs) note.geo = geoRefs;
 
       pad.notes.push(note);
       return { changed: true, note };

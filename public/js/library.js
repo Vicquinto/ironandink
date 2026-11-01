@@ -2486,7 +2486,7 @@
       btn.disabled    = true;
       btn.textContent = 'Pinning…';
       sn.saveNote(ucpScriptureAnchor,
-        { question: pin.question, content: pin.content, source: pin.source },
+        { question: pin.question, content: pin.content, source: pin.source, geo: pin.geo },
         function (ok) {
           if (!ok) { btn.textContent = ucpPinLabel(); btn.disabled = false; return; }
           ucpLastPinned   = true;
@@ -2564,7 +2564,8 @@
           ucpAttachMap(body, data.map, data.source === 'eastons' ? { linkNames: false } : null);
           ucpShowAnswerFooter(
             { quote: anchored ? term : null, question: null, content: data.definition,
-              source: 'define', occurrence: anchored ? ucpOccurrence : null },
+              source: 'define', occurrence: anchored ? ucpOccurrence : null,
+              geo: ucpGeoRefs(data.map) },
             'Define', data.definition, term);
         }
         var t = ucpEl.querySelector('.ucp-thread'); t.scrollTop = t.scrollHeight;
@@ -2697,6 +2698,16 @@
     try { window.IronInkGeoMap.attach(body, map, opts); } catch (e) { /* the answer stands without it */ }
   }
 
+  // What a pinned note keeps of an answer's map: references only (Pleiades ids,
+  // canonical road names) — the server re-validates them and the note card
+  // resolves them again when the reader opens its map. null when no map.
+  function ucpGeoRefs(map) {
+    if (!map) return null;
+    var places = (map.places || []).map(function (p) { return p && p.pleiadesId; }).filter(Boolean);
+    var roads  = (map.roads  || []).map(function (r) { return r && (r.title || r.name); }).filter(Boolean);
+    return (places.length || roads.length) ? { places: places, roads: roads } : null;
+  }
+
   // Explore — an open AI question about the target text. Already conforms to the
   // trigger-decides rule and needs no precedence of its own: when grounded, typed
   // text is a FOLLOW-UP QUESTION about the selection (the ask endpoint carries
@@ -2770,7 +2781,8 @@
               question:   q,
               content:    data.answer,
               source:     'explore',
-              occurrence: ucpGrounded ? ucpOccurrence : null },
+              occurrence: ucpGrounded ? ucpOccurrence : null,
+              geo:        ucpGeoRefs(data.map) },
             'Explore', data.answer, ucpGrounded ? ucpSelection : q);
         } else {
           body.innerHTML = '<span style="color:#5a0a0a;font-style:italic;">Error: ' +
