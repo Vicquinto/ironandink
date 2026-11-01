@@ -69,6 +69,8 @@ const CURATED = [
   [156668177, 'Bethania', 'Judea, Mount of Olives', ['Bethany']],
   [687917, 'Jericho', 'Judea, Jordan valley', ['Jericho']],
   [687915, 'Hebron', 'Judea', ['Hebron']],
+  [687846, 'Beer Sheva/Berosaba', 'Negev, southern Judah', ['Beersheba', 'Beer-sheba', 'Beer Sheba', 'Beer Sheva']],
+  [687868, 'Cadesh Barnea', 'Negev, wilderness of Zin (Kadesh-barnea)', ['Kadesh-barnea', 'Kadesh Barnea', 'Cadesh Barnea', 'Kadesh']],
   [697709, 'Mortuum Mare', 'Judea, Jordan valley', ['Dead Sea', 'Salt Sea']],
   [687934, 'Iudaea (region)', 'Judea', ['Judea', 'Judaea']],
   [687927, 'Idumaea', 'Idumea, Edom', ['Idumea', 'Idumaea', 'Edom']],
@@ -220,7 +222,7 @@ const CURATED = [
   [462311, 'Melita/Malta', 'Malta', ['Malta', 'Melita']],
   [1027, 'Hispania', 'Spain', ['Spain', 'Hispania']],
 ];
-const NO_PRIMARY = new Set(['nicopolis', 'neapolis', 'seleucia']);
+const NO_PRIMARY = new Set(['nicopolis', 'neapolis', 'seleucia', 'kadesh']);
 
 // Itiner-e keeps road names in the `Itinerary` field, mixed in with the ancient
 // itineraries and texts the segment is attested in. These are sources, not roads.
