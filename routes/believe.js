@@ -134,13 +134,21 @@ function buildContent() {
         up one another, and proclaim the gospel to the world.</p>
       </div>
 
-      <div class="believe-article believe-article-last">
+      <div class="believe-article">
         <div class="believe-article-heading">
           <span class="believe-article-num">VII.</span>Last Things
         </div>
         <p class="copy-body">We believe in the personal, visible return of Jesus Christ, the
         resurrection of the dead, and the final judgment, after which the redeemed will dwell with
         God forever.</p>
+      </div>
+
+      <div class="believe-article believe-article-last">
+        <div class="believe-article-heading">On secondary matters</div>
+        <p class="copy-body">Faithful Reformed believers differ on questions such as baptism, church government,
+        and the order of end-time events. On these, Iron &amp; Ink&rsquo;s studies follow the teaching of the
+        MacArthur Study Bible tradition, while presenting other Reformed views fairly and charitably. Members
+        of every Reformed tradition are welcome here.</p>
       </div>
     </div>
 

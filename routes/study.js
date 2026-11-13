@@ -97,6 +97,8 @@ const CATEGORIES = [
       'The Covenant of Grace',
       'The Covenant of Redemption',
       'Law and Gospel',
+      'Dispensationalism',
+      'The Abrahamic, Davidic and New Covenants',
     ],
   },
   {
@@ -458,6 +460,8 @@ window.STUDY_IDEAS_BOOT = ${inlineJson(ideaOptions())};
     "The New Covenant",
     "Israel and the Church in Covenant Theology",
     "Infant Baptism and Covenant Theology",
+    "Dispensationalism and the Distinction Between Israel and the Church",
+    "Believer's Baptism by Immersion",
     // Ecclesiology
     "The Invisible and Visible Church",
     "The Marks of a True Church",
@@ -466,11 +470,14 @@ window.STUDY_IDEAS_BOOT = ${inlineJson(ideaOptions())};
     "Baptism: Mode and Meaning",
     "The Lord's Supper: Reformed Doctrine",
     "Presbyterian Church Government",
+    "Elder Leadership in the Local Church",
     "The Regulative Principle of Worship",
     "Preaching as a Means of Grace",
     // Eschatology
     "Amillennialism",
     "Postmillennialism",
+    "Premillennialism",
+    "The Pre-Tribulation Rapture",
     "The Return of Christ",
     "The General Resurrection",
     "The Final Judgment",

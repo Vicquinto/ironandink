@@ -127,8 +127,9 @@ router.get('/copyright', (req, res) => {
       <div class="copy-section-heading">Platform</div>
       <p class="copy-body">
         Iron &amp; Ink is a confessionally Reformed Christian study and writing platform.
-        All doctrinal content reflects the Westminster Confession of Faith, the Heidelberg Catechism,
-        the Belgic Confession, and the Canons of Dort.
+        All doctrinal content reflects Iron &amp; Ink&rsquo;s Confession (see What We Believe). The platform
+        holds the doctrines of grace, and on secondary matters follows the MacArthur Study Bible tradition
+        while presenting other Reformed views fairly.
       </p>
 
       <div class="copy-back">
