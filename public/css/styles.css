@@ -4612,6 +4612,10 @@ body {
      the bottom-right grip. Dragging via .ucp-header is unaffected. */
   overflow: hidden;
   resize: both;
+  /* Base reading size; library.js (UCP_FONT_*) sets it inline from the A−/A/A+
+     control. Reading text below is em-based and scales off it; chrome (title,
+     tab buttons, Pin/Share, Ask, the map) is rem-sized and does not. */
+  font-size: 18px;
 }
 
 .ucp-header {
@@ -4646,6 +4650,14 @@ body {
   padding: 1px 4px;
   letter-spacing: 0;
 }
+/* Text-size group (A−/A/A+) — buttons reuse .guide-font-btn, like the Teacher
+   page's .conversation-zoom; this only sets their spacing. */
+.ucp-zoom {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
 .ucp-close {
   background: none;
   border: none;
@@ -4668,12 +4680,13 @@ body {
 .ucp-selection {
   font-family: 'EB Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 1.05rem;
+  font-size: 1.05em;
   color: #5C1A28;
   line-height: 1.5;
   margin-bottom: 8px;
-  max-height: 96px;
+  max-height: 5.75em;   /* ~4 lines at any zoom (was 96px at 16.8px) */
   overflow-y: auto;
+  overflow-wrap: anywhere;
 }
 /* Action bar — present in BOTH modes, its own row below the header/context */
 .ucp-actions {
@@ -4733,7 +4746,7 @@ body {
   padding: 6px 14px;
   font-family: 'EB Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 0.86rem;
+  font-size: 0.9em;
   color: var(--warm-brown);
   background: rgba(107,66,38,0.06);
   border-bottom: 1px solid rgba(160,132,92,0.14);
@@ -4753,9 +4766,11 @@ body {
 .ucp-msg {
   padding: 10px 14px;
   border-radius: 5px;
-  font-size: 0.9rem;
+  font-size: 0.95em;
   line-height: 1.68;
   max-width: 92%;
+  min-width: 0;
+  overflow-wrap: anywhere;   /* long words wrap at the largest zoom, on phones too */
 }
 .ucp-msg-user {
   background: rgba(160,132,92,0.08);
@@ -4769,10 +4784,22 @@ body {
   border-radius: 0 5px 5px 0;
   color: var(--dark-cream);
   align-self: flex-start;
-  font-size: 1.1rem;
+  font-size: 1em;
 }
+/* Answer markdown (renderMarkdown guide-* classes) is rem-sized globally; in the
+   panel it follows the panel's base size, headings proportionally. The map
+   (.geo-map-wrap, rem-sized) is untouched. */
+.unified-convo-panel .ucp-msg-body .guide-p,
+.unified-convo-panel .ucp-msg-body .guide-list,
+.unified-convo-panel .ucp-msg-body .guide-list li,
+.unified-convo-panel .ucp-msg-body .guide-bq { font-size: 1em; }
+.unified-convo-panel .ucp-msg-body .guide-h2 { font-size: 1.3em; }
+.unified-convo-panel .ucp-msg-body .guide-h3 { font-size: 1.15em; }
+.unified-convo-panel .ucp-msg-body .guide-h4 { font-size: 1.03em; }
+.unified-convo-panel .ucp-msg-body .guide-h5 { font-size: 1em; }
+.unified-convo-panel .ucp-msg-body .up-loading { font-size: 0.95em; }
 .ucp-msg-label {
-  font-size: 0.64rem;
+  font-size: max(0.64rem, 0.68em);
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--warm-brown);
@@ -4828,9 +4855,10 @@ body {
   background: #E8D9B8;
   border: 1px solid #A0845C;
   border-radius: 5px;
+  min-width: 0;
   color: #1E1208;
   font-family: 'EB Garamond', Georgia, serif;
-  font-size: 0.9rem;
+  font-size: 0.95em;
   padding: 6px 10px;
   resize: none;
   outline: none;
@@ -4855,6 +4883,12 @@ body {
 }
 .ucp-ask-btn:hover { background: #4A1520; }
 .ucp-ask-btn:disabled { opacity: 0.5; cursor: wait; }
+
+/* Phones: the keyboard-shortcut badge gives way so the header (title, A−/A/A+,
+   ×) fits a 320px screen. */
+@media (max-width: 480px) {
+  .ucp-hint { display: none; }
+}
 
 /* ─── SIDEBAR THEME OVERRIDES ──────────────────────────────────────── */
 /* Sidebar is dark (#6B4226); all sidebar-specific colors must be set   */

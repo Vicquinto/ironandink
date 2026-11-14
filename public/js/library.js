@@ -2256,6 +2256,12 @@
       '<div class="ucp-header">' +
         '<span class="ucp-title">Iron &amp; Ink</span>' +
         '<kbd class="ucp-hint">Ctrl+Alt+T</kbd>' +
+        // Reading-text zoom — the Teacher page's A−/A/A+ buttons (.guide-font-btn).
+        '<span class="ucp-zoom" role="group" aria-label="Panel text size">' +
+          '<button class="guide-font-btn guide-font-btn-sm ucp-font-dec" title="Smaller text" aria-label="Smaller text">A&#8722;</button>' +
+          '<button class="guide-font-btn guide-font-btn-md ucp-font-reset" title="Reset text size" aria-label="Reset text size">A</button>' +
+          '<button class="guide-font-btn guide-font-btn-lg ucp-font-inc" title="Larger text" aria-label="Larger text">A+</button>' +
+        '</span>' +
         '<button class="ucp-close" title="Close" aria-label="Close">×</button>' +
       '</div>' +
       '<div class="ucp-context" style="display:none;">' +
@@ -2283,6 +2289,9 @@
     document.body.appendChild(el);
 
     el.querySelector('.ucp-close').addEventListener('click', closeUnifiedPanel);
+    el.querySelector('.ucp-font-dec').addEventListener('click',   function () { ucpSetFont(ucpFontSize - UCP_FONT_STEP); });
+    el.querySelector('.ucp-font-reset').addEventListener('click', function () { ucpSetFont(UCP_FONT_DEFAULT); });
+    el.querySelector('.ucp-font-inc').addEventListener('click',   function () { ucpSetFont(ucpFontSize + UCP_FONT_STEP); });
     el.querySelector('.ucp-ask-btn').addEventListener('click', ucpAsk);
     el.querySelector('.ucp-input').addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ucpAsk(); }
@@ -2301,9 +2310,37 @@
     return el;
   }
 
+  // ── Panel text size (A−/A/A+) ───────────────────────────────────────────
+  // Teacher's TFONT_* bounds and step (teacher.js), under the panel's OWN key so
+  // it never moves another page's zoom. Sets the panel root's font-size; the
+  // reading text (selection, messages, answer markdown, input) is em-based in
+  // styles.css and scales off it. Chrome (title, tabs, Pin/Share, Ask, the map
+  // and its links/caption) is rem/px-sized and stays put. Default 18px = the
+  // Scripture page's verse text (FONT_DEFAULT in scripture.js).
+  var UCP_FONT_DEFAULT = 18, UCP_FONT_MIN = 12, UCP_FONT_MAX = 28, UCP_FONT_STEP = 2;
+  var UCP_FONT_KEY = 'ironink_panel_font_size';
+  var ucpFontSize  = UCP_FONT_DEFAULT;
+
+  function ucpLoadFont() {
+    try {
+      var v = parseInt(localStorage.getItem(UCP_FONT_KEY), 10);
+      if (v) return Math.min(UCP_FONT_MAX, Math.max(UCP_FONT_MIN, v));
+    } catch (e) {}
+    return UCP_FONT_DEFAULT;
+  }
+  function ucpApplyFont(size) {
+    ucpFontSize = Math.min(UCP_FONT_MAX, Math.max(UCP_FONT_MIN, size));
+    if (ucpEl) ucpEl.style.fontSize = ucpFontSize + 'px';
+  }
+  function ucpSetFont(size) {
+    ucpApplyFont(size);
+    try { localStorage.setItem(UCP_FONT_KEY, ucpFontSize); } catch (e) {}
+  }
+
   // Always centered on screen (like the mini-inbox), in both modes — never
   // anchored to the selection. Draggable thereafter via the shared helper.
   function centerUnifiedPanel() {
+    ucpApplyFont(ucpLoadFont());   // every open, on every page — before measuring
     ucpEl.style.visibility = 'hidden';
     ucpEl.style.display    = 'flex';
     var pw = ucpEl.offsetWidth, ph = ucpEl.offsetHeight;
@@ -2559,7 +2596,7 @@
           // Provenance caption (Accordance-style): show which source answered —
           // Easton's Bible Dictionary, Webster's, etc. — beneath the definition.
           var srcHtml = data.sourceLabel
-            ? '<div class="ucp-src" style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(107,66,38,0.2);font-size:0.72rem;color:#6B4226;opacity:0.85;font-style:italic;">' + esc(data.sourceLabel) + '</div>'
+            ? '<div class="ucp-src" style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(107,66,38,0.2);font-size:0.78em;color:#6B4226;opacity:0.85;font-style:italic;">' + esc(data.sourceLabel) + '</div>'
             : '';
           body.innerHTML = renderMarkdown(data.definition) + srcHtml;
           // Easton's text is shown as published — its one-pin map comes from the
