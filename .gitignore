@@ -41,3 +41,5 @@ data/*.backup-verse-numbers-*.json
 
 # Study bookmarks (routes/study-bookmarks.js)
 data/study_bookmarks.json
+sessions/
+.claude/launch.json
