@@ -84,7 +84,7 @@
   var player = RA.createPlayer({
     playBtn: playBtn, stopBtn: stopBtn, rateSel: rateSel, voiceSel: voiceSel,
     labels:    { idle: 'Read Aloud', playing: 'Pause', paused: 'Resume' },
-    voiceRank: /natural|online/i,
+    voiceRank: /natural|online|premium|enhanced/i,
     count:     function () { return verseEls().length; },
     textAt:    function (i) { var els = verseEls(); return els[i] ? verseText(els[i]) : ''; },
     onBlock:   function (i) { var els = verseEls(); if (els[i]) highlight(els[i]); },
