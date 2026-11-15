@@ -942,13 +942,14 @@
       var savedStatus = localStorage.getItem(STATUS_FILTER_KEY);
       if (savedStatus === 'studying' || savedStatus === 'completed') filterStatusEl.value = savedStatus;
     } catch (e) {}
-    // /library?view=in-progress (the Dashboard's "See all") opens that view.
-    // Like Archived it is never restored from the remembered choice, and the
-    // parameter is dropped from the address.
+    // /library?view=in-progress or ?view=studying (the Dashboard's "See all")
+    // opens that view. In progress, like Archived, is never restored from the
+    // remembered choice; the parameter is dropped from the address.
     try {
       var viewUrl = new URL(window.location.href);
-      if (viewUrl.searchParams.get('view') === 'in-progress') {
-        filterStatusEl.value = 'in-progress';
+      var viewParam = viewUrl.searchParams.get('view');
+      if (viewParam === 'in-progress' || viewParam === 'studying') {
+        filterStatusEl.value = viewParam;
         viewUrl.searchParams.delete('view');
         window.history.replaceState(null, '', viewUrl.pathname + viewUrl.search + viewUrl.hash);
       }

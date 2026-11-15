@@ -113,35 +113,7 @@
     apply(start || 'all', false);
   }
 
-  // Dashboard "Pick up where you left off" (routes/study-map.js pickupHtml):
-  // dates in the reader's own time zone, and × to take an item off the list
-  // (PUT …/session/hide — the session itself stays saved). With nothing left
-  // the whole section goes.
-  function initPickup() {
-    var box = document.getElementById('smPickup');
-    if (!box) return;
-    box.querySelectorAll('time.sm-pick-when[datetime]').forEach(function (t) {
-      var d = new Date(t.getAttribute('datetime'));
-      if (!isNaN(d)) t.textContent = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    });
-    box.querySelectorAll('.sm-pick-hide').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var li = btn.closest('.sm-pick-item');
-        var kind = btn.dataset.kind === 'check' ? 'check' : 'lesson';
-        btn.disabled = true;
-        fetch('/api/teacher/' + encodeURIComponent(btn.dataset.studyId || '') + '/session/hide?kind=' + kind, { method: 'PUT' })
-          .then(function (r) { return r.json(); })
-          .then(function (d) {
-            if (!d || !d.success) throw new Error();
-            if (li) li.remove();
-            if (!box.querySelector('.sm-pick-item')) box.hidden = true;
-          })
-          .catch(function () { btn.disabled = false; });
-      });
-    });
-  }
-
-  function init() { initViews(); initFilter(); initRevisit(); initPickup(); }
+  function init() { initViews(); initFilter(); initRevisit(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();

@@ -260,7 +260,7 @@ function timelineView(entries) {
 
 // One suggestion (or ''), from pickRevisit: { study, kind }.
 //   revisit  — a completed study: "Open" and "Check my understanding"
-//   continue — a study still in progress: "Open" and "Continue with the Teacher"
+//   continue — a study still in progress: "Open" and "Study with the Teacher"
 // Either way "Not now" (public/js/study-map.js posts the dismissal).
 function revisitHtml(pick, compact) {
   if (!pick || !pick.study) return '';
@@ -270,11 +270,11 @@ function revisitHtml(pick, compact) {
     ? 'You started this in ' + fmtMonth(entry.savedAt) + '.'
     : 'You completed this in ' + fmtMonth(entry.completedAt || entry.savedAt) + '.';
   const teacher = cont
-    ? `<a class="sm-revisit-btn" href="${escapeHtml('/teacher/' + encodeURIComponent(entry.id) + '?mode=lesson')}">Continue with the Teacher</a>`
+    ? `<a class="sm-revisit-btn" href="${escapeHtml('/teacher/' + encodeURIComponent(entry.id) + '?mode=lesson')}">Study with the Teacher</a>`
     : `<a class="sm-revisit-btn" href="${escapeHtml(checkHref(entry))}">Check my understanding</a>`;
   return `
     <div class="sm-revisit${compact ? ' sm-revisit--compact' : ''}" data-study-id="${escapeHtml(entry.id)}">
-      <div class="sm-revisit-label">${cont ? 'Continue studying' : 'Worth revisiting'}</div>
+      <div class="sm-revisit-label">Worth revisiting</div>
       <div class="sm-revisit-title">${escapeHtml(entry.topic)} ${archivedTag(entry)}</div>
       <div class="sm-revisit-sub">${escapeHtml(sub)}</div>
       <div class="sm-revisit-actions">
@@ -332,7 +332,7 @@ router.get('/study-map', requireAuth, (req, res) => {
     activeSection: 'study-map',
     title: 'Study Map',
     content,
-    scripts: '<script src="/js/study-map.js?v=3"></script>',
+    scripts: '<script src="/js/study-map.js?v=4"></script>',
   }));
 });
 
@@ -371,57 +371,84 @@ router.post('/api/study-map/revisit/dismiss', requireAuth, (req, res) => {
   }
 });
 
-// ─── Pick up where you left off (Dashboard) ──────────────────────────────────
-// Up to 5 unfinished Teacher sessions, newest first (rule in
-// lib/teacher-progress.js). Nothing at all when there are none. The × hides an
-// item from the list (public/js/study-map.js); the session stays saved.
-const PICKUP_MAX = 5;
-const PICKUP_MODE = { lesson: 'Lesson', check: 'Understanding check' };
-function shortDateUTC(iso) {
-  const d = new Date(iso);
-  if (!iso || isNaN(d)) return '';
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+// ─── Currently studying (Dashboard) ─────────────────────────────────────────
+// ONE list, each study once:
+//   included — an own study not completed and not archived (the old rule), OR
+//              any readable study with an in-progress Teacher session
+//              (lib/teacher-progress.js; archived ones included, tagged)
+//   ordered  — newest activity first: the latest of the study's own activity
+//              (lastTouched: saved, opened, completed, any Teacher session), its
+//              in-progress sessions' updatedAt, and its bookmark's updatedAt
+//   capped   — SNAP_MAX rows; more → "See all in your Library" (the In
+//              progress view when any extra row has a session, else Studying)
+// Each row: the title (opens the study), then one muted line from whatever
+// applies — "Lesson in progress · Continue", "Understanding check in progress
+// · Continue", "Stopped at: <section>" — or no line at all.
+const SNAP_MAX = 3;
+const BOOKMARKS_PATH = path.join(__dirname, '../data/study_bookmarks.json');
+
+function bookmarksFor(userId) {
+  const out = {};
+  const list = readJson(BOOKMARKS_PATH, []);
+  (Array.isArray(list) ? list : []).forEach(b => {
+    if (b && b.userId === userId && typeof b.studyId === 'string') {
+      out[b.studyId] = { sectionTitle: String(b.sectionTitle || ''), updatedAt: b.updatedAt || null };
+    }
+  });
+  return out;
 }
-function pickupHtml(userId) {
-  let items = [];
-  try { items = inProgressList(userId); } catch (err) { console.error('[study-map] pick up:', err.message); }
-  if (!items.length) return '';
-  const shown = items.slice(0, PICKUP_MAX);
-  const rows = shown.map(i => {
-    const mode = PICKUP_MODE[i.kind] || 'Lesson';
-    // The date is re-written in the reader's own time zone by study-map.js.
-    const when = i.updatedAt
-      ? ` <span class="sm-pick-sep" aria-hidden="true">&#183;</span> <time class="sm-pick-when" datetime="${escapeHtml(i.updatedAt)}">${escapeHtml(shortDateUTC(i.updatedAt))}</time>`
-      : '';
-    return `
-          <li class="sm-pick-item">
-            <span class="sm-pick-text">
-              <span class="sm-pick-title">${escapeHtml(i.studyTopic)}</span>${archivedTag(i)}
-              <span class="sm-pick-sep" aria-hidden="true">&#183;</span> <span class="sm-pick-mode">${mode}</span>${when}
-            </span>
-            <span class="sm-pick-actions">
-              <a class="sm-pick-go" href="${escapeHtml(continueHref(i))}">Continue</a>
-              <button type="button" class="sm-pick-hide" data-study-id="${escapeHtml(i.studyId)}" data-kind="${i.kind === 'check' ? 'check' : 'lesson'}"
-                      title="Remove from this list" aria-label="Remove from this list">&#215;</button>
-            </span>
-          </li>`;
-  }).join('');
-  const more = items.length > PICKUP_MAX
-    ? '<a class="sm-pick-more" href="/library?view=in-progress">See all in your Library &#8594;</a>'
-    : '';
+
+function tms(iso) { const t = Date.parse(iso); return isNaN(t) ? 0 : t; }
+
+function currentlyStudying(userId, entries) {
+  let progress = [];
+  try { progress = inProgressList(userId); } catch (err) { console.error('[study-map] in progress:', err.message); }
+  const marks = bookmarksFor(userId);
+  const rows = new Map();   // studyId → row, so each study appears once
+
+  entries
+    .filter(e => !e.completedAt && !e.archived)
+    .forEach(e => rows.set(e.id, {
+      id: e.id, topic: e.topic, own: true, archived: false,
+      lesson: false, check: false, activity: lastTouched(e),
+    }));
+  progress.forEach(i => {
+    let r = rows.get(i.studyId);
+    if (!r) {
+      const e = entries.find(x => x.id === i.studyId);   // own study (maybe completed or archived)
+      r = {
+        id: i.studyId, topic: e ? e.topic : i.studyTopic, own: !!e, archived: !!i.archived,
+        lesson: false, check: false, activity: e ? lastTouched(e) : 0,
+      };
+      rows.set(i.studyId, r);
+    }
+    if (i.kind === 'check') r.check = true; else r.lesson = true;
+    r.activity = Math.max(r.activity, tms(i.updatedAt));
+  });
+  rows.forEach(r => {
+    const m = marks[r.id];
+    if (m) { r.place = m.sectionTitle; r.activity = Math.max(r.activity, tms(m.updatedAt)); }
+  });
+  return Array.from(rows.values()).sort((a, b) => b.activity - a.activity);
+}
+
+function studyingRowHtml(r) {
+  // Own studies open in the Library reader. Shared studies have no direct
+  // link into the Community reader, so they go to Community.
+  const href = r.own ? '/library?open=' + encodeURIComponent(r.id) : '/community';
+  const parts = [];
+  if (r.lesson) parts.push(`Lesson in progress &#183; <a href="${escapeHtml(continueHref({ studyId: r.id, kind: 'lesson' }))}">Continue</a>`);
+  if (r.check)  parts.push(`Understanding check in progress &#183; <a href="${escapeHtml(continueHref({ studyId: r.id, kind: 'check' }))}">Continue</a>`);
+  if (r.place)  parts.push('Stopped at: ' + escapeHtml(r.place));
+  const line = parts.length ? `<div class="sm-snap-row-sub">${parts.join(' &#183; ')}</div>` : '';
   return `
-        <div class="sm-pick" id="smPickup">
-          <div class="sm-snap-sub">Pick up where you left off</div>
-          <ul class="sm-pick-list">${rows}
-          </ul>
-          ${more}
-        </div>`;
+          <li><a href="${escapeHtml(href)}">${escapeHtml(r.topic)}</a>${r.archived ? ' ' + archivedTag(r) : ''}${line}</li>`;
 }
 
 // ─── Dashboard snapshot ───────────────────────────────────────────────────────
-// Replaces the old "Studies Saved" count: "Currently studying" (up to 3 studies
-// not yet marked complete, most recently opened or saved first), which areas
-// have been studied (filled vs. open — no numbers), and one suggestion.
+// Replaces the old "Studies Saved" count: "Currently studying" (see
+// currentlyStudying above), which areas have been studied (filled vs. open —
+// no numbers), and one suggestion.
 function renderDashboardSnapshot(userId) {
   let entries = [];
   try { entries = memberEntries(userId); } catch (err) { console.error('[study-map] snapshot:', err.message); }
@@ -429,14 +456,15 @@ function renderDashboardSnapshot(userId) {
   entries.forEach(e => e.map.areas.forEach(a => covered.add(a)));
   const revisit = pickRevisit(entries, revisitPrefs(userId));
 
-  const studying = entries
-    .filter(e => !e.completedAt && !e.archived)   // put away → not "currently studying"
-    .sort((a, b) => lastTouched(b) - lastTouched(a))
-    .slice(0, 3);
+  const all = currentlyStudying(userId, entries);
+  const studying = all.slice(0, SNAP_MAX);
+  const extras = all.slice(SNAP_MAX);
+  const seeAll = extras.length
+    ? `<a class="sm-snap-more" href="/library?view=${extras.some(r => r.lesson || r.check) ? 'in-progress' : 'studying'}">See all in your Library &#8594;</a>`
+    : '';
   const recent = studying.length
-    ? `<ul class="sm-snap-recent">${studying.map(e => `
-          <li><a href="${escapeHtml(openHref(e))}">${escapeHtml(e.topic)}</a></li>`).join('')}
-        </ul>`
+    ? `<ul class="sm-snap-recent">${studying.map(studyingRowHtml).join('')}
+        </ul>${seeAll}`
     : entries.length
       ? '<p class="sm-snap-empty">Nothing in progress right now &#8212; <a href="/study">start a new study</a> or revisit one from your <a href="/study-map">Study Map</a>.</p>'
       : '<p class="sm-snap-empty">No studies yet &#8212; <a href="/study">start one</a>.</p>';
@@ -456,7 +484,6 @@ function renderDashboardSnapshot(userId) {
         </div>
         <div class="sm-snap-sub">Currently studying</div>
         ${recent}
-        ${pickupHtml(userId)}
         <div class="sm-snap-sub">Areas you have studied</div>
         ${areas}
         ${revisitHtml(revisit, true)}

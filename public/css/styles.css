@@ -8809,6 +8809,17 @@ a.sm-book-tile.is-studied:hover { background: rgba(92,26,40,0.16); }
 .sm-snap-recent li { padding: 3px 0; overflow-wrap: anywhere; }
 .sm-snap-recent a { color: var(--text); text-decoration: none; }
 .sm-snap-recent a:hover { color: var(--accent); text-decoration: underline; }
+/* One muted line under a title: Teacher sessions in progress, "Stopped at".
+   Its Continue links use the same link style as the titles (rule above). */
+.sm-snap-row-sub { font-size: 0.8rem; color: var(--warm-brown); margin-top: 1px; }
+.sm-snap-recent .sm-archived { margin-left: 4px; }
+.sm-snap-more { display: inline-block; margin-top: 4px; font-size: 0.85rem; color: var(--text); text-decoration: none; }
+.sm-snap-more:hover { color: var(--accent); text-decoration: underline; }
+/* Phones: every link in the list is at least 44px tall to tap. */
+@media (max-width: 600px) {
+  .sm-snap-recent a, .sm-snap-more { display: inline-flex; align-items: center; min-height: 44px; }
+  .sm-snap-recent a { min-width: 44px; }
+}
 .sm-snap-date { font-size: 0.8rem; color: var(--warm-brown); margin-left: 6px; }
 .sm-snap-empty { margin: 0; color: var(--warm-brown); font-style: italic; }
 .sm-snap-empty a { color: var(--accent); }
@@ -9553,43 +9564,6 @@ a.sm-book-tile.is-studied.is-filtered-out {
 /* ─── Pick up where you left off (in-progress Teacher sessions) ─────────────
    Dashboard list (routes/study-map.js pickupHtml) and the Library "In
    progress" view's card lines (public/js/library.js). Muted; no counts. */
-.sm-pick-list { list-style: none; margin: 0; padding: 0; }
-.sm-pick-item {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2px 10px;
-  padding: 3px 0;
-}
-.sm-pick-text { min-width: 0; flex: 1 1 12rem; overflow-wrap: anywhere; }
-.sm-pick-title { color: var(--text); }
-.sm-pick-title + .sm-archived { margin-left: 6px; }
-.sm-pick-sep { color: var(--warm-brown); margin: 0 2px; }
-.sm-pick-mode, .sm-pick-when { font-size: 0.85rem; color: var(--warm-brown); }
-.sm-pick-actions { display: inline-flex; align-items: center; gap: 4px; flex: 0 0 auto; }
-.sm-pick-go {
-  font-size: 0.85rem;
-  color: var(--accent);
-  text-decoration: none;
-  padding: 2px 4px;
-}
-.sm-pick-go:hover { text-decoration: underline; }
-.sm-pick-hide {
-  background: transparent;
-  border: none;
-  color: var(--warm-brown);
-  font-size: 1rem;
-  line-height: 1;
-  padding: 2px 6px;
-  border-radius: 3px;
-  cursor: pointer;
-}
-.sm-pick-hide:hover { color: var(--accent); }
-.sm-pick-hide:disabled { opacity: 0.5; cursor: wait; }
-.sm-pick-more { display: inline-block; margin-top: 4px; font-size: 0.85rem; color: var(--accent); text-decoration: none; }
-.sm-pick-more:hover { text-decoration: underline; }
-
 .study-card-archived {
   font-size: 0.72rem;
   font-style: italic;
@@ -9610,12 +9584,11 @@ a.sm-book-tile.is-studied.is-filtered-out {
 
 /* Phones: Continue and × are at least 44×44px to tap. */
 @media (max-width: 600px) {
-  .sm-pick-go, .sm-pick-hide, .study-card-teacher-go {
+  .study-card-teacher-go {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-height: 44px;
     min-width: 44px;
   }
-  .sm-pick-hide { font-size: 1.15rem; }
 }
