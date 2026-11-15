@@ -76,6 +76,7 @@ router.get('/library', requireAuth, (req, res) => {
           <option value="studying">Studying</option>
           <option value="completed">Completed</option>
           <option value="archived">Archived</option>
+          <option value="in-progress">In progress</option>
         </select>
         <button type="button" id="libSelectBtn" class="lib-select-btn" aria-pressed="false">Select</button>
         <span id="libStudyCount" class="library-study-count" aria-live="polite"></span>
@@ -166,7 +167,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=2"></script><script src="/js/study-bookmark.js?v=1"></script><script src="/js/teacher-entry.js?v=7"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/library.js?v=80"></script>',
+    scripts: '<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=2"></script><script src="/js/study-bookmark.js?v=1"></script><script src="/js/teacher-entry.js?v=7"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/library.js?v=81"></script>',
   }));
 });
 

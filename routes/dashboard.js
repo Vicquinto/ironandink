@@ -425,7 +425,7 @@ router.get('/dashboard', requireAuth, (req, res) => {
 `;
 
   const scripts = `
-  <script src="/js/study-map.js?v=2"></script>
+  <script src="/js/study-map.js?v=3"></script>
   <script>
     (function() {
       const h = new Date().getHours();

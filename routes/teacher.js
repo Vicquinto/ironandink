@@ -31,6 +31,7 @@ const { aiLimiter } = require('../middleware/rateLimit');
 // tags stripped) so the model never sees verse text it might echo. Verse text is
 // injected on the way out.
 
+const { inProgressList, sectionTitle, resumeText } = require('../lib/teacher-progress');
 const router = express.Router();
 
 const STUDIES_PATH  = path.join(__dirname, '../data/studies.json');
@@ -207,27 +208,8 @@ function applyTags(session, turnType, at, done, jumpSection) {
   return { at: cur, done: acceptedDone };
 }
 
-function sectionTitle(session, n) {
-  const s = (session.lessonSections || [])[n - 1];
-  return s ? s.title : '';
-}
-
-// The resume panel's line. "Just started" while the only teaching reply so far
-// is the opening; otherwise where the lesson stands in its current section.
-function resumeText(session) {
-  if (!session) return '';
-  if (session.kind === 'check') return 'Last time we were partway through checking your understanding.';
-  const replies = (session.messages || []).filter(m => m.role === 'assistant').length;
-  const cur = session.currentSection || 0;
-  const t = cur ? sectionTitle(session, cur) : '';
-  if (replies <= 1 || !t) return 'Last time we had just started the lesson.';
-  if ((session.doneSections || []).includes(cur)) {
-    const next = sectionTitle(session, cur + 1);
-    return next ? 'Last time we finished “' + t + '”. Next is “' + next + '”.'
-                : 'Last time we finished “' + t + '”, the last section.';
-  }
-  return 'Last time we were partway through “' + t + '”.';
-}
+// sectionTitle / resumeText live in lib/teacher-progress.js (shared with the
+// in-progress list and the Dashboard).
 
 function lessonSummary(session) {
   return {
@@ -489,6 +471,8 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
         <div id="teacherReviewActions" class="end-session-actions" style="display:none;">
           <button class="btn-primary" id="teacherNextBtn" style="display:none;">Study this next &#8594;</button>
           <button class="btn-warm" id="teacherKeepBtn">Back to the study</button>
+          <!-- Takes the session off "Pick up where you left off"; it stays saved. -->
+          <button class="btn-warm" id="teacherDoneBtn">I&#8217;m done with this session</button>
           <button class="btn-discard" id="teacherReviewDeleteBtn">Delete saved session</button>
         </div>
         <p class="teacher-review-saved-note">Your session is saved &#8212; you can pick it up again anytime.</p>
@@ -503,7 +487,7 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
     scripts: `<script src="/js/render-markdown.js?v=2"></script>
 <script src="/js/teacher-entry.js?v=7"></script>
 <script>window.TEACHER_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/teacher.js?v=8"></script>`,
+<script src="/js/teacher.js?v=9"></script>`,
   }));
 });
 
@@ -530,6 +514,42 @@ router.get('/api/teacher/:studyId/sessions', requireAuth, (req, res) => {
   if (!study) return res.status(404).json({ success: false, error: 'Study not found.' });
   res.json(Object.assign({ success: true }, sessionsSummary(readSessions(), req.session.userId, study.id)));
 });
+
+// ─── GET /api/teacher/in-progress ─────────────────────────────────────────────
+// Read-only: the member's unfinished sessions (rule in lib/teacher-progress.js),
+// newest first. userId from the session only.
+router.get('/api/teacher/in-progress', requireAuth, (req, res) => {
+  const items = inProgressList(req.session.userId).map(i => ({
+    studyId:    i.studyId,
+    studyTopic: i.studyTopic,
+    kind:       i.kind,
+    updatedAt:  i.updatedAt,
+    resumeText: i.resumeText,
+    archived:   i.archived,
+  }));
+  res.json({ success: true, items });
+});
+
+// ─── PUT /api/teacher/:studyId/session/done | /hide ───────────────────────────
+// done:   "I'm done with this session" (review). hidden: × on a list item.
+// Either takes the session off the in-progress list; the conversation stays
+// saved and can still be resumed from the study. A new reply clears both.
+// Only the member's own saved session of that kind (userId from the session),
+// keyed like DELETE so it works even if the study is gone.
+function flagSession(field) {
+  return (req, res) => {
+    const sessions = readSessions();
+    const idx = findSessionIndex(sessions, req.session.userId, req.params.studyId, cleanKind(req.query.kind));
+    if (idx === -1) return res.status(404).json({ success: false, error: 'No saved session.' });
+    if (sessions[idx][field] !== true) {
+      sessions[idx][field] = true;
+      writeSessions(sessions);
+    }
+    res.json({ success: true });
+  };
+}
+router.put('/api/teacher/:studyId/session/done', requireAuth, flagSession('done'));
+router.put('/api/teacher/:studyId/session/hide', requireAuth, flagSession('hidden'));
 
 // ─── DELETE /api/teacher/:studyId/session ─────────────────────────────────────
 // Keyed on the study id + the session's own userId, so it works even after the
@@ -754,6 +774,9 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
         console.log(`[Teacher/${kind}] tags at:${at === null ? 'none' : at} done:${done.length ? done.join(',') : 'none'}` +
           ` -> accepted at:${accepted.at} done:${accepted.done.length ? accepted.done.join(',') : 'none'} (${turnType})`);
         session.review    = null;          // a stale review no longer describes the session
+        // Going back to a session makes it in progress again (lib/teacher-progress.js).
+        delete session.done;
+        delete session.hidden;
         session.updatedAt = new Date().toISOString();
         writeSessions(all);
       }

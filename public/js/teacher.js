@@ -725,6 +725,31 @@
     window.location.href = '/study?studyNext=' + encodeURIComponent(nextStudy.topic);
   });
 
+  // "I'm done with this session": off the in-progress list (done: true), the
+  // conversation stays saved; then back to the study, like Back.
+  var doneBtn = document.getElementById('teacherDoneBtn');
+  var doneBusy = false;
+  if (doneBtn) {
+    doneBtn.addEventListener('click', async function () {
+      if (doneBusy) return;
+      doneBusy = true;
+      doneBtn.disabled = true;
+      try {
+        var res  = await fetch('/api/teacher/' + encodeURIComponent(BOOT.studyId) + '/session/done?kind=' + KIND, { method: 'PUT' });
+        var data = await res.json();
+        if (!data.success) throw new Error();
+        closeReview();
+        window.location.href = BOOT.isOwner
+          ? '/library?open=' + encodeURIComponent(BOOT.studyId)
+          : (backLink ? backLink.getAttribute('href') : '/community');
+      } catch (err) {
+        doneBusy = false;
+        doneBtn.disabled = false;
+        showAlertSafe('This session couldn\'t be marked done. Please try again.');
+      }
+    });
+  }
+
   reviewDeleteBtn.addEventListener('click', function () {
     confirmThen('Delete your saved session for this study?', 'Delete', function () {
       deleteSaved(function () {

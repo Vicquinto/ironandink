@@ -10,6 +10,11 @@
   var selectMode      = false;
   var selected        = new Set();   // ids of the selected cards (always ones in view)
   var visibleStudies  = [];          // the cards the current view shows, for Select all
+  // Unfinished Teacher sessions (GET /api/teacher/in-progress): studyId ->
+  // [{ kind, updatedAt }], for the "In progress" view.
+  var teacherProgress       = {};
+  var teacherProgressLoaded = false;
+  var showingInProgress     = false;  // the view renderCards is drawing
 
   // ── Load studies on page load ──────────────────────────────────────────────
   async function loadStudies() {
@@ -21,6 +26,7 @@
       allStudies = data.studies;
       applyFilters();
       loadStudyBookmarks();
+      loadTeacherProgress();
     } catch (err) {
       document.getElementById('studyCardsGrid').innerHTML =
         '<p class="library-empty">Failed to load studies. Please refresh.</p>';
@@ -39,6 +45,30 @@
       })
       .catch(function () {});
   }
+  // In-progress Teacher sessions, fetched once. Best effort: without them the
+  // In progress view is simply empty. Only the member's own studies have cards.
+  function loadTeacherProgress() {
+    fetch('/api/teacher/in-progress')
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.success || !Array.isArray(d.items)) return;
+        var map = {};
+        d.items.forEach(function (it) {
+          if (!it || typeof it.studyId !== 'string') return;
+          (map[it.studyId] = map[it.studyId] || []).push({ kind: it.kind === 'check' ? 'check' : 'lesson', updatedAt: it.updatedAt });
+        });
+        teacherProgress = map;
+      })
+      .catch(function () {})
+      .then(function () { teacherProgressLoaded = true; applyFilters(); });
+  }
+  function inProgressOf(id) {
+    return Object.prototype.hasOwnProperty.call(teacherProgress, id) ? teacherProgress[id] : null;
+  }
+  function teacherResumeHref(id, kind) {
+    return '/teacher/' + encodeURIComponent(id) + '?mode=' + (kind === 'check' ? 'check' : 'lesson') + '&resume=1';
+  }
+
   // A place marked, moved by Listen, or removed in the reader keeps its card current.
   document.addEventListener('ironink:study-bookmark', function (e) {
     var d = e.detail || {};
@@ -108,6 +138,8 @@
             sharedBadge +
             completedBadge +
             lineageBadge(s) +
+            // The In progress view mixes archived studies in: say which.
+            (showingInProgress && isArchived ? '<span class="study-card-archived" title="Archived in your Library">Archived</span>' : '') +
           '</div>' +
           tagsHtml +
           starsHtml +
@@ -144,12 +176,40 @@
         else card.appendChild(placeLine);
       }
 
+      // In progress view: one line per unfinished Teacher session, with its
+      // Continue link (opens the resume panel; never starts anything new).
+      var progress = showingInProgress ? inProgressOf(id) : null;
+      if (progress) {
+        var footerEl = card.querySelector('.study-card-footer');
+        ['lesson', 'check'].forEach(function (kind) {
+          if (!progress.some(function (p) { return p.kind === kind; })) return;
+          var line = document.createElement('div');
+          line.className = 'study-card-teacher';
+          var label = document.createElement('span');
+          label.textContent = kind === 'check' ? 'Understanding check in progress' : 'Lesson in progress';
+          var sep = document.createElement('span');
+          sep.className = 'study-card-teacher-sep';
+          sep.setAttribute('aria-hidden', 'true');
+          sep.textContent = ' \u00b7 ';
+          var go = document.createElement('a');
+          go.className = 'study-card-teacher-go';
+          go.href = teacherResumeHref(id, kind);
+          go.textContent = 'Continue';
+          line.appendChild(label);
+          line.appendChild(sep);
+          line.appendChild(go);
+          if (footerEl) card.insertBefore(line, footerEl); else card.appendChild(line);
+        });
+      }
+
       // Card click → render study inline (skip if clicking the action buttons).
       // Select mode never reaches here: the grid's capture-phase handler
       // (onSelectClick) takes every click inside a card first. The check below
       // is only a second line of defence.
       card.addEventListener('click', function (e) {
         if (selectMode) return;
+        // A Teacher Continue link navigates on its own.
+        if (e.target.closest && e.target.closest('.study-card-teacher-go')) return;
         if (e.target.classList.contains('card-edit-btn') ||
             e.target.classList.contains('card-idea-btn') ||
             e.target.classList.contains('card-archive-btn') ||
@@ -163,6 +223,8 @@
       });
       card.addEventListener('keydown', function (e) {
         if (selectMode) return;   // handled by onSelectKey (capture phase)
+        // Enter on a Continue link follows the link, not the card.
+        if (e.target.closest && e.target.closest('.study-card-teacher-go')) return;
         if (e.key === 'Enter') card.click();
       });
 
@@ -880,6 +942,17 @@
       var savedStatus = localStorage.getItem(STATUS_FILTER_KEY);
       if (savedStatus === 'studying' || savedStatus === 'completed') filterStatusEl.value = savedStatus;
     } catch (e) {}
+    // /library?view=in-progress (the Dashboard's "See all") opens that view.
+    // Like Archived it is never restored from the remembered choice, and the
+    // parameter is dropped from the address.
+    try {
+      var viewUrl = new URL(window.location.href);
+      if (viewUrl.searchParams.get('view') === 'in-progress') {
+        filterStatusEl.value = 'in-progress';
+        viewUrl.searchParams.delete('view');
+        window.history.replaceState(null, '', viewUrl.pathname + viewUrl.search + viewUrl.hash);
+      }
+    } catch (e) {}
     filterStatusEl.addEventListener('change', function () {
       try { localStorage.setItem(STATUS_FILTER_KEY, filterStatusEl.value); } catch (e) {}
       applyFilters();
@@ -1032,6 +1105,7 @@
   var libSelectCancel = document.getElementById('libSelectCancel');
 
   function inArchivedView() { return !!(filterStatusEl && filterStatusEl.value === 'archived'); }
+  function inProgressView() { return !!(filterStatusEl && filterStatusEl.value === 'in-progress'); }
 
   function setSelected(id, on, card) {
     if (on) selected.add(id); else selected.delete(id);
@@ -1047,7 +1121,8 @@
     libSelectBar.hidden = !selectMode || readerOpen();
     if (libSelectBtn) {
       libSelectBtn.setAttribute('aria-pressed', selectMode ? 'true' : 'false');
-      libSelectBtn.hidden = selectMode;
+      // No bulk Archive in the In progress view (it mixes archived and not).
+      libSelectBtn.hidden = selectMode || inProgressView();
     }
     if (!selectMode) return;
     var verb = inArchivedView() ? 'Unarchive' : 'Archive';
@@ -1090,12 +1165,18 @@
     // The view: Archived shows only archived studies; every other choice
     // (All / Studying / Completed) only the ones not archived.
     var viewArchived = statusVal === 'archived';
-    var inView = allStudies.filter(function (s) { return (s.archived === true) === viewArchived; });
+    // In progress: studies with an unfinished Teacher session, archived or not.
+    var viewInProgress = statusVal === 'in-progress';
+    if (viewInProgress && selectMode) { selectMode = false; selected.clear(); }
+    showingInProgress = viewInProgress;
+    var inView = viewInProgress
+      ? allStudies.filter(function (s) { return !!inProgressOf(s.id); })
+      : allStudies.filter(function (s) { return (s.archived === true) === viewArchived; });
 
     var filtered = inView.filter(function (s) {
       var tagOk    = !tagVal    || (s.tags && s.tags.some(function (t) { return t.toLowerCase().includes(tagVal); }));
       var ratingOk = !ratingVal || (s.rating >= ratingVal);
-      var statusOk = (!statusVal || viewArchived) || (statusVal === 'completed' ? !!s.completedAt : !s.completedAt);
+      var statusOk = (!statusVal || viewArchived || viewInProgress) || (statusVal === 'completed' ? !!s.completedAt : !s.completedAt);
       return tagOk && ratingOk && statusOk;
     });
 
@@ -1107,12 +1188,13 @@
 
     var emptyMsg = !allStudies.length
       ? 'No studies saved yet. Head to Study to generate your first study.'
+      : (viewInProgress && !inView.length) ? (teacherProgressLoaded ? 'No Teacher sessions in progress.' : 'Loading\u2026')
       : (viewArchived && !inView.length) ? 'Nothing archived yet.'
       : (!viewArchived && !inView.length) ? 'Every study is archived. Choose \u201cArchived\u201d to see them.'
       : 'No studies match these filters.';
 
     renderCards(filtered, emptyMsg);
-    var narrowed = !!(tagVal || ratingVal || (statusVal && !viewArchived));
+    var narrowed = !!(tagVal || ratingVal || (statusVal && !viewArchived && !viewInProgress));
     renderStudyCount(filtered.length, narrowed, inView.length);
     updateSelectBar();
 
@@ -1121,7 +1203,7 @@
     var hint = document.getElementById('libArchivedHint');
     if (hint) {
       var more = 0;
-      if (!viewArchived && tagVal) {
+      if (!viewArchived && !viewInProgress && tagVal) {   // In progress already includes archived
         more = allStudies.filter(function (s) {
           if (s.archived !== true) return false;
           var tagOk    = s.tags && s.tags.some(function (t) { return t.toLowerCase().includes(tagVal); });

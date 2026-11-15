@@ -3,6 +3,7 @@ const fs      = require('fs');
 const path    = require('path');
 const { requireAuth, renderLayout } = require('./layout');
 const { escapeHtml } = require('../lib/html');
+const { inProgressList, continueHref } = require('../lib/teacher-progress');
 const {
   AREAS, BOOKS, OT_COUNT, getMap, groupStudies, displayPassage, pickRevisit, dismissRevisit,
   isCompleted, lastTouched,
@@ -331,7 +332,7 @@ router.get('/study-map', requireAuth, (req, res) => {
     activeSection: 'study-map',
     title: 'Study Map',
     content,
-    scripts: '<script src="/js/study-map.js?v=2"></script>',
+    scripts: '<script src="/js/study-map.js?v=3"></script>',
   }));
 });
 
@@ -369,6 +370,53 @@ router.post('/api/study-map/revisit/dismiss', requireAuth, (req, res) => {
     res.status(500).json({ success: false, error: 'Could not save that. Please try again.' });
   }
 });
+
+// ─── Pick up where you left off (Dashboard) ──────────────────────────────────
+// Up to 5 unfinished Teacher sessions, newest first (rule in
+// lib/teacher-progress.js). Nothing at all when there are none. The × hides an
+// item from the list (public/js/study-map.js); the session stays saved.
+const PICKUP_MAX = 5;
+const PICKUP_MODE = { lesson: 'Lesson', check: 'Understanding check' };
+function shortDateUTC(iso) {
+  const d = new Date(iso);
+  if (!iso || isNaN(d)) return '';
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+}
+function pickupHtml(userId) {
+  let items = [];
+  try { items = inProgressList(userId); } catch (err) { console.error('[study-map] pick up:', err.message); }
+  if (!items.length) return '';
+  const shown = items.slice(0, PICKUP_MAX);
+  const rows = shown.map(i => {
+    const mode = PICKUP_MODE[i.kind] || 'Lesson';
+    // The date is re-written in the reader's own time zone by study-map.js.
+    const when = i.updatedAt
+      ? ` <span class="sm-pick-sep" aria-hidden="true">&#183;</span> <time class="sm-pick-when" datetime="${escapeHtml(i.updatedAt)}">${escapeHtml(shortDateUTC(i.updatedAt))}</time>`
+      : '';
+    return `
+          <li class="sm-pick-item">
+            <span class="sm-pick-text">
+              <span class="sm-pick-title">${escapeHtml(i.studyTopic)}</span>${archivedTag(i)}
+              <span class="sm-pick-sep" aria-hidden="true">&#183;</span> <span class="sm-pick-mode">${mode}</span>${when}
+            </span>
+            <span class="sm-pick-actions">
+              <a class="sm-pick-go" href="${escapeHtml(continueHref(i))}">Continue</a>
+              <button type="button" class="sm-pick-hide" data-study-id="${escapeHtml(i.studyId)}" data-kind="${i.kind === 'check' ? 'check' : 'lesson'}"
+                      title="Remove from this list" aria-label="Remove from this list">&#215;</button>
+            </span>
+          </li>`;
+  }).join('');
+  const more = items.length > PICKUP_MAX
+    ? '<a class="sm-pick-more" href="/library?view=in-progress">See all in your Library &#8594;</a>'
+    : '';
+  return `
+        <div class="sm-pick" id="smPickup">
+          <div class="sm-snap-sub">Pick up where you left off</div>
+          <ul class="sm-pick-list">${rows}
+          </ul>
+          ${more}
+        </div>`;
+}
 
 // ─── Dashboard snapshot ───────────────────────────────────────────────────────
 // Replaces the old "Studies Saved" count: "Currently studying" (up to 3 studies
@@ -408,6 +456,7 @@ function renderDashboardSnapshot(userId) {
         </div>
         <div class="sm-snap-sub">Currently studying</div>
         ${recent}
+        ${pickupHtml(userId)}
         <div class="sm-snap-sub">Areas you have studied</div>
         ${areas}
         ${revisitHtml(revisit, true)}

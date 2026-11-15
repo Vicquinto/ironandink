@@ -9549,3 +9549,73 @@ a.sm-book-tile.is-studied.is-filtered-out {
 }
 /* Select mode: the whole footer steps aside (the capture guard is unchanged). */
 .study-cards-grid.is-selecting .study-card-footer { display: none; }
+
+/* ─── Pick up where you left off (in-progress Teacher sessions) ─────────────
+   Dashboard list (routes/study-map.js pickupHtml) and the Library "In
+   progress" view's card lines (public/js/library.js). Muted; no counts. */
+.sm-pick-list { list-style: none; margin: 0; padding: 0; }
+.sm-pick-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px 10px;
+  padding: 3px 0;
+}
+.sm-pick-text { min-width: 0; flex: 1 1 12rem; overflow-wrap: anywhere; }
+.sm-pick-title { color: var(--text); }
+.sm-pick-title + .sm-archived { margin-left: 6px; }
+.sm-pick-sep { color: var(--warm-brown); margin: 0 2px; }
+.sm-pick-mode, .sm-pick-when { font-size: 0.85rem; color: var(--warm-brown); }
+.sm-pick-actions { display: inline-flex; align-items: center; gap: 4px; flex: 0 0 auto; }
+.sm-pick-go {
+  font-size: 0.85rem;
+  color: var(--accent);
+  text-decoration: none;
+  padding: 2px 4px;
+}
+.sm-pick-go:hover { text-decoration: underline; }
+.sm-pick-hide {
+  background: transparent;
+  border: none;
+  color: var(--warm-brown);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 2px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.sm-pick-hide:hover { color: var(--accent); }
+.sm-pick-hide:disabled { opacity: 0.5; cursor: wait; }
+.sm-pick-more { display: inline-block; margin-top: 4px; font-size: 0.85rem; color: var(--accent); text-decoration: none; }
+.sm-pick-more:hover { text-decoration: underline; }
+
+.study-card-archived {
+  font-size: 0.72rem;
+  font-style: italic;
+  color: var(--warm-brown);
+  border: 1px solid rgba(160,132,92,0.45);
+  border-radius: 3px;
+  padding: 0 6px;
+  white-space: nowrap;
+}
+.study-card-teacher {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: var(--warm-brown);
+  overflow-wrap: anywhere;
+}
+.study-card-teacher-go { color: var(--accent); text-decoration: none; }
+.study-card-teacher-go:hover { text-decoration: underline; }
+
+/* Phones: Continue and × are at least 44×44px to tap. */
+@media (max-width: 600px) {
+  .sm-pick-go, .sm-pick-hide, .study-card-teacher-go {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .sm-pick-hide { font-size: 1.15rem; }
+}
