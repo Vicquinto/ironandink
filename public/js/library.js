@@ -6,6 +6,10 @@
   var dialoguesLoaded = false;
   var notesLoaded     = false;
   var studyBookmarks  = {};   // studyId → { sectionTitle } — "Stopped at" on the cards
+  // Select mode (bulk Archive / Unarchive) on the Studies tab.
+  var selectMode      = false;
+  var selected        = new Set();   // ids of the selected cards (always ones in view)
+  var visibleStudies  = [];          // the cards the current view shows, for Select all
 
   // ── Load studies on page load ──────────────────────────────────────────────
   async function loadStudies() {
@@ -45,13 +49,18 @@
   });
 
   // ── Render cards ───────────────────────────────────────────────────────────
-  function renderCards(studies) {
+  // emptyMsg - what an empty view says (applyFilters decides: nothing saved,
+  // nothing archived, or nothing matching the filters).
+  function renderCards(studies, emptyMsg) {
     var grid = document.getElementById('studyCardsGrid');
+    grid.classList.toggle('is-selecting', selectMode);
 
     if (!studies.length) {
-      grid.innerHTML = allStudies.length
-        ? '<p class="library-empty">No studies match these filters.</p>'
-        : '<p class="library-empty">No studies saved yet. Head to Study to generate your first study.</p>';
+      var p = document.createElement('p');
+      p.className = 'library-empty';
+      p.textContent = emptyMsg || 'No studies match these filters.';
+      grid.textContent = '';
+      grid.appendChild(p);
       return;
     }
 
@@ -81,10 +90,19 @@
             esc(formatDate(s.completedAt)) + '</span>'
         : '';
 
-      return '<div class="study-card" data-id="' + esc(s.id) + '" tabindex="0" role="button">' +
+      var isArchived = s.archived === true;
+      return '<div class="study-card' + (selected.has(s.id) ? ' is-selected' : '') + '" data-id="' + esc(s.id) + '" tabindex="0" role="button">' +
           '<div class="study-card-header">' +
+            // Select mode only (CSS shows it under .is-selecting).
+            '<label class="card-select" title="Select this study">' +
+              '<input type="checkbox" class="card-select-box" data-id="' + esc(s.id) + '"' +
+                (selected.has(s.id) ? ' checked' : '') + ' aria-label="Select ' + esc(s.topic) + '">' +
+            '</label>' +
             '<h4 class="study-card-title">' + esc(s.topic) + '</h4>' +
             '<div class="card-header-btns">' +
+              '<button class="card-archive-btn" data-id="' + esc(s.id) + '" title="' +
+                (isArchived ? 'Bring this study back to your Library' : 'Put this study away (nothing is deleted)') + '">' +
+                (isArchived ? 'Unarchive' : 'Archive') + '</button>' +
               '<button class="card-edit-btn" data-id="' + esc(s.id) + '" title="Edit">&#9998;</button>' +
               '<button class="card-idea-btn" data-id="' + esc(s.id) + '" title="Save as idea and delete" aria-label="Save as idea and delete">&#9734;&#xFE0E;</button>' +
               '<button class="card-delete-btn" data-id="' + esc(s.id) + '" title="Delete">&#10005;</button>' +
@@ -122,12 +140,31 @@
         else card.appendChild(placeLine);
       }
 
-      // Card click → render study inline (skip if clicking the action buttons)
+      // Card click → render study inline (skip if clicking the action buttons).
+      // In select mode a click toggles the card's checkbox instead.
+      var box = card.querySelector('.card-select-box');
       card.addEventListener('click', function (e) {
+        if (selectMode) {
+          if (e.target !== box) box.checked = !box.checked;
+          setSelected(id, box.checked, card);
+          return;
+        }
         if (e.target.classList.contains('card-edit-btn') ||
             e.target.classList.contains('card-idea-btn') ||
+            e.target.classList.contains('card-archive-btn') ||
             e.target.classList.contains('card-delete-btn')) return;
         if (study) showStudyInline(study);
+      });
+      // The checkbox's label would forward a second click to the box; the
+      // card's handler does the toggling, so stop that one.
+      card.querySelector('.card-select').addEventListener('click', function (e) {
+        if (e.target !== box) e.preventDefault();
+      });
+
+      // Archive / Unarchive - at once, with Undo.
+      card.querySelector('.card-archive-btn').addEventListener('click', function (e) {
+        e.stopPropagation();
+        archiveOne(study, study.archived !== true);
       });
       card.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') card.click();
@@ -415,6 +452,7 @@
   function showStudyInline(study) {
     if (!libGuideArea) return;
     currentInlineStudy = study; // remember which study a Further-Studies click branches from
+    renderArchivedNote(study);
     clearLineageRegions(); // wipe any prior study's lineage before repopulating
     libGuideTitle.textContent = study.topic;
     libGuideBadge.textContent = study.translation || 'ASV';
@@ -721,29 +759,240 @@
     });
   }
 
+  // ── Archive ────────────────────────────────────────────────────────────────
+  // Archive puts a study away: it leaves the main list (All / Studying /
+  // Completed) and shows under "Archived". Nothing else about it changes —
+  // completion, sharing, notes, bookmarks, Teacher sessions, tags, rating,
+  // lineage (routes/library.js). Every change is made here at once and undone
+  // if the server refuses it.
+  function applyArchived(ids, archived, at) {
+    ids.forEach(function (id) {
+      var rec = allStudies.find(function (s) { return s.id === id; });
+      if (!rec) return;
+      rec.archived   = !!archived;
+      rec.archivedAt = archived ? (at || rec.archivedAt || new Date().toISOString()) : null;
+    });
+  }
+
+  var ARCHIVE_BULK_MAX = 200;   // the server's cap per request (routes/library.js)
+  function sendArchive(ids, archived) {
+    // Select all can pass the cap: send it in batches and merge the results.
+    if (ids.length > ARCHIVE_BULK_MAX) {
+      var parts = [];
+      for (var i = 0; i < ids.length; i += ARCHIVE_BULK_MAX) parts.push(ids.slice(i, i + ARCHIVE_BULK_MAX));
+      return Promise.all(parts.map(function (part) { return sendArchive(part, archived); }))
+        .then(function (rs) {
+          return rs.reduce(function (acc, r) {
+            return { done: acc.done.concat(r.done), skipped: acc.skipped + r.skipped, at: acc.at || r.at };
+          }, { done: [], skipped: 0, at: null });
+        });
+    }
+    var single = ids.length === 1;
+    var url    = single ? '/api/library/' + encodeURIComponent(ids[0]) + '/archive' : '/api/library/archive';
+    return fetch(url, {
+      method:  single ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(single ? { archived: archived } : { ids: ids, archived: archived }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.success) throw new Error((d && d.error) || 'Could not update.');
+        if (single) return { done: ids.slice(), skipped: 0, at: d.archivedAt || null };
+        return {
+          done:    (d.updated || []).map(function (u) { return u.id; }),
+          skipped: d.skippedCount || 0,
+          at:      (d.updated && d.updated[0] && d.updated[0].archivedAt) || null,
+        };
+      });
+  }
+
+  // Archive (or bring back) `ids`, refresh the view, then offer Undo.
+  function changeArchive(ids, archived, isUndo) {
+    if (!ids.length) return;
+    var before = {};
+    ids.forEach(function (id) {
+      var rec = allStudies.find(function (s) { return s.id === id; });
+      if (rec) before[id] = { archived: rec.archived === true, archivedAt: rec.archivedAt || null };
+    });
+    applyArchived(ids, archived);
+    applyFilters();
+    if (currentInlineStudy && ids.indexOf(currentInlineStudy.id) !== -1) renderArchivedNote(currentInlineStudy);
+    sendArchive(ids, archived)
+      .then(function (res) {
+        if (res.at) applyArchived(res.done, archived, res.at);
+        // Anything the server skipped goes back to how it was.
+        ids.forEach(function (id) {
+          if (res.done.indexOf(id) === -1 && before[id]) {
+            var rec = allStudies.find(function (s) { return s.id === id; });
+            if (rec) { rec.archived = before[id].archived; rec.archivedAt = before[id].archivedAt; }
+          }
+        });
+        if (res.skipped) applyFilters();
+        if (isUndo) { showToast(archived ? 'Archived again.' : 'Brought back.'); return; }
+        var n = res.done.length;
+        var msg = n === 1 && ids.length === 1
+          ? (archived ? 'Archived.' : 'Unarchived.')
+          : n + ' ' + (n === 1 ? 'study' : 'studies') + ' ' + (archived ? 'archived.' : 'unarchived.');
+        if (res.skipped) msg += ' ' + res.skipped + ' could not be changed.';
+        if (n) showUndoNotice(msg, function () { changeArchive(res.done, !archived, true); });
+        else showToast(msg, true);
+      })
+      .catch(function (err) {
+        Object.keys(before).forEach(function (id) {
+          var rec = allStudies.find(function (s) { return s.id === id; });
+          if (rec) { rec.archived = before[id].archived; rec.archivedAt = before[id].archivedAt; }
+        });
+        applyFilters();
+        if (currentInlineStudy && before[currentInlineStudy.id]) renderArchivedNote(currentInlineStudy);
+        showToast('Error: ' + (err.message || 'Could not update.'), true);
+      });
+  }
+
+  function archiveOne(study, archived) {
+    if (study && study.id) changeArchive([study.id], archived);
+  }
+
+  // A brief notice with an Undo button (the plain toast can't be clicked).
+  var undoEl = null, undoTimer = null;
+  function showUndoNotice(msg, onUndo) {
+    if (!undoEl) {
+      undoEl = document.createElement('div');
+      undoEl.className = 'lib-undo-notice';
+      undoEl.setAttribute('role', 'status');
+      undoEl.setAttribute('aria-live', 'polite');
+      var text = document.createElement('span');
+      text.className = 'lib-undo-text';
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'lib-undo-btn';
+      btn.textContent = 'Undo';
+      undoEl.appendChild(text);
+      undoEl.appendChild(btn);
+      document.body.appendChild(undoEl);
+    }
+    undoEl.querySelector('.lib-undo-text').textContent = msg;
+    var undoBtn = undoEl.querySelector('.lib-undo-btn');
+    var fresh = undoBtn.cloneNode(true);      // drop the previous Undo's handler
+    undoBtn.parentNode.replaceChild(fresh, undoBtn);
+    fresh.addEventListener('click', function () { hideUndoNotice(); onUndo(); });
+    undoEl.classList.add('visible');
+    clearTimeout(undoTimer);
+    undoTimer = setTimeout(hideUndoNotice, 7000);
+  }
+  function hideUndoNotice() {
+    clearTimeout(undoTimer);
+    if (undoEl) undoEl.classList.remove('visible');
+  }
+
+  // In the inline reader: a small "Archived · Unarchive" line for an archived study.
+  var libArchivedNote = document.getElementById('libArchivedNote');
+  var libUnarchiveBtn = document.getElementById('libUnarchiveBtn');
+  function renderArchivedNote(study) {
+    if (!libArchivedNote) return;
+    libArchivedNote.hidden = !(study && study.archived === true);
+  }
+  if (libUnarchiveBtn) {
+    libUnarchiveBtn.addEventListener('click', function () {
+      if (currentInlineStudy) changeArchive([currentInlineStudy.id], false);
+    });
+  }
+
+  // ── Select mode (bulk) ─────────────────────────────────────────────────────
+  var libSelectBtn    = document.getElementById('libSelectBtn');
+  var libSelectBar    = document.getElementById('libSelectBar');
+  var libSelectAction = document.getElementById('libSelectAction');
+  var libSelectAll    = document.getElementById('libSelectAll');
+  var libSelectCancel = document.getElementById('libSelectCancel');
+
+  function inArchivedView() { return !!(filterStatusEl && filterStatusEl.value === 'archived'); }
+
+  function setSelected(id, on, card) {
+    if (on) selected.add(id); else selected.delete(id);
+    if (card) card.classList.toggle('is-selected', !!on);
+    updateSelectBar();
+  }
+
+  function updateSelectBar() {
+    if (!libSelectBar) return;
+    libSelectBar.hidden = !selectMode;
+    if (libSelectBtn) {
+      libSelectBtn.setAttribute('aria-pressed', selectMode ? 'true' : 'false');
+      libSelectBtn.hidden = selectMode;
+    }
+    if (!selectMode) return;
+    var verb = inArchivedView() ? 'Unarchive' : 'Archive';
+    var n = selected.size;
+    libSelectAction.textContent = n ? verb + ' ' + n : verb + ' selected';
+    libSelectAction.disabled = !n;
+  }
+
+  function setSelectMode(on) {
+    selectMode = !!on;
+    selected.clear();
+    applyFilters();
+  }
+
+  if (libSelectBtn)    libSelectBtn.addEventListener('click', function () { setSelectMode(true); });
+  if (libSelectCancel) libSelectCancel.addEventListener('click', function () { setSelectMode(false); });
+  if (libSelectAll) {
+    libSelectAll.addEventListener('click', function () {
+      visibleStudies.forEach(function (s) { selected.add(s.id); });
+      applyFilters();
+    });
+  }
+  if (libSelectAction) {
+    libSelectAction.addEventListener('click', function () {
+      var ids = Array.from(selected);
+      if (!ids.length) return;
+      var archived = !inArchivedView();
+      selectMode = false;
+      selected.clear();
+      changeArchive(ids, archived);   // refreshes the list, then offers Undo
+    });
+  }
+
   function applyFilters() {
     if (!document.getElementById('studyCardsGrid')) return;
     var tagVal    = document.getElementById('filterTag').value.toLowerCase().trim();
     var ratingVal = parseInt(document.getElementById('filterRating').value) || 0;
     var statusVal = filterStatusEl ? filterStatusEl.value : '';
 
-    var filtered = allStudies.filter(function (s) {
+    // The view: Archived shows only archived studies; every other choice
+    // (All / Studying / Completed) only the ones not archived.
+    var viewArchived = statusVal === 'archived';
+    var inView = allStudies.filter(function (s) { return (s.archived === true) === viewArchived; });
+
+    var filtered = inView.filter(function (s) {
       var tagOk    = !tagVal    || (s.tags && s.tags.some(function (t) { return t.toLowerCase().includes(tagVal); }));
       var ratingOk = !ratingVal || (s.rating >= ratingVal);
-      var statusOk = !statusVal || (statusVal === 'completed' ? !!s.completedAt : !s.completedAt);
+      var statusOk = (!statusVal || viewArchived) || (statusVal === 'completed' ? !!s.completedAt : !s.completedAt);
       return tagOk && ratingOk && statusOk;
     });
 
-    renderCards(filtered);
-    renderStudyCount(filtered.length, !!(tagVal || ratingVal || statusVal));
+    // A selection only ever covers cards in view.
+    var visible = {};
+    filtered.forEach(function (s) { visible[s.id] = true; });
+    selected.forEach(function (id) { if (!visible[id]) selected.delete(id); });
+    visibleStudies = filtered;
+
+    var emptyMsg = !allStudies.length
+      ? 'No studies saved yet. Head to Study to generate your first study.'
+      : (viewArchived && !inView.length) ? 'Nothing archived yet.'
+      : (!viewArchived && !inView.length) ? 'Every study is archived. Choose \u201cArchived\u201d to see them.'
+      : 'No studies match these filters.';
+
+    renderCards(filtered, emptyMsg);
+    var narrowed = !!(tagVal || ratingVal || (statusVal && !viewArchived));
+    renderStudyCount(filtered.length, narrowed, inView.length);
+    updateSelectBar();
   }
 
   // Plain count beside the filters: "42 studies", or "Showing 12 of 42 studies"
-  // while a filter narrows the list. Counts the same allStudies the cards render from.
-  function renderStudyCount(shown, isFiltered) {
+  // while a filter narrows the list. Counts within the current view: the
+  // archived studies under Archived, the rest everywhere else.
+  function renderStudyCount(shown, isFiltered, total) {
     var el = document.getElementById('libStudyCount');
     if (!el) return;
-    var total = allStudies.length;
     var noun  = total === 1 ? 'study' : 'studies';
     el.textContent = !total ? ''
       : isFiltered ? 'Showing ' + shown + ' of ' + total + ' ' + noun

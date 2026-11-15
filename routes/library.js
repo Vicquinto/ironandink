@@ -2,6 +2,7 @@ const express   = require('express');
 const fs        = require('fs');
 const path      = require('path');
 const Anthropic = require('@anthropic-ai/sdk');
+const rateLimit = require('express-rate-limit');
 const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
 const notepadRoutes = require('./notepad');
@@ -20,9 +21,30 @@ function readStudies() {
   } catch { return []; }
 }
 
+// Atomic write: a temp file (pid in the name — pm2 reload overlaps two
+// processes for a moment), then rename it over the store, so a crash mid-write
+// leaves the previous file intact rather than a truncated one.
 function writeStudies(data) {
-  fs.writeFileSync(STUDIES_PATH, JSON.stringify(data, null, 2));
+  const tmp = `${STUDIES_PATH}.${process.pid}.tmp`;
+  try {
+    fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
+    fs.renameSync(tmp, STUDIES_PATH);
+  } catch (err) {
+    try { fs.unlinkSync(tmp); } catch { /* already gone */ }
+    throw err;
+  }
 }
+
+// Archive is a light write; this sits under the global /api/ limiter as a
+// second, tighter guard (the bulk route can carry up to ARCHIVE_BULK_MAX ids).
+const archiveLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max:      30,
+  message:  { success: false, error: 'Too many requests. Please wait a moment and try again.' },
+  standardHeaders: true,
+  legacyHeaders:   false,
+});
+const ARCHIVE_BULK_MAX = 200;
 
 // ─── GET /library ─────────────────────────────────────────────────────────────
 router.get('/library', requireAuth, (req, res) => {
@@ -53,8 +75,15 @@ router.get('/library', requireAuth, (req, res) => {
           <option value="">All studies</option>
           <option value="studying">Studying</option>
           <option value="completed">Completed</option>
+          <option value="archived">Archived</option>
         </select>
+        <button type="button" id="libSelectBtn" class="lib-select-btn" aria-pressed="false">Select</button>
         <span id="libStudyCount" class="library-study-count" aria-live="polite"></span>
+      </div>
+      <div id="libSelectBar" class="lib-select-bar" role="toolbar" aria-label="Selected studies" hidden>
+        <button type="button" id="libSelectAction" class="lib-select-action" disabled>Archive selected</button>
+        <button type="button" id="libSelectAll" class="lib-select-link">Select all</button>
+        <button type="button" id="libSelectCancel" class="lib-select-link">Cancel</button>
       </div>
       <div id="studyCardsGrid" class="study-cards-grid">
         <p class="library-loading-msg">Loading&#8230;</p>
@@ -64,6 +93,10 @@ router.get('/library', requireAuth, (req, res) => {
         <div class="guide-header-bar">
           <h3 class="guide-display-title" id="libGuideTitle"></h3>
           <span class="guide-translation-badge" id="libGuideBadge"></span>
+        </div>
+        <div id="libArchivedNote" class="lib-archived-note" hidden>
+          <span class="lib-archived-label">Archived</span>
+          <button type="button" id="libUnarchiveBtn" class="lib-archived-unarchive">Unarchive</button>
         </div>
         <div id="libLineageCrumb" class="lib-lineage-crumb" style="display:none;"></div>
         <div class="guide-font-toolbar">
@@ -132,7 +165,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=2"></script><script src="/js/study-bookmark.js?v=1"></script><script src="/js/teacher-entry.js?v=6"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/library.js?v=75"></script>',
+    scripts: '<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=2"></script><script src="/js/study-bookmark.js?v=1"></script><script src="/js/teacher-entry.js?v=6"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/library.js?v=76"></script>',
   }));
 });
 
@@ -281,6 +314,86 @@ router.put('/api/library/:id/completion', requireAuth, (req, res) => {
       .catch(err => console.error('Bookmark cascade (complete) failed:', err.message));
   }
   res.json({ success: true, completedAt: studies[idx].completedAt || null });
+});
+
+// ─── Archive ──────────────────────────────────────────────────────────────────
+// Archived studies are put away: hidden from the Library's main list (shown
+// under "Archived"), everything else untouched — completion, Community sharing,
+// notes, bookmarks, Teacher sessions, tags, rating and lineage all stay as they
+// are. Fields: archived (true / false) and archivedAt (ISO, null when not
+// archived). A record without them is not archived. Owner only — matched by id
+// AND the session's userId.
+function setArchived(study, archived, now) {
+  if (archived) {
+    if (study.archived !== true) { study.archived = true; study.archivedAt = now; return true; }
+    return false;   // already archived: keep its original date
+  }
+  if (study.archived === true || study.archivedAt) { study.archived = false; study.archivedAt = null; return true; }
+  return false;
+}
+
+// ─── PUT /api/library/:id/archive ─────────────────────────────────────────────
+// Body: { archived: true | false }.
+router.put('/api/library/:id/archive', requireAuth, archiveLimiter, (req, res) => {
+  const archived = req.body && req.body.archived;
+  if (typeof archived !== 'boolean') {
+    return res.status(400).json({ success: false, error: 'Missing archive state.' });
+  }
+  const studies = readStudies();
+  const study = studies.find(s => s && s.id === req.params.id && s.userId === req.session.userId);
+  if (!study) return res.status(404).json({ success: false, error: 'Study not found.' });
+  if (setArchived(study, archived, new Date().toISOString())) {
+    try { writeStudies(studies); }
+    catch (err) {
+      console.error('[library/archive]', err.message);
+      return res.status(500).json({ success: false, error: 'Could not update this study. Nothing was changed.' });
+    }
+  }
+  res.json({ success: true, archived: study.archived === true, archivedAt: study.archivedAt || null });
+});
+
+// ─── POST /api/library/archive ────────────────────────────────────────────────
+// Bulk. Body: { ids: [...], archived: true | false }. At most ARCHIVE_BULK_MAX
+// ids; each one is checked against the session's userId, and any that isn't the
+// member's own (or doesn't exist) is skipped and reported. One write for the batch.
+router.post('/api/library/archive', requireAuth, archiveLimiter, (req, res) => {
+  const body = req.body || {};
+  const archived = body.archived;
+  if (typeof archived !== 'boolean') {
+    return res.status(400).json({ success: false, error: 'Missing archive state.' });
+  }
+  if (!Array.isArray(body.ids) || !body.ids.length) {
+    return res.status(400).json({ success: false, error: 'No studies were chosen.' });
+  }
+  if (body.ids.length > ARCHIVE_BULK_MAX) {
+    return res.status(400).json({ success: false, error: `Choose at most ${ARCHIVE_BULK_MAX} studies at a time.` });
+  }
+  const ids = [...new Set(body.ids.filter(id => typeof id === 'string' && id))];
+  const userId  = req.session.userId;
+  const studies = readStudies();
+  const now     = new Date().toISOString();
+  const byId    = new Map();
+  studies.forEach(s => { if (s && s.id && s.userId === userId) byId.set(s.id, s); });
+
+  const updated = [], skipped = [];
+  let changed = false;
+  ids.forEach(id => {
+    const s = byId.get(id);
+    if (!s) { skipped.push(id); return; }
+    if (setArchived(s, archived, now)) changed = true;
+    updated.push({ id, archived: s.archived === true, archivedAt: s.archivedAt || null });
+  });
+  // Non-string or empty entries are skipped too.
+  const badCount = body.ids.length - body.ids.filter(id => typeof id === 'string' && id).length;
+
+  if (changed) {
+    try { writeStudies(studies); }
+    catch (err) {
+      console.error('[library/archive bulk]', err.message);
+      return res.status(500).json({ success: false, error: 'Could not update these studies. Nothing was changed.' });
+    }
+  }
+  res.json({ success: true, updated, skipped, skippedCount: skipped.length + badCount });
 });
 
 // ─── POST /api/library/:id/opened ─────────────────────────────────────────────

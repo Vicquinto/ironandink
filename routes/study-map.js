@@ -66,6 +66,10 @@ function memberEntries(userId) {
       savedAt:     s.savedAt || s.createdAt || null,
       openedAt:    s.openedAt || null,
       completedAt: isCompleted(s) ? s.completedAt : null,
+      // Archived studies stay on the Study Map (every view, Revisit, the
+      // duplicate-topic heads-up); only the Dashboard's "Currently studying"
+      // leaves them out.
+      archived:    s.archived === true,
       map:         getMap(s),
       sessions:    sessions[s.id] || {},
     }));
@@ -371,7 +375,7 @@ function renderDashboardSnapshot(userId) {
   const revisit = pickRevisit(entries, revisitPrefs(userId));
 
   const studying = entries
-    .filter(e => !e.completedAt)
+    .filter(e => !e.completedAt && !e.archived)   // put away → not "currently studying"
     .sort((a, b) => lastTouched(b) - lastTouched(a))
     .slice(0, 3);
   const recent = studying.length

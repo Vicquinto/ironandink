@@ -9294,3 +9294,153 @@ a.sm-book-tile.is-studied.is-filtered-out {
 @media print {
   .study-bookmark-ribbon, .study-bookmark-bar { display: none !important; }
 }
+
+/* ── Library: Archive (library.js) ──
+   Quiet text buttons, the select-mode toolbar and checkboxes, the Undo notice,
+   and the reader's "Archived · Unarchive" line. Theme tokens only. */
+.card-archive-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: Georgia, serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.02em;
+  padding: 2px 4px;
+  line-height: 1;
+  color: rgba(160,132,92,0.75);
+  transition: color 0.15s;
+}
+.card-archive-btn:hover { color: var(--accent); text-decoration: underline; }
+
+.lib-select-btn,
+.lib-select-link {
+  background: none;
+  border: 1px solid rgba(160,132,92,0.45);
+  border-radius: 4px;
+  color: var(--warm-brown);
+  font-family: Georgia, serif;
+  font-size: 0.85rem;
+  padding: 5px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.lib-select-link { border-color: transparent; text-decoration: underline; padding: 5px 8px; }
+.lib-select-btn:hover,
+.lib-select-link:hover { color: var(--accent); border-color: rgba(92,26,40,0.45); }
+.lib-select-link:hover { border-color: transparent; }
+.lib-select-btn[hidden] { display: none; }
+.lib-select-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  margin: -12px 0 18px;
+  padding: 8px 12px;
+  border: 1px solid rgba(160,132,92,0.3);
+  border-radius: 6px;
+  background: rgba(107,66,38,0.05);
+}
+.lib-select-bar[hidden] { display: none; }
+.lib-select-action {
+  background: var(--accent);
+  color: var(--ink);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  font-family: Georgia, serif;
+  font-size: 0.88rem;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+.lib-select-action:hover { background: #4A1520; }
+.lib-select-action:disabled { opacity: 0.5; cursor: default; background: var(--accent); }
+
+/* Checkbox: only in select mode. The card's own buttons step aside then. */
+.card-select { display: none; flex-shrink: 0; align-items: center; justify-content: center; cursor: pointer; }
+.card-select-box { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; margin: 0; }
+.study-cards-grid.is-selecting .card-select { display: inline-flex; min-width: 28px; min-height: 28px; }
+.study-cards-grid.is-selecting .card-header-btns { display: none; }
+.study-cards-grid.is-selecting .study-card-header { justify-content: flex-start; }
+.study-cards-grid.is-selecting .study-card-title { flex: 1 1 auto; min-width: 0; }
+.study-card.is-selected { border-color: var(--accent); background: rgba(92,26,40,0.05); }
+
+/* Brief notice with Undo (the plain toast is not clickable). */
+.lib-undo-notice {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: calc(100vw - 32px);
+  box-sizing: border-box;
+  background: var(--card-bg);
+  border: 1px solid rgba(160,132,92,0.45);
+  box-shadow: 0 2px 10px rgba(30,18,8,0.15);
+  color: var(--text);
+  padding: 8px 10px 8px 18px;
+  border-radius: 5px;
+  font-size: 0.88rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+  z-index: 2001;
+}
+.lib-undo-notice.visible { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.lib-undo-text { min-width: 0; overflow-wrap: anywhere; }
+.lib-undo-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-family: Georgia, serif;
+  font-size: 0.88rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 4px 8px;
+  flex-shrink: 0;
+}
+
+/* Inline reader: small muted "Archived · Unarchive" near the top. */
+.lib-archived-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -4px 0 12px;
+  font-size: 0.82rem;
+  color: var(--warm-brown);
+}
+.lib-archived-note[hidden] { display: none; }
+.lib-archived-label {
+  font-style: italic;
+  letter-spacing: 0.04em;
+  border: 1px solid rgba(160,132,92,0.45);
+  border-radius: 3px;
+  padding: 0 6px;
+}
+.lib-archived-unarchive {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-family: Georgia, serif;
+  font-size: 0.82rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+@media (max-width: 600px) {
+  .library-filter-bar { flex-wrap: wrap; gap: 10px; }
+  .library-filter-input { flex: 1 1 100%; max-width: none; }
+  .library-filter-select { flex: 1 1 140px; width: auto; min-width: 0; }
+  .library-study-count { margin-left: 0; }
+  .lib-select-btn,
+  .lib-select-link,
+  .lib-select-action,
+  .lib-undo-btn,
+  .lib-archived-unarchive { min-height: 44px; }
+  .lib-select-bar { margin-top: -4px; }
+  .lib-select-action { flex: 1 1 100%; }
+  .study-cards-grid.is-selecting .card-select { min-width: 44px; min-height: 44px; }
+  .card-select-box { width: 22px; height: 22px; }
+  .card-archive-btn { min-height: 32px; padding: 4px 6px; }
+}
