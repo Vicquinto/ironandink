@@ -8150,6 +8150,14 @@ body {
   border-top: 1px solid rgba(160,132,92,0.18);
   text-align: center;
 }
+/* "Saved session, pick up where you left off" under a Teacher button. */
+.teacher-entry-saved {
+  font-size: 0.8rem;
+  color: var(--warm-brown);
+  opacity: 0.85;
+  overflow-wrap: anywhere;
+}
+.teacher-entry-saved-end { display: block; margin-top: 8px; }
 .teacher-entry-end-label {
   font-size: 0.86rem;
   font-style: italic;
@@ -8307,6 +8315,20 @@ body {
 }
 .teacher-resume-text { margin: 0 0 12px; line-height: 1.6; }
 .teacher-resume-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+/* The Continue link in the lesson-or-check panel reads as a button. */
+.teacher-other .teacher-resume-actions a.btn-primary { text-decoration: none; display: inline-block; }
+/* "You also have a saved …" — one muted line under the panel / header. */
+.teacher-also {
+  margin: 6px 0 2px;
+  font-size: 0.85em;
+  overflow-wrap: anywhere;
+}
+.teacher-also a {
+  color: var(--warm-brown);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.teacher-also a:hover { color: var(--accent); }
 
 .teacher-quick-replies {
   display: flex;

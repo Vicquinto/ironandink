@@ -267,6 +267,18 @@ function savedSummary(session) {
   }, lessonSummary(session));
 }
 
+// Both of the member's saved sessions for a study, one per kind, for finding
+// them again: { lesson, check }, each { exists, updatedAt, resumeText } or null.
+// Old Tutor/Teacher records (kind "tutor" / "teacher" / no kind) never match a
+// kind here, so they are left out.
+function sessionsSummary(sessions, userId, studyId) {
+  const one = kind => {
+    const s = findSession(sessions, userId, studyId, kind);
+    return s ? { exists: true, updatedAt: s.updatedAt || null, resumeText: resumeText(s) } : null;
+  };
+  return { lesson: one('lesson'), check: one('check') };
+}
+
 // ─── Hidden turns ─────────────────────────────────────────────────────────────
 // The opening (hidden) user turn for each entry point.
 function openingTurn(mode, sec) {
@@ -353,8 +365,12 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
   if (mode !== 'section') section = null;
   const kind = kindOfMode(mode);
 
-  const saved = findSession(readSessions(), req.session.userId, study.id, kind);
+  const allSessions = readSessions();
+  const saved = findSession(allSessions, req.session.userId, study.id, kind);
   const isOwner = study.userId === req.session.userId;
+  // Which mode this page is, in words (top label + conversation header).
+  const modeLabel  = kind === 'check' ? 'Check my understanding' : 'Study with a Teacher';
+  const headerName = kind === 'check' ? 'Understanding check' : 'Your Teacher';
 
   const boot = {
     studyId:     study.id,
@@ -363,8 +379,10 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
     translation: study.translation || 'ASV',
     sections:    sessionSections(saved, study),
     kind,
-    entry:       { mode, section },
+    entry:       { mode, section, resume: req.query.resume === '1' },
     saved:       savedSummary(saved),
+    // Both saved sessions (lesson + check), so the page can point to the other one.
+    sessions:    sessionsSummary(allSessions, req.session.userId, study.id),
     isOwner,
     rootId:      study.rootId || study.id,
     // Completion is the owner's alone: sent only for their own study.
@@ -375,7 +393,7 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
     <div class="teacher-page">
       <div class="teacher-topbar">
         <div class="teacher-topbar-meta">
-          <span class="teacher-topbar-label">Study with a Teacher</span>
+          <span class="teacher-topbar-label">${modeLabel}</span>
           <h2 class="teacher-topbar-title">${escapeHtml(study.topic)}</h2>
         </div>
         <a class="btn-warm teacher-back-link" href="${isOwner ? '/library' : '/community'}">&#8592; Back</a>
@@ -389,7 +407,7 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
         <section class="teacher-conversation" id="teacherConversation" aria-label="Conversation">
           <div class="conversation-header">
             <span class="teacher-header-meta">
-              <span class="conversation-header-title">Your Teacher</span>
+              <span class="conversation-header-title">${headerName}</span>
               <span class="teacher-now" id="teacherNow"></span>
             </span>
             <span class="teacher-header-tools">
@@ -413,6 +431,18 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
               <button class="btn-discard" id="teacherDeleteBtn">Delete saved session</button>
             </div>
           </div>
+
+          <!-- A lesson opened with only an understanding check saved: offer it
+               before starting anything (public/js/teacher.js). -->
+          <div id="teacherOther" class="teacher-resume teacher-other" style="display:none;">
+            <p class="teacher-resume-text" id="teacherOtherText"></p>
+            <div class="teacher-resume-actions">
+              <a class="btn-primary" id="teacherOtherContinue" href="#">Continue my understanding check</a>
+              <button class="btn-warm" id="teacherOtherNew">Start a new lesson</button>
+            </div>
+          </div>
+          <!-- "You also have a saved …": the other kind's saved session. -->
+          <p class="teacher-also" id="teacherAlso" hidden><a id="teacherAlsoLink" href="#"></a></p>
 
           <div id="teacherMessages" class="chat-messages teacher-messages" aria-live="polite"></div>
 
@@ -471,9 +501,9 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
     title: 'Study with a Teacher',
     content,
     scripts: `<script src="/js/render-markdown.js?v=2"></script>
-<script src="/js/teacher-entry.js?v=6"></script>
+<script src="/js/teacher-entry.js?v=7"></script>
 <script>window.TEACHER_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/teacher.js?v=7"></script>`,
+<script src="/js/teacher.js?v=8"></script>`,
   }));
 });
 
@@ -490,6 +520,15 @@ router.get('/api/teacher/:studyId/session', requireAuth, (req, res) => {
       review:     session.review || null,
     }),
   });
+});
+
+// ─── GET /api/teacher/:studyId/sessions ───────────────────────────────────────
+// Read-only: which of the member's sessions (lesson, check) are saved for this
+// study. The member is the session's userId only; nothing else is accepted.
+router.get('/api/teacher/:studyId/sessions', requireAuth, (req, res) => {
+  const study = findReadableStudy(req, req.params.studyId);
+  if (!study) return res.status(404).json({ success: false, error: 'Study not found.' });
+  res.json(Object.assign({ success: true }, sessionsSummary(readSessions(), req.session.userId, study.id)));
 });
 
 // ─── DELETE /api/teacher/:studyId/session ─────────────────────────────────────

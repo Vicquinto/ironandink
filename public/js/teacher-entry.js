@@ -113,6 +113,33 @@
     }
   }
 
+  // GET /api/teacher/:id/sessions → { lesson, check } (routes/teacher.js). A
+  // failure just leaves the captions off. Skipped if the study was re-rendered
+  // meanwhile (the old buttons are gone).
+  var SAVED_CAPTION = 'Saved session, pick up where you left off';
+  function savedCaption() {
+    var p = document.createElement('span');
+    p.className = 'teacher-entry-saved';
+    p.textContent = SAVED_CAPTION;
+    return p;
+  }
+  function showSavedCaptions(studyId, lessonWrap, endEl) {
+    fetch('/api/teacher/' + encodeURIComponent(studyId) + '/sessions')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d || !d.success) return;
+        if (d.lesson && d.lesson.exists && lessonWrap && lessonWrap.isConnected) lessonWrap.appendChild(savedCaption());
+        if (d.check && d.check.exists && endEl && endEl.isConnected) {
+          // Last in the end block, as its own line under the button row (Mark
+          // complete sits beside the button there).
+          var c = savedCaption();
+          c.classList.add('teacher-entry-saved-end');
+          endEl.appendChild(c);
+        }
+      })
+      .catch(function () {});
+  }
+
   function remove(container) {
     if (!container) return;
     // Stop any reading of the old study before its Listen controls go (Listen
@@ -150,6 +177,7 @@
     // Top: the way in, with a one-line description.
     var top = document.createElement('div');
     top.className = 'teacher-entry teacher-entry-top';
+    var lessonWrap = null;   // the Study with a Teacher choice (for its saved caption)
     function topChoice(label, desc, title, mode) {
       var wrap = document.createElement('div');
       wrap.className = 'teacher-entry-choice';
@@ -161,6 +189,7 @@
       wrap.appendChild(btn);
       wrap.appendChild(note);
       top.appendChild(wrap);
+      if (mode === 'lesson') lessonWrap = wrap;
     }
     topChoice('Study with a Teacher', 'Walk through this study with a teacher, section by section.',
       'A teacher takes you through this study in order, and you can ask anything along the way', 'lesson');
@@ -187,6 +216,11 @@
     end.appendChild(endLabel);
     end.appendChild(endBtn);
     container.appendChild(end);
+
+    // A saved session for either kind: one quiet caption under its button, so
+    // the member can tell which one they left off in. No counts, dates or
+    // progress. Asked once per attach, for a study that already has an id.
+    if (opts.studyId) showSavedCaptions(opts.studyId, lessonWrap, end);
 
     // Mark complete — at the top beside Study with a Teacher and at the
     // end beside Check my understanding, kept in step with each other. Shown

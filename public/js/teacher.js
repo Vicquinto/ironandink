@@ -50,6 +50,59 @@
   var reviewDeleteBtn = document.getElementById('teacherReviewDeleteBtn');
   var backLink        = document.querySelector('.teacher-back-link');
   var nowEl           = document.getElementById('teacherNow');
+  var otherPanel      = document.getElementById('teacherOther');
+  var otherText       = document.getElementById('teacherOtherText');
+  var otherContinue   = document.getElementById('teacherOtherContinue');
+  var otherNewBtn     = document.getElementById('teacherOtherNew');
+  var alsoEl          = document.getElementById('teacherAlso');
+  var alsoLink        = document.getElementById('teacherAlsoLink');
+
+  // ── The other saved session (lesson ↔ understanding check) ───────────────
+  // BOOT.sessions: { lesson, check }, each { exists, updatedAt, resumeText } or
+  // null (routes/teacher.js sessionsSummary). The links carry resume=1: the
+  // page they open shows its saved session and never starts a new one.
+  var SESSIONS = BOOT.sessions || {};
+  var OTHER    = KIND === 'lesson' ? (SESSIONS.check || null) : (SESSIONS.lesson || null);
+  var PAGE_URL = '/teacher/' + encodeURIComponent(BOOT.studyId);
+  var CHECK_URL  = PAGE_URL + '?mode=check&resume=1';
+  var LESSON_URL = PAGE_URL + '?mode=lesson&resume=1';
+
+  // "November 15, 2026, 3:42 PM" — '' for a missing or bad date.
+  function formatWhen(iso) {
+    var d = new Date(iso);
+    if (!iso || isNaN(d)) return '';
+    return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) + ', ' +
+           d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  }
+
+  // One muted line pointing to the other kind's saved session. It sits just
+  // under the resume panel, or under the header when there is no panel.
+  function showAlso() {
+    if (!alsoEl || !alsoLink || !OTHER) return;
+    alsoLink.textContent = KIND === 'lesson' ? 'You also have a saved understanding check.' : 'You also have a saved lesson.';
+    alsoLink.href = KIND === 'lesson' ? CHECK_URL : LESSON_URL;
+    alsoEl.hidden = false;
+  }
+  function hideAlso() { if (alsoEl) alsoEl.hidden = true; }
+
+  // A lesson opened with NO saved lesson but a saved understanding check:
+  // nothing starts until the reader picks.
+  function showOtherPanel() {
+    var when = formatWhen(OTHER && OTHER.updatedAt);
+    otherText.textContent = 'You have a saved understanding check for this study' +
+      (when ? ' (last worked on ' + when + ')' : '') + '.';
+    otherContinue.href = CHECK_URL;
+    hideAlso();
+    otherPanel.style.display = 'block';
+  }
+  function hideOther() { if (otherPanel) otherPanel.style.display = 'none'; }
+  if (otherNewBtn) {
+    otherNewBtn.addEventListener('click', function () {
+      hideOther();
+      showAlso();
+      startNew();
+    });
+  }
 
   // Reader controls: each posts an action; the bubble shows the button's label.
   var ACTION_LABELS = {
@@ -352,6 +405,7 @@
   // ── Starting / resuming ──────────────────────────────────────────────────
   async function startNew() {
     hideResume();
+    hideOther();
     messagesEl.innerHTML = '';
     sessionActive = false;
     resetLessonView();
@@ -688,12 +742,23 @@
     setLessonState(BOOT.saved);
     shownSection = jumpTo;
     jumpInSaved(jumpTo);
+    showAlso();
   } else if (BOOT.saved) {
     setLessonState(BOOT.saved);
     startOverBtn.textContent = startOverLabel();
     // The line comes from the server (routes/teacher.js resumeText).
     showResumePanel(BOOT.saved.resumeText || 'Last time we had just started the lesson.', { begin: false });
+    showAlso();
+  } else if (KIND === 'lesson' && OTHER) {
+    // No saved lesson, but a saved understanding check: ask first.
+    showOtherPanel();
+  } else if (BOOT.entry && BOOT.entry.resume) {
+    // Came here to pick a session up (a "saved session" link), but it is gone:
+    // offer to begin rather than starting one unasked.
+    showRetry();
+    showAlso();
   } else {
+    showAlso();   // a check that starts at once: the line sits under the header
     startNew();
   }
 
