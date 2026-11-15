@@ -115,8 +115,10 @@
 
   function remove(container) {
     if (!container) return;
-    // Stop any reading of the old study before its Listen controls go.
+    // Stop any reading of the old study before its Listen controls go (Listen
+    // saves the place it was reading first, so the bookmark goes after it).
     if (container.__studyListen) { container.__studyListen.destroy(); container.__studyListen = null; }
+    if (global.IronInkStudyBookmark) global.IronInkStudyBookmark.destroy(container);
     container.querySelectorAll('.teacher-entry').forEach(function (el) { el.remove(); });
   }
 
@@ -205,6 +207,9 @@
           setCompletion(id, completed)
             .then(function (at) {
               state.completedAt = at;
+              // Completing clears the member's saved place (the server deletes it
+              // too); Undo does not bring it back.
+              if (at && container.__studyBookmark) container.__studyBookmark.forget(id);
               if (typeof opts.onCompletionChange === 'function') opts.onCompletionChange(at, id);
             })
             .catch(function (err) {
@@ -226,6 +231,26 @@
     // Listen (read-aloud) — beside the top choices, where study-listen.js is
     // loaded (study page, Library, Community; not the Teacher page).
     if (global.IronInkStudyListen) global.IronInkStudyListen.attach(container, top);
+
+    // Bookmarks — the ribbon, "Pick up where you left off", and the target for
+    // the highlight panel's "Mark my place" (study-bookmark.js, loaded with
+    // study-listen.js). A fresh draft is saved first, as Mark complete is.
+    if (global.IronInkStudyBookmark) {
+      global.IronInkStudyBookmark.attach(container, {
+        getId: function () { return opts.studyId || null; },
+        resolveId: (typeof opts.resolveId === 'function') ? function (cb) {
+          opts.resolveId(function (err, id) {
+            if (err || !id) {
+              if (typeof global.showAlert === 'function') global.showAlert('The study needs to be saved to your Library first. Please try again.');
+              cb(null);
+              return;
+            }
+            opts.studyId = id;
+            cb(id);
+          });
+        } : null,
+      });
+    }
   }
 
   global.IronInkTeacher = {

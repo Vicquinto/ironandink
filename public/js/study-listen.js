@@ -21,11 +21,18 @@
   // Everything it adds carries .teacher-entry, so the notepad's text walker
   // skips it, print CSS hides it, and teacher-entry's remove() clears it on a
   // re-render (attach() then stops the old reading first).
+  //
+  // Saves your place (study-bookmark.js): when reading that ran at least
+  // MIN_RUN_MS is stopped — the Stop button, closing the player, Back/Forward,
+  // the study leaving the screen, another study opening, or leaving the page
+  // (sendBeacon) — the block being read becomes the study's bookmark. Reaching
+  // "End of study." on its own leaves the bookmark as it was.
 
   var READING_CLASS  = 'study-reading-block';
   var HEADING_PAUSE  = 450;    // ms of silence after a heading
   var BLOCK_SEL      = 'h1, h2, h3, h4, h5, h6, p, li, blockquote';
   var WATCH_MS       = 1000;   // how often to check the study is still on screen
+  var MIN_RUN_MS     = 5000;   // reading must have run this long to save a place
 
   var TRANSLATION_LABEL = /\(\s*(?:NASB(?:\s*1995)?|ASV|KJV|ESV|NIV|NKJV)\s*\)/g;
   var NOTICE_RE = /Lockman Foundation|New American Standard Bible\s*®|American Standard Version \(1901/i;
@@ -168,6 +175,27 @@
     var blocks = [], texts = [];
     var current = null;   // block element tinted now
     var watch = null;
+    var lastIdx = -1;     // block last started (for saving the place)
+    var ranMs   = 0;      // time spent actually reading, since this run began
+    var ended   = false;  // ran to the end of the study on its own
+
+    // Save the block being read as the study's bookmark — only for a run that
+    // is still going (playing or paused), lasted MIN_RUN_MS, and didn't reach
+    // the end. how: { beacon } when leaving the page, { ui: false } when the
+    // container already shows something else.
+    function savePlace(how) {
+      var st = player && player.getState();
+      if (st !== 'playing' && st !== 'paused') return;
+      if (ended || lastIdx < 0 || ranMs < MIN_RUN_MS) return;
+      var bm = container.__studyBookmark;
+      if (!bm || typeof bm.saveFromBlocks !== 'function') return;
+      ranMs = 0;   // saved once per run; a second stop path doesn't repeat it
+      bm.saveFromBlocks(blocks, lastIdx, how || {});
+    }
+
+    // Registered before the player's own Stop listener, so this runs while the
+    // state is still playing / paused.
+    stopBtn.addEventListener('click', function () { savePlace(); });
 
     function refreshBlocks() {
       blocks = collectBlocks(container);
@@ -197,7 +225,8 @@
       if (watch) return;
       watch = setInterval(function () {
         if (player.getState() === 'idle') { clearInterval(watch); watch = null; return; }
-        if (!onScreen(container)) player.stop();   // back to the list, another view, …
+        if (player.getState() === 'playing') ranMs += WATCH_MS;
+        if (!onScreen(container)) { savePlace(); player.stop(); }   // back to the list, another view, …
       }, WATCH_MS);
     }
 
@@ -207,13 +236,17 @@
       voiceRank:  /natural|online|premium|enhanced/i,
       count:      function () { return blocks.length; },
       textAt:     function (i) { return texts[i] || ''; },
-      onBlock:    function (i) { if (blocks[i]) tint(blocks[i]); },
+      onBlock:    function (i) { lastIdx = i; if (blocks[i]) tint(blocks[i]); },
       onClear:    clearTint,
       // A start from Stop re-reads the blocks (markers or buttons may have been
       // added since); a jump, resume or new speed keeps the same list.
-      onStart:    function () { if (player.getState() === 'idle') refreshBlocks(); startWatch(); },
+      // A start from Stop is a new run: the time read and the end flag reset.
+      onStart:    function () {
+        if (player.getState() === 'idle') { refreshBlocks(); ranMs = 0; ended = false; lastIdx = -1; }
+        startWatch();
+      },
       pauseAfter: function (i) { return (blocks[i] && isHeading(blocks[i])) ? HEADING_PAUSE : 0; },
-      onEnd:      function (p) { clearTint(); p.speakLine('End of study.', p.stop); },
+      onEnd:      function (p) { ended = true; clearTint(); p.speakLine('End of study.', p.stop); },
     });
     if (!player) { choice.remove(); bar.remove(); return; }
 
@@ -225,6 +258,7 @@
       listenBtn.setAttribute('aria-expanded', 'true');
     }
     function closeBar() {
+      savePlace();
       player.stop();
       bar.hidden = true;
       listenBtn.textContent = 'Listen';
@@ -259,20 +293,30 @@
     container.addEventListener('click', onContainerClick);
 
     // Browser back/forward within the page's own history: stop.
-    function onPop() { if (player.getState() !== 'idle') player.stop(); }
+    function onPop() { if (player.getState() !== 'idle') { savePlace(); player.stop(); } }
     global.addEventListener('popstate', onPop);
+
+    // Leaving the page: the request must outlive it — sendBeacon to the POST route.
+    function onPageHide() { savePlace({ beacon: true, ui: false }); }
+    global.addEventListener('pagehide', onPageHide);
 
     container.__studyListen = {
       destroy: function () {
+        // Another study (or a re-render) is replacing this one: save the place
+        // in the study that was being read, without drawing on the new content.
+        savePlace({ ui: false });
         player.destroy();
         clearTint();
         if (watch) { clearInterval(watch); watch = null; }
         container.removeEventListener('click', onContainerClick);
         global.removeEventListener('popstate', onPop);
+        global.removeEventListener('pagehide', onPageHide);
       },
     };
   }
 
-  global.IronInkStudyListen = { attach: attach };
+  // collectBlocks is shared with study-bookmark.js, so a bookmark's blockIndex
+  // means the same block Listen reads.
+  global.IronInkStudyListen = { attach: attach, collectBlocks: collectBlocks };
 
 }(window));

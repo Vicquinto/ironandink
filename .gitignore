@@ -38,3 +38,6 @@ nasb.diff
 
 # Backups written by scripts/number-study-verses.js --apply
 data/*.backup-verse-numbers-*.json
+
+# Study bookmarks (routes/study-bookmarks.js)
+data/study_bookmarks.json

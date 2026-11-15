@@ -5,6 +5,7 @@ const Anthropic = require('@anthropic-ai/sdk');
 const { randomUUID } = require('crypto');
 const { requireAuth, renderLayout } = require('./layout');
 const notepadRoutes = require('./notepad');
+const { deleteBookmarksForStudy } = require('./study-bookmarks');
 const { injectWithAttribution, resolve, NASB_ATTRIBUTION } = require('../lib/asv');
 const { takeGeneratedMap, deriveMap } = require('../lib/study-map');
 const geo = require('../lib/geo');
@@ -131,7 +132,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=1"></script><script src="/js/teacher-entry.js?v=5"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/library.js?v=74"></script>',
+    scripts: '<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=2"></script><script src="/js/study-bookmark.js?v=1"></script><script src="/js/teacher-entry.js?v=6"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/library.js?v=75"></script>',
   }));
 });
 
@@ -272,6 +273,13 @@ router.put('/api/library/:id/completion', requireAuth, (req, res) => {
     studies[idx].completedAt = null;   // Undo: back to Studying, date cleared
   }
   writeStudies(studies);
+
+  // Finished: the member's saved place in it is no longer needed. Undo does
+  // not bring it back. Best effort — a damaged bookmark store changes nothing.
+  if (completed) {
+    deleteBookmarksForStudy(req.params.id, req.session.userId)
+      .catch(err => console.error('Bookmark cascade (complete) failed:', err.message));
+  }
   res.json({ success: true, completedAt: studies[idx].completedAt || null });
 });
 
@@ -319,6 +327,9 @@ router.delete('/api/library/:id', requireAuth, (req, res) => {
   // nothing (the notes are left orphaned rather than the store overwritten).
   notepadRoutes.deleteNotepadsForStudy(req.params.id, req.session.userId)
     .catch(err => console.error('Notepad cascade delete failed:', err.message));
+  // …and every member's bookmark in it (a shared study may have readers' marks).
+  deleteBookmarksForStudy(req.params.id, null)
+    .catch(err => console.error('Bookmark cascade delete failed:', err.message));
 
   res.json({ success: true });
 });

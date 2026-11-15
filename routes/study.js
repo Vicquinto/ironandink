@@ -381,7 +381,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=1"></script><script src="/js/teacher-entry.js?v=5"></script><script src="/js/study.js?v=30"></script><script src="/js/study-planner.js?v=6"></script><script src="/js/study-ideas.js?v=3"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/library.js?v=74"></script>
+    scripts: `<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=2"></script><script src="/js/study-bookmark.js?v=1"></script><script src="/js/teacher-entry.js?v=6"></script><script src="/js/study.js?v=30"></script><script src="/js/study-planner.js?v=6"></script><script src="/js/study-ideas.js?v=3"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/library.js?v=75"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${inlineJson((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};

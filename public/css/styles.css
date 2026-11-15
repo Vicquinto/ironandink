@@ -9196,3 +9196,101 @@ a.sm-book-tile.is-studied.is-filtered-out {
   color: var(--warm-brown);
   padding: 4px 0;
 }
+
+/* ── Study bookmarks (study-bookmark.js) ──
+   One ribbon per study beside the marked block (positioned in the margin by
+   placeRibbon; this left is the fallback), the "Pick up where you left off"
+   bar, and the Library card line. All quiet: no counts, no progress. */
+.study-bookmark-block { position: relative; }
+.study-bookmark-ribbon {
+  position: absolute;
+  left: -18px;
+  top: 0.25em;
+  width: 9px;
+  height: 20px;
+  background: var(--accent);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 72%, 0 100%);
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.study-bookmark-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 14px;
+  padding: 7px 10px 7px 12px;
+  border: 1px solid rgba(160,132,92,0.3);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  background: rgba(107,66,38,0.05);
+  font-family: Georgia, serif;
+  font-size: 0.9rem;
+  color: var(--warm-brown);
+  line-height: 1.4;
+}
+.study-bookmark-bar[hidden] { display: none; }
+.study-bookmark-bar-text { flex: 1 1 220px; min-width: 0; overflow-wrap: anywhere; font-style: italic; }
+.study-bookmark-go {
+  background: var(--accent);
+  color: var(--ink);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  font-family: Georgia, serif;
+  font-size: 0.85rem;
+  padding: 4px 12px;
+  cursor: pointer;
+}
+.study-bookmark-go:hover { background: #4A1520; }
+.study-bookmark-remove {
+  background: none;
+  border: none;
+  color: var(--warm-brown);
+  font-family: Georgia, serif;
+  font-size: 0.84rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+.study-bookmark-remove:hover { color: var(--accent); }
+.study-bookmark-remove:disabled { opacity: 0.5; cursor: wait; }
+.study-bookmark-close {
+  background: none;
+  border: none;
+  color: var(--warm-brown);
+  font-size: 1.15rem;
+  line-height: 1;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+.study-bookmark-close:hover { color: var(--accent); }
+@media (max-width: 600px) {
+  .study-bookmark-ribbon { width: 8px; height: 18px; }
+  .study-bookmark-go,
+  .study-bookmark-remove,
+  .study-bookmark-close { min-height: 44px; }
+}
+/* "Go to my place": a brief highlight that fades. */
+@keyframes studyBookmarkFlash {
+  0%, 30% { background-color: rgba(92,26,40,0.14); }
+  100%    { background-color: rgba(92,26,40,0); }
+}
+.study-bookmark-flash { animation: studyBookmarkFlash 2.5s ease-out; border-radius: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  .study-bookmark-flash { animation-duration: 2.5s; animation-timing-function: steps(1, end); }
+}
+/* Library card: one quiet line for a study with a saved place */
+.study-card-place {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--warm-brown);
+  overflow-wrap: anywhere;
+}
+@media print {
+  .study-bookmark-ribbon, .study-bookmark-bar { display: none !important; }
+}

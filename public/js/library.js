@@ -5,6 +5,7 @@
   var allDialogues = [];
   var dialoguesLoaded = false;
   var notesLoaded     = false;
+  var studyBookmarks  = {};   // studyId → { sectionTitle } — "Stopped at" on the cards
 
   // ── Load studies on page load ──────────────────────────────────────────────
   async function loadStudies() {
@@ -15,11 +16,33 @@
       if (!data.success) throw new Error(data.error);
       allStudies = data.studies;
       applyFilters();
+      loadStudyBookmarks();
     } catch (err) {
       document.getElementById('studyCardsGrid').innerHTML =
         '<p class="library-empty">Failed to load studies. Please refresh.</p>';
     }
   }
+
+  // Saved places (study-bookmark.js), fetched once for the cards. Best effort:
+  // without them the cards simply have no "Stopped at" line.
+  function loadStudyBookmarks() {
+    fetch('/api/study-bookmarks')
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.success || !d.bookmarks) return;
+        studyBookmarks = d.bookmarks;
+        applyFilters();
+      })
+      .catch(function () {});
+  }
+  // A place marked, moved by Listen, or removed in the reader keeps its card current.
+  document.addEventListener('ironink:study-bookmark', function (e) {
+    var d = e.detail || {};
+    if (!d.studyId) return;
+    if (d.removed) delete studyBookmarks[d.studyId];
+    else studyBookmarks[d.studyId] = { sectionTitle: d.sectionTitle || '' };
+    applyFilters();
+  });
 
   // ── Render cards ───────────────────────────────────────────────────────────
   function renderCards(studies) {
@@ -87,6 +110,17 @@
     grid.querySelectorAll('.study-card').forEach(function (card) {
       var id    = card.dataset.id;
       var study = allStudies.find(function (s) { return s.id === id; }) || {};
+
+      // One quiet line for a study with a saved place (text set as text).
+      var place = Object.prototype.hasOwnProperty.call(studyBookmarks, id) ? studyBookmarks[id] : null;
+      if (place) {
+        var placeLine = document.createElement('div');
+        placeLine.className = 'study-card-place';
+        placeLine.textContent = 'Stopped at: ' + (place.sectionTitle || 'your saved place');
+        var metaEl = card.querySelector('.study-card-meta');
+        if (metaEl && metaEl.nextSibling) card.insertBefore(placeLine, metaEl.nextSibling);
+        else card.appendChild(placeLine);
+      }
 
       // Card click → render study inline (skip if clicking the action buttons)
       card.addEventListener('click', function (e) {
@@ -1571,18 +1605,20 @@
       if (!emTarget) return;
     }
 
-    var selText, rect, anchorNode;
+    var selText, rect, anchorNode, startNode;
 
     if (emTarget) {
       selText    = textWithoutVerseNumbers(emTarget).trim();
       if (!selText || selText.length < 2) return;
       rect       = emTarget.getBoundingClientRect();
       anchorNode = emTarget;
+      startNode  = emTarget;
     } else {
       var range  = sel.getRangeAt(0);
       selText = selectionTextWithoutNumbers(sel, range).trim();
       if (!selText || selText.length < 4) return;
       rect       = range.getBoundingClientRect();
+      startNode  = range.startContainer;   // where the highlight begins (Mark my place)
       // Normalize text node → parent element: text nodes inside <em>/<i> and other
       // inline elements may not pass Node.contains() uniformly across all browsers
       var cac = range.commonAncestorContainer;
@@ -1605,6 +1641,10 @@
       ? window.__scriptureNotes.captureSelection() : null;
     if (scriptureAnchor) selText = scriptureAnchor.text || scriptureAnchor.quote;
     ctx.scriptureAnchor = scriptureAnchor;
+    // A study view with bookmarks (study-bookmark.js) offers Mark my place,
+    // anchored at the start of this highlight. Never in Scripture.
+    var bmCtrl = (!ctx.inScripture && window.IronInkStudyBookmark) ? window.IronInkStudyBookmark.forNode(startNode) : null;
+    ctx.bookmark = bmCtrl ? { ctrl: bmCtrl, node: startNode } : null;
     upSelectedText = selText;
     // Capture which occurrence was highlighted now, while the selection is live.
     upOccurrence   = scriptureAnchor ? scriptureAnchor.occurrence : computeSelectionOccurrence(selText);
@@ -2246,6 +2286,7 @@
   var ucpLastPin          = null;    // pin payload for the most recent answer
   var ucpLastPinned       = false;   // per-answer duplicate-pin guard
   var ucpScriptureAnchor  = null;    // chapter-note anchor when grounded in Scripture
+  var ucpBookmark         = null;    // { ctrl, node } — a highlight in a study view with bookmarks
 
   function buildUnifiedPanel() {
     var el = document.createElement('div');
@@ -2275,6 +2316,7 @@
         '<button class="ucp-explore-btn">Explore</button>' +
         '<button class="ucp-verse-btn">Verse Lookup</button>' +
         '<button class="ucp-note-btn">Add Note</button>' +
+        '<button class="ucp-note-btn ucp-mark-btn" style="display:none;" title="Bookmark this spot — the study will offer to bring you back here">Mark my place</button>' +
       '</div>' +
       '<div class="ucp-notice" style="display:none;"></div>' +
       '<div class="ucp-thread"></div>' +
@@ -2300,6 +2342,7 @@
     el.querySelector('.ucp-verse-btn').addEventListener('click', ucpVerse);
     el.querySelector('.ucp-explore-btn').addEventListener('click', ucpExplore);
     el.querySelector('.ucp-note-btn').addEventListener('click', ucpAddNote);
+    el.querySelector('.ucp-mark-btn').addEventListener('click', ucpMarkPlace);
     el.querySelector('.ucp-pin-btn').addEventListener('click', ucpPin);
     el.querySelector('.ucp-share-btn').addEventListener('click', ucpShare);
     // Typing clears any lingering empty-input notice.
@@ -2379,6 +2422,7 @@
     _lookupOnly   = ucpLookupOnly;
     _inScripture  = !!(ctx && ctx.inScripture);
     ucpScriptureAnchor = (ctx && ctx.scriptureAnchor) || null;
+    ucpBookmark = (ctx && ctx.bookmark) || null;
 
     ucpResetConversation();
     ucpEl.querySelector('.ucp-context').style.display = '';
@@ -2401,6 +2445,7 @@
     _lookupOnly   = ucpLookupOnly;
     _inScripture  = !!(ctx && ctx.inScripture);
     ucpScriptureAnchor = null;
+    ucpBookmark        = null;   // Ctrl+Alt+T never marks a place
 
     ucpResetConversation();
     ucpEl.querySelector('.ucp-context').style.display = 'none';
@@ -2467,8 +2512,32 @@
   // on a highlighted Scripture passage — the same gate as the pin affordance.
   // Hidden (not errored) elsewhere.
   function ucpUpdateNoteBtn() {
-    var noteBtn = ucpEl && ucpEl.querySelector('.ucp-note-btn');
+    var noteBtn = ucpEl && ucpEl.querySelector('.ucp-note-btn:not(.ucp-mark-btn)');
     if (noteBtn) noteBtn.style.display = (canTakeNotes() || ucpScriptureNotes()) ? '' : 'none';
+    // Mark my place: only for a highlight inside a study view that has bookmarks
+    // (Study page, Library reader, Community reader — never Scripture).
+    var markBtn = ucpEl && ucpEl.querySelector('.ucp-mark-btn');
+    if (markBtn) {
+      var canMark = !!(ucpGrounded && ucpBookmark && ucpBookmark.ctrl && !_inScripture && ucpBookmark.ctrl.hasId());
+      markBtn.style.display = canMark ? '' : 'none';
+      markBtn.disabled = false;
+      markBtn.textContent = 'Mark my place';
+    }
+  }
+
+  // Mark my place — bookmark the block holding the start of the highlight
+  // (study-bookmark.js). The panel stays open; a short line confirms it.
+  function ucpMarkPlace() {
+    if (!ucpBookmark || !ucpBookmark.ctrl) return;
+    var btn = ucpEl.querySelector('.ucp-mark-btn');
+    var target = ucpBookmark;
+    btn.disabled = true;
+    ucpClearNotice();
+    target.ctrl.markAt(target.node, function (ok) {
+      btn.disabled = false;
+      if (ucpBookmark !== target) return;   // the panel moved on to another highlight
+      ucpNotice(ok ? 'Place marked.' : 'Could not mark your place. Please try again.');
+    });
   }
 
   // Open the notepad after a pin / note lands so the member sees the entry. Uses
