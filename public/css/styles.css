@@ -9444,3 +9444,37 @@ a.sm-book-tile.is-studied.is-filtered-out {
   .card-select-box { width: 22px; height: 22px; }
   .card-archive-btn { min-height: 32px; padding: 4px 6px; }
 }
+
+/* ── Archive addendum ──
+   Study Map: a small muted "Archived" tag beside the title (every view and
+   Revisit). Library: the "N more in Archived" line under the list. */
+.sm-archived {
+  font-size: 0.72rem;
+  font-style: italic;
+  letter-spacing: 0.04em;
+  color: var(--warm-brown);
+  border: 1px solid rgba(160,132,92,0.45);
+  border-radius: 3px;
+  padding: 0 6px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.sm-revisit-title .sm-archived { font-size: 0.68rem; }
+.lib-archived-hint {
+  display: block;
+  margin: 14px 0 0;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  font-family: Georgia, serif;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--warm-brown);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.lib-archived-hint:hover { color: var(--accent); }
+.lib-archived-hint[hidden] { display: none; }
+@media (max-width: 600px) {
+  .lib-archived-hint { min-height: 44px; }
+}

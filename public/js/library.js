@@ -176,11 +176,11 @@
         openEditPopup(study, card);
       });
 
-      // Delete button
+      // Delete button — [Archive instead] [Delete permanently] [Cancel]
       card.querySelector('.card-delete-btn').addEventListener('click', async function (e) {
         e.stopPropagation();
         var message = await buildDeleteMessage(study);
-        showConfirm(message, 'Delete', async function () {
+        confirmDelete(study, message, 'Delete permanently', async function () {
           await deleteStudy(id);
         });
       });
@@ -190,7 +190,7 @@
       card.querySelector('.card-idea-btn').addEventListener('click', async function (e) {
         e.stopPropagation();
         var message = await buildSaveAsIdeaMessage(study);
-        showConfirm(message, 'Save as idea and delete', async function () {
+        confirmDelete(study, message, 'Save as idea and delete', async function () {
           await saveAsIdeaAndDelete(study);
         });
       });
@@ -453,6 +453,11 @@
     if (!libGuideArea) return;
     currentInlineStudy = study; // remember which study a Further-Studies click branches from
     renderArchivedNote(study);
+    // List-only controls (select toolbar, "N more in Archived") step aside.
+    if (selectMode) { selectMode = false; selected.clear(); }
+    if (libSelectBar) libSelectBar.hidden = true;
+    var archivedHint = document.getElementById('libArchivedHint');
+    if (archivedHint) archivedHint.hidden = true;
     clearLineageRegions(); // wipe any prior study's lineage before repopulating
     libGuideTitle.textContent = study.topic;
     libGuideBadge.textContent = study.translation || 'ASV';
@@ -518,6 +523,7 @@
     clearLineageRegions(); // don't leave stale lineage behind the hidden view
     if (studyCardsGrid) studyCardsGrid.style.display = '';
     if (libFilterBar)   libFilterBar.style.display   = '';
+    applyFilters();   // brings back the select toolbar / Archived hint state
 
     window.__notepadStudy = null;
     window.__notepadRerenderMarkers = null;
@@ -655,7 +661,31 @@
   //
   // Purely informational: it never blocks deletion, and a failed note lookup
   // degrades to omitting that line rather than stopping the user.
+  // The delete dialog: [Archive instead] [<delete label>] [Cancel]. A study
+  // that is already archived gets no Archive instead button. Delete is still a
+  // hard delete.
+  var DELETE_LEAD   = 'Delete this study permanently? It will also disappear from your Study Map, along with its notes and bookmark.';
+  var ARCHIVE_HINT  = 'If you just want it out of the way, Archive it instead.';
+  function confirmDelete(study, message, deleteLabel, onDelete) {
+    var choices = [];
+    if (study && study.archived !== true) {
+      choices.push({ label: 'Archive instead', onClick: function () { archiveOne(study, true); } });
+    }
+    choices.push({ label: deleteLabel, primary: true, onClick: onDelete });
+    choices.push({ label: 'Cancel', cancel: true });
+    if (typeof showChoice === 'function') showChoice(message, choices);
+    else showConfirm(message, deleteLabel, onDelete);   // older modal.js still cached
+  }
+
   async function buildDeleteMessage(study) {
+    var lead = DELETE_LEAD + (study && study.archived !== true ? ' ' + ARCHIVE_HINT : '');
+    var warnings = await deleteWarnings(study);
+    return [lead].concat(warnings).join('\n\n');
+  }
+
+  // What else a delete touches, beyond the lead: Community feed, note count,
+  // branches. Empty when nothing is attached.
+  async function deleteWarnings(study) {
     var warnings = [];
 
     if (study && study.shared) {
@@ -682,14 +712,10 @@
         : childCount + ' studies branched from this one will lose their link back to it.');
     }
 
-    // Nothing attached — the plain confirmation is enough. The Rooms reassurance
-    // only reads as reassurance next to a warning; alone it would just puzzle.
-    if (!warnings.length) return 'Delete this study? This cannot be undone.';
-
-    return ['Delete this study? This cannot be undone.']
-      .concat(warnings)
-      .concat(['Live Rooms keep their own copy of a study and will not be affected.'])
-      .join('\n\n');
+    // Nothing attached — the lead is enough. The Rooms reassurance only reads
+    // as reassurance next to a warning; alone it would just puzzle.
+    if (!warnings.length) return [];
+    return warnings.concat(['Live Rooms keep their own copy of a study and will not be affected.']);
   }
 
   async function deleteStudy(id) {
@@ -713,11 +739,12 @@
   // The delete confirmation (same footprint warnings), led by what is kept and
   // what goes: the idea keeps only the title, subject, type and depth.
   async function buildSaveAsIdeaMessage(study) {
-    var del = await buildDeleteMessage(study);
+    var warnings = await deleteWarnings(study);
     var lead = 'Save “' + (study.topic || 'this study') + '” to your Study Ideas, then delete the study?\n\n' +
       'The idea keeps its title, subject, type and depth, so you can study it again later from the Study page. ' +
-      'The study itself, and any notes and highlights on it, are deleted with it.';
-    return lead + '\n\n' + del.replace(/^Delete this study\? This cannot be undone\./, 'Deleting the study cannot be undone.');
+      'The study itself is deleted permanently and disappears from your Study Map, along with its notes and bookmark.';
+    var tail = (study && study.archived !== true) ? [ARCHIVE_HINT] : [];
+    return [lead].concat(warnings).concat(tail).join('\n\n');
   }
 
   // Idea first, then the existing delete — so a failed save never costs a study.
@@ -914,7 +941,7 @@
 
   function updateSelectBar() {
     if (!libSelectBar) return;
-    libSelectBar.hidden = !selectMode;
+    libSelectBar.hidden = !selectMode || readerOpen();
     if (libSelectBtn) {
       libSelectBtn.setAttribute('aria-pressed', selectMode ? 'true' : 'false');
       libSelectBtn.hidden = selectMode;
@@ -985,6 +1012,37 @@
     var narrowed = !!(tagVal || ratingVal || (statusVal && !viewArchived));
     renderStudyCount(filtered.length, narrowed, inView.length);
     updateSelectBar();
+
+    // "N more in Archived": outside the Archived view, while a tag filter is
+    // on, count the archived studies the same tag (and rating) would show there.
+    var hint = document.getElementById('libArchivedHint');
+    if (hint) {
+      var more = 0;
+      if (!viewArchived && tagVal) {
+        more = allStudies.filter(function (s) {
+          if (s.archived !== true) return false;
+          var tagOk    = s.tags && s.tags.some(function (t) { return t.toLowerCase().includes(tagVal); });
+          var ratingOk = !ratingVal || (s.rating >= ratingVal);
+          return tagOk && ratingOk;
+        }).length;
+      }
+      hint.textContent = more ? more + ' more in Archived' : '';
+      hint.hidden = !more || readerOpen();
+    }
+  }
+
+  function readerOpen() {
+    return !!(libGuideArea && libGuideArea.style.display === 'block');
+  }
+
+  // The hint switches the view to Archived; the tag (and rating) filter stay.
+  var libArchivedHint = document.getElementById('libArchivedHint');
+  if (libArchivedHint && filterStatusEl) {
+    libArchivedHint.addEventListener('click', function () {
+      filterStatusEl.value = 'archived';
+      applyFilters();
+      filterStatusEl.focus();
+    });
   }
 
   // Plain count beside the filters: "42 studies", or "Showing 12 of 42 studies"

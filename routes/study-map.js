@@ -119,6 +119,12 @@ function markersHtml(e) {
   return `<span class="sm-marker" title="${escapeHtml('Teacher session — last ' + fmtDate(last))}">Teacher</span>`;
 }
 
+// A small muted tag on a study the member has archived in the Library. The map
+// itself is unchanged: archived studies still sit in every view and Revisit.
+function archivedTag(e) {
+  return e && e.archived ? '<span class="sm-archived" title="Archived in your Library">Archived</span>' : '';
+}
+
 function entryHtml(e, opts) {
   const o = opts || {};
   const passages = o.showPassages && e.map.passages.length
@@ -132,6 +138,7 @@ function entryHtml(e, opts) {
         <li class="sm-entry" data-status="${statusOf(e)}">
           <div class="sm-entry-main">
             <a class="sm-entry-title" href="${escapeHtml(openHref(e))}">${escapeHtml(e.topic)}</a>
+            ${archivedTag(e)}
             <span class="sm-entry-date">${escapeHtml(fmtDate(e.savedAt))}</span>
             ${done}
             ${markersHtml(e)}
@@ -267,7 +274,7 @@ function revisitHtml(pick, compact) {
   return `
     <div class="sm-revisit${compact ? ' sm-revisit--compact' : ''}" data-study-id="${escapeHtml(entry.id)}">
       <div class="sm-revisit-label">${cont ? 'Continue studying' : 'Worth revisiting'}</div>
-      <div class="sm-revisit-title">${escapeHtml(entry.topic)}</div>
+      <div class="sm-revisit-title">${escapeHtml(entry.topic)} ${archivedTag(entry)}</div>
       <div class="sm-revisit-sub">${escapeHtml(sub)}</div>
       <div class="sm-revisit-actions">
         <a class="sm-revisit-btn" href="${escapeHtml(openHref(entry))}">Open</a>
