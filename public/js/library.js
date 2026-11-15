@@ -99,14 +99,6 @@
                 (selected.has(s.id) ? ' checked' : '') + ' aria-label="Select ' + esc(s.topic) + '">' +
             '</label>' +
             '<h4 class="study-card-title">' + esc(s.topic) + '</h4>' +
-            '<div class="card-header-btns">' +
-              '<button class="card-archive-btn" data-id="' + esc(s.id) + '" title="' +
-                (isArchived ? 'Bring this study back to your Library' : 'Put this study away (nothing is deleted)') + '">' +
-                (isArchived ? 'Unarchive' : 'Archive') + '</button>' +
-              '<button class="card-edit-btn" data-id="' + esc(s.id) + '" title="Edit">&#9998;</button>' +
-              '<button class="card-idea-btn" data-id="' + esc(s.id) + '" title="Save as idea and delete" aria-label="Save as idea and delete">&#9734;&#xFE0E;</button>' +
-              '<button class="card-delete-btn" data-id="' + esc(s.id) + '" title="Delete">&#10005;</button>' +
-            '</div>' +
           '</div>' +
           '<div class="study-card-meta">' +
             '<span class="study-card-date">' + formatDate(s.savedAt) + '</span>' +
@@ -119,6 +111,18 @@
           '</div>' +
           tagsHtml +
           starsHtml +
+          // Card footer: the actions in their own row at the bottom, so the
+          // title has the full width. Same buttons, same handlers (wired below).
+          '<div class="study-card-footer">' +
+            '<div class="card-header-btns">' +
+              '<button class="card-archive-btn" data-id="' + esc(s.id) + '" title="' +
+                (isArchived ? 'Bring this study back to your Library' : 'Put this study away (nothing is deleted)') + '">' +
+                (isArchived ? 'Unarchive' : 'Archive') + '</button>' +
+              '<button class="card-edit-btn" data-id="' + esc(s.id) + '" title="Edit">&#9998;</button>' +
+              '<button class="card-idea-btn" data-id="' + esc(s.id) + '" title="Save as idea and delete" aria-label="Save as idea and delete">&#9734;&#xFE0E;</button>' +
+              '<button class="card-delete-btn" data-id="' + esc(s.id) + '" title="Delete">&#10005;</button>' +
+            '</div>' +
+          '</div>' +
         '</div>';
     }).join('');
 

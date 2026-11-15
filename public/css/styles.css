@@ -9488,33 +9488,42 @@ a.sm-book-tile.is-studied.is-filtered-out {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Library card action buttons (Archive, Edit, Idea, Delete): bigger click and
-   tap areas, same look. Each button keeps its text or icon but takes a
-   transparent box at least 36px wide (44px on phones). That width is real
-   layout, so neighbouring hit areas can't overlap; a 4px gap between buttons
-   stays non-clickable. Height comes from an invisible ::after centred on the
-   button, which adds nothing to the header's height, so the card doesn't grow.
-   Horizontally the ::after matches the button's own box, so it never reaches
-   the title. */
-.card-header-btns { gap: 4px; }
-.card-header-btns > button {
-  position: relative;
-  min-width: 36px;
-  text-align: center;
-  padding-left: 4px;
-  padding-right: 4px;
+/* Library card footer (library.js renderCards): Archive, Edit, Idea, Delete in
+   their own row at the bottom of the card, right-aligned, so the title has the
+   full width of the header. The card is a flex column, and the footer's
+   margin-top:auto pins it to the bottom; cards in a grid row are the same
+   height, so their footers line up. Every button is a real box at least 36×36
+   (44×44 on phones), with a 4px non-clickable gap between buttons, all inside
+   the footer row. Nothing reaches up into the meta row or tags. The look is
+   as before: muted text/icons, no background. */
+.study-card { display: flex; flex-direction: column; }
+.study-card-header { justify-content: flex-start; }
+.study-card-title { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.study-card-footer {
+  margin-top: auto;
+  padding-top: 10px;
 }
-.card-header-btns > button::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  height: 36px;
-  transform: translateY(-50%);
+.study-card-footer .card-header-btns {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 4px;
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(160,132,92,0.18);
+}
+.study-card-footer .card-header-btns > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0 6px;
+  line-height: 1;
 }
 @media (max-width: 600px) {
-  .card-header-btns > button { min-width: 44px; }
-  .card-header-btns > button::after { height: 44px; }
-  .card-archive-btn { min-height: 0; padding-top: 2px; padding-bottom: 2px; }
+  .study-card-footer .card-header-btns > button { min-width: 44px; min-height: 44px; }
 }
+/* Select mode: the whole footer steps aside (the capture guard is unchanged). */
+.study-cards-grid.is-selecting .study-card-footer { display: none; }
