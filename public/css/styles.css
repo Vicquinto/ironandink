@@ -5643,6 +5643,59 @@ body {
   border-radius: 3px;
 }
 
+/* ── Listen to a study (study-listen.js on read-aloud.js) ──
+   Listen sits with the Teacher entry choices; the player bar is sticky at the
+   top of the study and reuses the Scripture Read Aloud control styles. */
+.study-listen-choice { align-self: center; }
+.study-listen-bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 14px;
+  padding: 8px 10px;
+  background: var(--card-bg);
+  border: 1px solid rgba(160,132,92,0.3);
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(40,26,12,0.12);
+}
+.study-listen-bar[hidden] { display: none; }
+.study-listen-bar .guide-print-btn { margin-left: 0; padding: 6px 12px; }
+.study-listen-bar .guide-print-btn:disabled { opacity: 0.45; cursor: default; background: transparent; }
+.study-listen-bar .scripture-select { min-width: 0; }
+.study-listen-bar .study-listen-voice { flex: 1 1 140px; max-width: 220px; }
+.study-listen-close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--warm-brown);
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.study-listen-close:hover { color: var(--accent); }
+@media (max-width: 600px) {
+  .study-listen-bar .guide-print-btn,
+  .study-listen-bar .scripture-select,
+  .study-listen-close { min-height: 44px; }
+  .study-listen-bar .guide-print-btn { padding: 8px 16px; font-size: 0.95rem; }
+  .study-listen-bar .study-listen-voice { flex: 1 1 100%; max-width: 100%; }
+  .study-listen-choice .study-listen-btn { min-height: 44px; }
+}
+/* The study block being read aloud (cleared on stop). */
+.study-reading-block {
+  background: rgba(92,26,40,0.09);
+  box-shadow: -6px 0 0 rgba(92,26,40,0.09), 6px 0 0 rgba(92,26,40,0.09);
+  border-radius: 3px;
+}
+
 /* ── Chapter notes (scripture-notes.js) — cards reuse the notepad's note card ── */
 .scripture-notes-wrap { margin-bottom: 20px; }
 .scripture-notes-composer { margin-bottom: 12px; }

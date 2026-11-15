@@ -471,7 +471,7 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
     title: 'Study with a Teacher',
     content,
     scripts: `<script src="/js/render-markdown.js?v=2"></script>
-<script src="/js/teacher-entry.js?v=4"></script>
+<script src="/js/teacher-entry.js?v=5"></script>
 <script>window.TEACHER_BOOT = ${inlineJson(boot)};</script>
 <script src="/js/teacher.js?v=7"></script>`,
   }));

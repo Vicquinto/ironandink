@@ -115,6 +115,8 @@
 
   function remove(container) {
     if (!container) return;
+    // Stop any reading of the old study before its Listen controls go.
+    if (container.__studyListen) { container.__studyListen.destroy(); container.__studyListen = null; }
     container.querySelectorAll('.teacher-entry').forEach(function (el) { el.remove(); });
   }
 
@@ -220,6 +222,10 @@
       spots.push(topSpot, endSpot);
       renderAll();
     }
+
+    // Listen (read-aloud) — beside the top choices, where study-listen.js is
+    // loaded (study page, Library, Community; not the Teacher page).
+    if (global.IronInkStudyListen) global.IronInkStudyListen.attach(container, top);
   }
 
   global.IronInkTeacher = {
