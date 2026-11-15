@@ -183,6 +183,46 @@ router.put('/api/notepad/:studyId/note/:noteId', requireAuth, async (req, res) =
   res.json({ success: true, note: result.note });
 });
 
+// ─── PUT /api/notepad/:studyId/note/:noteId/occurrence ────────────────────────
+// Quiet repair of an anchored note's position, sent by the reader when it had
+// to find the note by its quote (public/js/notepad.js placeMarker). Only for
+// notes saved since the Listen release (b5b191d), whose saved position may be
+// too high; older notes are never changed. `from` must equal the stored value,
+// so a stale tab can't overwrite a newer correction. Only the caller's own
+// notepad is touched (userId from the session).
+const OCCURRENCE_REPAIR_SINCE = Date.parse('2026-11-15T00:32:49Z');
+router.put('/api/notepad/:studyId/note/:noteId/occurrence', requireAuth, async (req, res) => {
+  const userId = req.session.userId;
+  const { studyId, noteId } = req.params;
+  const { from, occurrence } = req.body || {};
+  if (!Number.isInteger(occurrence) || occurrence < 0 || occurrence > 100000) {
+    return res.status(400).json({ success: false, error: 'Invalid position.' });
+  }
+  if (from !== null && !(Number.isInteger(from) && from >= 0)) {
+    return res.status(400).json({ success: false, error: 'Invalid position.' });
+  }
+
+  let result;
+  try {
+    result = await notepadStore.update(pads => {
+      const pad = findNotepad(pads, studyId, userId);
+      if (!pad) return { changed: false, error: 'Notepad not found.' };
+      const note = pad.notes.find(n => n.id === noteId);
+      if (!note || !note.quote) return { changed: false, error: 'Note not found.' };
+      const saved = Date.parse(note.ts);
+      if (isNaN(saved) || saved < OCCURRENCE_REPAIR_SINCE) return { changed: false, refused: true };
+      const cur = (typeof note.occurrence === 'number') ? note.occurrence : null;
+      if (cur !== from) return { changed: false, refused: true };
+      if (cur === occurrence) return { changed: false };
+      note.occurrence = occurrence;
+      return { changed: true };
+    });
+  } catch { return storeUnavailable(res); }
+  if (result.error) return res.status(404).json({ success: false, error: result.error });
+  if (result.refused) return res.status(409).json({ success: false, error: 'Not changed.' });
+  res.json({ success: true });
+});
+
 // ─── DELETE /api/notepad/:studyId/note/:noteId ────────────────────────────────
 router.delete('/api/notepad/:studyId/note/:noteId', requireAuth, async (req, res) => {
   const userId = req.session.userId;

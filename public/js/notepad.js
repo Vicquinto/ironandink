@@ -604,7 +604,36 @@
         var anchored = (data.notepad.notes || []).filter(function (n) {
           return n.marker != null && n.quote;
         }).sort(function (a, b) { return a.marker - b.marker; });
-        anchored.forEach(function (note) { placeMarker(container, note); });
+        // repair: notes saved since the Listen release may carry a position
+        // that is too high (see REPAIR_SINCE). placeMarker falls back to the
+        // quote itself for those and reports the position it found.
+        anchored.forEach(function (note) {
+          placeMarker(container, note, null, {
+            repair: function (found) { repairOccurrence(studyId, note, found); },
+          });
+        });
+      })
+      .catch(function () {});
+  }
+
+  // Quietly store the corrected position of a note that the redraw had to
+  // find by its quote. Once per note per page load; a refusal changes nothing
+  // (the marker is drawn either way and the note is never hidden).
+  var repairSent = {};
+  function repairOccurrence(studyId, note, found) {
+    if (!note || !note.id || repairSent[note.id]) return;
+    repairSent[note.id] = true;
+    var from = (typeof note.occurrence === 'number') ? note.occurrence : null;
+    fetch('/api/notepad/' + encodeURIComponent(studyId) + '/note/' + encodeURIComponent(note.id) + '/occurrence', {
+      method:  'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ from: from, occurrence: found }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.success) return;
+        note.occurrence = found;
+        notesCache.forEach(function (n) { if (n.id === note.id) n.occurrence = found; });
       })
       .catch(function () {});
   }
@@ -615,9 +644,43 @@
     container.querySelectorAll('.' + (className || 'notepad-marker')).forEach(function (m) { m.remove(); });
   }
 
-  // Display-only elements that are never part of the anchored text: note markers
-  // (study + Scripture) and verse numbers (study quotations + the Scripture reader).
-  var NON_TEXT_SELECTOR = '.notepad-marker, .scripture-note-marker, .guide-vnum, .verse-num';
+  // Everything that is never part of the anchored text, in ONE place. Both the
+  // save-time count (occurrenceOf) and the redraw (placeMarker) read the text
+  // through buildCleanText, which skips these; the highlight's quote is taken
+  // with the same rule (cleanRangeText). Covers:
+  //   - note markers (study + Scripture) and verse numbers (study quotations +
+  //     the Scripture reader) — display-only
+  //   - .teacher-entry — ALL UI injected into a study body: the Teacher
+  //     buttons (top, beside each heading, end), Mark complete, the Listen
+  //     button and player bar (study-listen.js), the bookmark ribbon and the
+  //     "Pick up where you left off" bar (study-bookmark.js)
+  //   - [data-anchor-skip] — a generic opt-out for any future injected UI
+  // New UI placed inside a study must carry .teacher-entry (or
+  // data-anchor-skip) and is then left out of anchoring automatically.
+  var NON_TEXT_SELECTOR = '.notepad-marker, .scripture-note-marker, .guide-vnum, .verse-num, ' +
+                          '.teacher-entry, [data-anchor-skip]';
+
+  // Notes saved from this moment (commit b5b191d, Listen) until the fix below
+  // was deployed may carry a position that is too high: the save-time count
+  // used to include the Listen / bookmark / Teacher UI text the redraw skips.
+  // Only these notes get the quote fallback + repair in placeMarker; older
+  // notes are matched exactly as before.
+  var REPAIR_SINCE = Date.parse('2026-11-15T00:32:49Z');
+  function inRepairWindow(note) {
+    var t = note && note.ts ? Date.parse(note.ts) : NaN;
+    return !isNaN(t) && t >= REPAIR_SINCE;
+  }
+
+  // The text of a Range (the live highlight) as anchoring sees it: with every
+  // NON_TEXT_SELECTOR element left out. Null when the range holds none of them,
+  // so the caller keeps its usual selection text unchanged.
+  function cleanRangeText(range) {
+    if (!range) return null;
+    var frag = range.cloneContents();
+    if (!frag.querySelector || !frag.querySelector(NON_TEXT_SELECTOR)) return null;
+    frag.querySelectorAll(NON_TEXT_SELECTOR).forEach(function (m) { m.remove(); });
+    return frag.textContent || '';
+  }
 
   // Flatten `container` into marker-free text plus a map from each global char
   // offset back to the DOM text node that supplies it. Save-time occurrence
@@ -631,12 +694,9 @@
     var text = '', map = [], node;
     while ((node = walker.nextNode())) {
       var parent = node.parentNode;
-      // Tutor / Teacher entry buttons (teacher-entry.js) are UI, not study text.
-      if (parent && parent.closest && parent.closest('.teacher-entry')) continue;
-      // Note markers, and verse numbers — in multi-verse study quotations
-      // (html-sanitizer.js) and in the Scripture reader — are display-only:
-      // leaving them out keeps every note's quote + occurrence matching the same
-      // text it was saved against, before or after numbers.
+      // Injected UI, note markers and verse numbers (NON_TEXT_SELECTOR) are
+      // not study text: leaving them out keeps every note's quote + occurrence
+      // matching the same text it was saved against.
       if (parent && parent.closest && parent.closest(NON_TEXT_SELECTOR)) continue;
       var v = node.nodeValue || '';
       if (!v) continue;
@@ -669,15 +729,12 @@
     quote = String(quote || '');
     if (!container || !quote || !node) return 0;
     try {
-      var text = buildCleanText(container).text; // identical to placeMarker's search text
-      // Clean-text length of everything before the selection point, measured the
-      // same way (markers stripped, boundaries collapsed) so it indexes into `text`.
-      var pre = document.createRange();
-      pre.setStart(container, 0);
-      pre.setEnd(node, offset);
-      var frag = pre.cloneContents();
-      frag.querySelectorAll(NON_TEXT_SELECTOR).forEach(function (m) { m.remove(); });
-      var pointOffset = (frag.textContent || '').length;
+      var built = buildCleanText(container);   // identical to placeMarker's search text
+      var text  = built.text;
+      // Where the selection point falls in THAT text, read off the same map
+      // (not re-measured another way), so injected UI or anything else
+      // buildCleanText skips can never shift the count again.
+      var pointOffset = cleanOffsetOf(container, built.map, node, offset);
       // Count only whole occurrences that END at/before the highlight point; the
       // highlighted occurrence itself starts AT the point and must not be counted.
       var count = 0, i = 0;
@@ -686,6 +743,25 @@
       }
       return count;
     } catch (e) { return 0; }
+  }
+
+  // The clean-text offset of a DOM point (node, offset) inside `container`.
+  //   - A text node buildCleanText kept: its start in the map + the offset.
+  //   - Otherwise (an element boundary, or a point inside skipped UI / a verse
+  //     number / a marker): the start of the first kept text node at or after
+  //     the point; the end of the text when there is none.
+  function cleanOffsetOf(container, map, node, offset) {
+    for (var k = 0; k < map.length; k++) {
+      if (map[k].node === node) return map[k].start + Math.max(0, Math.min(offset, map[k].len));
+    }
+    var pt = document.createRange();
+    pt.setStart(node, offset);
+    pt.collapse(true);
+    for (var j = 0; j < map.length; j++) {
+      // comparePoint: -1 = before the point, 0 = at it, 1 = after it
+      if (pt.comparePoint(map[j].node, 0) >= 0) return map[j].start;
+    }
+    return map.length ? map[map.length - 1].start + map[map.length - 1].len : 0;
   }
 
   // Whitespace-insensitive fallback: the end offset in `text` of the target-th
@@ -735,6 +811,21 @@
     }
     var end = (hit === -1) ? -1 : hit + quote.length;
     if (end === -1 && opts && opts.looseSpace) end = looseOccurrenceEnd(text, quote, target);
+
+    // Repair (study notes saved since the Listen release only — REPAIR_SINCE):
+    // the saved position may be too high, so when it matches nothing, find the
+    // quote itself and use the occurrence nearest the saved position (exact
+    // text first, then ignoring whitespace for a quote that carries a line
+    // break). The corrected position is reported once the marker is drawn.
+    // Older notes never get here and match exactly as before.
+    var repairedTo = null;
+    if (end === -1 && opts && typeof opts.repair === 'function' && inRepairWindow(note)) {
+      var near = nearestOccurrence(text, quote, target);
+      if (near) {
+        end = near.end;
+        if (near.index !== target) repairedTo = near.index;
+      }
+    }
     // Occurrence genuinely not found → render NO marker rather than a wrong one.
     if (end === -1) return null;
 
@@ -757,7 +848,48 @@
     sup.title = 'Note ' + note.marker;
     sup.textContent = note.marker;
     parent.insertBefore(sup, after); // `after` null → appended at end of parent
+    if (repairedTo !== null) opts.repair(repairedTo);
     return sup;
+  }
+
+  // Every occurrence of `quote` in `text`, as end offsets: exact matches, or
+  // with `loose` all whitespace ignored on both sides (same rule as
+  // looseOccurrenceEnd).
+  function occurrenceEnds(text, quote, loose) {
+    var ends = [], from = 0, idx;
+    if (!loose) {
+      while ((idx = text.indexOf(quote, from)) !== -1) {
+        ends.push(idx + quote.length);
+        from = idx + quote.length;
+      }
+      return ends;
+    }
+    var q = quote.replace(/\s+/g, '');
+    if (!q) return ends;
+    var stripped = '', pos = [];
+    for (var i = 0; i < text.length; i++) {
+      var ch = text.charAt(i);
+      if (!/\s/.test(ch)) { stripped += ch; pos.push(i); }
+    }
+    while ((idx = stripped.indexOf(q, from)) !== -1) {
+      ends.push(pos[idx + q.length - 1] + 1);
+      from = idx + q.length;
+    }
+    return ends;
+  }
+
+  // The occurrence of `quote` nearest the saved index `target` (ties → the
+  // earlier one): { index, end }, or null when the quote isn't in the text.
+  // Whitespace-insensitive matches are used only when there is no exact one.
+  function nearestOccurrence(text, quote, target) {
+    var ends = occurrenceEnds(text, quote, false);
+    if (!ends.length) ends = occurrenceEnds(text, quote, true);
+    if (!ends.length) return null;
+    var best = 0;
+    for (var k = 1; k < ends.length; k++) {
+      if (Math.abs(k - target) < Math.abs(best - target)) best = k;
+    }
+    return { index: best, end: ends[best] };
   }
 
   // Marker click → open notepad and reveal the note.
@@ -817,6 +949,9 @@
     saveLookupNote:    saveLookupNote,
     injectMarkers:     injectMarkers,
     occurrenceOf:      occurrenceOf,
+    // The highlight's text as anchoring sees it (injected UI, markers and
+    // verse numbers left out), or null when none are in the range.
+    cleanRangeText:    cleanRangeText,
     revealNote:        revealNote,
     // Shared with the Scripture chapter notes (scripture-notes.js).
     noteHtml:          noteHtml,

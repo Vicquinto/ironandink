@@ -1972,12 +1972,22 @@
   // are for reading only. A highlight that spans one must not carry it into the
   // note quote, the Ask panel or a lookup: the quote has to match the number-free
   // text notepad.js anchors against. Unchanged when no number is selected.
+  // Injected study UI (Teacher buttons, Listen bar, bookmark ribbon and bar —
+  // anything .teacher-entry) is left out the same way, through the ONE rule
+  // notepad.js anchors with (cleanRangeText), so a highlight that crosses a
+  // section's "Teach me this section" button still matches the study text.
   function selectionTextWithoutNumbers(sel, range) {
-    var t = (window.IronInkSanitize && window.IronInkSanitize.rangeTextWithoutNumbers)
-      ? window.IronInkSanitize.rangeTextWithoutNumbers(range) : null;
+    var t = (window.__notepad && window.__notepad.cleanRangeText)
+      ? window.__notepad.cleanRangeText(range)
+      : ((window.IronInkSanitize && window.IronInkSanitize.rangeTextWithoutNumbers)
+          ? window.IronInkSanitize.rangeTextWithoutNumbers(range) : null);
     return t != null ? t : sel.toString();
   }
   function textWithoutVerseNumbers(el) {
+    var r = document.createRange();
+    r.selectNodeContents(el);
+    var t = (window.__notepad && window.__notepad.cleanRangeText) ? window.__notepad.cleanRangeText(r) : null;
+    if (t != null) return t;
     if (!el.querySelector || !el.querySelector('.guide-vnum')) return el.textContent;
     var copy = el.cloneNode(true);
     copy.querySelectorAll('.guide-vnum, .notepad-marker').forEach(function (n) { n.remove(); });
