@@ -9478,3 +9478,12 @@ a.sm-book-tile.is-studied.is-filtered-out {
 @media (max-width: 600px) {
   .lib-archived-hint { min-height: 44px; }
 }
+
+/* Library select mode: a tap is a plain tap (no double-tap zoom delay) and a
+   press-and-hold doesn't start a text selection on a card. */
+.study-cards-grid.is-selecting .study-card {
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}

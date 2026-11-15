@@ -141,32 +141,24 @@
       }
 
       // Card click → render study inline (skip if clicking the action buttons).
-      // In select mode a click toggles the card's checkbox instead.
-      var box = card.querySelector('.card-select-box');
+      // Select mode never reaches here: the grid's capture-phase handler
+      // (onSelectClick) takes every click inside a card first. The check below
+      // is only a second line of defence.
       card.addEventListener('click', function (e) {
-        if (selectMode) {
-          if (e.target !== box) box.checked = !box.checked;
-          setSelected(id, box.checked, card);
-          return;
-        }
+        if (selectMode) return;
         if (e.target.classList.contains('card-edit-btn') ||
             e.target.classList.contains('card-idea-btn') ||
             e.target.classList.contains('card-archive-btn') ||
             e.target.classList.contains('card-delete-btn')) return;
         if (study) showStudyInline(study);
       });
-      // The checkbox's label would forward a second click to the box; the
-      // card's handler does the toggling, so stop that one.
-      card.querySelector('.card-select').addEventListener('click', function (e) {
-        if (e.target !== box) e.preventDefault();
-      });
-
       // Archive / Unarchive - at once, with Undo.
       card.querySelector('.card-archive-btn').addEventListener('click', function (e) {
         e.stopPropagation();
         archiveOne(study, study.archived !== true);
       });
       card.addEventListener('keydown', function (e) {
+        if (selectMode) return;   // handled by onSelectKey (capture phase)
         if (e.key === 'Enter') card.click();
       });
 
@@ -195,6 +187,110 @@
         });
       });
     });
+
+    syncSelectMode(grid);
+  }
+
+  // ── Select mode: one capture-phase guard on the grid ───────────────────────
+  // While select mode is on, ONE click handler and ONE keydown handler sit on
+  // the cards grid in the capture phase, so they run before anything inside a
+  // card. For any click inside a card they cancel it, stop it there, and
+  // toggle that card's checkbox. Nothing inside a card can open the study,
+  // follow a link, rate or edit. A tap on a phone arrives as the same click.
+  // The handlers come off when select mode ends. Inner focusable elements get
+  // tabindex -1 meanwhile (the card itself stays the one tab stop) and get
+  // their own tabindex back afterwards.
+  var selectGrid = null;   // the grid the guard is bound to, or null
+
+  function cardOf(e) {
+    var t = e.target;
+    var card = t && t.closest ? t.closest('.study-card') : null;
+    return (card && selectGrid && selectGrid.contains(card)) ? card : null;
+  }
+
+  function toggleCard(card, checked) {
+    var box = card.querySelector('.card-select-box');
+    if (!box) return;
+    box.checked = (typeof checked === 'boolean') ? checked : !box.checked;
+    setSelected(card.dataset.id, box.checked, card);
+  }
+
+  function onSelectClick(e) {
+    if (!selectMode) return;
+    var card = cardOf(e);
+    if (!card) return;
+    e.stopPropagation();
+    var box = card.querySelector('.card-select-box');
+    if (e.target === box) {
+      // The browser has already flipped the box for this click. Keep that
+      // change and record it once. Cancelling here would make the browser
+      // flip it back after this handler, which is the double-toggle trap.
+      setSelected(card.dataset.id, box.checked, card);
+      return;
+    }
+    // Anything else in the card, the box's <label> included: cancel the
+    // click, so no link, label forwarding or default action runs, then toggle
+    // the box ourselves, once.
+    e.preventDefault();
+    toggleCard(card);
+  }
+
+  function onSelectKey(e) {
+    if (!selectMode) return;
+    if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+    var card = cardOf(e);
+    if (!card) return;
+    // Space on the checkbox itself (focused by a click): let the browser's own
+    // activation run. It arrives as one click, which onSelectClick records.
+    if (e.key !== 'Enter' && e.target === card.querySelector('.card-select-box')) { e.stopPropagation(); return; }
+    e.preventDefault();      // no page scroll on Space, no activation of inner controls
+    e.stopPropagation();
+    if (e.repeat) return;    // holding the key down doesn't flicker the box
+    toggleCard(card);
+  }
+
+  var INNER_FOCUSABLE = 'a[href], button, input, select, textarea, [tabindex]';
+  function setInnerFocus(grid, off) {
+    grid.querySelectorAll('.study-card').forEach(function (card) {
+      card.querySelectorAll(INNER_FOCUSABLE).forEach(function (el) {
+        if (off) {
+          if (el.hasAttribute('data-sel-tabindex')) return;
+          el.setAttribute('data-sel-tabindex', el.hasAttribute('tabindex') ? el.getAttribute('tabindex') : '');
+          el.setAttribute('tabindex', '-1');
+        } else if (el.hasAttribute('data-sel-tabindex')) {
+          var prev = el.getAttribute('data-sel-tabindex');
+          if (prev === '') el.removeAttribute('tabindex'); else el.setAttribute('tabindex', prev);
+          el.removeAttribute('data-sel-tabindex');
+        }
+      });
+      // The card is a toggle while selecting: say so to screen readers.
+      if (off) card.setAttribute('aria-pressed', selected.has(card.dataset.id) ? 'true' : 'false');
+      else card.removeAttribute('aria-pressed');
+    });
+  }
+
+  // Bind or unbind the guard to match selectMode. Runs after every render, so
+  // fresh cards are covered too.
+  function syncSelectMode(grid) {
+    grid = grid || document.getElementById('studyCardsGrid');
+    if (!grid) return;
+    if (selectMode) {
+      if (selectGrid !== grid) {
+        if (selectGrid) unbindSelectGuard();
+        grid.addEventListener('click', onSelectClick, true);
+        grid.addEventListener('keydown', onSelectKey, true);
+        selectGrid = grid;
+      }
+      setInnerFocus(grid, true);
+    } else {
+      setInnerFocus(grid, false);
+      if (selectGrid) unbindSelectGuard();
+    }
+  }
+  function unbindSelectGuard() {
+    selectGrid.removeEventListener('click', onSelectClick, true);
+    selectGrid.removeEventListener('keydown', onSelectKey, true);
+    selectGrid = null;
   }
 
   // ── Floating edit popup (single instance, reused for every card) ────────────
@@ -454,7 +550,7 @@
     currentInlineStudy = study; // remember which study a Further-Studies click branches from
     renderArchivedNote(study);
     // List-only controls (select toolbar, "N more in Archived") step aside.
-    if (selectMode) { selectMode = false; selected.clear(); }
+    if (selectMode) { selectMode = false; selected.clear(); syncSelectMode(); }
     if (libSelectBar) libSelectBar.hidden = true;
     var archivedHint = document.getElementById('libArchivedHint');
     if (archivedHint) archivedHint.hidden = true;
@@ -935,7 +1031,10 @@
 
   function setSelected(id, on, card) {
     if (on) selected.add(id); else selected.delete(id);
-    if (card) card.classList.toggle('is-selected', !!on);
+    if (card) {
+      card.classList.toggle('is-selected', !!on);
+      if (selectMode) card.setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
     updateSelectBar();
   }
 
