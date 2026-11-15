@@ -9487,3 +9487,34 @@ a.sm-book-tile.is-studied.is-filtered-out {
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
+
+/* Library card action buttons (Archive, Edit, Idea, Delete): bigger click and
+   tap areas, same look. Each button keeps its text or icon but takes a
+   transparent box at least 36px wide (44px on phones). That width is real
+   layout, so neighbouring hit areas can't overlap; a 4px gap between buttons
+   stays non-clickable. Height comes from an invisible ::after centred on the
+   button, which adds nothing to the header's height, so the card doesn't grow.
+   Horizontally the ::after matches the button's own box, so it never reaches
+   the title. */
+.card-header-btns { gap: 4px; }
+.card-header-btns > button {
+  position: relative;
+  min-width: 36px;
+  text-align: center;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+.card-header-btns > button::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 36px;
+  transform: translateY(-50%);
+}
+@media (max-width: 600px) {
+  .card-header-btns > button { min-width: 44px; }
+  .card-header-btns > button::after { height: 44px; }
+  .card-archive-btn { min-height: 0; padding-top: 2px; padding-bottom: 2px; }
+}
