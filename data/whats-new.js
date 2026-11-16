@@ -18,6 +18,44 @@
 
 const WHATS_NEW = [
   {
+    date:  'November 15, 2026',
+    title: 'Listen to Your Studies',
+    body:  `Any study can now be read aloud. Choose Listen at the top of a study, pick a voice and a speed, and Iron & Ink reads it to you section by section, highlighting each paragraph as it goes. When it reaches a Bible passage, it tells you the reference first. Tap any paragraph while it's playing to jump there.
+
+For the most natural voices, use Microsoft Edge on a computer. On an iPhone, you can download a much better voice for free: open Settings, then Accessibility, Spoken Content, Voices, English, and download a voice marked Premium or Enhanced. It will then appear at the top of the voice list.`
+  },
+  {
+    date:  'November 15, 2026',
+    title: 'Mark Your Place in a Study',
+    body:  `Most studies take more than one sitting, so you can now mark your place. Highlight any word and choose Mark my place, and a small ribbon appears beside that paragraph. The next time you open the study, a bar at the top offers Go to my place.
+
+If you stop Listen partway through a study, your place is saved for you. Your Library shows where you stopped in each study, and your place follows you from your computer to your phone.`
+  },
+  {
+    date:  'November 15, 2026',
+    title: 'Pick Up Where You Left Off',
+    body:  `Your Dashboard now gathers everything you're in the middle of under Currently studying. Each study appears once, with a note when you have a Teacher lesson or an understanding check in progress, and a Continue link that takes you straight back to it. The Library's new In progress view shows the same thing.
+
+The Teacher page now also says plainly whether you're in a lesson or an understanding check. When you've finished a Teacher session, choose I'm done with this session from its review, and it leaves the list while staying saved in case you want it later.`
+  },
+  {
+    date:  'November 15, 2026',
+    title: 'Archive Studies You\'re Not Using',
+    body:  `If your Library is getting full, you can now archive studies instead of deleting them. Choose Archive on a study, or use Select to put away many at once. Archived studies leave your main list but keep everything: notes, bookmarks and Teacher sessions. They still appear on your Study Map.
+
+To see them, choose Archived in the Library's dropdown. Unarchive brings any of them back.`
+  },
+  {
+    date:  'November 15, 2026',
+    title: 'Larger, Adjustable Text in the Study Panel',
+    body:  `The panel that opens when you highlight a word, with Define, Explore and Verse Lookup, now uses the same comfortable text size as the Scripture page. Use the A− and A+ buttons in its corner to make the text larger or smaller, and Iron & Ink remembers your choice everywhere.`
+  },
+  {
+    date:  'November 15, 2026',
+    title: 'Fixes and Improvements',
+    body:  `Notes you add to a study now always show their numbered marker in the text, including notes on Bible verses. Notes from the past day that were missing their marker have been restored. In the Library, each study card's buttons now sit on their own row, so titles are easier to read.`
+  },
+  {
     date:  'November 1, 2026',
     title: 'Maps for Ancient Places and Roman Roads',
     body:  `When you Explore a passage or Define a word, Iron & Ink can now show you where things were. If the answer mentions ancient cities or Roman roads, a small map appears beneath it with the cities pinned and the roads drawn in. Click a place name in the answer and the map moves to it. Defining a single place, like Philippi or Capernaum, shows its location too.
