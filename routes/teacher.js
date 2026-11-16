@@ -150,22 +150,55 @@ function getTeachingLevelInstruction(settings) {
   return TEACHING_LEVEL_INSTRUCTIONS[level] || TEACHING_LEVEL_INSTRUCTIONS.journeyman;
 }
 
+// "Check my understanding" is pitched to the STUDY's own depth (study.studyLevel,
+// the APPRENTICE / JOURNEYMAN / SCHOLAR badge on Library cards), not the member's
+// setting. A Children's study takes the gentlest (Apprentice) text; a study saved
+// without a level falls back to the member's teaching level. Lessons keep the
+// member's setting (getTeachingLevelInstruction).
+const CHECK_LEVEL_INSTRUCTIONS = {
+  foundations: "STUDY LEVEL FOR THIS CHECK: APPRENTICE. Ask gentle, clear questions in plain words, one idea per question. Favor 'explain this in your own words' and 'what does this mean for a believer' questions. Define any term you use.",
+  journeyman:  'STUDY LEVEL FOR THIS CHECK: JOURNEYMAN. Ask questions that require connecting ideas: why one point follows from another, how a passage supports what the study teaches, how two parts of the study fit together. Ordinary theological vocabulary is fine.',
+  scholar:     'STUDY LEVEL FOR THIS CHECK: SCHOLAR. Ask demanding questions: defend the study\'s position against a specific objection the study itself addressed, trace the argument from the text, compare passages the study set side by side, or state precisely how terms the study distinguished differ. Expect precise answers and press gently for precision.',
+};
+CHECK_LEVEL_INSTRUCTIONS.children = CHECK_LEVEL_INSTRUCTIONS.foundations;
+const CHECK_QUESTIONS_GUIDANCE = "CHECK QUESTIONS:\n" +
+  "- Ask questions the reader cannot answer by copying a sentence from the study. Each question should require them to explain, connect, defend, or apply what the study taught, in their own words.\n" +
+  "- Across the four questions, include at least one 'explain in your own words', one 'connect' (to another part of the study, or to Scripture the study used), and one 'defend' or 'apply'.\n" +
+  "- Stay within what this study actually taught. Never ask about anything the study didn't cover.\n" +
+  "- If an answer is mostly copied or closely paraphrased from the study, acknowledge it kindly and ask once for it in their own words, or why it is true. If they still can't, accept it, move on, and cover it in the teaching at the end.\n" +
+  "- Never grade, score, or say pass or fail.";
+// The level line(s) at the top of the system prompt for this session.
+function levelInstructionFor(kind, study, settings) {
+  if (kind !== 'check') return getTeachingLevelInstruction(settings);
+  const levelText = (study && Object.prototype.hasOwnProperty.call(CHECK_LEVEL_INSTRUCTIONS, study.studyLevel))
+    ? CHECK_LEVEL_INSTRUCTIONS[study.studyLevel]
+    : getTeachingLevelInstruction(settings);
+  return levelText + '\n\n' + CHECK_QUESTIONS_GUIDANCE;
+}
+
 // Hidden tags each reply ends with: [[at:N]] (the section it's teaching) and,
-// when a reply finishes a section, [[done:N]]. Both are stripped from everything
-// the reader sees and stored; the last [[at]] wins, every [[done]] counts.
-const TAG_RE = /\s*\[\[\s*(at|done)\s*:\s*([^\]\n]*?)\s*\]\]/gi;
+// when a reply finishes a section, [[done:N]]. A check adds [[phase:teach]] once
+// its questions are over. All are stripped from everything the reader sees and
+// stored; the last [[at]] wins, every [[done]] counts.
+const TAG_RE = /\s*\[\[\s*(at|done|phase)\s*:\s*([^\]\n]*?)\s*\]\]/gi;
 function stripTags(text) {
   let at = null;
+  let phase = null;
   const done = [];
   const out = String(text).replace(TAG_RE, (_m, kind, val) => {
+    const k = kind.toLowerCase();
+    if (k === 'phase') {
+      if (String(val).trim().toLowerCase() === 'teach') phase = 'teach';
+      return '';
+    }
     const n = parseInt(val, 10);
     if (n >= 0) {
-      if (kind.toLowerCase() === 'at') at = n;
+      if (k === 'at') at = n;
       else done.push(n);
     }
     return '';
   });
-  return { text: out, at, done };
+  return { text: out, at, done, phase };
 }
 
 // Lesson state from a reply's tags. The SERVER keeps the lesson in order; the
@@ -218,6 +251,8 @@ function lessonSummary(session) {
     finished:       !!session.finished,
     currentTitle:   session.currentSection ? sectionTitle(session, session.currentSection) : '',
     resumeText:     resumeText(session),
+    // Check sessions only: 'questions' until the model's [[phase:teach]], then 'teach'.
+    checkPhase:     session.kind === 'check' ? (session.checkPhase === 'teach' ? 'teach' : 'questions') : null,
   };
 }
 
@@ -268,7 +303,7 @@ function openingTurn(mode, sec) {
     return "(The reader tapped Teach me this section on section " + sec.n + ", '" + sec.title + "'. In one or two sentences, tell them where this section sits in the study's argument and what came before it. Then begin teaching section " + sec.n + ' — actually teach its first part. Do not ask the reader any question in this reply.)';
   }
   if (mode === 'check') {
-    return 'The reader has finished the study and tapped "Check my understanding". Open with one short line saying you\'ll ask a few questions to see how the study has settled, and that \'I\'m not sure\' is a fine answer. Then ask 3-4 short check questions covering the study\'s main points — ONE per reply, waiting for each answer. During the check, respond to each answer with at most one short sentence (a brief affirmation or a gentle note) before the next question; save fuller teaching for afterward. After the last check question is answered, tell them in a sentence or two what they have well, then teach whatever they missed, one point at a time, following your normal teaching method.';
+    return "(The reader has finished the study and tapped Check my understanding. Open with one short line saying you'll ask a few questions to see how the study has settled, that they should answer in their own words, and that 'I'm not sure' is a fine answer. Then ask your first question. Ask four questions in all, ONE per reply, waiting for each answer, following the CHECK QUESTIONS guidance and this study's level. During the questions, respond to each answer briefly, two or three sentences at most: affirm what is right and, if needed, gently note what is missing, without teaching the whole point yet. After the fourth answer, tell them honestly what they have well, then teach whatever they missed or were unsure of, one point at a time. When you begin that summary, put [[phase:teach]] on its own line at the end of that reply.)";
   }
   return '(The reader tapped Study with a Teacher. Begin the lesson. First, in one short paragraph, tell them what this study is about and why it matters for them. Then name the route in one sentence or a short plain list of the section titles from LESSON STATE. Then begin teaching section 1 — actually teach its first part, don\'t just introduce it. Do not ask the reader any question in this reply; end at a natural stopping place so they can tap Continue.)';
 }
@@ -292,6 +327,22 @@ const ACTIONS = {
     label: 'Ask me a question',
     text:  '(The reader tapped Ask me a question. Ask ONE good question on what you have just taught — one that makes them think about the text or the argument, not recall a fact. Then wait for their answer. When they answer, respond to it honestly and warmly, then carry on teaching.)',
   },
+  // Check only, while the questions are being asked.
+  hint: {
+    label: 'Give me a hint',
+    text:  '(The reader tapped Give me a hint. Point them to the part of the study that holds what they need, by section title and verse if relevant, or give one small nudge, without giving the answer. Then ask the same question again, more simply if that helps.)',
+  },
+  notsure: {
+    label: "I'm not sure",
+    text:  "(The reader tapped I'm not sure. Respond kindly in one sentence, note it for the teaching at the end, and ask the next question. If that was the last question, go straight to the honest summary and teaching.)",
+  },
+};
+// Which controls each kind accepts. A check uses hint/notsure during its
+// questions and continue/simpler once it is teaching (the page shows the set
+// for the saved phase); a lesson keeps its four.
+const KIND_ACTIONS = {
+  lesson: ['continue', 'deeper', 'simpler', 'quiz'],
+  check:  ['hint', 'notsure', 'continue', 'simpler'],
 };
 function jumpTurn(sec) {
   return "(The reader wants to go to section " + sec.n + ", '" + sec.title + "'. In one or two sentences, connect it to where you were or to what comes before it in the study, then begin teaching that section.)";
@@ -304,6 +355,9 @@ function lessonStateText(session) {
   const lines = ['LESSON STATE'];
   if (session.kind === 'check') {
     lines.push('This session is "Check my understanding", not the walk-through: follow the check instructions given at the start. Inside this check, the rule about asking questions only when asked (or at the end of a section) does not apply. Use [[at:N]] for the section the current question or teaching is about (0 when it spans the whole study); [[done:N]] is not needed.');
+    if (session.checkPhase === 'teach') {
+      lines.push('Check phase: the questions are finished. You are now teaching what the reader missed or was unsure of; do not emit [[phase:teach]] again.');
+    }
   }
   if (!sections.length) {
     lines.push('Sections: (This study has no numbered sections. Teach it in order as one piece and use [[at:0]] throughout.)');
@@ -431,11 +485,17 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
           <div class="chat-input-area teacher-input-area">
             <textarea id="teacherInput" class="chat-textarea" rows="2"
                       placeholder="Ask a question, or answer&#8230;" disabled></textarea>
-            <div class="teacher-quick-replies" id="teacherQuickReplies">
+            <div class="teacher-quick-replies" id="teacherQuickReplies">${kind === 'check' ? `
+              <!-- Check: hint / not sure during the questions, continue / simpler
+                   once teaching (data-phase; public/js/teacher.js shows one set). -->
+              <button type="button" class="teacher-quick-btn" data-action="hint" data-phase="questions" disabled>Give me a hint</button>
+              <button type="button" class="teacher-quick-btn" data-action="notsure" data-phase="questions" disabled>I&#8217;m not sure</button>
+              <button type="button" class="teacher-quick-btn" data-action="continue" data-phase="teach" hidden disabled>Continue</button>
+              <button type="button" class="teacher-quick-btn" data-action="simpler" data-phase="teach" hidden disabled>Say that more simply</button>` : `
               <button type="button" class="teacher-quick-btn" data-action="continue" disabled>Continue</button>
               <button type="button" class="teacher-quick-btn" data-action="deeper" disabled>Go deeper</button>
               <button type="button" class="teacher-quick-btn" data-action="simpler" disabled>Say that more simply</button>
-              <button type="button" class="teacher-quick-btn" data-action="quiz" disabled>Ask me a question</button>
+              <button type="button" class="teacher-quick-btn" data-action="quiz" disabled>Ask me a question</button>`}
             </div>
             <div class="chat-input-actions">
               <button class="btn-primary" id="teacherSendBtn" disabled>Send</button>
@@ -487,7 +547,7 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
     scripts: `<script src="/js/render-markdown.js?v=2"></script>
 <script src="/js/teacher-entry.js?v=7"></script>
 <script>window.TEACHER_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/teacher.js?v=10"></script>`,
+<script src="/js/teacher.js?v=11"></script>`,
   }));
 });
 
@@ -626,7 +686,7 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
         const sec = session.lessonSections.find(s => s.n === n);
         if (!sec) return res.status(400).json({ success: false, error: 'That section isn’t part of this lesson.' });
         newTurn = { role: 'user', content: jumpTurn(sec), hidden: true, display: jumpLabel(sec), action: 'jump', section: sec.n };
-      } else if (Object.prototype.hasOwnProperty.call(ACTIONS, action)) {
+      } else if (Object.prototype.hasOwnProperty.call(ACTIONS, action) && KIND_ACTIONS[kind].includes(action)) {
         newTurn = { role: 'user', content: ACTIONS[action].text, hidden: true, display: ACTIONS[action].label, action };
       } else {
         return res.status(400).json({ success: false, error: 'Unknown action.' });
@@ -644,7 +704,7 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
 
   const { IRON_INK_CORE_PROMPT, IRON_INK_TEACHER_PROMPT } = req.app.locals.prompts;
   const userSettings = req.session.user && req.session.user.settings;
-  const levelInstruction = getTeachingLevelInstruction(userSettings);
+  const levelInstruction = levelInstructionFor(kind, study, userSettings);
 
   // System prompt as blocks (Writing companion pattern): the Teacher prompt, then
   // the study itself, then the lesson state. The cache breakpoint sits on the
@@ -736,7 +796,7 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
     const u = finalMsg.usage || {};
     console.log(`[Teacher/${kind}] usage — input:${u.input_tokens} cache_read:${u.cache_read_input_tokens} cache_write:${u.cache_creation_input_tokens} output:${u.output_tokens} stop:${finalMsg.stop_reason}`);
 
-    const { text: replyText, at, done } = stripTags(raw);
+    const { text: replyText, at, done, phase } = stripTags(raw);
     const reply = replyText.trim();
 
     // Opus 5.5 safety classifiers can decline with stop_reason 'refusal' (HTTP 200).
@@ -773,6 +833,12 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
         const accepted = applyTags(session, turnType, at, done, newTurn.section);
         console.log(`[Teacher/${kind}] tags at:${at === null ? 'none' : at} done:${done.length ? done.join(',') : 'none'}` +
           ` -> accepted at:${accepted.at} done:${accepted.done.length ? accepted.done.join(',') : 'none'} (${turnType})`);
+        // A check moves from its questions to its teaching once, on the model's
+        // [[phase:teach]]; it never moves back.
+        if (session.kind === 'check' && phase === 'teach' && session.checkPhase !== 'teach') {
+          session.checkPhase = 'teach';
+          console.log(`[Teacher/check] phase -> teach`);
+        }
         session.review    = null;          // a stale review no longer describes the session
         // Going back to a session makes it in progress again (lib/teacher-progress.js).
         delete session.done;
@@ -847,7 +913,7 @@ router.post('/api/teacher/review', requireAuth, aiLimiter, async (req, res) => {
     'THIS STUDY\'S FURTHER STUDIES LIST:\n' + furtherList + '\n\n' +
     'SESSION TRANSCRIPT:\n' + transcriptText + '\n\n' +
     'Write a warm, honest review for the reader, addressed to them as "you". Never grade or score them.\n' +
-    'Base understandWell and revisit on the reader\'s OWN questions and answers in the transcript, not on what the teacher covered. Lines marked "Reader (tapped a button)" are button taps (Continue, Go deeper, Say that more simply, Ask me a question, or a jump to a section), not answers. If the reader mostly tapped Continue and asked or answered little, it is fine to say so gently and keep both lists short; do not invent understanding they did not show.\n' +
+    'Base understandWell and revisit on the reader\'s OWN questions and answers in the transcript, not on what the teacher covered. Lines marked "Reader (tapped a button)" are button taps (Continue, Go deeper, Say that more simply, Ask me a question, Give me a hint, I\'m not sure, or a jump to a section), not answers; an "I\'m not sure" tap means the reader was unsure of that question\'s point. If the reader mostly tapped Continue and asked or answered little, it is fine to say so gently and keep both lists short; do not invent understanding they did not show.\n' +
     '1. understandWell — up to 3 things the reader showed they genuinely understand, in their own questions or answers. Be concrete, never flattery. If they showed little either way, one item or an empty list is fine.\n' +
     '2. revisit — up to 3 points worth going back over, where their answers or questions were thin or the teaching had to correct them. If nothing needs revisiting, return an empty list.\n' +
     'Each item is one plain sentence (no Scripture quotations, no verse markers) plus the number of the study section it belongs to (from STUDY SECTIONS), or null if none fits.\n' +

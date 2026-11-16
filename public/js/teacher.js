@@ -110,7 +110,23 @@
     deeper:   'Go deeper',
     simpler:  'Say that more simply',
     quiz:     'Ask me a question',
+    hint:     'Give me a hint',
+    notsure:  'I’m not sure',
   };
+
+  // A check shows "Give me a hint" / "I'm not sure" while its questions are
+  // asked, then "Continue" / "Say that more simply" once the Teacher has moved
+  // to teaching (the server's checkPhase, from the hidden [[phase:teach]] tag).
+  // Buttons carry data-phase; a lesson's buttons have none and always show.
+  var checkPhase = 'questions';
+  function setCheckPhase(phase) {
+    if (KIND !== 'check') return;
+    checkPhase = phase === 'teach' ? 'teach' : 'questions';
+    quickBtns.forEach(function (b) {
+      var p = b.getAttribute('data-phase');
+      if (p) b.hidden = p !== checkPhase;
+    });
+  }
 
   // ── The study (left pane) ────────────────────────────────────────────────
   // renderMarkdown output is sanitized by the shared allowlist sanitizer.
@@ -148,6 +164,7 @@
   // pull away from wherever the reader is looking.
   function setLessonState(lesson) {
     if (!lesson) return;
+    setCheckPhase(lesson.checkPhase);
     var cur  = parseInt(lesson.currentSection, 10) || 0;
     var done = Array.isArray(lesson.doneSections) ? lesson.doneSections : [];
     heads.forEach(function (h, i) {
@@ -166,6 +183,7 @@
     heads.forEach(function (h) { h.classList.remove('teacher-sec-current', 'teacher-sec-done'); });
     if (nowEl) nowEl.textContent = '';
     shownSection = (BOOT.entry && BOOT.entry.mode === 'section') ? BOOT.entry.section : null;
+    setCheckPhase('questions');
   }
 
   // Drop ?mode=section&section=N once the lesson has moved there, so a reload
@@ -462,7 +480,9 @@
     if (last) {
       welcomeEl = document.createElement('p');
       welcomeEl.className = 'teacher-welcome-back';
-      welcomeEl.textContent = 'Welcome back. This is where we stopped. Tap Continue when you\'re ready.';
+      welcomeEl.textContent = (KIND === 'check' && checkPhase === 'questions')
+        ? 'Welcome back. This is where we stopped. Answer below when you\'re ready.'
+        : 'Welcome back. This is where we stopped. Tap Continue when you\'re ready.';
       last.insertAdjacentElement('afterend', welcomeEl);
       messagesEl.scrollTop += last.getBoundingClientRect().top - messagesEl.getBoundingClientRect().top;
       last.classList.remove('teacher-msg-return');
@@ -550,7 +570,7 @@
   inputEl.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(inputEl.value); }
   });
-  // Reader controls. Only the four known actions are sent; the server checks
+  // Reader controls. Only the known actions are sent; the server checks
   // them again.
   function sendAction(action) {
     if (!Object.prototype.hasOwnProperty.call(ACTION_LABELS, action)) return;
