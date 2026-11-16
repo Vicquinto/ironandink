@@ -373,7 +373,7 @@
       if (communityReading) communityReading.style.display = 'none';
       if (prayerBoard)      prayerBoard.style.display      = 'none';
       if (studiesBoard)     studiesBoard.style.display     = 'block';
-      loadSharedStudies();
+      return loadSharedStudies();
     } else {
       if (prayerBoard)      prayerBoard.style.display      = 'none';
       if (studiesBoard)     studiesBoard.style.display     = 'none';
@@ -801,5 +801,26 @@
     });
   }
 
+  // /community?study=<id> (e.g. a Dashboard "Currently studying" title for a
+  // shared study) opens that study in the reader, on the Studies tab, so Back
+  // returns to the Studies list. The parameter is dropped from the address so
+  // a refresh shows the page normally. A study no longer shared just leaves
+  // the Studies list open, with a note.
+  function openStudyFromAddress() {
+    var id = '';
+    try { id = new URLSearchParams(window.location.search).get('study') || ''; } catch (e) {}
+    if (!id) return;
+    try {
+      var u = new URL(window.location.href);
+      u.searchParams.delete('study');
+      window.history.replaceState(null, '', u.pathname + u.search + u.hash);
+    } catch (e) {}
+    Promise.resolve(switchCommunityTab('studies')).then(function () {
+      if (loadedStudies.some(function (x) { return x.id === id; })) openSharedStudy(id);
+      else showToast('That study is no longer shared.', true);
+    });
+  }
+
   loadFeed();
+  openStudyFromAddress();
 })();

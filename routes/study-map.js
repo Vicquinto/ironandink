@@ -433,9 +433,10 @@ function currentlyStudying(userId, entries) {
 }
 
 function studyingRowHtml(r) {
-  // Own studies open in the Library reader. Shared studies have no direct
-  // link into the Community reader, so they go to Community.
-  const href = r.own ? '/library?open=' + encodeURIComponent(r.id) : '/community';
+  // Own studies open in the Library reader; shared ones in the Community
+  // reader (public/js/community.js openStudyFromAddress).
+  const href = r.own ? '/library?open=' + encodeURIComponent(r.id)
+                     : '/community?study=' + encodeURIComponent(r.id);
   const parts = [];
   if (r.lesson) parts.push(`Lesson in progress &#183; <a href="${escapeHtml(continueHref({ studyId: r.id, kind: 'lesson' }))}">Continue</a>`);
   if (r.check)  parts.push(`Understanding check in progress &#183; <a href="${escapeHtml(continueHref({ studyId: r.id, kind: 'check' }))}">Continue</a>`);

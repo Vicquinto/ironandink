@@ -741,7 +741,7 @@
         closeReview();
         window.location.href = BOOT.isOwner
           ? '/library?open=' + encodeURIComponent(BOOT.studyId)
-          : (backLink ? backLink.getAttribute('href') : '/community');
+          : '/community?study=' + encodeURIComponent(BOOT.studyId);
       } catch (err) {
         doneBusy = false;
         doneBtn.disabled = false;
