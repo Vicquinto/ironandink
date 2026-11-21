@@ -7,9 +7,9 @@
     "matching": "forms compared in Unicode NFC with grave read as acute and punctuation/elision marks dropped; if no exact hit, retried ignoring accents (how = \"ignoring accents\"); \"(ν)\" = movable nu, both spellings tried"
   },
   "summary": {
-    "attested-match": 310,
+    "attested-match": 321,
     "attested-other": 5,
-    "unattested": 34
+    "unattested": 35
   },
   "cells": [
     {
@@ -6279,6 +6279,222 @@
           "code": "V-PAS-3P",
           "parse": "Verb · present · active · subjunctive · 3rd person · plural",
           "n": 11
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eipon-2aor-subj",
+      "cellLabel": "1st sg.",
+      "form": "εἴπω",
+      "parse": "Verb · 2nd aorist · active · subjunctive · 1st person · singular",
+      "status": "attested-match",
+      "matchedForm": "εἴπω",
+      "how": "exact",
+      "occurrences": 7,
+      "seenAs": [
+        {
+          "lemma": "ἔπω, ἐρῶ, εἶπον",
+          "code": "V-2AAS-1S",
+          "parse": "Verb · 2nd aorist · active · subjunctive · 1st person · singular",
+          "n": 7
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eipon-2aor-subj",
+      "cellLabel": "1st pl.",
+      "form": "εἴπωμεν",
+      "parse": "Verb · 2nd aorist · active · subjunctive · 1st person · plural",
+      "status": "attested-match",
+      "matchedForm": "εἴπωμεν",
+      "how": "exact",
+      "occurrences": 10,
+      "seenAs": [
+        {
+          "lemma": "ἔπω, ἐρῶ, εἶπον",
+          "code": "V-2AAS-1P",
+          "parse": "Verb · 2nd aorist · active · subjunctive · 1st person · plural",
+          "n": 10
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eipon-2aor-subj",
+      "cellLabel": "2nd sg.",
+      "form": "εἴπῃς",
+      "parse": "Verb · 2nd aorist · active · subjunctive · 2nd person · singular",
+      "status": "attested-match",
+      "matchedForm": "εἴπῃς",
+      "how": "exact",
+      "occurrences": 4,
+      "seenAs": [
+        {
+          "lemma": "ἔπω, ἐρῶ, εἶπον",
+          "code": "V-2AAS-2S",
+          "parse": "Verb · 2nd aorist · active · subjunctive · 2nd person · singular",
+          "n": 4
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eipon-2aor-subj",
+      "cellLabel": "2nd pl.",
+      "form": "εἴπητε",
+      "parse": "Verb · 2nd aorist · active · subjunctive · 2nd person · plural",
+      "status": "attested-match",
+      "matchedForm": "εἴπητε",
+      "how": "exact",
+      "occurrences": 7,
+      "seenAs": [
+        {
+          "lemma": "ἔπω, ἐρῶ, εἶπον",
+          "code": "V-2AAS-2P",
+          "parse": "Verb · 2nd aorist · active · subjunctive · 2nd person · plural",
+          "n": 7
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eipon-2aor-subj",
+      "cellLabel": "3rd sg.",
+      "form": "εἴπῃ",
+      "parse": "Verb · 2nd aorist · active · subjunctive · 3rd person · singular",
+      "status": "attested-match",
+      "matchedForm": "εἴπῃ",
+      "how": "exact",
+      "occurrences": 22,
+      "seenAs": [
+        {
+          "lemma": "ἔπω, ἐρῶ, εἶπον",
+          "code": "V-2AAS-3S",
+          "parse": "Verb · 2nd aorist · active · subjunctive · 3rd person · singular",
+          "n": 22
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eipon-2aor-subj",
+      "cellLabel": "3rd pl.",
+      "form": "εἴπωσι(ν)",
+      "parse": "Verb · 2nd aorist · active · subjunctive · 3rd person · plural",
+      "status": "attested-match",
+      "matchedForm": "εἴπωσιν",
+      "how": "exact",
+      "occurrences": 6,
+      "seenAs": [
+        {
+          "lemma": "ἔπω, ἐρῶ, εἶπον",
+          "code": "V-2AAS-3P",
+          "parse": "Verb · 2nd aorist · active · subjunctive · 3rd person · plural",
+          "n": 6
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pisteuo-aor-subj",
+      "cellLabel": "1st sg.",
+      "form": "πιστεύσω",
+      "parse": "Verb · aorist · active · subjunctive · 1st person · singular",
+      "status": "attested-match",
+      "matchedForm": "πιστεύσω",
+      "how": "exact",
+      "occurrences": 2,
+      "seenAs": [
+        {
+          "lemma": "πιστεύω",
+          "code": "V-AAS-1S",
+          "parse": "Verb · aorist · active · subjunctive · 1st person · singular",
+          "n": 2
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pisteuo-aor-subj",
+      "cellLabel": "1st pl.",
+      "form": "πιστεύσωμεν",
+      "parse": "Verb · aorist · active · subjunctive · 1st person · plural",
+      "status": "attested-match",
+      "matchedForm": "πιστεύσωμεν",
+      "how": "exact",
+      "occurrences": 2,
+      "seenAs": [
+        {
+          "lemma": "πιστεύω",
+          "code": "V-AAS-1P",
+          "parse": "Verb · aorist · active · subjunctive · 1st person · plural",
+          "n": 2
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pisteuo-aor-subj",
+      "cellLabel": "2nd sg.",
+      "form": "πιστεύσῃς",
+      "parse": "Verb · aorist · active · subjunctive · 2nd person · singular",
+      "status": "attested-match",
+      "matchedForm": "πιστεύσῃς",
+      "how": "exact",
+      "occurrences": 2,
+      "seenAs": [
+        {
+          "lemma": "πιστεύω",
+          "code": "V-AAS-2S",
+          "parse": "Verb · aorist · active · subjunctive · 2nd person · singular",
+          "n": 2
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pisteuo-aor-subj",
+      "cellLabel": "2nd pl.",
+      "form": "πιστεύσητε",
+      "parse": "Verb · aorist · active · subjunctive · 2nd person · plural",
+      "status": "attested-match",
+      "matchedForm": "πιστεύσητε",
+      "how": "exact",
+      "occurrences": 11,
+      "seenAs": [
+        {
+          "lemma": "πιστεύω",
+          "code": "V-AAS-2P",
+          "parse": "Verb · aorist · active · subjunctive · 2nd person · plural",
+          "n": 11
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pisteuo-aor-subj",
+      "cellLabel": "3rd sg.",
+      "form": "πιστεύσῃ",
+      "parse": "Verb · aorist · active · subjunctive · 3rd person · singular",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "pisteuo-aor-subj",
+      "cellLabel": "3rd pl.",
+      "form": "πιστεύσωσι(ν)",
+      "parse": "Verb · aorist · active · subjunctive · 3rd person · plural",
+      "status": "attested-match",
+      "matchedForm": "πιστεύσωσιν",
+      "how": "exact",
+      "occurrences": 4,
+      "seenAs": [
+        {
+          "lemma": "πιστεύω",
+          "code": "V-AAS-3P",
+          "parse": "Verb · aorist · active · subjunctive · 3rd person · plural",
+          "n": 4
         }
       ],
       "otherLemma": false

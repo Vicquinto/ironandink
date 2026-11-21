@@ -2,6 +2,707 @@
   "generatedBy": "scripts/build-greek-course.js",
   "problems": [],
   "vocabNotTaught": [],
+  "grammarCoverage": {
+    "passage": "1 John 1:1–10",
+    "rule": "verbs grouped by tense · voice · mood, other words by part of speech; lessons = the first lessons that cover the category (paradigm cell, recognition note, or for non-verbs a taught word of that part of speech)",
+    "categories": [
+      {
+        "category": "Adjective",
+        "tokens": 6,
+        "codes": [
+          "A-ASF",
+          "A-GSF",
+          "A-NSF",
+          "A-NSM"
+        ],
+        "refs": [
+          "1:2",
+          "1:5",
+          "1:7",
+          "1:9"
+        ],
+        "lessons": [
+          {
+            "id": "L14",
+            "number": 14,
+            "via": "paradigm hagios"
+          },
+          {
+            "id": "L14",
+            "number": 14,
+            "via": "paradigm pas"
+          },
+          {
+            "id": "L14",
+            "number": 14,
+            "via": "vocab δύο"
+          },
+          {
+            "id": "L14",
+            "number": 14,
+            "via": "vocab εἷς"
+          }
+        ]
+      },
+      {
+        "category": "Conjunction",
+        "tokens": 36,
+        "codes": [
+          "COND",
+          "CONJ"
+        ],
+        "refs": [
+          "1:1",
+          "1:2",
+          "1:3",
+          "1:4",
+          "1:5",
+          "1:6",
+          "1:7",
+          "1:8",
+          "1:9",
+          "1:10"
+        ],
+        "lessons": [
+          {
+            "id": "L05",
+            "number": 5,
+            "via": "vocab γάρ"
+          },
+          {
+            "id": "L05",
+            "number": 5,
+            "via": "vocab δέ"
+          },
+          {
+            "id": "L05",
+            "number": 5,
+            "via": "vocab καί"
+          },
+          {
+            "id": "L05",
+            "number": 5,
+            "via": "vocab ἀλλά"
+          }
+        ]
+      },
+      {
+        "category": "Definite article",
+        "tokens": 25,
+        "codes": [
+          "T-APF",
+          "T-ASF",
+          "T-ASM",
+          "T-DPM",
+          "T-DSN",
+          "T-GSF",
+          "T-GSM",
+          "T-NPF",
+          "T-NSF",
+          "T-NSM",
+          "T-NSN"
+        ],
+        "refs": [
+          "1:1",
+          "1:2",
+          "1:3",
+          "1:4",
+          "1:5",
+          "1:6",
+          "1:7",
+          "1:8",
+          "1:9",
+          "1:10"
+        ],
+        "lessons": [
+          {
+            "id": "L07",
+            "number": 7,
+            "via": "paradigm article"
+          },
+          {
+            "id": "L07",
+            "number": 7,
+            "via": "vocab ὁ"
+          }
+        ]
+      },
+      {
+        "category": "Demonstrative pronoun",
+        "tokens": 2,
+        "codes": [
+          "D-APN",
+          "D-NSF"
+        ],
+        "refs": [
+          "1:4",
+          "1:5"
+        ],
+        "lessons": [
+          {
+            "id": "L15",
+            "number": 15,
+            "via": "paradigm houtos"
+          },
+          {
+            "id": "L15",
+            "number": 15,
+            "via": "vocab οὗτος"
+          },
+          {
+            "id": "L15",
+            "number": 15,
+            "via": "vocab ἐκεῖνος"
+          }
+        ]
+      },
+      {
+        "category": "Negative Particle",
+        "tokens": 6,
+        "codes": [
+          "PRT-N"
+        ],
+        "refs": [
+          "1:5",
+          "1:6",
+          "1:8",
+          "1:10"
+        ],
+        "lessons": [
+          {
+            "id": "L05",
+            "number": 5,
+            "via": "vocab μή"
+          },
+          {
+            "id": "L05",
+            "number": 5,
+            "via": "vocab οὐ"
+          }
+        ]
+      },
+      {
+        "category": "Noun",
+        "tokens": 36,
+        "codes": [
+          "N-APF",
+          "N-ASF",
+          "N-ASM",
+          "N-ASM-T",
+          "N-DPM",
+          "N-DSN",
+          "N-GSF",
+          "N-GSM",
+          "N-GSM-P",
+          "N-GSM-T",
+          "N-NPF",
+          "N-NSF",
+          "N-NSM",
+          "N-NSM-T",
+          "N-NSN"
+        ],
+        "refs": [
+          "1:1",
+          "1:2",
+          "1:3",
+          "1:4",
+          "1:5",
+          "1:6",
+          "1:7",
+          "1:8",
+          "1:9",
+          "1:10"
+        ],
+        "lessons": [
+          {
+            "id": "L05",
+            "number": 5,
+            "via": "vocab Χριστός"
+          },
+          {
+            "id": "L05",
+            "number": 5,
+            "via": "vocab Ἰησοῦς"
+          },
+          {
+            "id": "L06",
+            "number": 6,
+            "via": "paradigm logos"
+          },
+          {
+            "id": "L06",
+            "number": 6,
+            "via": "vocab θεός"
+          }
+        ]
+      },
+      {
+        "category": "Particle or Disjunctive",
+        "tokens": 1,
+        "codes": [
+          "PRT"
+        ],
+        "refs": [
+          "1:7"
+        ],
+        "lessons": [
+          {
+            "id": "L13",
+            "number": 13,
+            "via": "vocab μέν"
+          },
+          {
+            "id": "L13",
+            "number": 13,
+            "via": "vocab ὡς"
+          },
+          {
+            "id": "L23",
+            "number": 23,
+            "via": "vocab ἄν"
+          }
+        ]
+      },
+      {
+        "category": "Personal pronoun",
+        "tokens": 24,
+        "codes": [
+          "P-1AP",
+          "P-1DP",
+          "P-1GP",
+          "P-1NP",
+          "P-2DP",
+          "P-2NP",
+          "P-ASM",
+          "P-DSM",
+          "P-GSM",
+          "P-NSM"
+        ],
+        "refs": [
+          "1:1",
+          "1:2",
+          "1:3",
+          "1:4",
+          "1:5",
+          "1:6",
+          "1:7",
+          "1:8",
+          "1:9",
+          "1:10"
+        ],
+        "lessons": [
+          {
+            "id": "L11",
+            "number": 11,
+            "via": "paradigm autos"
+          },
+          {
+            "id": "L11",
+            "number": 11,
+            "via": "paradigm ego"
+          },
+          {
+            "id": "L11",
+            "number": 11,
+            "via": "paradigm su"
+          },
+          {
+            "id": "L11",
+            "number": 11,
+            "via": "vocab αὐτός"
+          }
+        ]
+      },
+      {
+        "category": "Possessive pronoun",
+        "tokens": 1,
+        "codes": [
+          "S-1PNSF"
+        ],
+        "refs": [
+          "1:3"
+        ],
+        "lessons": [
+          {
+            "id": "L11",
+            "number": 11,
+            "via": "recognition note"
+          }
+        ]
+      },
+      {
+        "category": "Preposition",
+        "tokens": 17,
+        "codes": [
+          "PREP"
+        ],
+        "refs": [
+          "1:1",
+          "1:2",
+          "1:3",
+          "1:5",
+          "1:6",
+          "1:7",
+          "1:8",
+          "1:9",
+          "1:10"
+        ],
+        "lessons": [
+          {
+            "id": "L05",
+            "number": 5,
+            "via": "vocab εἰς"
+          },
+          {
+            "id": "L05",
+            "number": 5,
+            "via": "vocab ἀπό"
+          },
+          {
+            "id": "L05",
+            "number": 5,
+            "via": "vocab ἐν"
+          },
+          {
+            "id": "L12",
+            "number": 12,
+            "via": "vocab διά"
+          }
+        ]
+      },
+      {
+        "category": "Reciprocal pronoun",
+        "tokens": 1,
+        "codes": [
+          "C-GPM"
+        ],
+        "refs": [
+          "1:7"
+        ],
+        "lessons": [
+          {
+            "id": "L15",
+            "number": 15,
+            "via": "recognition note"
+          }
+        ]
+      },
+      {
+        "category": "Reflexive pronoun",
+        "tokens": 1,
+        "codes": [
+          "F-1APM"
+        ],
+        "refs": [
+          "1:8"
+        ],
+        "lessons": [
+          {
+            "id": "L11",
+            "number": 11,
+            "via": "vocab ἑαυτοῦ"
+          }
+        ]
+      },
+      {
+        "category": "Relative pronoun",
+        "tokens": 7,
+        "codes": [
+          "R-ASF",
+          "R-ASN",
+          "R-NSF",
+          "R-NSN"
+        ],
+        "refs": [
+          "1:1",
+          "1:2",
+          "1:3",
+          "1:5"
+        ],
+        "lessons": [
+          {
+            "id": "L15",
+            "number": 15,
+            "via": "paradigm hos"
+          },
+          {
+            "id": "L15",
+            "number": 15,
+            "via": "vocab ὅς, ἥ, ὅ"
+          },
+          {
+            "id": "L15",
+            "number": 15,
+            "via": "vocab ὅστις"
+          }
+        ]
+      },
+      {
+        "category": "Verb · 2nd aorist · active · subjunctive",
+        "tokens": 4,
+        "codes": [
+          "V-2AAS-1P",
+          "V-2AAS-3S"
+        ],
+        "refs": [
+          "1:6",
+          "1:8",
+          "1:9",
+          "1:10"
+        ],
+        "lessons": [
+          {
+            "id": "L23",
+            "number": 23,
+            "via": "paradigm eipon-2aor-subj"
+          }
+        ]
+      },
+      {
+        "category": "Verb · 2nd perfect · active · indicative",
+        "tokens": 3,
+        "codes": [
+          "V-2RAI-1P"
+        ],
+        "refs": [
+          "1:1",
+          "1:3",
+          "1:5"
+        ],
+        "lessons": [
+          {
+            "id": "L22",
+            "number": 22,
+            "via": "paradigm akouo-2perf"
+          }
+        ]
+      },
+      {
+        "category": "Verb · aorist · active · indicative",
+        "tokens": 1,
+        "codes": [
+          "V-AAI-3P"
+        ],
+        "refs": [
+          "1:1"
+        ],
+        "lessons": [
+          {
+            "id": "L20",
+            "number": 20,
+            "via": "paradigm luo-aor-act"
+          },
+          {
+            "id": "L20",
+            "number": 20,
+            "via": "paradigm pisteuo-aor-act"
+          }
+        ]
+      },
+      {
+        "category": "Verb · aorist · active · subjunctive",
+        "tokens": 1,
+        "codes": [
+          "V-AAS-3S"
+        ],
+        "refs": [
+          "1:9"
+        ],
+        "lessons": [
+          {
+            "id": "L23",
+            "number": 23,
+            "via": "paradigm pisteuo-aor-subj"
+          }
+        ]
+      },
+      {
+        "category": "Verb · aorist · middle deponent · indicative",
+        "tokens": 1,
+        "codes": [
+          "V-ADI-1P"
+        ],
+        "refs": [
+          "1:1"
+        ],
+        "lessons": [
+          {
+            "id": "L20",
+            "number": 20,
+            "via": "paradigm theaomai-aor-mid"
+          }
+        ]
+      },
+      {
+        "category": "Verb · aorist · passive · indicative",
+        "tokens": 2,
+        "codes": [
+          "V-API-3S"
+        ],
+        "refs": [
+          "1:2"
+        ],
+        "lessons": [
+          {
+            "id": "L20",
+            "number": 20,
+            "via": "paradigm egeiro-aor-pass"
+          }
+        ]
+      },
+      {
+        "category": "Verb · imperfect · active · indicative",
+        "tokens": 2,
+        "codes": [
+          "V-IAI-3S"
+        ],
+        "refs": [
+          "1:1",
+          "1:2"
+        ],
+        "lessons": [
+          {
+            "id": "L10",
+            "number": 10,
+            "via": "paradigm eimi-impf-ind"
+          }
+        ]
+      },
+      {
+        "category": "Verb · perfect · active · indicative",
+        "tokens": 4,
+        "codes": [
+          "V-RAI-1P"
+        ],
+        "refs": [
+          "1:1",
+          "1:2",
+          "1:3",
+          "1:10"
+        ],
+        "lessons": [
+          {
+            "id": "L22",
+            "number": 22,
+            "via": "paradigm horao-perf"
+          },
+          {
+            "id": "L22",
+            "number": 22,
+            "via": "paradigm oida-perf"
+          }
+        ]
+      },
+      {
+        "category": "Verb · perfect · passive · participle",
+        "tokens": 1,
+        "codes": [
+          "V-RPP-NSF"
+        ],
+        "refs": [
+          "1:4"
+        ],
+        "lessons": [
+          {
+            "id": "L22",
+            "number": 22,
+            "via": "paradigm pleroo-perf-ptc"
+          }
+        ]
+      },
+      {
+        "category": "Verb · present · active · indicative",
+        "tokens": 19,
+        "codes": [
+          "V-PAI-1P",
+          "V-PAI-3S"
+        ],
+        "refs": [
+          "1:2",
+          "1:3",
+          "1:4",
+          "1:5",
+          "1:6",
+          "1:7",
+          "1:8",
+          "1:9",
+          "1:10"
+        ],
+        "lessons": [
+          {
+            "id": "L09",
+            "number": 9,
+            "via": "paradigm echo-pres-act-ind"
+          },
+          {
+            "id": "L09",
+            "number": 9,
+            "via": "paradigm luo-pres-act-ind"
+          },
+          {
+            "id": "L10",
+            "number": 10,
+            "via": "paradigm eimi-pres-ind"
+          },
+          {
+            "id": "L16",
+            "number": 16,
+            "via": "paradigm agapao-pres"
+          }
+        ]
+      },
+      {
+        "category": "Verb · present · active · subjunctive",
+        "tokens": 5,
+        "codes": [
+          "V-PAS-1P",
+          "V-PAS-2P",
+          "V-PAS-3S"
+        ],
+        "refs": [
+          "1:3",
+          "1:4",
+          "1:6",
+          "1:7",
+          "1:9"
+        ],
+        "lessons": [
+          {
+            "id": "L23",
+            "number": 23,
+            "via": "paradigm echo-pres-subj"
+          },
+          {
+            "id": "L23",
+            "number": 23,
+            "via": "paradigm eimi-pres-subj"
+          },
+          {
+            "id": "L23",
+            "number": 23,
+            "via": "paradigm luo-pres-subj"
+          }
+        ]
+      },
+      {
+        "category": "Verb · present · middle or passive deponent · indicative",
+        "tokens": 1,
+        "codes": [
+          "V-PNI-1P"
+        ],
+        "refs": [
+          "1:6"
+        ],
+        "lessons": [
+          {
+            "id": "L17",
+            "number": 17,
+            "via": "paradigm erchomai-pres"
+          }
+        ]
+      }
+    ]
+  },
   "lessons": [
     {
       "id": "L01",
@@ -313,8 +1014,8 @@
       "id": "L13",
       "number": 13,
       "type": "vocab",
-      "vocabCount": 10,
-      "knownLemmasSoFar": 82,
+      "vocabCount": 9,
+      "knownLemmasSoFar": 81,
       "examples": [
         {
           "ref": "John 7:5",
@@ -341,7 +1042,7 @@
       "number": 14,
       "type": "grammar",
       "vocabCount": 11,
-      "knownLemmasSoFar": 93,
+      "knownLemmasSoFar": 92,
       "examples": [
         {
           "ref": "John 6:69",
@@ -368,7 +1069,7 @@
       "number": 15,
       "type": "grammar",
       "vocabCount": 6,
-      "knownLemmasSoFar": 99,
+      "knownLemmasSoFar": 98,
       "examples": [
         {
           "ref": "1 John 5:5",
@@ -395,7 +1096,7 @@
       "number": 16,
       "type": "grammar",
       "vocabCount": 6,
-      "knownLemmasSoFar": 105,
+      "knownLemmasSoFar": 104,
       "examples": [
         {
           "ref": "1 John 4:19",
@@ -422,7 +1123,7 @@
       "number": 17,
       "type": "grammar",
       "vocabCount": 8,
-      "knownLemmasSoFar": 113,
+      "knownLemmasSoFar": 112,
       "examples": [
         {
           "ref": "John 7:41",
@@ -449,7 +1150,7 @@
       "number": 18,
       "type": "grammar",
       "vocabCount": 9,
-      "knownLemmasSoFar": 122,
+      "knownLemmasSoFar": 121,
       "examples": [
         {
           "ref": "John 10:30",
@@ -476,7 +1177,7 @@
       "number": 19,
       "type": "vocab",
       "vocabCount": 12,
-      "knownLemmasSoFar": 134,
+      "knownLemmasSoFar": 133,
       "examples": [
         {
           "ref": "Mark 11:22",
@@ -502,7 +1203,7 @@
       "id": "L20",
       "number": 20,
       "type": "grammar",
-      "vocabCount": 6,
+      "vocabCount": 7,
       "knownLemmasSoFar": 140,
       "examples": [
         {

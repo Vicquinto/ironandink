@@ -8,10 +8,11 @@ Data only: no pages, routes or UI read these files yet.
 | `course.json` | hand-written | 25 lessons: id, number, title, type (alphabet / vocab / grammar / reading), goals, vocab (Strong's numbers), grammarTopic, paradigmIds, exampleRefs, prereqs |
 | `alphabet.json` | hand-written | letters, Erasmian sounds and sound-alikes, transliteration scheme, diphthongs, breathings, iota subscript, accents, punctuation |
 | `paradigms.json` | hand-written | grammar tables, each cell `{ form, parse, cellLabel }` |
+| `display.json` | hand-written | course display only: textbook dictionary forms (displayLemma, displayNote) and beginner glosses (courseGloss), merged into vocab.json |
 | `vocab.json` | generated | the 150 most frequent NT lemmas, plus a passage supplement: the 7 other words that occur at least twice in 1 John 1:1–10 (taught in lesson 24) |
 | `paradigm-check.json` | generated | every paradigm cell checked against the NT: attested-match / attested-other / unattested |
 | `reading-1john1.json` | generated | 1 John 1:1–10 word by word: taught yet, and in which lesson |
-| `course-check.json` | generated | lesson-plan validation and how much of each example verse is already known |
+| `course-check.json` | generated | lesson-plan validation, how much of each example verse is already known, and the grammar coverage of 1 John 1:1–10 (category → lesson) |
 
 Regenerate after changing a hand-written file or rebuilding `orig/`:
 

@@ -12,7 +12,8 @@
 //   courses/greek/course-check.json    lesson-plan validation + example-verse coverage (generated)
 //
 // Hand-written inputs (never touched by this script):
-//   courses/greek/course.json, alphabet.json, paradigms.json
+//   courses/greek/course.json, alphabet.json, paradigms.json,
+//   display.json (course display forms and glosses, merged into vocab.json)
 //
 // Node built-ins only. Deterministic: same orig/ + same inputs → byte-identical
 // output (no timestamps; every sort has a full tie-break). Exits non-zero if the
@@ -101,6 +102,15 @@ function writeJson(name, obj) {
   fs.writeFileSync(path.join(OUT, name), JSON.stringify(obj, null, 2) + '\n', 'utf8');
 }
 
+// Words the data files under one lemma that a course must teach as two. Keyed
+// by data lemma → { Strong's number → course key }. The data lemma stays on
+// every entry (lemma) for linking back to orig/; the course counts by key.
+const SPLITS = {
+  'εἴδω': { G6063: 'οἶδα', G1492I: 'οἶδα', G2467: 'οἶδα', G1492H: 'εἶδον', G1492G: 'εἶδον' },
+  'πως': { G4459: 'πῶς', G4458: 'πως' },
+};
+const keyOf = (l, s) => (SPLITS[l] && SPLITS[l][s]) || l;
+
 // ── load orig/ ──────────────────────────────────────────────────────────────
 const lexicon = readJson(path.join(ORIG, 'lexicon-grk.json'));
 const morph = readJson(path.join(ORIG, 'morph-grk.json'));
@@ -116,7 +126,7 @@ for (const book of NT_BOOKS) {
     for (const v of vs) {
       const ref = refOf(book, ch, v);
       const list = data[ch][v].map((w, i) => ({
-        book, ch, v, ref, i, w: w.w, t: w.t, s: w.s, m: w.m, l: nfc(w.l), varies: !!w.v,
+        book, ch, v, ref, i, w: w.w, t: w.t, s: w.s, m: w.m, l: nfc(w.l), k: keyOf(nfc(w.l), w.s), varies: !!w.v,
       }));
       verseTokens.set(ref, list);
       tokens.push(...list);
@@ -125,27 +135,27 @@ for (const book of NT_BOOKS) {
 }
 
 // ── 1. vocabulary ───────────────────────────────────────────────────────────
-// Counted by dictionary form (the data's lemma). STEP splits some lemmas over
+// Counted by dictionary form (the data's lemma; see SPLITS for the exceptions). STEP splits some lemmas over
 // several disambiguated Strong's numbers (ἐγώ = G1473 + G3165 for the oblique
 // forms; εἴδω = G1492H/I "see/know" + G6063 οἶδα), so the lemma is the unit and
 // every Strong's number under it is listed in strongsAll; `strongs` is the one
 // the lexicon files under this lemma (else the commonest).
 const lemmas = new Map();
 for (const tk of tokens) {
-  let e = lemmas.get(tk.l);
-  if (!e) lemmas.set(tk.l, e = { lemma: tk.l, n: 0, strongs: new Map(), morph: new Map(), refs: [], translit: new Map() });
+  let e = lemmas.get(tk.k);
+  if (!e) lemmas.set(tk.k, e = { key: tk.k, lemma: tk.l, n: 0, strongs: new Map(), morph: new Map(), refs: [], translit: new Map() });
   e.n++;
   e.strongs.set(tk.s, (e.strongs.get(tk.s) || 0) + 1);
   e.morph.set(tk.m, (e.morph.get(tk.m) || 0) + 1);
   e.refs.push(tk.ref);
   // translit of the dictionary form as the text itself spells it (when it occurs)
-  if (formKey(tk.w) === formKey(tk.l.split(',')[0])) e.translit.set(tk.t, (e.translit.get(tk.t) || 0) + 1);
+  if (formKey(tk.w) === formKey(tk.k.split(',')[0])) e.translit.set(tk.t, (e.translit.get(tk.t) || 0) + 1);
 }
 const byCount = m => [...m.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
 
 function primaryStrongs(e) {
   const ranked = byCount(e.strongs);
-  const head = e.lemma.split(',')[0].trim();
+  const head = e.key.split(',')[0].trim();
   const own = ranked.find(([s]) => lexicon[s] && nfc(lexicon[s].lemma) === head);
   return (own || ranked[0])[0];
 }
@@ -174,21 +184,31 @@ function exampleRefs(refs) {
   return uniq.map((r, i) => [r, i]).sort((a, b) => rank(a[0]) - rank(b[0]) || a[1] - b[1]).slice(0, 3).map(x => x[0]);
 }
 
-const ranked = [...lemmas.values()].sort((a, b) => b.n - a.n || (a.lemma < b.lemma ? -1 : 1));
+const ranked = [...lemmas.values()].sort((a, b) => b.n - a.n || (a.key < b.key ? -1 : 1));
+// display.json: course display forms (displayLemma, displayNote) and beginner
+// glosses (courseGloss). Display only — key/lemma stay the data's.
+const display = readJson(path.join(OUT, 'display.json'));
 function makeEntry(e, rank) {
   const strongs = primaryStrongs(e);
   const { pos, name, code } = posOf(e);
   // translit: the STEP scheme applied to the dictionary form; translitInText is
   // how the TAGNT text itself spells that form when the two differ.
   const tl = byCount(e.translit)[0];
-  const mine = e.lemma.split(',').map(x => translit(x.trim())).join(', ');
+  const mine = e.key.split(',').map(x => translit(x.trim())).join(', ');
+  const d = display.entries[e.key] || {};
   const entry = {
     rank,
+    key: e.key,
     strongs,
     strongsAll: byCount(e.strongs).map(([s]) => s),
     lemma: e.lemma,
+    ...(e.key !== e.lemma ? { splitFrom: e.lemma } : {}),
+    displayLemma: nfc(d.displayLemma || e.key),
+    ...(d.displayNote ? { displayNote: d.displayNote } : {}),
     translit: mine,
+    ...(d.displayLemma ? { displayTranslit: d.displayLemma.split(',').map(x => translit(x.trim())).join(', ') } : {}),
     gloss: glossOf(e, strongs),
+    ...(d.courseGloss ? { courseGloss: d.courseGloss } : {}),
     partOfSpeech: pos,
     properName: name === 'individual' || name === 'location' || /gentilic/.test(name || ''),
     nameType: name,
@@ -204,23 +224,24 @@ const vocab = ranked.slice(0, VOCAB_SIZE).map((e, idx) => makeEntry(e, idx + 1))
 // there at least PASSAGE_MIN times — taught in the "Words for 1 John 1" lesson.
 // rank is null for these; ntRank is their place in the whole-NT frequency list.
 const PASSAGE_MIN = 2;
-const top150 = new Set(vocab.map(v => v.lemma));
+const top150 = new Set(vocab.map(v => v.key));
 const passageCount = new Map();
 for (let v = READING.from; v <= READING.to; v++)
   for (const w of verseTokens.get(refOf(READING.book, READING.chapter, v)) || [])
-    passageCount.set(w.l, (passageCount.get(w.l) || 0) + 1);
-const ntRank = new Map(ranked.map((e, i) => [e.lemma, i + 1]));
+    passageCount.set(w.k, (passageCount.get(w.k) || 0) + 1);
+const ntRank = new Map(ranked.map((e, i) => [e.key, i + 1]));
 const supplement = [...passageCount.entries()]
   .filter(([l, n]) => n >= PASSAGE_MIN && !top150.has(l))
   .sort((a, b) => b[1] - a[1] || ntRank.get(a[0]) - ntRank.get(b[0]))
   .map(([l, n]) => Object.assign(makeEntry(lemmas.get(l), null), { ntRank: ntRank.get(l), passageCount: n }));
 const allWords = vocab.concat(supplement);
 const vocabByStrongs = new Map(allWords.map(v => [v.strongs, v]));
-const vocabByLemma = new Map(allWords.map(v => [v.lemma, v]));
+const vocabByKey = new Map(allWords.map(v => [v.key, v]));
 writeJson('vocab.json', {
   source: 'orig/nt (STEPBible TAGNT, NA27 words) · glosses orig/lexicon-grk.json (TBESG) · parts of speech orig/morph-grk.json (TEGMC). CC BY 4.0, STEP Bible (STEPBible.org), based on work at Tyndale House, Cambridge.',
   generatedBy: 'scripts/build-greek-course.js',
-  note: 'Counted by dictionary form (lemma). strongs = the lexicon entry for that lemma; strongsAll = every disambiguated Strong\'s number the data files under it. Lemmas are Unicode NFC. Total NT words counted: ' + tokens.length + '.',
+  note: 'Counted by dictionary form. key = the unit counted: the data lemma, except where one data lemma covers two words a learner must keep apart (splitFrom names the data lemma; split by Strong\'s number). lemma = the data lemma, for linking to orig/. strongs = the lexicon entry for the key; strongsAll = every disambiguated Strong\'s number counted under it. displayLemma / displayNote / courseGloss come from display.json and are for course display only; gloss is the lexicon gloss. All Greek is Unicode NFC. Total NT words counted: ' + tokens.length + '.',
+  splits: SPLITS,
   count: vocab.length,
   words: vocab,
   passageSupplement: {
@@ -243,17 +264,19 @@ course.lessons.forEach((L, i) => {
   for (const s of L.vocab || []) {
     const v = vocabByStrongs.get(s);
     if (!v) { problems.push(`${L.id}: ${s} is not in vocab.json`); continue; }
-    if (taughtIn.has(v.lemma)) problems.push(`${L.id}: ${s} already taught in ${taughtIn.get(v.lemma)}`);
-    else taughtIn.set(v.lemma, L.id);
+    if (taughtIn.has(v.key)) problems.push(`${L.id}: ${s} already taught in ${taughtIn.get(v.key)}`);
+    else taughtIn.set(v.key, L.id);
   }
   for (const r of L.exampleRefs || []) if (!verseTokens.has(r)) problems.push(`${L.id}: exampleRef ${r} not found in orig/nt`);
 });
-const notTaught = allWords.filter(v => !taughtIn.has(v.lemma));
+for (const k of Object.keys(display.entries)) if (!vocabByKey.has(nfc(k))) problems.push(`display.json: ${k} is not a course word`);
+for (const k of Object.keys(display.entries)) if (k !== nfc(k)) problems.push(`display.json: key ${k} is not NFC`);
+const notTaught = allWords.filter(v => !taughtIn.has(v.key));
 // Example-verse coverage: share of each verse's words whose lemma is taught by
 // the end of that lesson (the lesson's own words count).
 function knownAt(lessonPos) {
   const set = new Set();
-  course.lessons.slice(0, lessonPos + 1).forEach(L => (L.vocab || []).forEach(s => { const v = vocabByStrongs.get(s); if (v) set.add(v.lemma); }));
+  course.lessons.slice(0, lessonPos + 1).forEach(L => (L.vocab || []).forEach(s => { const v = vocabByStrongs.get(s); if (v) set.add(v.key); }));
   return set;
 }
 const lessonChecks = course.lessons.map((L, i) => {
@@ -263,7 +286,7 @@ const lessonChecks = course.lessons.map((L, i) => {
     knownLemmasSoFar: known.size,
     examples: (L.exampleRefs || []).filter(r => verseTokens.has(r)).map(r => {
       const ws = verseTokens.get(r);
-      const k = ws.filter(w => known.has(w.l)).length;
+      const k = ws.filter(w => known.has(w.k)).length;
       return { ref: r, words: ws.length, known: k, pct: Math.round(100 * k / ws.length) };
     }),
   };
@@ -285,12 +308,6 @@ const alphabet = readJson(path.join(OUT, 'alphabet.json'));
   for (const k of Object.keys(node)) if (k !== 'examples') walk(node[k], `${where}.${k}`);
 })(alphabet, 'alphabet');
 
-writeJson('course-check.json', {
-  generatedBy: 'scripts/build-greek-course.js',
-  problems,
-  vocabNotTaught: notTaught.map(v => ({ strongs: v.strongs, lemma: v.lemma, rank: v.rank })),
-  lessons: lessonChecks,
-});
 
 // ── 4. paradigm check ───────────────────────────────────────────────────────
 // Index: formKey → [{lemma, code}] and bareKey → same.
@@ -308,7 +325,7 @@ const variants = f => /\(ν\)/.test(f) ? [f.replace('(ν)', ''), f.replace('(ν)
 // "· name: title"); those are dropped before comparing.
 const plain = d => d.replace(/ · (name: [^·]+|title [^·]+)$/, '').trim();
 
-const lemmaForms = new Set([...lemmas.keys()].flatMap(l => l.split(',').map(x => formKey(x.trim()))));
+const lemmaForms = new Set([...lemmas.values()].flatMap(e => [e.key, e.lemma]).flatMap(l => l.split(',').map(x => formKey(x.trim()))));
 // Greek words typed in titles/notes (not cells) must occur in the NT as a word or a lemma,
 // so a typo can't slip into prose the check otherwise wouldn't see.
 function checkGreekProse(text, where) {
@@ -316,6 +333,19 @@ function checkGreekProse(text, where) {
     if ([...word.normalize('NFD').replace(/[̀-ͯ]/g, '')].length < 3) continue;   // letters / endings
     if (!formIdx.has(formKey(word)) && !bareIdx.has(bareKey(word)) && !lemmaForms.has(formKey(word))) problems.push(`${where}: "${word}" does not occur in orig/nt`);
   }
+}
+// A display lemma must occur in the NT, or be the textbook -ομαι form of a data
+// lemma in -ω (ἀποκρίνω → ἀποκρίνομαι, a form the NT itself never uses).
+const deponentOf = l => l.endsWith('ω') ? l.slice(0, -1) + 'ομαι' : null;
+for (const v of allWords) {
+  if (v.displayLemma !== v.key && deponentOf(v.lemma) !== v.displayLemma) checkGreekProse(v.displayLemma, `display ${v.key} displayLemma`);
+  checkGreekProse(v.displayNote, `display ${v.key} note`);
+}
+for (const L of course.lessons) {
+  checkGreekProse(L.title, `${L.id} title`);
+  (L.goals || []).forEach((g, i) => checkGreekProse(g, `${L.id} goal ${i + 1}`));
+  (L.notes || []).forEach((g, i) => checkGreekProse(g, `${L.id} note ${i + 1}`));
+  (L.recognition || []).forEach((r, i) => checkGreekProse(r.note, `${L.id} recognition ${i + 1}`));
 }
 const paradigms = readJson(path.join(OUT, 'paradigms.json'));
 const cellResults = [];
@@ -381,9 +411,51 @@ writeJson('paradigm-check.json', {
   cells: cellResults,
 });
 
-// ── 5. reading lesson: 1 John 1:1–10 ────────────────────────────────────────
+// ── 5. grammar coverage of the reading passage ─────────────────────────────
+// Category of a morph code: verbs by tense · voice · mood (participle and
+// infinitive count as moods); everything else by part of speech. A lesson covers
+// a category through (a) a paradigm cell with that parse, (b) explicit
+// recognition notes in course.json, or (c) for non-verbs, teaching a word of
+// that part of speech. The check fails on a category nobody covers unless the
+// reading lesson lists it in grammarHelpShown.
+function categoryOfDesc(d) {
+  const parts = plain(d).split(' · ');
+  return parts[0] === 'Verb' ? parts.slice(0, 4).join(' · ') : parts[0];
+}
+const categoryOf = code => categoryOfDesc(describe(code));
 const lessonById = new Map(course.lessons.map(L => [L.id, L]));
 const readingLesson = course.lessons.find(L => L.type === 'reading');
+const grammarHelpShown = (readingLesson && readingLesson.grammarHelpShown) || [];
+const covers = new Map();   // category → [{ id, number, via }]
+const addCover = (cat, id, via) => {
+  let a = covers.get(cat); if (!a) covers.set(cat, a = []);
+  if (!a.some(x => x.id === id && x.via === via)) a.push({ id, number: lessonById.get(id).number, via });
+};
+for (const P of paradigms.paradigms) for (const r of P.rows) for (const c of r.cells) if (c && c.parse && lessonById.has(P.lessonId)) addCover(categoryOfDesc(c.parse), P.lessonId, 'paradigm ' + P.id);
+for (const L of course.lessons) {
+  for (const r of L.recognition || []) addCover(r.category, L.id, 'recognition note');
+  for (const s of L.vocab || []) { const v = vocabByStrongs.get(s); if (v && v.partOfSpeech !== 'Verb') addCover(v.partOfSpeech, L.id, 'vocab ' + v.displayLemma); }
+}
+for (const a of covers.values()) a.sort((x, y) => x.number - y.number || (x.via < y.via ? -1 : 1));
+const passageCats = new Map();
+for (let v = READING.from; v <= READING.to; v++) {
+  const ref = refOf(READING.book, READING.chapter, v);
+  for (const w of verseTokens.get(ref) || []) {
+    const cat = categoryOf(w.m);
+    let e = passageCats.get(cat); if (!e) passageCats.set(cat, e = { category: cat, tokens: 0, codes: new Set(), refs: new Set() });
+    e.tokens++; e.codes.add(w.m); e.refs.add(ref.replace(READING.book + ' ', ''));
+  }
+}
+const grammarCoverage = new Map();
+for (const e of [...passageCats.values()].sort((a, b) => (a.category < b.category ? -1 : 1))) {
+  const lessons = (covers.get(e.category) || []).slice(0, 4);
+  const helpShown = grammarHelpShown.includes(e.category);
+  grammarCoverage.set(e.category, { category: e.category, tokens: e.tokens, codes: [...e.codes].sort(), refs: [...e.refs], lessons, ...(helpShown ? { note: 'help shown' } : {}) });
+  if (!lessons.length && !helpShown) problems.push(`grammar: "${e.category}" (${[...e.refs].join(', ')}) is used in the passage but no lesson covers it`);
+}
+for (const c of grammarHelpShown) if (!passageCats.has(c)) problems.push(`grammarHelpShown: "${c}" does not occur in the passage`);
+
+// ── 6. reading lesson: 1 John 1:1–10 ────────────────────────────────────────
 const verses = [];
 let tokTotal = 0, tokTaught = 0, tokTop = 0;
 const lemmaSeen = new Map();
@@ -393,11 +465,14 @@ for (let v = READING.from; v <= READING.to; v++) {
   verses.push({
     ref,
     words: ws.map(w => {
-      const voc = top150.has(w.l) ? vocabByLemma.get(w.l) : null;
-      const lid = taughtIn.get(w.l) || null;
+      const voc = top150.has(w.k) ? vocabByKey.get(w.k) : null;
+      const lid = taughtIn.get(w.k) || null;
       tokTotal++; if (lid) tokTaught++; if (voc) tokTop++;
-      lemmaSeen.set(w.l, { strongs: w.s, inVocab: !!voc, lesson: lid });
-      const out = { index: w.i, strongs: w.s, lemma: w.l, taught: !!lid };
+      lemmaSeen.set(w.k, { strongs: w.s, inVocab: !!voc, lesson: lid });
+      const out = { index: w.i, strongs: w.s, lemma: w.l, ...(w.k !== w.l ? { key: w.k } : {}), taught: !!lid, grammar: categoryOf(w.m) };
+      const cov = grammarCoverage.get(categoryOf(w.m));
+      if (cov && cov.lessons.length) out.grammarLesson = cov.lessons[0].id;
+      else if (grammarHelpShown.includes(categoryOf(w.m))) out.grammarNote = 'help shown';
       if (lid) { out.lessonId = lid; out.lessonNumber = lessonById.get(lid).number; }
       else out.note = 'help shown';
       if (voc) out.vocabRank = voc.rank;
@@ -410,7 +485,8 @@ writeJson('reading-1john1.json', {
   generatedBy: 'scripts/build-greek-course.js',
   lessonId: readingLesson ? readingLesson.id : null,
   passage: `${READING.book} ${READING.chapter}:${READING.from}–${READING.to}`,
-  note: 'Word text, transliteration and gloss are read from orig/ at display time (index = position in the verse\'s word list). lemma here is copied from orig/ by the script, not typed.',
+  grammarHelpShown,
+  note: 'Word text, transliteration and gloss are read from orig/ at display time (index = position in the verse\'s word list). lemma here is copied from orig/ by the script, not typed; key appears where the course splits that lemma. grammar = the word\'s grammatical category; grammarLesson = the first lesson that covers it (see course-check.json grammarCoverage).',
   coverage: {
     tokens: tokTotal,
     tokensTaught: tokTaught,
@@ -423,9 +499,22 @@ writeJson('reading-1john1.json', {
   verses,
 });
 
+writeJson('course-check.json', {
+  generatedBy: 'scripts/build-greek-course.js',
+  problems,
+  vocabNotTaught: notTaught.map(v => ({ strongs: v.strongs, key: v.key, rank: v.rank })),
+  grammarCoverage: {
+    passage: `${READING.book} ${READING.chapter}:${READING.from}–${READING.to}`,
+    rule: 'verbs grouped by tense · voice · mood, other words by part of speech; lessons = the first lessons that cover the category (paradigm cell, recognition note, or for non-verbs a taught word of that part of speech)',
+    categories: [...grammarCoverage.values()],
+  },
+  lessons: lessonChecks,
+});
+
 // ── console summary ─────────────────────────────────────────────────────────
-console.log(`NT words: ${tokens.length} · lemmas: ${lemmas.size} · vocab: ${vocab.length} (top lemma ${vocab[0].lemma} ${vocab[0].frequency}, #150 ${vocab[vocab.length - 1].lemma} ${vocab[vocab.length - 1].frequency})`);
+console.log(`NT words: ${tokens.length} · lemmas: ${lemmas.size} · vocab: ${vocab.length} (top ${vocab[0].key} ${vocab[0].frequency}, #150 ${vocab[vocab.length - 1].key} ${vocab[vocab.length - 1].frequency})`);
 console.log(`Lessons: ${course.lessons.length} · vocab taught: ${taughtIn.size}/${allWords.length} (${vocab.length} + ${supplement.length} passage words)`);
 console.log(`Paradigm cells: ${cellResults.length} · ${JSON.stringify(tally)}`);
+console.log(`Grammar categories in the passage: ${grammarCoverage.size} · uncovered: ${[...grammarCoverage.values()].filter(c => !c.lessons.length).length}`);
 console.log(`1 John 1:1–10: tokens ${tokTaught}/${tokTotal} taught, ${tokTop} in top 150 · lemmas ${lemList.filter(([, x]) => x.lesson).length}/${lemList.length} taught`);
 if (problems.length) { console.error('PROBLEMS:\n  ' + problems.join('\n  ')); process.exitCode = 1; }

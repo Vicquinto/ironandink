@@ -3,7 +3,7 @@
   "title": "Biblical Greek: from the alphabet to 1 John 1",
   "pronunciation": "Erasmian",
   "text": "NA27 words as built in orig/nt (STEPBible TAGNT)",
-  "note": "Hand-written lesson plan. vocab lists Strong's numbers from vocab.json (each lemma taught once, in frequency order within a lesson). exampleRefs are references only: verse text is read from orig/ at display time. No Greek is typed here; paradigm tables live in paradigms.json, the alphabet in alphabet.json.",
+  "note": "Hand-written lesson plan. vocab lists Strong's numbers from vocab.json (each lemma taught once, in frequency order within a lesson). exampleRefs are references only: verse text is read from orig/ at display time. Greek is typed here only in the few goals and notes that name a form (L11, L23), and the build script checks each such word against orig/nt; paradigm tables live in paradigms.json, the alphabet in alphabet.json. recognition = grammar a lesson covers by a note rather than a table (used by the grammar coverage check).",
   "files": {
     "vocab": "vocab.json",
     "alphabet": "alphabet.json",
@@ -335,6 +335,15 @@
       ],
       "prereqs": [
         "L10"
+      ],
+      "notes": [
+        "The Original tab labels ἐμοῦ as a possessive; in this course treat it as the emphatic 'of me' (genitive of ἐγώ)."
+      ],
+      "recognition": [
+        {
+          "category": "Possessive pronoun",
+          "note": "Possessive pronouns are adjectives built on the pronoun stems: emos \"my\", sos \"your\", hēmeteros \"our\", humeteros \"your (plural)\". They take the case, number and gender of their noun, like adjectives; 1 John 1:3 has hēmetera \"our\" with koinōnia."
+        }
       ]
     },
     {
@@ -391,8 +400,7 @@
         "G2400",
         "G2531",
         "G3303",
-        "G3761",
-        "G4458"
+        "G3761"
       ],
       "grammarTopic": null,
       "paradigmIds": [],
@@ -472,6 +480,12 @@
       ],
       "prereqs": [
         "L14"
+      ],
+      "recognition": [
+        {
+          "category": "Reciprocal pronoun",
+          "note": "allēlōn \"one another\" has only plural forms and no nominative (genitive allēlōn, dative allēlois, accusative allēlous). 1 John 1:7: met' allēlōn, \"with one another\"."
+        }
       ]
     },
     {
@@ -618,10 +632,12 @@
       "goals": [
         "Recognize the aorist, the simple past, by its augment (e- at the front) and sa endings.",
         "Recognize second aorists such as said, and the aorist passive marked by thē.",
-        "Spot the three aorists in 1 John 1:1–2 (we looked at, they touched, was revealed)."
+        "Spot the three aorists in 1 John 1:1–2 (we looked at, they touched, was revealed).",
+        "Learn eidon, \"I saw\", used as the aorist of horaō."
       ],
       "vocab": [
         "G2036",
+        "G1492H",
         "G2309",
         "G1453",
         "G0649",
@@ -683,7 +699,7 @@
         "Learn oida, perfect in form but present in meaning: I know."
       ],
       "vocab": [
-        "G1492H",
+        "G6063",
         "G3708"
       ],
       "grammarTopic": "Perfect active indicative; perfect passive participle (recognition)",
@@ -708,8 +724,9 @@
       "title": "If and so that: the subjunctive (recognition)",
       "type": "grammar",
       "goals": [
-        "Recognize the subjunctive by its long linking vowel (long o, long e).",
-        "Read ean (if) and hina (so that) with the subjunctive, the backbone of 1 John 1:6–10.",
+        "Recognize the subjunctive by its long linking vowel (long o, long e), and read ean (if) and hina (so that) with it, the backbone of 1 John 1:6–10.",
+        "Recognize εἴπωμεν, 'if we say', in 1 John 1:6, 8, 10.",
+        "At recognition level: ὁμολογῶμεν (1:9) is a contract-verb subjunctive, ἀφῇ (1:9) an aorist subjunctive of a -mi verb, and καθαρίσῃ (1:9) a first aorist subjunctive.",
         "Recognize the subjunctive of to be in 1 John 1:4."
       ],
       "vocab": [
@@ -722,7 +739,9 @@
       "paradigmIds": [
         "luo-pres-subj",
         "echo-pres-subj",
-        "eimi-pres-subj"
+        "eimi-pres-subj",
+        "eipon-2aor-subj",
+        "pisteuo-aor-subj"
       ],
       "exampleRefs": [
         "John 5:40",

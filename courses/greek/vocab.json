@@ -1,16 +1,31 @@
 {
   "source": "orig/nt (STEPBible TAGNT, NA27 words) · glosses orig/lexicon-grk.json (TBESG) · parts of speech orig/morph-grk.json (TEGMC). CC BY 4.0, STEP Bible (STEPBible.org), based on work at Tyndale House, Cambridge.",
   "generatedBy": "scripts/build-greek-course.js",
-  "note": "Counted by dictionary form (lemma). strongs = the lexicon entry for that lemma; strongsAll = every disambiguated Strong's number the data files under it. Lemmas are Unicode NFC. Total NT words counted: 138008.",
+  "note": "Counted by dictionary form. key = the unit counted: the data lemma, except where one data lemma covers two words a learner must keep apart (splitFrom names the data lemma; split by Strong's number). lemma = the data lemma, for linking to orig/. strongs = the lexicon entry for the key; strongsAll = every disambiguated Strong's number counted under it. displayLemma / displayNote / courseGloss come from display.json and are for course display only; gloss is the lexicon gloss. All Greek is Unicode NFC. Total NT words counted: 138008.",
+  "splits": {
+    "εἴδω": {
+      "G6063": "οἶδα",
+      "G1492I": "οἶδα",
+      "G2467": "οἶδα",
+      "G1492H": "εἶδον",
+      "G1492G": "εἶδον"
+    },
+    "πως": {
+      "G4459": "πῶς",
+      "G4458": "πως"
+    }
+  },
   "count": 150,
   "words": [
     {
       "rank": 1,
+      "key": "ὁ",
       "strongs": "G3588",
       "strongsAll": [
         "G3588"
       ],
       "lemma": "ὁ",
+      "displayLemma": "ὁ",
       "translit": "ho",
       "gloss": "the/this/who",
       "partOfSpeech": "Definite article",
@@ -26,11 +41,13 @@
     },
     {
       "rank": 2,
+      "key": "καί",
       "strongs": "G2532",
       "strongsAll": [
         "G2532"
       ],
       "lemma": "καί",
+      "displayLemma": "καί",
       "translit": "kai",
       "gloss": "and",
       "partOfSpeech": "Conjunction",
@@ -46,13 +63,16 @@
     },
     {
       "rank": 3,
+      "key": "αὐτός",
       "strongs": "G0846",
       "strongsAll": [
         "G0846"
       ],
       "lemma": "αὐτός",
+      "displayLemma": "αὐτός",
       "translit": "autos",
       "gloss": "it/s/he",
+      "courseGloss": "he, she, it; self; same",
       "partOfSpeech": "Personal pronoun",
       "properName": false,
       "nameType": null,
@@ -66,11 +86,13 @@
     },
     {
       "rank": 4,
+      "key": "σύ",
       "strongs": "G4771",
       "strongsAll": [
         "G4771"
       ],
       "lemma": "σύ",
+      "displayLemma": "σύ",
       "translit": "su",
       "gloss": "you",
       "partOfSpeech": "Personal pronoun",
@@ -86,13 +108,16 @@
     },
     {
       "rank": 5,
+      "key": "δέ",
       "strongs": "G1161",
       "strongsAll": [
         "G1161"
       ],
       "lemma": "δέ",
+      "displayLemma": "δέ",
       "translit": "de",
       "gloss": "then",
+      "courseGloss": "but, and (never first in its clause)",
       "partOfSpeech": "Conjunction",
       "properName": false,
       "nameType": null,
@@ -106,11 +131,13 @@
     },
     {
       "rank": 6,
+      "key": "ἐν",
       "strongs": "G1722",
       "strongsAll": [
         "G1722"
       ],
       "lemma": "ἐν",
+      "displayLemma": "ἐν",
       "translit": "en",
       "gloss": "in/on/among",
       "partOfSpeech": "Preposition",
@@ -126,14 +153,17 @@
     },
     {
       "rank": 7,
+      "key": "ἐγώ",
       "strongs": "G1473",
       "strongsAll": [
         "G3165",
         "G1473"
       ],
       "lemma": "ἐγώ",
+      "displayLemma": "ἐγώ",
       "translit": "egō",
       "gloss": "I/we; me",
+      "courseGloss": "I; (plural) we",
       "partOfSpeech": "Personal pronoun",
       "properName": false,
       "nameType": null,
@@ -147,12 +177,14 @@
     },
     {
       "rank": 8,
+      "key": "εἰμί",
       "strongs": "G1510",
       "strongsAll": [
         "G1510",
         "G1511"
       ],
       "lemma": "εἰμί",
+      "displayLemma": "εἰμί",
       "translit": "eimi",
       "gloss": "to be",
       "partOfSpeech": "Verb",
@@ -168,13 +200,16 @@
     },
     {
       "rank": 9,
+      "key": "εἰς",
       "strongs": "G1519",
       "strongsAll": [
         "G1519"
       ],
       "lemma": "εἰς",
+      "displayLemma": "εἰς",
       "translit": "eis",
       "gloss": "toward",
+      "courseGloss": "into, to",
       "partOfSpeech": "Preposition",
       "properName": false,
       "nameType": null,
@@ -188,13 +223,16 @@
     },
     {
       "rank": 10,
+      "key": "οὐ",
       "strongs": "G3756",
       "strongsAll": [
         "G3756"
       ],
       "lemma": "οὐ",
+      "displayLemma": "οὐ",
       "translit": "ou",
       "gloss": "no",
+      "courseGloss": "not",
       "partOfSpeech": "Negative Particle",
       "properName": false,
       "nameType": null,
@@ -208,13 +246,17 @@
     },
     {
       "rank": 11,
+      "key": "ὅς, ἥ",
       "strongs": "G3739",
       "strongsAll": [
         "G3739"
       ],
       "lemma": "ὅς, ἥ",
+      "displayLemma": "ὅς, ἥ, ὅ",
       "translit": "hos, hē",
+      "displayTranslit": "hos, hē, ho",
       "gloss": "which",
+      "courseGloss": "who, which, that",
       "partOfSpeech": "Relative pronoun",
       "properName": false,
       "nameType": null,
@@ -228,11 +270,13 @@
     },
     {
       "rank": 12,
+      "key": "οὗτος",
       "strongs": "G3778",
       "strongsAll": [
         "G3778"
       ],
       "lemma": "οὗτος",
+      "displayLemma": "οὗτος",
       "translit": "houtos",
       "gloss": "this/he/she/it",
       "partOfSpeech": "Demonstrative pronoun",
@@ -248,12 +292,14 @@
     },
     {
       "rank": 13,
+      "key": "λέγω",
       "strongs": "G3004G",
       "strongsAll": [
         "G3004G",
         "G3004H"
       ],
       "lemma": "λέγω",
+      "displayLemma": "λέγω",
       "translit": "legō",
       "gloss": "to say",
       "partOfSpeech": "Verb",
@@ -269,11 +315,13 @@
     },
     {
       "rank": 14,
+      "key": "θεός",
       "strongs": "G2316",
       "strongsAll": [
         "G2316"
       ],
       "lemma": "θεός",
+      "displayLemma": "θεός",
       "translit": "theos",
       "gloss": "God",
       "partOfSpeech": "Noun",
@@ -289,12 +337,14 @@
     },
     {
       "rank": 15,
+      "key": "ὅτι",
       "strongs": "G3754G",
       "strongsAll": [
         "G3754G",
         "G3754H"
       ],
       "lemma": "ὅτι",
+      "displayLemma": "ὅτι",
       "translit": "hoti",
       "gloss": "that/since",
       "partOfSpeech": "Conjunction",
@@ -310,11 +360,13 @@
     },
     {
       "rank": 16,
+      "key": "πᾶς",
       "strongs": "G3956",
       "strongsAll": [
         "G3956"
       ],
       "lemma": "πᾶς",
+      "displayLemma": "πᾶς",
       "translit": "pas",
       "gloss": "all",
       "partOfSpeech": "Adjective",
@@ -330,12 +382,14 @@
     },
     {
       "rank": 17,
+      "key": "μή",
       "strongs": "G3361",
       "strongsAll": [
         "G3361",
         "G3385"
       ],
       "lemma": "μή",
+      "displayLemma": "μή",
       "translit": "mē",
       "gloss": "not",
       "partOfSpeech": "Negative Particle",
@@ -351,11 +405,13 @@
     },
     {
       "rank": 18,
+      "key": "γάρ",
       "strongs": "G1063",
       "strongsAll": [
         "G1063"
       ],
       "lemma": "γάρ",
+      "displayLemma": "γάρ",
       "translit": "gar",
       "gloss": "for",
       "partOfSpeech": "Conjunction",
@@ -371,6 +427,7 @@
     },
     {
       "rank": 19,
+      "key": "ἔπω, ἐρῶ, εἶπον",
       "strongs": "G2036",
       "strongsAll": [
         "G2036",
@@ -378,7 +435,10 @@
         "G4483"
       ],
       "lemma": "ἔπω, ἐρῶ, εἶπον",
+      "displayLemma": "εἶπον",
+      "displayNote": "used as the aorist of λέγω, \"I said\"",
       "translit": "epō, erō, eipon",
+      "displayTranslit": "eipon",
       "gloss": "to say",
       "partOfSpeech": "Verb",
       "properName": false,
@@ -393,6 +453,7 @@
     },
     {
       "rank": 20,
+      "key": "Ἰησοῦς",
       "strongs": "G2424G",
       "strongsAll": [
         "G2424G",
@@ -402,6 +463,7 @@
         "G2424K"
       ],
       "lemma": "Ἰησοῦς",
+      "displayLemma": "Ἰησοῦς",
       "translit": "Iēsous",
       "gloss": "Jesus",
       "partOfSpeech": "Noun",
@@ -417,11 +479,13 @@
     },
     {
       "rank": 21,
+      "key": "ἐκ",
       "strongs": "G1537",
       "strongsAll": [
         "G1537"
       ],
       "lemma": "ἐκ",
+      "displayLemma": "ἐκ",
       "translit": "ek",
       "gloss": "out from",
       "partOfSpeech": "Preposition",
@@ -437,11 +501,13 @@
     },
     {
       "rank": 22,
+      "key": "ἐπί",
       "strongs": "G1909",
       "strongsAll": [
         "G1909"
       ],
       "lemma": "ἐπί",
+      "displayLemma": "ἐπί",
       "translit": "epi",
       "gloss": "upon/to/against",
       "partOfSpeech": "Preposition",
@@ -457,12 +523,14 @@
     },
     {
       "rank": 23,
+      "key": "κύριος",
       "strongs": "G2962G",
       "strongsAll": [
         "G2962G",
         "G2962H"
       ],
       "lemma": "κύριος",
+      "displayLemma": "κύριος",
       "translit": "kurios",
       "gloss": "lord",
       "partOfSpeech": "Noun",
@@ -478,13 +546,16 @@
     },
     {
       "rank": 24,
+      "key": "ἔχω",
       "strongs": "G2192",
       "strongsAll": [
         "G2192"
       ],
       "lemma": "ἔχω",
+      "displayLemma": "ἔχω",
       "translit": "echō",
       "gloss": "to have/be",
+      "courseGloss": "to have",
       "partOfSpeech": "Verb",
       "properName": false,
       "nameType": null,
@@ -498,11 +569,13 @@
     },
     {
       "rank": 25,
+      "key": "πρός",
       "strongs": "G4314",
       "strongsAll": [
         "G4314"
       ],
       "lemma": "πρός",
+      "displayLemma": "πρός",
       "translit": "pros",
       "gloss": "to/with",
       "partOfSpeech": "Preposition",
@@ -518,13 +591,16 @@
     },
     {
       "rank": 26,
+      "key": "γίνομαι",
       "strongs": "G1096",
       "strongsAll": [
         "G1096"
       ],
       "lemma": "γίνομαι",
+      "displayLemma": "γίνομαι",
       "translit": "ginomai",
       "gloss": "to be",
+      "courseGloss": "to become, happen, be",
       "partOfSpeech": "Verb",
       "properName": false,
       "nameType": null,
@@ -538,11 +614,13 @@
     },
     {
       "rank": 27,
+      "key": "ἵνα",
       "strongs": "G2443",
       "strongsAll": [
         "G2443"
       ],
       "lemma": "ἵνα",
+      "displayLemma": "ἵνα",
       "translit": "hina",
       "gloss": "in order that/to",
       "partOfSpeech": "Conjunction",
@@ -559,11 +637,13 @@
     },
     {
       "rank": 28,
+      "key": "διά",
       "strongs": "G1223",
       "strongsAll": [
         "G1223"
       ],
       "lemma": "διά",
+      "displayLemma": "διά",
       "translit": "dia",
       "gloss": "through/because of",
       "partOfSpeech": "Preposition",
@@ -579,35 +659,13 @@
     },
     {
       "rank": 29,
-      "strongs": "G1492H",
-      "strongsAll": [
-        "G1492H",
-        "G6063",
-        "G1492I",
-        "G1492G",
-        "G2467"
-      ],
-      "lemma": "εἴδω",
-      "translit": "eidō",
-      "gloss": "to perceive; to know",
-      "partOfSpeech": "Verb",
-      "properName": false,
-      "nameType": null,
-      "commonMorph": "V-2AAP-NSM",
-      "frequency": 658,
-      "exampleRefs": [
-        "1 John 2:11",
-        "1 John 2:20",
-        "1 John 2:21"
-      ]
-    },
-    {
-      "rank": 30,
+      "key": "ἀπό",
       "strongs": "G0575",
       "strongsAll": [
         "G0575"
       ],
       "lemma": "ἀπό",
+      "displayLemma": "ἀπό",
       "translit": "apo",
       "gloss": "away from",
       "partOfSpeech": "Preposition",
@@ -622,12 +680,14 @@
       ]
     },
     {
-      "rank": 31,
+      "rank": 30,
+      "key": "ἀλλά",
       "strongs": "G0235",
       "strongsAll": [
         "G0235"
       ],
       "lemma": "ἀλλά",
+      "displayLemma": "ἀλλά",
       "translit": "alla",
       "gloss": "but",
       "partOfSpeech": "Conjunction",
@@ -642,12 +702,14 @@
       ]
     },
     {
-      "rank": 32,
+      "rank": 31,
+      "key": "ἔρχομαι",
       "strongs": "G2064",
       "strongsAll": [
         "G2064"
       ],
       "lemma": "ἔρχομαι",
+      "displayLemma": "ἔρχομαι",
       "translit": "erchomai",
       "gloss": "to come/go",
       "partOfSpeech": "Verb",
@@ -662,7 +724,8 @@
       ]
     },
     {
-      "rank": 33,
+      "rank": 32,
+      "key": "ποιέω",
       "strongs": "G4160G",
       "strongsAll": [
         "G4160G",
@@ -671,6 +734,7 @@
         "G4160H"
       ],
       "lemma": "ποιέω",
+      "displayLemma": "ποιέω",
       "translit": "poieō",
       "gloss": "to do/make",
       "partOfSpeech": "Verb",
@@ -685,14 +749,17 @@
       ]
     },
     {
-      "rank": 34,
+      "rank": 33,
+      "key": "τίς",
       "strongs": "G5101",
       "strongsAll": [
         "G5101"
       ],
       "lemma": "τίς",
+      "displayLemma": "τίς",
       "translit": "tis",
       "gloss": "which?",
+      "courseGloss": "who? what? which?",
       "partOfSpeech": "Interrogative pronoun",
       "properName": false,
       "nameType": null,
@@ -705,12 +772,14 @@
       ]
     },
     {
-      "rank": 35,
+      "rank": 34,
+      "key": "ἄνθρωπος",
       "strongs": "G0444",
       "strongsAll": [
         "G0444"
       ],
       "lemma": "ἄνθρωπος",
+      "displayLemma": "ἄνθρωπος",
       "translit": "anthrōpos",
       "gloss": "a human",
       "partOfSpeech": "Noun",
@@ -725,14 +794,17 @@
       ]
     },
     {
-      "rank": 36,
+      "rank": 35,
+      "key": "τις",
       "strongs": "G5100",
       "strongsAll": [
         "G5100"
       ],
       "lemma": "τις",
+      "displayLemma": "τις",
       "translit": "tis",
       "gloss": "one",
+      "courseGloss": "someone, something, a certain",
       "partOfSpeech": "Indefinite pronoun",
       "properName": false,
       "nameType": null,
@@ -745,12 +817,14 @@
       ]
     },
     {
-      "rank": 37,
+      "rank": 36,
+      "key": "Χριστός",
       "strongs": "G5547",
       "strongsAll": [
         "G5547"
       ],
       "lemma": "Χριστός",
+      "displayLemma": "Χριστός",
       "translit": "Christos",
       "gloss": "Christ",
       "partOfSpeech": "Noun",
@@ -765,7 +839,8 @@
       ]
     },
     {
-      "rank": 38,
+      "rank": 37,
+      "key": "εἰ",
       "strongs": "G1487G",
       "strongsAll": [
         "G1487G",
@@ -777,6 +852,7 @@
         "G1487K"
       ],
       "lemma": "εἰ",
+      "displayLemma": "εἰ",
       "translit": "ei",
       "gloss": "if",
       "partOfSpeech": "Conjunction",
@@ -791,12 +867,14 @@
       ]
     },
     {
-      "rank": 39,
+      "rank": 38,
+      "key": "ὡς",
       "strongs": "G5613",
       "strongsAll": [
         "G5613"
       ],
       "lemma": "ὡς",
+      "displayLemma": "ὡς",
       "translit": "hōs",
       "gloss": "as/when",
       "partOfSpeech": "Particle or Disjunctive",
@@ -811,12 +889,14 @@
       ]
     },
     {
-      "rank": 40,
+      "rank": 39,
+      "key": "οὖν",
       "strongs": "G3767",
       "strongsAll": [
         "G3767"
       ],
       "lemma": "οὖν",
+      "displayLemma": "οὖν",
       "translit": "oun",
       "gloss": "therefore/then",
       "partOfSpeech": "Conjunction",
@@ -831,12 +911,14 @@
       ]
     },
     {
-      "rank": 41,
+      "rank": 40,
+      "key": "κατά",
       "strongs": "G2596",
       "strongsAll": [
         "G2596"
       ],
       "lemma": "κατά",
+      "displayLemma": "κατά",
       "translit": "kata",
       "gloss": "according to",
       "partOfSpeech": "Preposition",
@@ -851,12 +933,14 @@
       ]
     },
     {
-      "rank": 42,
+      "rank": 41,
+      "key": "μετά",
       "strongs": "G3326",
       "strongsAll": [
         "G3326"
       ],
       "lemma": "μετά",
+      "displayLemma": "μετά",
       "translit": "meta",
       "gloss": "with/after",
       "partOfSpeech": "Preposition",
@@ -871,12 +955,14 @@
       ]
     },
     {
-      "rank": 43,
+      "rank": 42,
+      "key": "ἀκούω",
       "strongs": "G0191",
       "strongsAll": [
         "G0191"
       ],
       "lemma": "ἀκούω",
+      "displayLemma": "ἀκούω",
       "translit": "akouō",
       "gloss": "to hear",
       "partOfSpeech": "Verb",
@@ -891,12 +977,14 @@
       ]
     },
     {
-      "rank": 44,
+      "rank": 43,
+      "key": "δίδωμι",
       "strongs": "G1325",
       "strongsAll": [
         "G1325"
       ],
       "lemma": "δίδωμι",
+      "displayLemma": "δίδωμι",
       "translit": "didōmi",
       "gloss": "to give",
       "partOfSpeech": "Verb",
@@ -911,12 +999,14 @@
       ]
     },
     {
-      "rank": 45,
+      "rank": 44,
+      "key": "πατήρ",
       "strongs": "G3962",
       "strongsAll": [
         "G3962"
       ],
       "lemma": "πατήρ",
+      "displayLemma": "πατήρ",
       "translit": "patēr",
       "gloss": "father",
       "partOfSpeech": "Noun",
@@ -931,12 +1021,14 @@
       ]
     },
     {
-      "rank": 46,
+      "rank": 45,
+      "key": "ἡμέρα",
       "strongs": "G2250",
       "strongsAll": [
         "G2250"
       ],
       "lemma": "ἡμέρα",
+      "displayLemma": "ἡμέρα",
       "translit": "hēmera",
       "gloss": "day",
       "partOfSpeech": "Noun",
@@ -951,13 +1043,15 @@
       ]
     },
     {
-      "rank": 47,
+      "rank": 46,
+      "key": "πνεῦμα",
       "strongs": "G4151G",
       "strongsAll": [
         "G4151G",
         "G4151H"
       ],
       "lemma": "πνεῦμα",
+      "displayLemma": "πνεῦμα",
       "translit": "pneuma",
       "gloss": "spirit/breath",
       "partOfSpeech": "Noun",
@@ -972,12 +1066,14 @@
       ]
     },
     {
-      "rank": 48,
+      "rank": 47,
+      "key": "υἱός",
       "strongs": "G5207",
       "strongsAll": [
         "G5207"
       ],
       "lemma": "υἱός",
+      "displayLemma": "υἱός",
       "translit": "huios",
       "gloss": "son",
       "partOfSpeech": "Noun",
@@ -992,12 +1088,14 @@
       ]
     },
     {
-      "rank": 49,
+      "rank": 48,
+      "key": "πολύς",
       "strongs": "G4183",
       "strongsAll": [
         "G4183"
       ],
       "lemma": "πολύς",
+      "displayLemma": "πολύς",
       "translit": "polus",
       "gloss": "much",
       "partOfSpeech": "Adjective",
@@ -1012,12 +1110,14 @@
       ]
     },
     {
-      "rank": 50,
+      "rank": 49,
+      "key": "εἷς",
       "strongs": "G1520",
       "strongsAll": [
         "G1520"
       ],
       "lemma": "εἷς",
+      "displayLemma": "εἷς",
       "translit": "heis",
       "gloss": "one",
       "partOfSpeech": "Adjective",
@@ -1032,12 +1132,40 @@
       ]
     },
     {
+      "rank": 50,
+      "key": "εἶδον",
+      "strongs": "G1492H",
+      "strongsAll": [
+        "G1492H",
+        "G1492G"
+      ],
+      "lemma": "εἴδω",
+      "splitFrom": "εἴδω",
+      "displayLemma": "εἶδον",
+      "displayNote": "used as the aorist of ὁράω, \"I saw\"",
+      "translit": "eidon",
+      "gloss": "to perceive",
+      "courseGloss": "I saw",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-2AAP-NSM",
+      "frequency": 343,
+      "exampleRefs": [
+        "1 John 3:1",
+        "1 John 5:16",
+        "John 1:33"
+      ]
+    },
+    {
       "rank": 51,
+      "key": "ἀδελφός",
       "strongs": "G0080",
       "strongsAll": [
         "G0080"
       ],
       "lemma": "ἀδελφός",
+      "displayLemma": "ἀδελφός",
       "translit": "adelphos",
       "gloss": "brother",
       "partOfSpeech": "Noun",
@@ -1053,11 +1181,13 @@
     },
     {
       "rank": 52,
+      "key": "ἤ",
       "strongs": "G2228",
       "strongsAll": [
         "G2228"
       ],
       "lemma": "ἤ",
+      "displayLemma": "ἤ",
       "translit": "ē",
       "gloss": "or",
       "partOfSpeech": "Conjunction",
@@ -1073,11 +1203,13 @@
     },
     {
       "rank": 53,
+      "key": "ἐάν",
       "strongs": "G1437",
       "strongsAll": [
         "G1437"
       ],
       "lemma": "ἐάν",
+      "displayLemma": "ἐάν",
       "translit": "ean",
       "gloss": "if",
       "partOfSpeech": "Conjunction",
@@ -1093,11 +1225,13 @@
     },
     {
       "rank": 54,
+      "key": "περί",
       "strongs": "G4012",
       "strongsAll": [
         "G4012"
       ],
       "lemma": "περί",
+      "displayLemma": "περί",
       "translit": "peri",
       "gloss": "about",
       "partOfSpeech": "Preposition",
@@ -1113,11 +1247,13 @@
     },
     {
       "rank": 55,
+      "key": "λόγος",
       "strongs": "G3056",
       "strongsAll": [
         "G3056"
       ],
       "lemma": "λόγος",
+      "displayLemma": "λόγος",
       "translit": "logos",
       "gloss": "word",
       "partOfSpeech": "Noun",
@@ -1133,13 +1269,16 @@
     },
     {
       "rank": 56,
+      "key": "ἑαυτοῦ",
       "strongs": "G1438",
       "strongsAll": [
         "G1438"
       ],
       "lemma": "ἑαυτοῦ",
+      "displayLemma": "ἑαυτοῦ",
       "translit": "he'autou",
       "gloss": "themself",
+      "courseGloss": "himself, herself, itself; (plural) themselves",
       "partOfSpeech": "Reflexive pronoun",
       "properName": false,
       "nameType": null,
@@ -1153,11 +1292,40 @@
     },
     {
       "rank": 57,
+      "key": "οἶδα",
+      "strongs": "G6063",
+      "strongsAll": [
+        "G6063",
+        "G1492I",
+        "G2467"
+      ],
+      "lemma": "εἴδω",
+      "splitFrom": "εἴδω",
+      "displayLemma": "οἶδα",
+      "displayNote": "perfect in form, present in meaning",
+      "translit": "oida",
+      "gloss": "to know",
+      "courseGloss": "I know",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-RAI-2P",
+      "frequency": 315,
+      "exampleRefs": [
+        "1 John 2:11",
+        "1 John 2:20",
+        "1 John 2:21"
+      ]
+    },
+    {
+      "rank": 58,
+      "key": "λαλέω",
       "strongs": "G2980",
       "strongsAll": [
         "G2980"
       ],
       "lemma": "λαλέω",
+      "displayLemma": "λαλέω",
       "translit": "laleō",
       "gloss": "to speak",
       "partOfSpeech": "Verb",
@@ -1172,12 +1340,14 @@
       ]
     },
     {
-      "rank": 58,
+      "rank": 59,
+      "key": "οὐρανός",
       "strongs": "G3772",
       "strongsAll": [
         "G3772"
       ],
       "lemma": "οὐρανός",
+      "displayLemma": "οὐρανός",
       "translit": "ouranos",
       "gloss": "heaven",
       "partOfSpeech": "Noun",
@@ -1192,12 +1362,14 @@
       ]
     },
     {
-      "rank": 59,
+      "rank": 60,
+      "key": "μαθητής",
       "strongs": "G3101",
       "strongsAll": [
         "G3101"
       ],
       "lemma": "μαθητής",
+      "displayLemma": "μαθητής",
       "translit": "mathētēs",
       "gloss": "disciple",
       "partOfSpeech": "Noun",
@@ -1212,14 +1384,17 @@
       ]
     },
     {
-      "rank": 60,
+      "rank": 61,
+      "key": "λαμβάνω",
       "strongs": "G2983",
       "strongsAll": [
         "G2983"
       ],
       "lemma": "λαμβάνω",
+      "displayLemma": "λαμβάνω",
       "translit": "lambanō",
       "gloss": "to take",
+      "courseGloss": "to take, receive",
       "partOfSpeech": "Verb",
       "properName": false,
       "nameType": null,
@@ -1232,7 +1407,8 @@
       ]
     },
     {
-      "rank": 61,
+      "rank": 62,
+      "key": "γῆ",
       "strongs": "G1093G",
       "strongsAll": [
         "G1093G",
@@ -1240,6 +1416,7 @@
         "G1093I"
       ],
       "lemma": "γῆ",
+      "displayLemma": "γῆ",
       "translit": "gē",
       "gloss": "earth",
       "partOfSpeech": "Noun",
@@ -1254,12 +1431,14 @@
       ]
     },
     {
-      "rank": 62,
+      "rank": 63,
+      "key": "μέγας",
       "strongs": "G3173",
       "strongsAll": [
         "G3173"
       ],
       "lemma": "μέγας",
+      "displayLemma": "μέγας",
       "translit": "megas",
       "gloss": "great",
       "partOfSpeech": "Adjective",
@@ -1274,13 +1453,15 @@
       ]
     },
     {
-      "rank": 63,
+      "rank": 64,
+      "key": "πίστις",
       "strongs": "G4102G",
       "strongsAll": [
         "G4102G",
         "G4102H"
       ],
       "lemma": "πίστις",
+      "displayLemma": "πίστις",
       "translit": "pistis",
       "gloss": "faith",
       "partOfSpeech": "Noun",
@@ -1295,12 +1476,14 @@
       ]
     },
     {
-      "rank": 64,
+      "rank": 65,
+      "key": "ἐκεῖνος",
       "strongs": "G1565",
       "strongsAll": [
         "G1565"
       ],
       "lemma": "ἐκεῖνος",
+      "displayLemma": "ἐκεῖνος",
       "translit": "ekeinos",
       "gloss": "that",
       "partOfSpeech": "Demonstrative pronoun",
@@ -1315,14 +1498,17 @@
       ]
     },
     {
-      "rank": 65,
+      "rank": 66,
+      "key": "πιστεύω",
       "strongs": "G4100",
       "strongsAll": [
         "G4100"
       ],
       "lemma": "πιστεύω",
+      "displayLemma": "πιστεύω",
       "translit": "pisteuō",
       "gloss": "to trust (in)",
+      "courseGloss": "to believe, trust",
       "partOfSpeech": "Verb",
       "properName": false,
       "nameType": null,
@@ -1335,12 +1521,14 @@
       ]
     },
     {
-      "rank": 66,
+      "rank": 67,
+      "key": "οὐδείς",
       "strongs": "G3762",
       "strongsAll": [
         "G3762"
       ],
       "lemma": "οὐδείς",
+      "displayLemma": "οὐδείς",
       "translit": "oudeis",
       "gloss": "none",
       "partOfSpeech": "Adjective",
@@ -1355,7 +1543,8 @@
       ]
     },
     {
-      "rank": 67,
+      "rank": 68,
+      "key": "ἅγιος",
       "strongs": "G0040G",
       "strongsAll": [
         "G0040G",
@@ -1364,6 +1553,7 @@
         "G0039H"
       ],
       "lemma": "ἅγιος",
+      "displayLemma": "ἅγιος",
       "translit": "hagios",
       "gloss": "holy",
       "partOfSpeech": "Adjective",
@@ -1378,13 +1568,17 @@
       ]
     },
     {
-      "rank": 68,
+      "rank": 69,
+      "key": "ἀποκρίνω",
       "strongs": "G0611",
       "strongsAll": [
         "G0611"
       ],
       "lemma": "ἀποκρίνω",
+      "displayLemma": "ἀποκρίνομαι",
+      "displayNote": "deponent: middle/passive forms, active meaning",
       "translit": "apokrinō",
+      "displayTranslit": "apokrinomai",
       "gloss": "to answer",
       "partOfSpeech": "Verb",
       "properName": false,
@@ -1398,12 +1592,14 @@
       ]
     },
     {
-      "rank": 69,
+      "rank": 70,
+      "key": "ὄνομα",
       "strongs": "G3686",
       "strongsAll": [
         "G3686"
       ],
       "lemma": "ὄνομα",
+      "displayLemma": "ὄνομα",
       "translit": "onoma",
       "gloss": "name",
       "partOfSpeech": "Noun",
@@ -1418,12 +1614,14 @@
       ]
     },
     {
-      "rank": 70,
+      "rank": 71,
+      "key": "γινώσκω",
       "strongs": "G1097",
       "strongsAll": [
         "G1097"
       ],
       "lemma": "γινώσκω",
+      "displayLemma": "γινώσκω",
       "translit": "ginōskō",
       "gloss": "to know",
       "partOfSpeech": "Verb",
@@ -1438,13 +1636,15 @@
       ]
     },
     {
-      "rank": 71,
+      "rank": 72,
+      "key": "ὑπό",
       "strongs": "G5259G",
       "strongsAll": [
         "G5259G",
         "G5259H"
       ],
       "lemma": "ὑπό",
+      "displayLemma": "ὑπό",
       "translit": "hupo",
       "gloss": "by/under",
       "partOfSpeech": "Preposition",
@@ -1459,12 +1659,14 @@
       ]
     },
     {
-      "rank": 72,
+      "rank": 73,
+      "key": "ἐξέρχομαι",
       "strongs": "G1831",
       "strongsAll": [
         "G1831"
       ],
       "lemma": "ἐξέρχομαι",
+      "displayLemma": "ἐξέρχομαι",
       "translit": "exerchomai",
       "gloss": "to go out",
       "partOfSpeech": "Verb",
@@ -1479,15 +1681,18 @@
       ]
     },
     {
-      "rank": 73,
+      "rank": 74,
+      "key": "ἀνήρ",
       "strongs": "G0435G",
       "strongsAll": [
         "G0435G",
         "G0435H"
       ],
       "lemma": "ἀνήρ",
+      "displayLemma": "ἀνήρ",
       "translit": "anēr",
       "gloss": "man",
+      "courseGloss": "man, husband",
       "partOfSpeech": "Noun",
       "properName": false,
       "nameType": null,
@@ -1500,12 +1705,14 @@
       ]
     },
     {
-      "rank": 74,
+      "rank": 75,
+      "key": "τε",
       "strongs": "G5037",
       "strongsAll": [
         "G5037"
       ],
       "lemma": "τε",
+      "displayLemma": "τε",
       "translit": "te",
       "gloss": "and/both",
       "partOfSpeech": "Conjunction",
@@ -1520,15 +1727,18 @@
       ]
     },
     {
-      "rank": 75,
+      "rank": 76,
+      "key": "γυνή",
       "strongs": "G1135G",
       "strongsAll": [
         "G1135G",
         "G1135H"
       ],
       "lemma": "γυνή",
+      "displayLemma": "γυνή",
       "translit": "gunē",
       "gloss": "woman",
+      "courseGloss": "woman, wife",
       "partOfSpeech": "Noun",
       "properName": false,
       "nameType": null,
@@ -1541,12 +1751,14 @@
       ]
     },
     {
-      "rank": 76,
+      "rank": 77,
+      "key": "δύναμαι",
       "strongs": "G1410",
       "strongsAll": [
         "G1410"
       ],
       "lemma": "δύναμαι",
+      "displayLemma": "δύναμαι",
       "translit": "dunamai",
       "gloss": "be able",
       "partOfSpeech": "Verb",
@@ -1561,12 +1773,14 @@
       ]
     },
     {
-      "rank": 77,
+      "rank": 78,
+      "key": "θέλω",
       "strongs": "G2309",
       "strongsAll": [
         "G2309"
       ],
       "lemma": "θέλω",
+      "displayLemma": "θέλω",
       "translit": "thelō",
       "gloss": "to will/desire",
       "partOfSpeech": "Verb",
@@ -1581,13 +1795,16 @@
       ]
     },
     {
-      "rank": 78,
+      "rank": 79,
+      "key": "οὕτω, οὕτως",
       "strongs": "G3779",
       "strongsAll": [
         "G3779"
       ],
       "lemma": "οὕτω, οὕτως",
+      "displayLemma": "οὕτως",
       "translit": "houtō, houtōs",
+      "displayTranslit": "houtōs",
       "gloss": "thus(-ly)",
       "partOfSpeech": "Adverb",
       "properName": false,
@@ -1601,12 +1818,14 @@
       ]
     },
     {
-      "rank": 79,
+      "rank": 80,
+      "key": "ἰδού",
       "strongs": "G2400",
       "strongsAll": [
         "G2400"
       ],
       "lemma": "ἰδού",
+      "displayLemma": "ἰδού",
       "translit": "idou",
       "gloss": "look!",
       "partOfSpeech": "Interjection",
@@ -1621,12 +1840,14 @@
       ]
     },
     {
-      "rank": 80,
+      "rank": 81,
+      "key": "εἰσέρχομαι",
       "strongs": "G1525",
       "strongsAll": [
         "G1525"
       ],
       "lemma": "εἰσέρχομαι",
+      "displayLemma": "εἰσέρχομαι",
       "translit": "eiserchomai",
       "gloss": "to enter",
       "partOfSpeech": "Verb",
@@ -1641,12 +1862,14 @@
       ]
     },
     {
-      "rank": 81,
+      "rank": 82,
+      "key": "νόμος",
       "strongs": "G3551",
       "strongsAll": [
         "G3551"
       ],
       "lemma": "νόμος",
+      "displayLemma": "νόμος",
       "translit": "nomos",
       "gloss": "law",
       "partOfSpeech": "Noun",
@@ -1661,12 +1884,14 @@
       ]
     },
     {
-      "rank": 82,
+      "rank": 83,
+      "key": "παρά",
       "strongs": "G3844",
       "strongsAll": [
         "G3844"
       ],
       "lemma": "παρά",
+      "displayLemma": "παρά",
       "translit": "para",
       "gloss": "from/with/beside",
       "partOfSpeech": "Preposition",
@@ -1681,12 +1906,14 @@
       ]
     },
     {
-      "rank": 83,
+      "rank": 84,
+      "key": "Ἰουδαῖος",
       "strongs": "G2453",
       "strongsAll": [
         "G2453"
       ],
       "lemma": "Ἰουδαῖος",
+      "displayLemma": "Ἰουδαῖος",
       "translit": "Ioudaios",
       "gloss": "Jew",
       "partOfSpeech": "Noun",
@@ -1701,12 +1928,14 @@
       ]
     },
     {
-      "rank": 84,
+      "rank": 85,
+      "key": "γράφω",
       "strongs": "G1125",
       "strongsAll": [
         "G1125"
       ],
       "lemma": "γράφω",
+      "displayLemma": "γράφω",
       "translit": "graphō",
       "gloss": "to write",
       "partOfSpeech": "Verb",
@@ -1721,12 +1950,14 @@
       ]
     },
     {
-      "rank": 85,
+      "rank": 86,
+      "key": "κόσμος",
       "strongs": "G2889",
       "strongsAll": [
         "G2889"
       ],
       "lemma": "κόσμος",
+      "displayLemma": "κόσμος",
       "translit": "kosmos",
       "gloss": "world",
       "partOfSpeech": "Noun",
@@ -1741,12 +1972,14 @@
       ]
     },
     {
-      "rank": 86,
+      "rank": 87,
+      "key": "καθώς",
       "strongs": "G2531",
       "strongsAll": [
         "G2531"
       ],
       "lemma": "καθώς",
+      "displayLemma": "καθώς",
       "translit": "kathōs",
       "gloss": "as/just as",
       "partOfSpeech": "Conjunction",
@@ -1761,14 +1994,17 @@
       ]
     },
     {
-      "rank": 87,
+      "rank": 88,
+      "key": "μέν",
       "strongs": "G3303",
       "strongsAll": [
         "G3303"
       ],
       "lemma": "μέν",
+      "displayLemma": "μέν",
       "translit": "men",
       "gloss": "on the other hand",
+      "courseGloss": "on the one hand (often left untranslated)",
       "partOfSpeech": "Particle or Disjunctive",
       "properName": false,
       "nameType": null,
@@ -1781,12 +2017,14 @@
       ]
     },
     {
-      "rank": 88,
+      "rank": 89,
+      "key": "χείρ",
       "strongs": "G5495",
       "strongsAll": [
         "G5495"
       ],
       "lemma": "χείρ",
+      "displayLemma": "χείρ",
       "translit": "cheir",
       "gloss": "hand",
       "partOfSpeech": "Noun",
@@ -1801,12 +2039,14 @@
       ]
     },
     {
-      "rank": 89,
+      "rank": 90,
+      "key": "εὑρίσκω",
       "strongs": "G2147",
       "strongsAll": [
         "G2147"
       ],
       "lemma": "εὑρίσκω",
+      "displayLemma": "εὑρίσκω",
       "translit": "heuriskō",
       "gloss": "to find/meet",
       "partOfSpeech": "Verb",
@@ -1821,13 +2061,15 @@
       ]
     },
     {
-      "rank": 90,
+      "rank": 91,
+      "key": "ἄγγελος",
       "strongs": "G0032G",
       "strongsAll": [
         "G0032G",
         "G0032H"
       ],
       "lemma": "ἄγγελος",
+      "displayLemma": "ἄγγελος",
       "translit": "angelos",
       "gloss": "angel",
       "partOfSpeech": "Noun",
@@ -1842,12 +2084,14 @@
       ]
     },
     {
-      "rank": 91,
+      "rank": 92,
+      "key": "ὄχλος",
       "strongs": "G3793",
       "strongsAll": [
         "G3793"
       ],
       "lemma": "ὄχλος",
+      "displayLemma": "ὄχλος",
       "translit": "ochlos",
       "gloss": "crowd",
       "partOfSpeech": "Noun",
@@ -1862,12 +2106,14 @@
       ]
     },
     {
-      "rank": 92,
+      "rank": 93,
+      "key": "ἁμαρτία",
       "strongs": "G0266",
       "strongsAll": [
         "G0266"
       ],
       "lemma": "ἁμαρτία",
+      "displayLemma": "ἁμαρτία",
       "translit": "hamartia",
       "gloss": "sin",
       "partOfSpeech": "Noun",
@@ -1882,12 +2128,14 @@
       ]
     },
     {
-      "rank": 93,
+      "rank": 94,
+      "key": "ἔργον",
       "strongs": "G2041",
       "strongsAll": [
         "G2041"
       ],
       "lemma": "ἔργον",
+      "displayLemma": "ἔργον",
       "translit": "ergon",
       "gloss": "work",
       "partOfSpeech": "Noun",
@@ -1902,12 +2150,14 @@
       ]
     },
     {
-      "rank": 94,
+      "rank": 95,
+      "key": "δόξα",
       "strongs": "G1391",
       "strongsAll": [
         "G1391"
       ],
       "lemma": "δόξα",
+      "displayLemma": "δόξα",
       "translit": "doxa",
       "gloss": "glory",
       "partOfSpeech": "Noun",
@@ -1922,14 +2172,17 @@
       ]
     },
     {
-      "rank": 95,
+      "rank": 96,
+      "key": "ἄν",
       "strongs": "G0302",
       "strongsAll": [
         "G0302"
       ],
       "lemma": "ἄν",
+      "displayLemma": "ἄν",
       "translit": "an",
       "gloss": "if",
+      "courseGloss": "particle of possibility: -ever, would (often left untranslated)",
       "partOfSpeech": "Particle or Disjunctive",
       "properName": false,
       "nameType": null,
@@ -1942,12 +2195,14 @@
       ]
     },
     {
-      "rank": 96,
+      "rank": 97,
+      "key": "πόλις",
       "strongs": "G4172",
       "strongsAll": [
         "G4172"
       ],
       "lemma": "πόλις",
+      "displayLemma": "πόλις",
       "translit": "polis",
       "gloss": "city",
       "partOfSpeech": "Noun",
@@ -1962,12 +2217,14 @@
       ]
     },
     {
-      "rank": 97,
+      "rank": 98,
+      "key": "βασιλεία",
       "strongs": "G0932",
       "strongsAll": [
         "G0932"
       ],
       "lemma": "βασιλεία",
+      "displayLemma": "βασιλεία",
       "translit": "basileia",
       "gloss": "kingdom",
       "partOfSpeech": "Noun",
@@ -1982,14 +2239,17 @@
       ]
     },
     {
-      "rank": 98,
+      "rank": 99,
+      "key": "ἔθνος",
       "strongs": "G1484",
       "strongsAll": [
         "G1484"
       ],
       "lemma": "ἔθνος",
+      "displayLemma": "ἔθνος",
       "translit": "ethnos",
       "gloss": "Gentiles",
+      "courseGloss": "nation; (plural) the Gentiles",
       "partOfSpeech": "Noun",
       "properName": false,
       "nameType": null,
@@ -2002,12 +2262,14 @@
       ]
     },
     {
-      "rank": 99,
+      "rank": 100,
+      "key": "τότε",
       "strongs": "G5119",
       "strongsAll": [
         "G5119"
       ],
       "lemma": "τότε",
+      "displayLemma": "τότε",
       "translit": "tote",
       "gloss": "then",
       "partOfSpeech": "Adverb",
@@ -2022,13 +2284,15 @@
       ]
     },
     {
-      "rank": 100,
+      "rank": 101,
+      "key": "Παῦλος",
       "strongs": "G3972G",
       "strongsAll": [
         "G3972G",
         "G3972H"
       ],
       "lemma": "Παῦλος",
+      "displayLemma": "Παῦλος",
       "translit": "Paulos",
       "gloss": "Paul",
       "partOfSpeech": "Noun",
@@ -2043,12 +2307,14 @@
       ]
     },
     {
-      "rank": 101,
+      "rank": 102,
+      "key": "Πέτρος",
       "strongs": "G4074G",
       "strongsAll": [
         "G4074G"
       ],
       "lemma": "Πέτρος",
+      "displayLemma": "Πέτρος",
       "translit": "Petros",
       "gloss": "Peter",
       "partOfSpeech": "Noun",
@@ -2063,12 +2329,14 @@
       ]
     },
     {
-      "rank": 102,
+      "rank": 103,
+      "key": "καρδία",
       "strongs": "G2588",
       "strongsAll": [
         "G2588"
       ],
       "lemma": "καρδία",
+      "displayLemma": "καρδία",
       "translit": "kardia",
       "gloss": "heart",
       "partOfSpeech": "Noun",
@@ -2083,12 +2351,14 @@
       ]
     },
     {
-      "rank": 103,
+      "rank": 104,
+      "key": "ὑπέρ",
       "strongs": "G5228",
       "strongsAll": [
         "G5228"
       ],
       "lemma": "ὑπέρ",
+      "displayLemma": "ὑπέρ",
       "translit": "huper",
       "gloss": "above/for",
       "partOfSpeech": "Preposition",
@@ -2103,7 +2373,8 @@
       ]
     },
     {
-      "rank": 104,
+      "rank": 105,
+      "key": "πρῶτος",
       "strongs": "G4413G",
       "strongsAll": [
         "G4413G",
@@ -2112,6 +2383,7 @@
         "G4413I"
       ],
       "lemma": "πρῶτος",
+      "displayLemma": "πρῶτος",
       "translit": "prōtos",
       "gloss": "first",
       "partOfSpeech": "Adjective",
@@ -2126,12 +2398,14 @@
       ]
     },
     {
-      "rank": 105,
+      "rank": 106,
+      "key": "χάρις",
       "strongs": "G5485",
       "strongsAll": [
         "G5485"
       ],
       "lemma": "χάρις",
+      "displayLemma": "χάρις",
       "translit": "charis",
       "gloss": "grace",
       "partOfSpeech": "Noun",
@@ -2146,12 +2420,14 @@
       ]
     },
     {
-      "rank": 106,
+      "rank": 107,
+      "key": "ἄλλος",
       "strongs": "G0243",
       "strongsAll": [
         "G0243"
       ],
       "lemma": "ἄλλος",
+      "displayLemma": "ἄλλος",
       "translit": "allos",
       "gloss": "another",
       "partOfSpeech": "Adjective",
@@ -2166,12 +2442,14 @@
       ]
     },
     {
-      "rank": 107,
+      "rank": 108,
+      "key": "ἵστημι",
       "strongs": "G2476",
       "strongsAll": [
         "G2476"
       ],
       "lemma": "ἵστημι",
+      "displayLemma": "ἵστημι",
       "translit": "histēmi",
       "gloss": "to stand",
       "partOfSpeech": "Verb",
@@ -2186,14 +2464,19 @@
       ]
     },
     {
-      "rank": 108,
+      "rank": 109,
+      "key": "πορεύω",
       "strongs": "G4198",
       "strongsAll": [
         "G4198"
       ],
       "lemma": "πορεύω",
+      "displayLemma": "πορεύομαι",
+      "displayNote": "deponent: middle/passive forms, active meaning",
       "translit": "poreuō",
+      "displayTranslit": "poreuomai",
       "gloss": "to travel",
+      "courseGloss": "to go, travel",
       "partOfSpeech": "Verb",
       "properName": false,
       "nameType": null,
@@ -2206,13 +2489,15 @@
       ]
     },
     {
-      "rank": 109,
+      "rank": 110,
+      "key": "καλέω",
       "strongs": "G2564G",
       "strongsAll": [
         "G2564G",
         "G2564H"
       ],
       "lemma": "καλέω",
+      "displayLemma": "καλέω",
       "translit": "kaleō",
       "gloss": "to call",
       "partOfSpeech": "Verb",
@@ -2227,12 +2512,14 @@
       ]
     },
     {
-      "rank": 110,
+      "rank": 111,
+      "key": "νῦν",
       "strongs": "G3568",
       "strongsAll": [
         "G3568"
       ],
       "lemma": "νῦν",
+      "displayLemma": "νῦν",
       "translit": "nun",
       "gloss": "now",
       "partOfSpeech": "Adverb",
@@ -2247,12 +2534,14 @@
       ]
     },
     {
-      "rank": 111,
+      "rank": 112,
+      "key": "σάρξ",
       "strongs": "G4561",
       "strongsAll": [
         "G4561"
       ],
       "lemma": "σάρξ",
+      "displayLemma": "σάρξ",
       "translit": "sarx",
       "gloss": "flesh",
       "partOfSpeech": "Noun",
@@ -2267,12 +2556,14 @@
       ]
     },
     {
-      "rank": 112,
+      "rank": 113,
+      "key": "ἕως",
       "strongs": "G2193",
       "strongsAll": [
         "G2193"
       ],
       "lemma": "ἕως",
+      "displayLemma": "ἕως",
       "translit": "he'ōs",
       "gloss": "until",
       "partOfSpeech": "Preposition",
@@ -2287,12 +2578,14 @@
       ]
     },
     {
-      "rank": 113,
+      "rank": 114,
+      "key": "προφήτης",
       "strongs": "G4396",
       "strongsAll": [
         "G4396"
       ],
       "lemma": "προφήτης",
+      "displayLemma": "προφήτης",
       "translit": "prophētēs",
       "gloss": "prophet",
       "partOfSpeech": "Noun",
@@ -2307,14 +2600,17 @@
       ]
     },
     {
-      "rank": 114,
+      "rank": 115,
+      "key": "ἐγείρω",
       "strongs": "G1453",
       "strongsAll": [
         "G1453"
       ],
       "lemma": "ἐγείρω",
+      "displayLemma": "ἐγείρω",
       "translit": "egeirō",
       "gloss": "to arise",
+      "courseGloss": "to raise; (passive) to rise",
       "partOfSpeech": "Verb",
       "properName": false,
       "nameType": null,
@@ -2327,12 +2623,14 @@
       ]
     },
     {
-      "rank": 115,
+      "rank": 116,
+      "key": "ὅστις",
       "strongs": "G3748",
       "strongsAll": [
         "G3748"
       ],
       "lemma": "ὅστις",
+      "displayLemma": "ὅστις",
       "translit": "hostis",
       "gloss": "who/which",
       "partOfSpeech": "Relative pronoun",
@@ -2347,12 +2645,14 @@
       ]
     },
     {
-      "rank": 116,
+      "rank": 117,
+      "key": "οὐδέ",
       "strongs": "G3761",
       "strongsAll": [
         "G3761"
       ],
       "lemma": "οὐδέ",
+      "displayLemma": "οὐδέ",
       "translit": "oude",
       "gloss": "nor",
       "partOfSpeech": "Conjunction",
@@ -2367,12 +2667,14 @@
       ]
     },
     {
-      "rank": 117,
+      "rank": 118,
+      "key": "ἀγαπάω",
       "strongs": "G0025",
       "strongsAll": [
         "G0025"
       ],
       "lemma": "ἀγαπάω",
+      "displayLemma": "ἀγαπάω",
       "translit": "agapaō",
       "gloss": "to love",
       "partOfSpeech": "Verb",
@@ -2387,7 +2689,8 @@
       ]
     },
     {
-      "rank": 118,
+      "rank": 119,
+      "key": "ἀφίημι",
       "strongs": "G0863G",
       "strongsAll": [
         "G0863G",
@@ -2395,8 +2698,10 @@
         "G0863I"
       ],
       "lemma": "ἀφίημι",
+      "displayLemma": "ἀφίημι",
       "translit": "aphiēmi",
       "gloss": "to release",
+      "courseGloss": "to forgive, release, leave",
       "partOfSpeech": "Verb",
       "properName": false,
       "nameType": null,
@@ -2409,12 +2714,14 @@
       ]
     },
     {
-      "rank": 119,
+      "rank": 120,
+      "key": "λαός",
       "strongs": "G2992",
       "strongsAll": [
         "G2992"
       ],
       "lemma": "λαός",
+      "displayLemma": "λαός",
       "translit": "laos",
       "gloss": "a people",
       "partOfSpeech": "Noun",
@@ -2429,12 +2736,14 @@
       ]
     },
     {
-      "rank": 120,
+      "rank": 121,
+      "key": "σῶμα",
       "strongs": "G4983",
       "strongsAll": [
         "G4983"
       ],
       "lemma": "σῶμα",
+      "displayLemma": "σῶμα",
       "translit": "sōma",
       "gloss": "body",
       "partOfSpeech": "Noun",
@@ -2449,12 +2758,14 @@
       ]
     },
     {
-      "rank": 121,
+      "rank": 122,
+      "key": "πάλιν",
       "strongs": "G3825",
       "strongsAll": [
         "G3825"
       ],
       "lemma": "πάλιν",
+      "displayLemma": "πάλιν",
       "translit": "palin",
       "gloss": "again",
       "partOfSpeech": "Adverb",
@@ -2469,12 +2780,14 @@
       ]
     },
     {
-      "rank": 122,
+      "rank": 123,
+      "key": "ζάω",
       "strongs": "G2198",
       "strongsAll": [
         "G2198"
       ],
       "lemma": "ζάω",
+      "displayLemma": "ζάω",
       "translit": "zaō",
       "gloss": "to live",
       "partOfSpeech": "Verb",
@@ -2489,13 +2802,15 @@
       ]
     },
     {
-      "rank": 123,
+      "rank": 124,
+      "key": "φωνή",
       "strongs": "G5456G",
       "strongsAll": [
         "G5456G",
         "G5456H"
       ],
       "lemma": "φωνή",
+      "displayLemma": "φωνή",
       "translit": "phōnē",
       "gloss": "voice/sound",
       "partOfSpeech": "Noun",
@@ -2510,12 +2825,14 @@
       ]
     },
     {
-      "rank": 124,
+      "rank": 125,
+      "key": "δύο",
       "strongs": "G1417",
       "strongsAll": [
         "G1417"
       ],
       "lemma": "δύο",
+      "displayLemma": "δύο",
       "translit": "duo",
       "gloss": "two",
       "partOfSpeech": "Adjective",
@@ -2530,12 +2847,14 @@
       ]
     },
     {
-      "rank": 125,
+      "rank": 126,
+      "key": "ζωή",
       "strongs": "G2222",
       "strongsAll": [
         "G2222"
       ],
       "lemma": "ζωή",
+      "displayLemma": "ζωή",
       "translit": "zōē",
       "gloss": "life",
       "partOfSpeech": "Noun",
@@ -2550,7 +2869,8 @@
       ]
     },
     {
-      "rank": 126,
+      "rank": 127,
+      "key": "Ἰωάννης",
       "strongs": "G2491G",
       "strongsAll": [
         "G2491G",
@@ -2560,6 +2880,7 @@
         "G2491I"
       ],
       "lemma": "Ἰωάννης",
+      "displayLemma": "Ἰωάννης",
       "translit": "Iōannēs",
       "gloss": "John",
       "partOfSpeech": "Noun",
@@ -2574,12 +2895,14 @@
       ]
     },
     {
-      "rank": 127,
+      "rank": 128,
+      "key": "βλέπω",
       "strongs": "G0991",
       "strongsAll": [
         "G0991"
       ],
       "lemma": "βλέπω",
+      "displayLemma": "βλέπω",
       "translit": "blepō",
       "gloss": "to see",
       "partOfSpeech": "Verb",
@@ -2594,12 +2917,14 @@
       ]
     },
     {
-      "rank": 128,
+      "rank": 129,
+      "key": "ἀποστέλλω",
       "strongs": "G0649",
       "strongsAll": [
         "G0649"
       ],
       "lemma": "ἀποστέλλω",
+      "displayLemma": "ἀποστέλλω",
       "translit": "apostellō",
       "gloss": "to send",
       "partOfSpeech": "Verb",
@@ -2614,12 +2939,14 @@
       ]
     },
     {
-      "rank": 129,
+      "rank": 130,
+      "key": "ἀμήν",
       "strongs": "G0281",
       "strongsAll": [
         "G0281"
       ],
       "lemma": "ἀμήν",
+      "displayLemma": "ἀμήν",
       "translit": "amēn",
       "gloss": "amen",
       "partOfSpeech": "Interjection",
@@ -2634,12 +2961,14 @@
       ]
     },
     {
-      "rank": 130,
+      "rank": 131,
+      "key": "νεκρός",
       "strongs": "G3498",
       "strongsAll": [
         "G3498"
       ],
       "lemma": "νεκρός",
+      "displayLemma": "νεκρός",
       "translit": "nekros",
       "gloss": "dead",
       "partOfSpeech": "Adjective",
@@ -2654,12 +2983,14 @@
       ]
     },
     {
-      "rank": 131,
+      "rank": 132,
+      "key": "σύν",
       "strongs": "G4862",
       "strongsAll": [
         "G4862"
       ],
       "lemma": "σύν",
+      "displayLemma": "σύν",
       "translit": "sun",
       "gloss": "with",
       "partOfSpeech": "Preposition",
@@ -2674,12 +3005,14 @@
       ]
     },
     {
-      "rank": 132,
+      "rank": 133,
+      "key": "δοῦλος",
       "strongs": "G1401",
       "strongsAll": [
         "G1401"
       ],
       "lemma": "δοῦλος",
+      "displayLemma": "δοῦλος",
       "translit": "doulos",
       "gloss": "slave",
       "partOfSpeech": "Noun",
@@ -2694,12 +3027,14 @@
       ]
     },
     {
-      "rank": 133,
+      "rank": 134,
+      "key": "ὅταν",
       "strongs": "G3752",
       "strongsAll": [
         "G3752"
       ],
       "lemma": "ὅταν",
+      "displayLemma": "ὅταν",
       "translit": "hotan",
       "gloss": "when(-ever)",
       "partOfSpeech": "Conjunction",
@@ -2714,13 +3049,15 @@
       ]
     },
     {
-      "rank": 134,
+      "rank": 135,
+      "key": "αἰών",
       "strongs": "G0165H",
       "strongsAll": [
         "G0165H",
         "G0165G"
       ],
       "lemma": "αἰών",
+      "displayLemma": "αἰών",
       "translit": "aiōn",
       "gloss": "an age",
       "partOfSpeech": "Noun",
@@ -2735,7 +3072,8 @@
       ]
     },
     {
-      "rank": 135,
+      "rank": 136,
+      "key": "βάλλω",
       "strongs": "G0906G",
       "strongsAll": [
         "G0906G",
@@ -2744,6 +3082,7 @@
         "G0906I"
       ],
       "lemma": "βάλλω",
+      "displayLemma": "βάλλω",
       "translit": "ballō",
       "gloss": "to throw",
       "partOfSpeech": "Verb",
@@ -2758,12 +3097,14 @@
       ]
     },
     {
-      "rank": 136,
+      "rank": 137,
+      "key": "ἀρχιερεύς",
       "strongs": "G0749",
       "strongsAll": [
         "G0749"
       ],
       "lemma": "ἀρχιερεύς",
+      "displayLemma": "ἀρχιερεύς",
       "translit": "archiereus",
       "gloss": "high-priest",
       "partOfSpeech": "Noun",
@@ -2778,12 +3119,14 @@
       ]
     },
     {
-      "rank": 137,
+      "rank": 138,
+      "key": "θάνατος",
       "strongs": "G2288",
       "strongsAll": [
         "G2288"
       ],
       "lemma": "θάνατος",
+      "displayLemma": "θάνατος",
       "translit": "thanatos",
       "gloss": "death",
       "partOfSpeech": "Noun",
@@ -2798,12 +3141,14 @@
       ]
     },
     {
-      "rank": 138,
+      "rank": 139,
+      "key": "δύναμις",
       "strongs": "G1411",
       "strongsAll": [
         "G1411"
       ],
       "lemma": "δύναμις",
+      "displayLemma": "δύναμις",
       "translit": "dunamis",
       "gloss": "power",
       "partOfSpeech": "Noun",
@@ -2818,12 +3163,14 @@
       ]
     },
     {
-      "rank": 139,
+      "rank": 140,
+      "key": "παραδίδωμι",
       "strongs": "G3860",
       "strongsAll": [
         "G3860"
       ],
       "lemma": "παραδίδωμι",
+      "displayLemma": "παραδίδωμι",
       "translit": "paradidōmi",
       "gloss": "to deliver",
       "partOfSpeech": "Verb",
@@ -2838,35 +3185,17 @@
       ]
     },
     {
-      "rank": 140,
-      "strongs": "G4458",
-      "strongsAll": [
-        "G4459",
-        "G4458"
-      ],
-      "lemma": "πως",
-      "translit": "pōs",
-      "gloss": "how; how?!",
-      "partOfSpeech": "Interrogative Particle",
-      "properName": false,
-      "nameType": null,
-      "commonMorph": "PRT-I",
-      "frequency": 119,
-      "exampleRefs": [
-        "1 John 3:17",
-        "John 3:4",
-        "John 3:9"
-      ]
-    },
-    {
       "rank": 141,
+      "key": "μένω",
       "strongs": "G3306",
       "strongsAll": [
         "G3306"
       ],
       "lemma": "μένω",
+      "displayLemma": "μένω",
       "translit": "menō",
       "gloss": "to stay",
+      "courseGloss": "to remain, abide",
       "partOfSpeech": "Verb",
       "properName": false,
       "nameType": null,
@@ -2880,11 +3209,13 @@
     },
     {
       "rank": 142,
+      "key": "ζητέω",
       "strongs": "G2212",
       "strongsAll": [
         "G2212"
       ],
       "lemma": "ζητέω",
+      "displayLemma": "ζητέω",
       "translit": "zēteō",
       "gloss": "to seek",
       "partOfSpeech": "Verb",
@@ -2900,11 +3231,13 @@
     },
     {
       "rank": 143,
+      "key": "ἀπέρχομαι",
       "strongs": "G0565",
       "strongsAll": [
         "G0565"
       ],
       "lemma": "ἀπέρχομαι",
+      "displayLemma": "ἀπέρχομαι",
       "translit": "aperchomai",
       "gloss": "to go away",
       "partOfSpeech": "Verb",
@@ -2920,11 +3253,13 @@
     },
     {
       "rank": 144,
+      "key": "ἀγάπη",
       "strongs": "G0026",
       "strongsAll": [
         "G0026"
       ],
       "lemma": "ἀγάπη",
+      "displayLemma": "ἀγάπη",
       "translit": "agapē",
       "gloss": "love",
       "partOfSpeech": "Noun",
@@ -2940,11 +3275,13 @@
     },
     {
       "rank": 145,
+      "key": "βασιλεύς",
       "strongs": "G0935",
       "strongsAll": [
         "G0935"
       ],
       "lemma": "βασιλεύς",
+      "displayLemma": "βασιλεύς",
       "translit": "basileus",
       "gloss": "king",
       "partOfSpeech": "Noun",
@@ -2960,11 +3297,13 @@
     },
     {
       "rank": 146,
+      "key": "κρίνω",
       "strongs": "G2919",
       "strongsAll": [
         "G2919"
       ],
       "lemma": "κρίνω",
+      "displayLemma": "κρίνω",
       "translit": "krinō",
       "gloss": "to judge",
       "partOfSpeech": "Verb",
@@ -2980,12 +3319,14 @@
     },
     {
       "rank": 147,
+      "key": "οἶκος",
       "strongs": "G3624G",
       "strongsAll": [
         "G3624G",
         "G3624H"
       ],
       "lemma": "οἶκος",
+      "displayLemma": "οἶκος",
       "translit": "oikos",
       "gloss": "house",
       "partOfSpeech": "Noun",
@@ -3001,11 +3342,13 @@
     },
     {
       "rank": 148,
+      "key": "ἐκκλησία",
       "strongs": "G1577",
       "strongsAll": [
         "G1577"
       ],
       "lemma": "ἐκκλησία",
+      "displayLemma": "ἐκκλησία",
       "translit": "ekklēsia",
       "gloss": "assembly",
       "partOfSpeech": "Noun",
@@ -3021,11 +3364,13 @@
     },
     {
       "rank": 149,
+      "key": "ἴδιος",
       "strongs": "G2398",
       "strongsAll": [
         "G2398"
       ],
       "lemma": "ἴδιος",
+      "displayLemma": "ἴδιος",
       "translit": "idios",
       "gloss": "one's own/private",
       "partOfSpeech": "Adjective",
@@ -3041,6 +3386,7 @@
     },
     {
       "rank": 150,
+      "key": "ὁράω",
       "strongs": "G3708",
       "strongsAll": [
         "G3708",
@@ -3048,6 +3394,7 @@
         "G3700H"
       ],
       "lemma": "ὁράω",
+      "displayLemma": "ὁράω",
       "translit": "horaō",
       "gloss": "to see; to appear",
       "partOfSpeech": "Verb",
@@ -3068,13 +3415,16 @@
     "words": [
       {
         "rank": null,
+        "key": "κοινωνία",
         "strongs": "G2842",
         "strongsAll": [
           "G2842"
         ],
         "lemma": "κοινωνία",
+        "displayLemma": "κοινωνία",
         "translit": "koinōnia",
         "gloss": "participation",
+        "courseGloss": "fellowship, participation",
         "partOfSpeech": "Noun",
         "properName": false,
         "nameType": null,
@@ -3085,16 +3435,18 @@
           "1 John 1:6",
           "1 John 1:7"
         ],
-        "ntRank": 643,
+        "ntRank": 644,
         "passageCount": 4
       },
       {
         "rank": null,
+        "key": "φῶς",
         "strongs": "G5457",
         "strongsAll": [
           "G5457"
         ],
         "lemma": "φῶς",
+        "displayLemma": "φῶς",
         "translit": "phōs",
         "gloss": "light",
         "partOfSpeech": "Noun",
@@ -3107,16 +3459,18 @@
           "1 John 1:7",
           "1 John 2:8"
         ],
-        "ntRank": 235,
+        "ntRank": 236,
         "passageCount": 3
       },
       {
         "rank": null,
+        "key": "ἀλήθεια",
         "strongs": "G0225",
         "strongsAll": [
           "G0225"
         ],
         "lemma": "ἀλήθεια",
+        "displayLemma": "ἀλήθεια",
         "translit": "alētheia",
         "gloss": "truth",
         "partOfSpeech": "Noun",
@@ -3134,11 +3488,13 @@
       },
       {
         "rank": null,
+        "key": "περιπατέω",
         "strongs": "G4043",
         "strongsAll": [
           "G4043"
         ],
         "lemma": "περιπατέω",
+        "displayLemma": "περιπατέω",
         "translit": "peripateō",
         "gloss": "to walk",
         "partOfSpeech": "Verb",
@@ -3151,16 +3507,18 @@
           "1 John 1:7",
           "1 John 2:6"
         ],
-        "ntRank": 179,
+        "ntRank": 180,
         "passageCount": 2
       },
       {
         "rank": null,
+        "key": "φανερόω",
         "strongs": "G5319",
         "strongsAll": [
           "G5319"
         ],
         "lemma": "φανερόω",
+        "displayLemma": "φανερόω",
         "translit": "phaneroō",
         "gloss": "to reveal",
         "partOfSpeech": "Verb",
@@ -3173,16 +3531,18 @@
           "1 John 2:19",
           "1 John 2:28"
         ],
-        "ntRank": 314,
+        "ntRank": 315,
         "passageCount": 2
       },
       {
         "rank": null,
+        "key": "ἀπαγγέλλω",
         "strongs": "G0518",
         "strongsAll": [
           "G0518"
         ],
         "lemma": "ἀπαγγέλλω",
+        "displayLemma": "ἀπαγγέλλω",
         "translit": "apangellō",
         "gloss": "to announce",
         "partOfSpeech": "Verb",
@@ -3195,18 +3555,21 @@
           "1 John 1:3",
           "John 16:25"
         ],
-        "ntRank": 340,
+        "ntRank": 341,
         "passageCount": 2
       },
       {
         "rank": null,
+        "key": "καθαρίζω",
         "strongs": "G2511",
         "strongsAll": [
           "G2511"
         ],
         "lemma": "καθαρίζω",
+        "displayLemma": "καθαρίζω",
         "translit": "katharizō",
         "gloss": "to clean",
+        "courseGloss": "to cleanse",
         "partOfSpeech": "Verb",
         "properName": false,
         "nameType": null,
@@ -3217,7 +3580,7 @@
           "1 John 1:9",
           "Matthew 8:2"
         ],
-        "ntRank": 444,
+        "ntRank": 445,
         "passageCount": 2
       }
     ]

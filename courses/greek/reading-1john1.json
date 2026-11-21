@@ -2,7 +2,8 @@
   "generatedBy": "scripts/build-greek-course.js",
   "lessonId": "L25",
   "passage": "1 John 1:1–10",
-  "note": "Word text, transliteration and gloss are read from orig/ at display time (index = position in the verse's word list). lemma here is copied from orig/ by the script, not typed.",
+  "grammarHelpShown": [],
+  "note": "Word text, transliteration and gloss are read from orig/ at display time (index = position in the verse's word list). lemma here is copied from orig/ by the script, not typed; key appears where the course splits that lemma. grammar = the word's grammatical category; grammarLesson = the first lesson that covers it (see course-check.json grammarCoverage).",
   "coverage": {
     "tokens": 207,
     "tokensTaught": 184,
@@ -137,6 +138,8 @@
           "strongs": "G3739",
           "lemma": "ὅς, ἥ",
           "taught": true,
+          "grammar": "Relative pronoun",
+          "grammarLesson": "L15",
           "lessonId": "L15",
           "lessonNumber": 15,
           "vocabRank": 11
@@ -146,6 +149,8 @@
           "strongs": "G1510",
           "lemma": "εἰμί",
           "taught": true,
+          "grammar": "Verb · imperfect · active · indicative",
+          "grammarLesson": "L10",
           "lessonId": "L10",
           "lessonNumber": 10,
           "vocabRank": 8
@@ -155,15 +160,19 @@
           "strongs": "G0575",
           "lemma": "ἀπό",
           "taught": true,
+          "grammar": "Preposition",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
-          "vocabRank": 30
+          "vocabRank": 29
         },
         {
           "index": 3,
           "strongs": "G0746",
           "lemma": "ἀρχή",
           "taught": false,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "note": "help shown"
         },
         {
@@ -171,6 +180,8 @@
           "strongs": "G3739",
           "lemma": "ὅς, ἥ",
           "taught": true,
+          "grammar": "Relative pronoun",
+          "grammarLesson": "L15",
           "lessonId": "L15",
           "lessonNumber": 15,
           "vocabRank": 11
@@ -180,15 +191,19 @@
           "strongs": "G0191",
           "lemma": "ἀκούω",
           "taught": true,
+          "grammar": "Verb · 2nd perfect · active · indicative",
+          "grammarLesson": "L22",
           "lessonId": "L09",
           "lessonNumber": 9,
-          "vocabRank": 43
+          "vocabRank": 42
         },
         {
           "index": 6,
           "strongs": "G3739",
           "lemma": "ὅς, ἥ",
           "taught": true,
+          "grammar": "Relative pronoun",
+          "grammarLesson": "L15",
           "lessonId": "L15",
           "lessonNumber": 15,
           "vocabRank": 11
@@ -198,6 +213,8 @@
           "strongs": "G3708",
           "lemma": "ὁράω",
           "taught": true,
+          "grammar": "Verb · perfect · active · indicative",
+          "grammarLesson": "L22",
           "lessonId": "L22",
           "lessonNumber": 22,
           "vocabRank": 150
@@ -207,6 +224,8 @@
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -216,6 +235,8 @@
           "strongs": "G3788",
           "lemma": "ὀφθαλμός",
           "taught": false,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "note": "help shown"
         },
         {
@@ -223,6 +244,8 @@
           "strongs": "G3165",
           "lemma": "ἐγώ",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 7
@@ -232,6 +255,8 @@
           "strongs": "G3739",
           "lemma": "ὅς, ἥ",
           "taught": true,
+          "grammar": "Relative pronoun",
+          "grammarLesson": "L15",
           "lessonId": "L15",
           "lessonNumber": 15,
           "vocabRank": 11
@@ -241,6 +266,8 @@
           "strongs": "G2300",
           "lemma": "θεάομαι",
           "taught": false,
+          "grammar": "Verb · aorist · middle deponent · indicative",
+          "grammarLesson": "L20",
           "note": "help shown"
         },
         {
@@ -248,6 +275,8 @@
           "strongs": "G2532",
           "lemma": "καί",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 2
@@ -257,6 +286,8 @@
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -266,15 +297,19 @@
           "strongs": "G5495",
           "lemma": "χείρ",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L18",
           "lessonNumber": 18,
-          "vocabRank": 88
+          "vocabRank": 89
         },
         {
           "index": 16,
           "strongs": "G3165",
           "lemma": "ἐγώ",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 7
@@ -284,6 +319,8 @@
           "strongs": "G5584",
           "lemma": "ψηλαφάω",
           "taught": false,
+          "grammar": "Verb · aorist · active · indicative",
+          "grammarLesson": "L20",
           "note": "help shown"
         },
         {
@@ -291,6 +328,8 @@
           "strongs": "G4012",
           "lemma": "περί",
           "taught": true,
+          "grammar": "Preposition",
+          "grammarLesson": "L05",
           "lessonId": "L12",
           "lessonNumber": 12,
           "vocabRank": 54
@@ -300,6 +339,8 @@
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -309,6 +350,8 @@
           "strongs": "G3056",
           "lemma": "λόγος",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L06",
           "lessonNumber": 6,
           "vocabRank": 55
@@ -318,6 +361,8 @@
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -327,9 +372,11 @@
           "strongs": "G2222",
           "lemma": "ζωή",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L08",
           "lessonNumber": 8,
-          "vocabRank": 125
+          "vocabRank": 126
         }
       ]
     },
@@ -341,6 +388,8 @@
           "strongs": "G2532",
           "lemma": "καί",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 2
@@ -350,6 +399,8 @@
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -359,15 +410,19 @@
           "strongs": "G2222",
           "lemma": "ζωή",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L08",
           "lessonNumber": 8,
-          "vocabRank": 125
+          "vocabRank": 126
         },
         {
           "index": 3,
           "strongs": "G5319",
           "lemma": "φανερόω",
           "taught": true,
+          "grammar": "Verb · aorist · passive · indicative",
+          "grammarLesson": "L20",
           "lessonId": "L24",
           "lessonNumber": 24
         },
@@ -376,6 +431,8 @@
           "strongs": "G2532",
           "lemma": "καί",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 2
@@ -385,6 +442,8 @@
           "strongs": "G3708",
           "lemma": "ὁράω",
           "taught": true,
+          "grammar": "Verb · perfect · active · indicative",
+          "grammarLesson": "L22",
           "lessonId": "L22",
           "lessonNumber": 22,
           "vocabRank": 150
@@ -394,6 +453,8 @@
           "strongs": "G2532",
           "lemma": "καί",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 2
@@ -403,6 +464,8 @@
           "strongs": "G3140",
           "lemma": "μαρτυρέω",
           "taught": false,
+          "grammar": "Verb · present · active · indicative",
+          "grammarLesson": "L09",
           "note": "help shown"
         },
         {
@@ -410,6 +473,8 @@
           "strongs": "G2532",
           "lemma": "καί",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 2
@@ -419,6 +484,8 @@
           "strongs": "G0518",
           "lemma": "ἀπαγγέλλω",
           "taught": true,
+          "grammar": "Verb · present · active · indicative",
+          "grammarLesson": "L09",
           "lessonId": "L24",
           "lessonNumber": 24
         },
@@ -427,6 +494,8 @@
           "strongs": "G4771",
           "lemma": "σύ",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 4
@@ -436,6 +505,8 @@
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -445,15 +516,19 @@
           "strongs": "G2222",
           "lemma": "ζωή",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L08",
           "lessonNumber": 8,
-          "vocabRank": 125
+          "vocabRank": 126
         },
         {
           "index": 13,
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -463,6 +538,8 @@
           "strongs": "G0166",
           "lemma": "αἰώνιος",
           "taught": false,
+          "grammar": "Adjective",
+          "grammarLesson": "L14",
           "note": "help shown"
         },
         {
@@ -470,15 +547,19 @@
           "strongs": "G3748",
           "lemma": "ὅστις",
           "taught": true,
+          "grammar": "Relative pronoun",
+          "grammarLesson": "L15",
           "lessonId": "L15",
           "lessonNumber": 15,
-          "vocabRank": 115
+          "vocabRank": 116
         },
         {
           "index": 16,
           "strongs": "G1510",
           "lemma": "εἰμί",
           "taught": true,
+          "grammar": "Verb · imperfect · active · indicative",
+          "grammarLesson": "L10",
           "lessonId": "L10",
           "lessonNumber": 10,
           "vocabRank": 8
@@ -488,6 +569,8 @@
           "strongs": "G4314",
           "lemma": "πρός",
           "taught": true,
+          "grammar": "Preposition",
+          "grammarLesson": "L05",
           "lessonId": "L12",
           "lessonNumber": 12,
           "vocabRank": 25
@@ -497,6 +580,8 @@
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -506,15 +591,19 @@
           "strongs": "G3962",
           "lemma": "πατήρ",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L18",
           "lessonNumber": 18,
-          "vocabRank": 45
+          "vocabRank": 44
         },
         {
           "index": 20,
           "strongs": "G2532",
           "lemma": "καί",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 2
@@ -524,6 +613,8 @@
           "strongs": "G5319",
           "lemma": "φανερόω",
           "taught": true,
+          "grammar": "Verb · aorist · passive · indicative",
+          "grammarLesson": "L20",
           "lessonId": "L24",
           "lessonNumber": 24
         },
@@ -532,6 +623,8 @@
           "strongs": "G3165",
           "lemma": "ἐγώ",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 7
@@ -546,6 +639,8 @@
           "strongs": "G3739",
           "lemma": "ὅς, ἥ",
           "taught": true,
+          "grammar": "Relative pronoun",
+          "grammarLesson": "L15",
           "lessonId": "L15",
           "lessonNumber": 15,
           "vocabRank": 11
@@ -555,6 +650,8 @@
           "strongs": "G3708",
           "lemma": "ὁράω",
           "taught": true,
+          "grammar": "Verb · perfect · active · indicative",
+          "grammarLesson": "L22",
           "lessonId": "L22",
           "lessonNumber": 22,
           "vocabRank": 150
@@ -564,6 +661,8 @@
           "strongs": "G2532",
           "lemma": "καί",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 2
@@ -573,15 +672,19 @@
           "strongs": "G0191",
           "lemma": "ἀκούω",
           "taught": true,
+          "grammar": "Verb · 2nd perfect · active · indicative",
+          "grammarLesson": "L22",
           "lessonId": "L09",
           "lessonNumber": 9,
-          "vocabRank": 43
+          "vocabRank": 42
         },
         {
           "index": 4,
           "strongs": "G0518",
           "lemma": "ἀπαγγέλλω",
           "taught": true,
+          "grammar": "Verb · present · active · indicative",
+          "grammarLesson": "L09",
           "lessonId": "L24",
           "lessonNumber": 24
         },
@@ -590,6 +693,8 @@
           "strongs": "G2532",
           "lemma": "καί",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 2
@@ -599,6 +704,8 @@
           "strongs": "G4771",
           "lemma": "σύ",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 4
@@ -608,6 +715,8 @@
           "strongs": "G2443",
           "lemma": "ἵνα",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L23",
           "lessonNumber": 23,
           "vocabRank": 27
@@ -617,6 +726,8 @@
           "strongs": "G2532",
           "lemma": "καί",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 2
@@ -626,6 +737,8 @@
           "strongs": "G4771",
           "lemma": "σύ",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 4
@@ -635,6 +748,8 @@
           "strongs": "G2842",
           "lemma": "κοινωνία",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L24",
           "lessonNumber": 24
         },
@@ -643,6 +758,8 @@
           "strongs": "G2192",
           "lemma": "ἔχω",
           "taught": true,
+          "grammar": "Verb · present · active · subjunctive",
+          "grammarLesson": "L23",
           "lessonId": "L09",
           "lessonNumber": 9,
           "vocabRank": 24
@@ -652,15 +769,19 @@
           "strongs": "G3326",
           "lemma": "μετά",
           "taught": true,
+          "grammar": "Preposition",
+          "grammarLesson": "L05",
           "lessonId": "L12",
           "lessonNumber": 12,
-          "vocabRank": 42
+          "vocabRank": 41
         },
         {
           "index": 13,
           "strongs": "G3165",
           "lemma": "ἐγώ",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 7
@@ -670,6 +791,8 @@
           "strongs": "G2532",
           "lemma": "καί",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 2
@@ -679,6 +802,8 @@
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -688,6 +813,8 @@
           "strongs": "G2842",
           "lemma": "κοινωνία",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L24",
           "lessonNumber": 24
         },
@@ -696,6 +823,8 @@
           "strongs": "G1161",
           "lemma": "δέ",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 5
@@ -705,6 +834,8 @@
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -714,6 +845,8 @@
           "strongs": "G1473",
           "lemma": "ἡμέτερος",
           "taught": false,
+          "grammar": "Possessive pronoun",
+          "grammarLesson": "L11",
           "note": "help shown"
         },
         {
@@ -721,15 +854,19 @@
           "strongs": "G3326",
           "lemma": "μετά",
           "taught": true,
+          "grammar": "Preposition",
+          "grammarLesson": "L05",
           "lessonId": "L12",
           "lessonNumber": 12,
-          "vocabRank": 42
+          "vocabRank": 41
         },
         {
           "index": 21,
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -739,15 +876,19 @@
           "strongs": "G3962",
           "lemma": "πατήρ",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L18",
           "lessonNumber": 18,
-          "vocabRank": 45
+          "vocabRank": 44
         },
         {
           "index": 23,
           "strongs": "G2532",
           "lemma": "καί",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 2
@@ -757,15 +898,19 @@
           "strongs": "G3326",
           "lemma": "μετά",
           "taught": true,
+          "grammar": "Preposition",
+          "grammarLesson": "L05",
           "lessonId": "L12",
           "lessonNumber": 12,
-          "vocabRank": 42
+          "vocabRank": 41
         },
         {
           "index": 25,
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -775,15 +920,19 @@
           "strongs": "G5207",
           "lemma": "υἱός",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L06",
           "lessonNumber": 6,
-          "vocabRank": 48
+          "vocabRank": 47
         },
         {
           "index": 27,
           "strongs": "G0846",
           "lemma": "αὐτός",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 3
@@ -793,6 +942,8 @@
           "strongs": "G2424G",
           "lemma": "Ἰησοῦς",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 20
@@ -802,9 +953,11 @@
           "strongs": "G5547",
           "lemma": "Χριστός",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
-          "vocabRank": 37
+          "vocabRank": 36
         }
       ]
     },
@@ -816,6 +969,8 @@
           "strongs": "G2532",
           "lemma": "καί",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 2
@@ -825,6 +980,8 @@
           "strongs": "G3778",
           "lemma": "οὗτος",
           "taught": true,
+          "grammar": "Demonstrative pronoun",
+          "grammarLesson": "L15",
           "lessonId": "L15",
           "lessonNumber": 15,
           "vocabRank": 12
@@ -834,15 +991,19 @@
           "strongs": "G1125",
           "lemma": "γράφω",
           "taught": true,
+          "grammar": "Verb · present · active · indicative",
+          "grammarLesson": "L09",
           "lessonId": "L09",
           "lessonNumber": 9,
-          "vocabRank": 84
+          "vocabRank": 85
         },
         {
           "index": 3,
           "strongs": "G3165",
           "lemma": "ἐγώ",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 7
@@ -852,6 +1013,8 @@
           "strongs": "G2443",
           "lemma": "ἵνα",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L23",
           "lessonNumber": 23,
           "vocabRank": 27
@@ -861,6 +1024,8 @@
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -870,6 +1035,8 @@
           "strongs": "G5479",
           "lemma": "χαρά",
           "taught": false,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "note": "help shown"
         },
         {
@@ -877,6 +1044,8 @@
           "strongs": "G3165",
           "lemma": "ἐγώ",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 7
@@ -886,6 +1055,8 @@
           "strongs": "G1510",
           "lemma": "εἰμί",
           "taught": true,
+          "grammar": "Verb · present · active · subjunctive",
+          "grammarLesson": "L23",
           "lessonId": "L10",
           "lessonNumber": 10,
           "vocabRank": 8
@@ -895,6 +1066,8 @@
           "strongs": "G4137",
           "lemma": "πληρόω",
           "taught": false,
+          "grammar": "Verb · perfect · passive · participle",
+          "grammarLesson": "L22",
           "note": "help shown"
         }
       ]
@@ -907,6 +1080,8 @@
           "strongs": "G2532",
           "lemma": "καί",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 2
@@ -916,6 +1091,8 @@
           "strongs": "G1510",
           "lemma": "εἰμί",
           "taught": true,
+          "grammar": "Verb · present · active · indicative",
+          "grammarLesson": "L09",
           "lessonId": "L10",
           "lessonNumber": 10,
           "vocabRank": 8
@@ -925,6 +1102,8 @@
           "strongs": "G3778",
           "lemma": "οὗτος",
           "taught": true,
+          "grammar": "Demonstrative pronoun",
+          "grammarLesson": "L15",
           "lessonId": "L15",
           "lessonNumber": 15,
           "vocabRank": 12
@@ -934,6 +1113,8 @@
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -943,6 +1124,8 @@
           "strongs": "G0031",
           "lemma": "ἀγγελία",
           "taught": false,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "note": "help shown"
         },
         {
@@ -950,6 +1133,8 @@
           "strongs": "G3739",
           "lemma": "ὅς, ἥ",
           "taught": true,
+          "grammar": "Relative pronoun",
+          "grammarLesson": "L15",
           "lessonId": "L15",
           "lessonNumber": 15,
           "vocabRank": 11
@@ -959,24 +1144,30 @@
           "strongs": "G0191",
           "lemma": "ἀκούω",
           "taught": true,
+          "grammar": "Verb · 2nd perfect · active · indicative",
+          "grammarLesson": "L22",
           "lessonId": "L09",
           "lessonNumber": 9,
-          "vocabRank": 43
+          "vocabRank": 42
         },
         {
           "index": 7,
           "strongs": "G0575",
           "lemma": "ἀπό",
           "taught": true,
+          "grammar": "Preposition",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
-          "vocabRank": 30
+          "vocabRank": 29
         },
         {
           "index": 8,
           "strongs": "G0846",
           "lemma": "αὐτός",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 3
@@ -986,6 +1177,8 @@
           "strongs": "G2532",
           "lemma": "καί",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 2
@@ -995,6 +1188,8 @@
           "strongs": "G0312",
           "lemma": "ἀναγγέλλω",
           "taught": false,
+          "grammar": "Verb · present · active · indicative",
+          "grammarLesson": "L09",
           "note": "help shown"
         },
         {
@@ -1002,6 +1197,8 @@
           "strongs": "G4771",
           "lemma": "σύ",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 4
@@ -1011,6 +1208,8 @@
           "strongs": "G3754G",
           "lemma": "ὅτι",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 15
@@ -1020,6 +1219,8 @@
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -1029,6 +1230,8 @@
           "strongs": "G2316",
           "lemma": "θεός",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L06",
           "lessonNumber": 6,
           "vocabRank": 14
@@ -1038,6 +1241,8 @@
           "strongs": "G5457",
           "lemma": "φῶς",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L24",
           "lessonNumber": 24
         },
@@ -1046,6 +1251,8 @@
           "strongs": "G1510",
           "lemma": "εἰμί",
           "taught": true,
+          "grammar": "Verb · present · active · indicative",
+          "grammarLesson": "L09",
           "lessonId": "L10",
           "lessonNumber": 10,
           "vocabRank": 8
@@ -1055,6 +1262,8 @@
           "strongs": "G2532",
           "lemma": "καί",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 2
@@ -1064,6 +1273,8 @@
           "strongs": "G4653",
           "lemma": "σκοτία",
           "taught": false,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "note": "help shown"
         },
         {
@@ -1071,6 +1282,8 @@
           "strongs": "G1722",
           "lemma": "ἐν",
           "taught": true,
+          "grammar": "Preposition",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 6
@@ -1080,6 +1293,8 @@
           "strongs": "G0846",
           "lemma": "αὐτός",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 3
@@ -1089,6 +1304,8 @@
           "strongs": "G3756",
           "lemma": "οὐ",
           "taught": true,
+          "grammar": "Negative Particle",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 10
@@ -1098,6 +1315,8 @@
           "strongs": "G1510",
           "lemma": "εἰμί",
           "taught": true,
+          "grammar": "Verb · present · active · indicative",
+          "grammarLesson": "L09",
           "lessonId": "L10",
           "lessonNumber": 10,
           "vocabRank": 8
@@ -1107,9 +1326,11 @@
           "strongs": "G3762",
           "lemma": "οὐδείς",
           "taught": true,
+          "grammar": "Adjective",
+          "grammarLesson": "L14",
           "lessonId": "L14",
           "lessonNumber": 14,
-          "vocabRank": 66
+          "vocabRank": 67
         }
       ]
     },
@@ -1121,6 +1342,8 @@
           "strongs": "G1437",
           "lemma": "ἐάν",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L23",
           "lessonNumber": 23,
           "vocabRank": 53
@@ -1130,6 +1353,8 @@
           "strongs": "G2036",
           "lemma": "ἔπω, ἐρῶ, εἶπον",
           "taught": true,
+          "grammar": "Verb · 2nd aorist · active · subjunctive",
+          "grammarLesson": "L23",
           "lessonId": "L20",
           "lessonNumber": 20,
           "vocabRank": 19
@@ -1139,6 +1364,8 @@
           "strongs": "G3754G",
           "lemma": "ὅτι",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 15
@@ -1148,6 +1375,8 @@
           "strongs": "G2842",
           "lemma": "κοινωνία",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L24",
           "lessonNumber": 24
         },
@@ -1156,6 +1385,8 @@
           "strongs": "G2192",
           "lemma": "ἔχω",
           "taught": true,
+          "grammar": "Verb · present · active · indicative",
+          "grammarLesson": "L09",
           "lessonId": "L09",
           "lessonNumber": 9,
           "vocabRank": 24
@@ -1165,15 +1396,19 @@
           "strongs": "G3326",
           "lemma": "μετά",
           "taught": true,
+          "grammar": "Preposition",
+          "grammarLesson": "L05",
           "lessonId": "L12",
           "lessonNumber": 12,
-          "vocabRank": 42
+          "vocabRank": 41
         },
         {
           "index": 6,
           "strongs": "G0846",
           "lemma": "αὐτός",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 3
@@ -1183,6 +1418,8 @@
           "strongs": "G2532",
           "lemma": "καί",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 2
@@ -1192,6 +1429,8 @@
           "strongs": "G1722",
           "lemma": "ἐν",
           "taught": true,
+          "grammar": "Preposition",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 6
@@ -1201,6 +1440,8 @@
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -1210,6 +1451,8 @@
           "strongs": "G4655",
           "lemma": "σκότος",
           "taught": false,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "note": "help shown"
         },
         {
@@ -1217,6 +1460,8 @@
           "strongs": "G4043",
           "lemma": "περιπατέω",
           "taught": true,
+          "grammar": "Verb · present · active · subjunctive",
+          "grammarLesson": "L23",
           "lessonId": "L24",
           "lessonNumber": 24
         },
@@ -1225,6 +1470,8 @@
           "strongs": "G5574",
           "lemma": "ψεύδομαι",
           "taught": false,
+          "grammar": "Verb · present · middle or passive deponent · indicative",
+          "grammarLesson": "L17",
           "note": "help shown"
         },
         {
@@ -1232,6 +1479,8 @@
           "strongs": "G2532",
           "lemma": "καί",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 2
@@ -1241,6 +1490,8 @@
           "strongs": "G3756",
           "lemma": "οὐ",
           "taught": true,
+          "grammar": "Negative Particle",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 10
@@ -1250,15 +1501,19 @@
           "strongs": "G4160G",
           "lemma": "ποιέω",
           "taught": true,
+          "grammar": "Verb · present · active · indicative",
+          "grammarLesson": "L09",
           "lessonId": "L16",
           "lessonNumber": 16,
-          "vocabRank": 33
+          "vocabRank": 32
         },
         {
           "index": 16,
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -1268,6 +1523,8 @@
           "strongs": "G0225",
           "lemma": "ἀλήθεια",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L24",
           "lessonNumber": 24
         }
@@ -1281,6 +1538,8 @@
           "strongs": "G1437",
           "lemma": "ἐάν",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L23",
           "lessonNumber": 23,
           "vocabRank": 53
@@ -1290,6 +1549,8 @@
           "strongs": "G1161",
           "lemma": "δέ",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 5
@@ -1299,6 +1560,8 @@
           "strongs": "G1722",
           "lemma": "ἐν",
           "taught": true,
+          "grammar": "Preposition",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 6
@@ -1308,6 +1571,8 @@
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -1317,6 +1582,8 @@
           "strongs": "G5457",
           "lemma": "φῶς",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L24",
           "lessonNumber": 24
         },
@@ -1325,6 +1592,8 @@
           "strongs": "G4043",
           "lemma": "περιπατέω",
           "taught": true,
+          "grammar": "Verb · present · active · subjunctive",
+          "grammarLesson": "L23",
           "lessonId": "L24",
           "lessonNumber": 24
         },
@@ -1333,15 +1602,19 @@
           "strongs": "G5613",
           "lemma": "ὡς",
           "taught": true,
+          "grammar": "Particle or Disjunctive",
+          "grammarLesson": "L13",
           "lessonId": "L13",
           "lessonNumber": 13,
-          "vocabRank": 39
+          "vocabRank": 38
         },
         {
           "index": 7,
           "strongs": "G0846",
           "lemma": "αὐτός",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 3
@@ -1351,6 +1624,8 @@
           "strongs": "G1510",
           "lemma": "εἰμί",
           "taught": true,
+          "grammar": "Verb · present · active · indicative",
+          "grammarLesson": "L09",
           "lessonId": "L10",
           "lessonNumber": 10,
           "vocabRank": 8
@@ -1360,6 +1635,8 @@
           "strongs": "G1722",
           "lemma": "ἐν",
           "taught": true,
+          "grammar": "Preposition",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 6
@@ -1369,6 +1646,8 @@
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -1378,6 +1657,8 @@
           "strongs": "G5457",
           "lemma": "φῶς",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L24",
           "lessonNumber": 24
         },
@@ -1386,6 +1667,8 @@
           "strongs": "G2842",
           "lemma": "κοινωνία",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L24",
           "lessonNumber": 24
         },
@@ -1394,6 +1677,8 @@
           "strongs": "G2192",
           "lemma": "ἔχω",
           "taught": true,
+          "grammar": "Verb · present · active · indicative",
+          "grammarLesson": "L09",
           "lessonId": "L09",
           "lessonNumber": 9,
           "vocabRank": 24
@@ -1403,15 +1688,19 @@
           "strongs": "G3326",
           "lemma": "μετά",
           "taught": true,
+          "grammar": "Preposition",
+          "grammarLesson": "L05",
           "lessonId": "L12",
           "lessonNumber": 12,
-          "vocabRank": 42
+          "vocabRank": 41
         },
         {
           "index": 15,
           "strongs": "G0240",
           "lemma": "ἀλλήλων",
           "taught": false,
+          "grammar": "Reciprocal pronoun",
+          "grammarLesson": "L15",
           "note": "help shown"
         },
         {
@@ -1419,6 +1708,8 @@
           "strongs": "G2532",
           "lemma": "καί",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 2
@@ -1428,6 +1719,8 @@
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -1437,6 +1730,8 @@
           "strongs": "G0129G",
           "lemma": "αἷμα",
           "taught": false,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "note": "help shown"
         },
         {
@@ -1444,6 +1739,8 @@
           "strongs": "G2424G",
           "lemma": "Ἰησοῦς",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 20
@@ -1453,6 +1750,8 @@
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -1462,15 +1761,19 @@
           "strongs": "G5207",
           "lemma": "υἱός",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L06",
           "lessonNumber": 6,
-          "vocabRank": 48
+          "vocabRank": 47
         },
         {
           "index": 22,
           "strongs": "G0846",
           "lemma": "αὐτός",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 3
@@ -1480,6 +1783,8 @@
           "strongs": "G2511",
           "lemma": "καθαρίζω",
           "taught": true,
+          "grammar": "Verb · present · active · indicative",
+          "grammarLesson": "L09",
           "lessonId": "L24",
           "lessonNumber": 24
         },
@@ -1488,6 +1793,8 @@
           "strongs": "G3165",
           "lemma": "ἐγώ",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 7
@@ -1497,15 +1804,19 @@
           "strongs": "G0575",
           "lemma": "ἀπό",
           "taught": true,
+          "grammar": "Preposition",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
-          "vocabRank": 30
+          "vocabRank": 29
         },
         {
           "index": 26,
           "strongs": "G3956",
           "lemma": "πᾶς",
           "taught": true,
+          "grammar": "Adjective",
+          "grammarLesson": "L14",
           "lessonId": "L14",
           "lessonNumber": 14,
           "vocabRank": 16
@@ -1515,9 +1826,11 @@
           "strongs": "G0266",
           "lemma": "ἁμαρτία",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L08",
           "lessonNumber": 8,
-          "vocabRank": 92
+          "vocabRank": 93
         }
       ]
     },
@@ -1529,6 +1842,8 @@
           "strongs": "G1437",
           "lemma": "ἐάν",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L23",
           "lessonNumber": 23,
           "vocabRank": 53
@@ -1538,6 +1853,8 @@
           "strongs": "G2036",
           "lemma": "ἔπω, ἐρῶ, εἶπον",
           "taught": true,
+          "grammar": "Verb · 2nd aorist · active · subjunctive",
+          "grammarLesson": "L23",
           "lessonId": "L20",
           "lessonNumber": 20,
           "vocabRank": 19
@@ -1547,6 +1864,8 @@
           "strongs": "G3754G",
           "lemma": "ὅτι",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 15
@@ -1556,15 +1875,19 @@
           "strongs": "G0266",
           "lemma": "ἁμαρτία",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L08",
           "lessonNumber": 8,
-          "vocabRank": 92
+          "vocabRank": 93
         },
         {
           "index": 4,
           "strongs": "G3756",
           "lemma": "οὐ",
           "taught": true,
+          "grammar": "Negative Particle",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 10
@@ -1574,6 +1897,8 @@
           "strongs": "G2192",
           "lemma": "ἔχω",
           "taught": true,
+          "grammar": "Verb · present · active · indicative",
+          "grammarLesson": "L09",
           "lessonId": "L09",
           "lessonNumber": 9,
           "vocabRank": 24
@@ -1583,6 +1908,8 @@
           "strongs": "G1438",
           "lemma": "ἑαυτοῦ",
           "taught": true,
+          "grammar": "Reflexive pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 56
@@ -1592,6 +1919,8 @@
           "strongs": "G4105",
           "lemma": "πλανάω",
           "taught": false,
+          "grammar": "Verb · present · active · indicative",
+          "grammarLesson": "L09",
           "note": "help shown"
         },
         {
@@ -1599,6 +1928,8 @@
           "strongs": "G2532",
           "lemma": "καί",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 2
@@ -1608,6 +1939,8 @@
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -1617,6 +1950,8 @@
           "strongs": "G0225",
           "lemma": "ἀλήθεια",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L24",
           "lessonNumber": 24
         },
@@ -1625,6 +1960,8 @@
           "strongs": "G3756",
           "lemma": "οὐ",
           "taught": true,
+          "grammar": "Negative Particle",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 10
@@ -1634,6 +1971,8 @@
           "strongs": "G1510",
           "lemma": "εἰμί",
           "taught": true,
+          "grammar": "Verb · present · active · indicative",
+          "grammarLesson": "L09",
           "lessonId": "L10",
           "lessonNumber": 10,
           "vocabRank": 8
@@ -1643,6 +1982,8 @@
           "strongs": "G1722",
           "lemma": "ἐν",
           "taught": true,
+          "grammar": "Preposition",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 6
@@ -1652,6 +1993,8 @@
           "strongs": "G3165",
           "lemma": "ἐγώ",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 7
@@ -1666,6 +2009,8 @@
           "strongs": "G1437",
           "lemma": "ἐάν",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L23",
           "lessonNumber": 23,
           "vocabRank": 53
@@ -1675,6 +2020,8 @@
           "strongs": "G3670",
           "lemma": "ὁμολογέω",
           "taught": false,
+          "grammar": "Verb · present · active · subjunctive",
+          "grammarLesson": "L23",
           "note": "help shown"
         },
         {
@@ -1682,6 +2029,8 @@
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -1691,15 +2040,19 @@
           "strongs": "G0266",
           "lemma": "ἁμαρτία",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L08",
           "lessonNumber": 8,
-          "vocabRank": 92
+          "vocabRank": 93
         },
         {
           "index": 4,
           "strongs": "G3165",
           "lemma": "ἐγώ",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 7
@@ -1709,6 +2062,8 @@
           "strongs": "G4103",
           "lemma": "πιστός",
           "taught": false,
+          "grammar": "Adjective",
+          "grammarLesson": "L14",
           "note": "help shown"
         },
         {
@@ -1716,6 +2071,8 @@
           "strongs": "G1510",
           "lemma": "εἰμί",
           "taught": true,
+          "grammar": "Verb · present · active · indicative",
+          "grammarLesson": "L09",
           "lessonId": "L10",
           "lessonNumber": 10,
           "vocabRank": 8
@@ -1725,6 +2082,8 @@
           "strongs": "G2532",
           "lemma": "καί",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 2
@@ -1734,6 +2093,8 @@
           "strongs": "G1342",
           "lemma": "δίκαιος",
           "taught": false,
+          "grammar": "Adjective",
+          "grammarLesson": "L14",
           "note": "help shown"
         },
         {
@@ -1741,6 +2102,8 @@
           "strongs": "G2443",
           "lemma": "ἵνα",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L23",
           "lessonNumber": 23,
           "vocabRank": 27
@@ -1750,15 +2113,19 @@
           "strongs": "G0863H",
           "lemma": "ἀφίημι",
           "taught": true,
+          "grammar": "Verb · 2nd aorist · active · subjunctive",
+          "grammarLesson": "L23",
           "lessonId": "L21",
           "lessonNumber": 21,
-          "vocabRank": 118
+          "vocabRank": 119
         },
         {
           "index": 11,
           "strongs": "G3165",
           "lemma": "ἐγώ",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 7
@@ -1768,6 +2135,8 @@
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -1777,15 +2146,19 @@
           "strongs": "G0266",
           "lemma": "ἁμαρτία",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L08",
           "lessonNumber": 8,
-          "vocabRank": 92
+          "vocabRank": 93
         },
         {
           "index": 14,
           "strongs": "G2532",
           "lemma": "καί",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 2
@@ -1795,6 +2168,8 @@
           "strongs": "G2511",
           "lemma": "καθαρίζω",
           "taught": true,
+          "grammar": "Verb · aorist · active · subjunctive",
+          "grammarLesson": "L23",
           "lessonId": "L24",
           "lessonNumber": 24
         },
@@ -1803,6 +2178,8 @@
           "strongs": "G3165",
           "lemma": "ἐγώ",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 7
@@ -1812,15 +2189,19 @@
           "strongs": "G0575",
           "lemma": "ἀπό",
           "taught": true,
+          "grammar": "Preposition",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
-          "vocabRank": 30
+          "vocabRank": 29
         },
         {
           "index": 18,
           "strongs": "G3956",
           "lemma": "πᾶς",
           "taught": true,
+          "grammar": "Adjective",
+          "grammarLesson": "L14",
           "lessonId": "L14",
           "lessonNumber": 14,
           "vocabRank": 16
@@ -1830,6 +2211,8 @@
           "strongs": "G0093",
           "lemma": "ἀδικία",
           "taught": false,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "note": "help shown"
         }
       ]
@@ -1842,6 +2225,8 @@
           "strongs": "G1437",
           "lemma": "ἐάν",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L23",
           "lessonNumber": 23,
           "vocabRank": 53
@@ -1851,6 +2236,8 @@
           "strongs": "G2036",
           "lemma": "ἔπω, ἐρῶ, εἶπον",
           "taught": true,
+          "grammar": "Verb · 2nd aorist · active · subjunctive",
+          "grammarLesson": "L23",
           "lessonId": "L20",
           "lessonNumber": 20,
           "vocabRank": 19
@@ -1860,6 +2247,8 @@
           "strongs": "G3754G",
           "lemma": "ὅτι",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 15
@@ -1869,6 +2258,8 @@
           "strongs": "G3756",
           "lemma": "οὐ",
           "taught": true,
+          "grammar": "Negative Particle",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 10
@@ -1878,6 +2269,8 @@
           "strongs": "G0264",
           "lemma": "ἁμαρτάνω",
           "taught": false,
+          "grammar": "Verb · perfect · active · indicative",
+          "grammarLesson": "L22",
           "note": "help shown"
         },
         {
@@ -1885,6 +2278,8 @@
           "strongs": "G5583",
           "lemma": "ψεύστης",
           "taught": false,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "note": "help shown"
         },
         {
@@ -1892,15 +2287,19 @@
           "strongs": "G4160G",
           "lemma": "ποιέω",
           "taught": true,
+          "grammar": "Verb · present · active · indicative",
+          "grammarLesson": "L09",
           "lessonId": "L16",
           "lessonNumber": 16,
-          "vocabRank": 33
+          "vocabRank": 32
         },
         {
           "index": 7,
           "strongs": "G0846",
           "lemma": "αὐτός",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 3
@@ -1910,6 +2309,8 @@
           "strongs": "G2532",
           "lemma": "καί",
           "taught": true,
+          "grammar": "Conjunction",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 2
@@ -1919,6 +2320,8 @@
           "strongs": "G3588",
           "lemma": "ὁ",
           "taught": true,
+          "grammar": "Definite article",
+          "grammarLesson": "L07",
           "lessonId": "L07",
           "lessonNumber": 7,
           "vocabRank": 1
@@ -1928,6 +2331,8 @@
           "strongs": "G3056",
           "lemma": "λόγος",
           "taught": true,
+          "grammar": "Noun",
+          "grammarLesson": "L05",
           "lessonId": "L06",
           "lessonNumber": 6,
           "vocabRank": 55
@@ -1937,6 +2342,8 @@
           "strongs": "G0846",
           "lemma": "αὐτός",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 3
@@ -1946,6 +2353,8 @@
           "strongs": "G3756",
           "lemma": "οὐ",
           "taught": true,
+          "grammar": "Negative Particle",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 10
@@ -1955,6 +2364,8 @@
           "strongs": "G1510",
           "lemma": "εἰμί",
           "taught": true,
+          "grammar": "Verb · present · active · indicative",
+          "grammarLesson": "L09",
           "lessonId": "L10",
           "lessonNumber": 10,
           "vocabRank": 8
@@ -1964,6 +2375,8 @@
           "strongs": "G1722",
           "lemma": "ἐν",
           "taught": true,
+          "grammar": "Preposition",
+          "grammarLesson": "L05",
           "lessonId": "L05",
           "lessonNumber": 5,
           "vocabRank": 6
@@ -1973,6 +2386,8 @@
           "strongs": "G3165",
           "lemma": "ἐγώ",
           "taught": true,
+          "grammar": "Personal pronoun",
+          "grammarLesson": "L11",
           "lessonId": "L11",
           "lessonNumber": 11,
           "vocabRank": 7

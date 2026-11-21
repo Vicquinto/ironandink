@@ -1,0 +1,35 @@
+{
+  "note": "Hand-written. Course display only, merged into vocab.json by scripts/build-greek-course.js. Keys are course word keys (vocab.json key); the data lemma stays on each entry for linking to orig/. displayLemma = the standard textbook dictionary form; courseGloss = a beginner's gloss where the lexicon gloss would mislead. All Greek NFC; the script checks every Greek word here against orig/nt.",
+  "entries": {
+    "πορεύω": { "displayLemma": "πορεύομαι", "displayNote": "deponent: middle/passive forms, active meaning", "courseGloss": "to go, travel" },
+    "ἀποκρίνω": { "displayLemma": "ἀποκρίνομαι", "displayNote": "deponent: middle/passive forms, active meaning" },
+    "ἔπω, ἐρῶ, εἶπον": { "displayLemma": "εἶπον", "displayNote": "used as the aorist of λέγω, \"I said\"" },
+    "οὕτω, οὕτως": { "displayLemma": "οὕτως" },
+    "ὅς, ἥ": { "displayLemma": "ὅς, ἥ, ὅ", "courseGloss": "who, which, that" },
+    "εἶδον": { "displayNote": "used as the aorist of ὁράω, \"I saw\"", "courseGloss": "I saw" },
+    "οἶδα": { "displayNote": "perfect in form, present in meaning", "courseGloss": "I know" },
+
+    "δέ": { "courseGloss": "but, and (never first in its clause)" },
+    "εἰς": { "courseGloss": "into, to" },
+    "οὐ": { "courseGloss": "not" },
+    "αὐτός": { "courseGloss": "he, she, it; self; same" },
+    "ἐγώ": { "courseGloss": "I; (plural) we" },
+    "ἔχω": { "courseGloss": "to have" },
+    "γίνομαι": { "courseGloss": "to become, happen, be" },
+    "τίς": { "courseGloss": "who? what? which?" },
+    "τις": { "courseGloss": "someone, something, a certain" },
+    "ἑαυτοῦ": { "courseGloss": "himself, herself, itself; (plural) themselves" },
+    "πιστεύω": { "courseGloss": "to believe, trust" },
+    "λαμβάνω": { "courseGloss": "to take, receive" },
+    "μέν": { "courseGloss": "on the one hand (often left untranslated)" },
+    "ἄν": { "courseGloss": "particle of possibility: -ever, would (often left untranslated)" },
+    "ἔθνος": { "courseGloss": "nation; (plural) the Gentiles" },
+    "ἐγείρω": { "courseGloss": "to raise; (passive) to rise" },
+    "ἀφίημι": { "courseGloss": "to forgive, release, leave" },
+    "ἀνήρ": { "courseGloss": "man, husband" },
+    "γυνή": { "courseGloss": "woman, wife" },
+    "μένω": { "courseGloss": "to remain, abide" },
+    "κοινωνία": { "courseGloss": "fellowship, participation" },
+    "καθαρίζω": { "courseGloss": "to cleanse" }
+  }
+}

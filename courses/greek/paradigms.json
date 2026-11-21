@@ -3017,6 +3017,126 @@
         }
       ],
       "note": "1 John 1:4: ἵνα … ᾖ."
+    },
+    {
+      "id": "eipon-2aor-subj",
+      "lemma": "ἔπω, ἐρῶ, εἶπον",
+      "strongs": "G2036",
+      "lessonId": "L23",
+      "title": "Second aorist active subjunctive: (if) I say (recognition)",
+      "kind": "verb",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "1st person",
+          "cells": [
+            {
+              "form": "εἴπω",
+              "parse": "Verb · 2nd aorist · active · subjunctive · 1st person · singular",
+              "cellLabel": "1st sg."
+            },
+            {
+              "form": "εἴπωμεν",
+              "parse": "Verb · 2nd aorist · active · subjunctive · 1st person · plural",
+              "cellLabel": "1st pl."
+            }
+          ]
+        },
+        {
+          "label": "2nd person",
+          "cells": [
+            {
+              "form": "εἴπῃς",
+              "parse": "Verb · 2nd aorist · active · subjunctive · 2nd person · singular",
+              "cellLabel": "2nd sg."
+            },
+            {
+              "form": "εἴπητε",
+              "parse": "Verb · 2nd aorist · active · subjunctive · 2nd person · plural",
+              "cellLabel": "2nd pl."
+            }
+          ]
+        },
+        {
+          "label": "3rd person",
+          "cells": [
+            {
+              "form": "εἴπῃ",
+              "parse": "Verb · 2nd aorist · active · subjunctive · 3rd person · singular",
+              "cellLabel": "3rd sg."
+            },
+            {
+              "form": "εἴπωσι(ν)",
+              "parse": "Verb · 2nd aorist · active · subjunctive · 3rd person · plural",
+              "cellLabel": "3rd pl."
+            }
+          ]
+        }
+      ],
+      "note": "The aorist stem (eip-) without an augment, plus the subjunctive endings. 1 John 1:6, 1:8, 1:10: ἐὰν εἴπωμεν, \"if we say\". ἀφῇ (1:9) is the same tense and mood of the ‑μι verb ἀφίημι."
+    },
+    {
+      "id": "pisteuo-aor-subj",
+      "lemma": "πιστεύω",
+      "strongs": "G4100",
+      "lessonId": "L23",
+      "title": "First aorist active subjunctive: (if) I believe (recognition)",
+      "kind": "verb",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "1st person",
+          "cells": [
+            {
+              "form": "πιστεύσω",
+              "parse": "Verb · aorist · active · subjunctive · 1st person · singular",
+              "cellLabel": "1st sg."
+            },
+            {
+              "form": "πιστεύσωμεν",
+              "parse": "Verb · aorist · active · subjunctive · 1st person · plural",
+              "cellLabel": "1st pl."
+            }
+          ]
+        },
+        {
+          "label": "2nd person",
+          "cells": [
+            {
+              "form": "πιστεύσῃς",
+              "parse": "Verb · aorist · active · subjunctive · 2nd person · singular",
+              "cellLabel": "2nd sg."
+            },
+            {
+              "form": "πιστεύσητε",
+              "parse": "Verb · aorist · active · subjunctive · 2nd person · plural",
+              "cellLabel": "2nd pl."
+            }
+          ]
+        },
+        {
+          "label": "3rd person",
+          "cells": [
+            {
+              "form": "πιστεύσῃ",
+              "parse": "Verb · aorist · active · subjunctive · 3rd person · singular",
+              "cellLabel": "3rd sg."
+            },
+            {
+              "form": "πιστεύσωσι(ν)",
+              "parse": "Verb · aorist · active · subjunctive · 3rd person · plural",
+              "cellLabel": "3rd pl."
+            }
+          ]
+        }
+      ],
+      "note": "The aorist σ with no augment, plus the subjunctive endings. καθαρίσῃ (1 John 1:9) is this form. The 1st singular is spelled like the future indicative."
     }
   ]
 }
