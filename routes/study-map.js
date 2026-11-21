@@ -4,6 +4,7 @@ const path    = require('path');
 const { requireAuth, renderLayout } = require('./layout');
 const { escapeHtml } = require('../lib/html');
 const { inProgressList, continueHref } = require('../lib/teacher-progress');
+const { dashboardRows: languageRows } = require('../lib/languages');
 const {
   AREAS, BOOKS, OT_COUNT, getMap, groupStudies, displayPassage, pickRevisit, dismissRevisit,
   isCompleted, lastTouched,
@@ -432,6 +433,17 @@ function currentlyStudying(userId, entries) {
   return Array.from(rows.values()).sort((a, b) => b.activity - a.activity);
 }
 
+// A language course in progress (lib/languages.js dashboardRows): one row,
+// "Greek · Lesson N: <title> · Continue", plus " · N words to review · Review"
+// when review words are due. Listed first, outside the SNAP_MAX study cap.
+function languageRowHtml(r) {
+  const review = r.due
+    ? ` &#183; ${r.due} word${r.due === 1 ? '' : 's'} to review &#183; <a href="${escapeHtml(r.reviewHref)}">Review</a>`
+    : '';
+  return `
+          <li class="sm-snap-lang"><a href="${escapeHtml(r.href)}">${escapeHtml(r.name)} &#183; Lesson ${r.number}: ${escapeHtml(r.title)}</a><div class="sm-snap-row-sub"><a href="${escapeHtml(r.href)}">Continue</a>${review}</div></li>`;
+}
+
 function studyingRowHtml(r) {
   // Own studies open in the Library reader; shared ones in the Community
   // reader (public/js/community.js openStudyFromAddress).
@@ -463,8 +475,10 @@ function renderDashboardSnapshot(userId) {
   const seeAll = extras.length
     ? `<a class="sm-snap-more" href="/library?view=${extras.some(r => r.lesson || r.check) ? 'in-progress' : 'studying'}">See all in your Library &#8594;</a>`
     : '';
-  const recent = studying.length
-    ? `<ul class="sm-snap-recent">${studying.map(studyingRowHtml).join('')}
+  let langRows = [];
+  try { langRows = languageRows(userId); } catch (err) { console.error('[study-map] languages:', err.message); }
+  const recent = (studying.length || langRows.length)
+    ? `<ul class="sm-snap-recent">${langRows.map(languageRowHtml).join('')}${studying.map(studyingRowHtml).join('')}
         </ul>${seeAll}`
     : entries.length
       ? '<p class="sm-snap-empty">Nothing in progress right now &#8212; <a href="/study">start a new study</a> or revisit one from your <a href="/study-map">Study Map</a>.</p>'

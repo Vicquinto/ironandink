@@ -3448,118 +3448,30 @@
       });
   }
 
-  function origDetailRow(dl, label, value, lang, dir) {
-    if (!value) return;
-    var dt = document.createElement('dt');
-    dt.textContent = label;
-    var dd = document.createElement('dd');
-    dd.textContent = value;
-    if (lang) { dd.lang = lang; dd.dir = dir; dd.className = 'ucp-orig-script'; }
-    dl.appendChild(dt);
-    dl.appendChild(dd);
-  }
-
+  // The word cards themselves are the shared component in orig-words.js (also
+  // used by the Languages lesson pages); this tab adds the "possible match"
+  // tint and routes "Explain this word" into this panel's Explore conversation.
   function renderOriginal(body, data, extraNote) {
-    var greek = data.language === 'greek';
-    var lang  = greek ? 'grc' : 'he';
-    var dir   = data.direction === 'rtl' ? 'rtl' : 'ltr';
-    var langName = greek ? 'Greek' : 'Hebrew';
+    if (!window.IronInkOrigWords) {
+      origMessage(body, 'Original-language data unavailable.', true);
+      return;
+    }
     // The tint compares glosses with the highlighted ENGLISH words — only when
     // the panel is grounded on a highlight.
     var hl = ucpGrounded ? origStems(ucpSelection) : {};
     var hasHl = Object.keys(hl).length > 0;
-
-    var wrap = document.createElement('div');
-    wrap.className = 'ucp-orig';
-    if (extraNote) origMessage(wrap, extraNote, false);
-
-    (data.verses || []).forEach(function (v) {
-      var sec = document.createElement('section');
-      sec.className = 'ucp-orig-verse';
-      var h = document.createElement('h4');
-      h.className = 'ucp-orig-ref';
-      h.textContent = v.ref + ' — ' + langName;
-      sec.appendChild(h);
-      if (!v.words || !v.words.length) {
-        origMessage(sec, v.note || 'No original-language data for this verse.', false);
-        wrap.appendChild(sec);
-        return;
-      }
-      var row = document.createElement('div');
-      row.className = 'ucp-orig-words';
-      row.dir = dir;
-      var detail = document.createElement('div');
-      detail.className = 'ucp-orig-detail';
-      detail.style.display = 'none';
-
-      v.words.forEach(function (w, idx) {
-        var card = document.createElement('button');
-        card.type = 'button';
-        card.className = 'ucp-orig-word';
-        var ow = document.createElement('span');
-        ow.className = 'ucp-orig-w ucp-orig-script';
-        ow.lang = lang; ow.dir = dir;
-        ow.textContent = w.w;
-        var tr = document.createElement('span');
-        tr.className = 'ucp-orig-t';
-        tr.dir = 'ltr';
-        tr.textContent = w.t || '';
-        var gl = document.createElement('span');
-        gl.className = 'ucp-orig-g';
-        gl.dir = 'ltr';
-        gl.textContent = w.g || '';
-        card.appendChild(ow); card.appendChild(tr); card.appendChild(gl);
-        if (hasHl) {
-          var hit = String(w.g || '').split(/[^A-Za-z']+/).some(function (gw) {
-            var s = origStem(gw.replace(/'s$/i, ''));
-            return s.length >= 3 && ORIG_STOP.indexOf(gw.toLowerCase()) === -1 && hl[s];
-          });
-          if (hit) { card.classList.add('ucp-orig-match'); card.title = 'possible match'; }
-        }
-        card.setAttribute('aria-label', (w.t || '') + ' — ' + (w.g || '') + (card.title ? ' (possible match)' : ''));
-        card.addEventListener('click', function () {
-          var open = card.classList.contains('ucp-orig-active');
-          row.querySelectorAll('.ucp-orig-active').forEach(function (c) { c.classList.remove('ucp-orig-active'); });
-          if (open) { detail.style.display = 'none'; return; }
-          card.classList.add('ucp-orig-active');
-          showOriginalDetail(detail, data, v, idx, w, lang, dir);
+    var wrap = window.IronInkOrigWords.render(data, {
+      extraNote: extraNote,
+      tint: hasHl ? function (w) {
+        return String(w.g || '').split(/[^A-Za-z']+/).some(function (gw) {
+          var s = origStem(gw.replace(/'s$/i, ''));
+          return s.length >= 3 && ORIG_STOP.indexOf(gw.toLowerCase()) === -1 && hl[s];
         });
-        row.appendChild(card);
-      });
-      sec.appendChild(row);
-      sec.appendChild(detail);
-      wrap.appendChild(sec);
+      } : null,
+      onExplain: function (pos, ref, w) { ucpExplainWord(pos, ref, w); },
     });
     body.appendChild(wrap);
     body.appendChild(origAttribution());
-  }
-
-  function showOriginalDetail(detail, data, v, idx, w, lang, dir) {
-    detail.textContent = '';
-    var big = document.createElement('div');
-    big.className = 'ucp-orig-detail-word ucp-orig-script';
-    big.lang = lang; big.dir = dir;
-    big.textContent = w.w;
-    detail.appendChild(big);
-    var dl = document.createElement('dl');
-    dl.className = 'ucp-orig-dl';
-    origDetailRow(dl, 'Transliteration', w.t);
-    origDetailRow(dl, 'Dictionary form', w.l, lang, dir);
-    if (w.lt) origDetailRow(dl, 'Pronounced', w.lt);
-    origDetailRow(dl, 'Strong’s', w.s);
-    origDetailRow(dl, 'Gloss here', w.g);
-    origDetailRow(dl, 'Grammar', w.gram);
-    origDetailRow(dl, 'Lexicon', [w.lg, w.def].filter(Boolean).join(' — '));
-    detail.appendChild(dl);
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'ucp-orig-explain';
-    btn.textContent = 'Explain this word';
-    btn.addEventListener('click', function () {
-      ucpExplainWord({ book: data.book, chapter: data.chapter, verse: v.verse, index: idx }, v.ref, w);
-    });
-    detail.appendChild(btn);
-    detail.style.display = '';
   }
 
   // Explain this word → an Explore question about it. The server rebuilds the
@@ -3568,6 +3480,15 @@
     ucpOrigWord = pos;
     ucpRunAsk('Explain ' + w.w + (w.t ? ' (' + w.t + ')' : '') + ' in ' + ref + '.');
   }
+
+  // For pages outside the panel (the Languages lesson pages): open this panel
+  // and ask about one word, with its verified data, exactly as the Original
+  // tab's "Explain this word" does.
+  window.IronInkPanel = window.IronInkPanel || {};
+  window.IronInkPanel.explainWord = function (pos, ref, w) {
+    openUnifiedUngrounded();
+    ucpExplainWord(pos, ref, w);
+  };
 
   // Add Note — leave a note without a lookup. The trigger decides anchoring for
   // the whole panel session: a GROUNDED panel always anchors to the original

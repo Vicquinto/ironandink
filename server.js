@@ -35,6 +35,7 @@ const dedicationRoutes    = require('./routes/dedication');
 const helpRoutes          = require('./routes/help');
 const whatsNewRoutes      = require('./routes/whats-new');
 const teacherRoutes       = require('./routes/teacher');
+const languagesRoutes     = require('./routes/languages');
 const plannerRoutes       = require('./routes/planner');
 const { router: studyMapRoutes } = require('./routes/study-map');
 const { router: studyIdeasRoutes } = require('./routes/study-ideas');
@@ -367,6 +368,23 @@ SCRIPTURE: The SCRIPTURE QUOTATION RULE above is absolute here too. Point to ver
 
 PROGRESS TAGS (required): End EVERY reply with a final line containing only [[at:N]], where N is the number from LESSON STATE of the section you are teaching (0 only for the opening overview before section 1 begins). When a reply finishes teaching a section, put [[done:N]] on its own line just before the [[at:N]] line. The reader never sees these tags.`;
 
+// ─── Languages: the Greek lesson teacher ────────────────────────────────────
+// routes/languages.js, layered AFTER the Core prompt. The lesson's materials and
+// the learner's learned words follow in their own (cached) system block, built
+// on the server from courses/greek/ and orig/ (lib/languages.js).
+const IRON_INK_GREEK_TEACHER_PROMPT = `GREEK TEACHER MODE:
+You are teaching one adult believer to read the Greek New Testament, one short lesson at a time, using the LESSON MATERIALS below. The learner sees the same materials beside this conversation. Your aim is that they can recognize and read what this lesson covers, on the way to reading 1 John 1 in Greek.
+
+HOW YOU TEACH:
+- Teach this lesson's goals in order, in small steps: explain one thing, show it in the materials or an example verse, then stop at a natural place so the learner can tap Continue or ask a question. Two to four short paragraphs per reply. No headings or bullet lists unless you are setting out a short table of forms that appears in the materials.
+- Be plain, warm and encouraging. Assume no prior knowledge of Greek or of grammar terms; define every grammar term the first time you use it, with an English comparison.
+- Pronunciation is Erasmian, as given in the materials. Describe sounds with the sound-alikes and transliterations from the materials.
+- Show real Greek from the example verses. Point to words by their position or transliteration.
+- Connect to earlier lessons when it helps, using the LEARNED WORDS list. Preview later material in a sentence at most.
+- When every goal of the lesson has been taught, say so, suggest the learner review the words and try Quiz me, and tell them they can tap Mark lesson complete when they feel ready.
+
+GREEK TEXT RULE (absolute): Every Greek word, form, ending or parsing you write must appear in the LESSON MATERIALS or the LEARNED WORDS list. Never write Greek from memory, never invent a form, and never correct the materials. If you need a form that is not in the materials, describe it in English or transliteration instead. Transliterations may be written freely.`;
+
 // ─── Plan a Study ───────────────────────────────────────────────────────────
 // The Study page's planning conversation (routes/planner.js), layered AFTER the
 // Core prompt so the Reformed frame and Scripture rule hold. The route appends
@@ -455,7 +473,7 @@ Write nothing else — no study sections, background, or extra questions. A stor
 // ──────────────────────────────────────────────────────────────────────────
 
 // Expose prompts to all route handlers via req.app.locals.prompts
-app.locals.prompts = { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT, IRON_INK_EXPLORE_PROMPT, IRON_INK_HISTORICAL_PROMPT, IRON_INK_SCRIPTURE_PROMPT, IRON_INK_OPEN_PROMPT, IRON_INK_PEOPLE_PROMPT, IRON_INK_PATHWAY_PROMPT, IRON_INK_BOOK_PROMPT, IRON_INK_DIALOGUE_PROMPT, IRON_INK_WRITING_PROMPT, IRON_INK_TEACHER_PROMPT, IRON_INK_PLANNER_PROMPT, IRON_INK_STYLE_WARMER, IRON_INK_STYLE_ENCOURAGING, IRON_INK_STYLE_CONVICTION, IRON_INK_STYLE_RESPOND, IRON_INK_STYLE_LYRICAL, IRON_INK_STYLE_PLAINER, children: IRON_INK_CHILDREN_STORY_PROMPT };
+app.locals.prompts = { IRON_INK_CORE_PROMPT, IRON_INK_STUDY_PROMPT, IRON_INK_EXPLORE_PROMPT, IRON_INK_HISTORICAL_PROMPT, IRON_INK_SCRIPTURE_PROMPT, IRON_INK_OPEN_PROMPT, IRON_INK_PEOPLE_PROMPT, IRON_INK_PATHWAY_PROMPT, IRON_INK_BOOK_PROMPT, IRON_INK_DIALOGUE_PROMPT, IRON_INK_WRITING_PROMPT, IRON_INK_TEACHER_PROMPT, IRON_INK_GREEK_TEACHER_PROMPT, IRON_INK_PLANNER_PROMPT, IRON_INK_STYLE_WARMER, IRON_INK_STYLE_ENCOURAGING, IRON_INK_STYLE_CONVICTION, IRON_INK_STYLE_RESPOND, IRON_INK_STYLE_LYRICAL, IRON_INK_STYLE_PLAINER, children: IRON_INK_CHILDREN_STORY_PROMPT };
 
 // Stripe webhook needs the RAW request body for signature verification, so it MUST
 // be registered BEFORE the global express.json() parser. Dormant while dark: the
@@ -572,6 +590,7 @@ app.use('/', dedicationRoutes);
 app.use('/', helpRoutes);
 app.use('/', whatsNewRoutes);
 app.use('/', teacherRoutes);
+app.use('/', languagesRoutes);
 app.use('/', plannerRoutes);
 app.use('/', studyMapRoutes);
 app.use('/', studyIdeasRoutes);

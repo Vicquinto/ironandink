@@ -109,6 +109,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '', head =
     { id: 'library',     label: 'Library',     href: '/library',     icon: '&#8801;' },
     { id: 'study-map',   label: 'Study Map',   href: '/study-map',   icon: '&#10023;' },
     { id: 'scripture',   label: 'Scripture',   href: '/scripture',   icon: '&#10070;' },
+    { id: 'languages',   label: 'Languages',   href: '/languages',   icon: '&#945;' },
     { id: 'selah',       label: 'Selah',       href: '/selah',       icon: '&#10022;' },
     { id: 'community',   label: 'Community',   href: '/community',   icon: '&#9678;' },
     { id: 'messages',    label: 'Messages',    href: '/messages',    icon: '&#9743;' },
@@ -154,7 +155,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '', head =
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/shepherd.css">
   ${head}
-  <link rel="stylesheet" href="/css/styles.css?v=107">
+  <link rel="stylesheet" href="/css/styles.css?v=108">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>

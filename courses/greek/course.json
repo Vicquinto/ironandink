@@ -3,7 +3,7 @@
   "title": "Biblical Greek: from the alphabet to 1 John 1",
   "pronunciation": "Erasmian",
   "text": "NA27 words as built in orig/nt (STEPBible TAGNT)",
-  "note": "Hand-written lesson plan. vocab lists Strong's numbers from vocab.json (each lemma taught once, in frequency order within a lesson). exampleRefs are references only: verse text is read from orig/ at display time. Greek is typed here only in the few goals and notes that name a form (L11, L23), and the build script checks each such word against orig/nt; paradigm tables live in paradigms.json, the alphabet in alphabet.json. recognition = grammar a lesson covers by a note rather than a table (used by the grammar coverage check).",
+  "note": "Hand-written lesson plan. vocab lists Strong's numbers from vocab.json (each lemma taught once, in frequency order within a lesson). exampleRefs are references only: verse text is read from orig/ at display time. Greek is typed here only in the few goals and notes that name a form (L11, L23), and the build script checks each such word against orig/nt; paradigm tables live in paradigms.json, the alphabet in alphabet.json. alphabetSections (alphabet lessons) = which parts of alphabet.json the lesson shows: letters [from, to] by order and named parts. recognition = grammar a lesson covers by a note rather than a table (used by the grammar coverage check).",
   "files": {
     "vocab": "vocab.json",
     "alphabet": "alphabet.json",
@@ -26,6 +26,12 @@
       "vocab": [],
       "grammarTopic": null,
       "paradigmIds": [],
+      "alphabetSections": {
+        "letters": [
+          1,
+          12
+        ]
+      },
       "exampleRefs": [
         "John 11:35",
         "John 1:1"
@@ -45,6 +51,12 @@
       "vocab": [],
       "grammarTopic": null,
       "paradigmIds": [],
+      "alphabetSections": {
+        "letters": [
+          13,
+          24
+        ]
+      },
       "exampleRefs": [
         "1 John 1:5",
         "John 11:35"
@@ -66,6 +78,13 @@
       "vocab": [],
       "grammarTopic": "Vowels, diphthongs, breathings, iota subscript",
       "paradigmIds": [],
+      "alphabetSections": {
+        "parts": [
+          "diphthongs",
+          "breathings",
+          "iotaSubscript"
+        ]
+      },
       "exampleRefs": [
         "1 John 1:1",
         "1 John 1:5"
@@ -87,6 +106,13 @@
       "vocab": [],
       "grammarTopic": "Accents (recognition), punctuation, elision, movable nu",
       "paradigmIds": [],
+      "alphabetSections": {
+        "parts": [
+          "accents",
+          "otherMarks",
+          "punctuation"
+        ]
+      },
       "exampleRefs": [
         "John 1:21",
         "1 John 1:1",

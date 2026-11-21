@@ -979,3 +979,6 @@ router.post('/api/teacher/review', requireAuth, aiLimiter, async (req, res) => {
 });
 
 module.exports = router;
+// The reader-control instructions, for the Languages lesson teacher
+// (routes/languages.js reuses "Say that more simply" word for word).
+module.exports.TEACHER_ACTIONS = ACTIONS;
