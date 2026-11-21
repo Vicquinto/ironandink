@@ -2148,6 +2148,13 @@
     // anchored at the start of this highlight. Never in Scripture.
     var bmCtrl = (!ctx.inScripture && window.IronInkStudyBookmark) ? window.IronInkStudyBookmark.forNode(startNode) : null;
     ctx.bookmark = bmCtrl ? { ctrl: bmCtrl, node: startNode } : null;
+    // Original tab: the Bible reference this highlight belongs to, if any — the
+    // highlighted verse(s) on the Scripture page, or the verse quotation the
+    // highlight sits in inside a study. null → the tab offers a reference box.
+    ctx.origRef = scriptureAnchor
+      ? { book: scriptureAnchor.book, chapter: scriptureAnchor.chapter,
+          verseStart: scriptureAnchor.verseStart, verseEnd: scriptureAnchor.verseEnd }
+      : (ctx.inScripture ? null : quotationRefAt(anchorNode, emTarget ? null : range));
     upSelectedText = selText;
     // Capture which occurrence was highlighted now, while the selection is live.
     upOccurrence   = scriptureAnchor ? scriptureAnchor.occurrence : computeSelectionOccurrence(selText);
@@ -2790,6 +2797,8 @@
   var ucpLastPinned       = false;   // per-answer duplicate-pin guard
   var ucpScriptureAnchor  = null;    // chapter-note anchor when grounded in Scripture
   var ucpBookmark         = null;    // { ctrl, node } — a highlight in a study view with bookmarks
+  var ucpOrigRef          = null;    // { book, chapter, verseStart, verseEnd } the highlight belongs to
+  var ucpOrigWord         = null;    // { book, chapter, verse, index } — Explain-this-word data for Explore
 
   function buildUnifiedPanel() {
     var el = document.createElement('div');
@@ -2818,6 +2827,7 @@
         '<button class="ucp-define-btn">Define</button>' +
         '<button class="ucp-explore-btn">Explore</button>' +
         '<button class="ucp-verse-btn">Verse Lookup</button>' +
+        '<button class="ucp-orig-btn" title="The Hebrew or Greek behind this verse, word by word">Original</button>' +
         '<button class="ucp-note-btn">Add Note</button>' +
         '<button class="ucp-note-btn ucp-mark-btn" style="display:none;" title="Bookmark this spot — the study will offer to bring you back here">Mark my place</button>' +
       '</div>' +
@@ -2843,6 +2853,7 @@
     });
     el.querySelector('.ucp-define-btn').addEventListener('click', ucpDefine);
     el.querySelector('.ucp-verse-btn').addEventListener('click', ucpVerse);
+    el.querySelector('.ucp-orig-btn').addEventListener('click', ucpOriginal);
     el.querySelector('.ucp-explore-btn').addEventListener('click', ucpExplore);
     el.querySelector('.ucp-note-btn').addEventListener('click', ucpAddNote);
     el.querySelector('.ucp-mark-btn').addEventListener('click', ucpMarkPlace);
@@ -2902,6 +2913,7 @@
     ucpLastPin          = null;
     ucpLastPinned       = false;
     ucpPendingBroadcast = null;
+    ucpOrigWord         = null;   // a new conversation carries no word's data
     if (!ucpEl) return;
     ucpEl.querySelector('.ucp-thread').innerHTML       = '';
     ucpEl.querySelector('.ucp-input').value            = '';
@@ -2926,6 +2938,7 @@
     _inScripture  = !!(ctx && ctx.inScripture);
     ucpScriptureAnchor = (ctx && ctx.scriptureAnchor) || null;
     ucpBookmark = (ctx && ctx.bookmark) || null;
+    ucpOrigRef  = (ctx && ctx.origRef) || null;
 
     ucpResetConversation();
     ucpEl.querySelector('.ucp-context').style.display = '';
@@ -2949,6 +2962,7 @@
     _inScripture  = !!(ctx && ctx.inScripture);
     ucpScriptureAnchor = null;
     ucpBookmark        = null;   // Ctrl+Alt+T never marks a place
+    ucpOrigRef         = null;   // Original uses the typed reference (or its box)
 
     ucpResetConversation();
     ucpEl.querySelector('.ucp-context').style.display = 'none';
@@ -3219,6 +3233,342 @@
       });
   }
 
+  // ══ Original tab — the Hebrew / Greek behind a verse, word by word ══════════
+  // Every word, transliteration, gloss, parsing and definition comes from the
+  // STEPBible data on the server (lib/original.js) — never from the AI. All of
+  // it is set with textContent: original-language strings are data, not HTML.
+  var ORIG_MAX_VERSES = 10;
+  var ORIG_ATTRIB_URL = 'https://www.STEPBible.org';
+  var ORIG_CC_URL     = 'https://creativecommons.org/licenses/by/4.0/';
+  var origFontsLoaded = false;
+
+  // Noto Serif Hebrew (pointed Hebrew) and Noto Serif (polytonic Greek), from
+  // Google Fonts, loaded the first time the tab is used.
+  function origLoadFonts() {
+    if (origFontsLoaded) return;
+    origFontsLoaded = true;
+    var link = document.createElement('link');
+    link.rel  = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=Noto+Serif+Hebrew:wght@400;600&family=Noto+Serif:wght@400;600&display=swap';
+    document.head.appendChild(link);
+  }
+
+  var SUP_DIGITS = { '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9' };
+  function supNumbers(text) {
+    var out = [];
+    String(text || '').replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]+/g, function (run) {
+      out.push(parseInt(run.split('').map(function (c) { return SUP_DIGITS[c]; }).join(''), 10));
+      return run;
+    });
+    return out;
+  }
+
+  // "Romans 5:1" / "1 John 2:1-3" → { book, chapter, verseStart, verseEnd }.
+  // The book is checked by the server (same alias table as Verse Lookup).
+  function parseRefText(s) {
+    var m = String(s || '').trim().replace(/[‒–—―]/g, '-')
+      .match(/^((?:[1-3]\s?)?[A-Za-z][A-Za-z .]*?)\s+(\d+)\s*:\s*(\d+)(?:\s*-\s*(\d+))?$/);
+    if (!m) return null;
+    var a = parseInt(m[3], 10), b = m[4] ? parseInt(m[4], 10) : a;
+    if (b < a) return null;
+    return { book: m[1].trim(), chapter: parseInt(m[2], 10), verseStart: a, verseEnd: b };
+  }
+
+  // Inside a study, a highlight within a verse quotation knows its reference:
+  // block form  > “text” — Ref (NASB 1995)   (blockquote.guide-bq)
+  // inline form *“text”* — Ref               (<em> followed by " — Ref")
+  // Multi-verse quotations carry superscript verse numbers (lib/asv.js), which
+  // narrow the range to the verses the highlight actually covers.
+  var QUOTE_REF_END_RE = /—\s*((?:[1-3]\s?)?[A-Za-z][A-Za-z .]*?\s\d+\s*:\s*\d+(?:\s*[-–]\s*\d+)?)\s*(?:\([^)]*\))?\s*$/;
+  var QUOTE_REF_NEXT_RE = /^\s*—\s*((?:[1-3]\s?)?[A-Za-z][A-Za-z .]*?\s\d+\s*:\s*\d+(?:\s*[-–]\s*\d+)?)/;
+  function quotationRefAt(node, range) {
+    try {
+      var el = node && (node.nodeType === 3 ? node.parentElement : node);
+      if (!el || !el.closest) return null;
+      var container = null, refText = null, m;
+      var bq = el.closest('blockquote.guide-bq');
+      if (bq) {
+        m = (bq.textContent || '').match(QUOTE_REF_END_RE);
+        if (m) { container = bq; refText = m[1]; }
+      }
+      if (!container) {
+        var em = el.closest('em, i');
+        var next = em && em.nextSibling;
+        var after = next && next.nodeType === 3 ? next.nodeValue : '';
+        m = after.match(QUOTE_REF_NEXT_RE);
+        if (em && m && /^\s*“/.test(em.textContent || '')) { container = em; refText = m[1]; }
+      }
+      if (!container) return null;
+      var ref = parseRefText(refText);
+      if (!ref) return null;
+      if (ref.verseEnd > ref.verseStart && range && container.contains(range.startContainer)) {
+        var pre = document.createRange();
+        pre.setStart(container, 0);
+        pre.setEnd(range.startContainer, range.startOffset);
+        var before = supNumbers(pre.toString());
+        var inside = supNumbers(range.toString());
+        var vs = before.length ? before[before.length - 1] : ref.verseStart;
+        var ve = inside.length ? Math.max(vs, inside[inside.length - 1]) : vs;
+        if (vs >= ref.verseStart && ve <= ref.verseEnd) { ref.verseStart = vs; ref.verseEnd = ve; }
+      }
+      return ref;
+    } catch (e) { return null; }
+  }
+
+  function origRefLabel(r) {
+    return r.book + ' ' + r.chapter + ':' + r.verseStart + (r.verseEnd > r.verseStart ? '-' + r.verseEnd : '');
+  }
+
+  // English words of the highlight, reduced to simple stems, for the
+  // "possible match" tint. Short function words are left out.
+  var ORIG_STOP = ('the and of to a an in is be for with that this his her its they them their you your ' +
+    'our we us he she him it i me my o on at by as so then there not but from all have has had who whom ' +
+    'which what will shall was were are am been do did does no nor or if into unto upon out up one').split(' ');
+  function origStem(w) {
+    w = String(w || '').toLowerCase().replace(/[^a-z]/g, '');
+    if (w.length > 5) w = w.replace(/(ings|ing|edly|ed|es|ly|eth|est)$/, '');
+    else if (w.length > 3) w = w.replace(/s$/, '');
+    return w;
+  }
+  function origStems(text) {
+    var set = {};
+    String(text || '').split(/[^A-Za-z']+/).forEach(function (w) {
+      var lw = w.toLowerCase().replace(/'s$/, '');
+      if (!lw || ORIG_STOP.indexOf(lw) !== -1) return;
+      var s = origStem(lw);
+      if (s.length >= 3) set[s] = true;
+    });
+    return set;
+  }
+
+  function origAttribution() {
+    var p = document.createElement('p');
+    p.className = 'ucp-orig-attrib';
+    p.appendChild(document.createTextNode('Original-language data: '));
+    var a = document.createElement('a');
+    a.href = ORIG_ATTRIB_URL; a.target = '_blank'; a.rel = 'noopener noreferrer';
+    a.textContent = 'STEP Bible (STEPBible.org)';
+    p.appendChild(a);
+    p.appendChild(document.createTextNode(', based on work at Tyndale House, Cambridge. '));
+    var cc = document.createElement('a');
+    cc.href = ORIG_CC_URL; cc.target = '_blank'; cc.rel = 'noopener noreferrer';
+    cc.textContent = 'CC BY 4.0';
+    p.appendChild(cc);
+    p.appendChild(document.createTextNode('.'));
+    return p;
+  }
+
+  function origMessage(body, text, isError) {
+    var p = document.createElement('p');
+    p.className = 'ucp-orig-msg' + (isError ? ' ucp-orig-error' : '');
+    p.textContent = text;
+    body.appendChild(p);
+  }
+
+  // The panel's answer footer belongs to the latest Define/Verse/Explore answer;
+  // word cards are not pinned (this stage), so an Original result hides it.
+  function origHideFooter() {
+    ucpLastPin = null;
+    ucpPendingBroadcast = null;
+    ucpEl.querySelector('.ucp-footer').style.display = 'none';
+  }
+
+  function ucpOriginal() {
+    ucpClearNotice();
+    origLoadFonts();
+    if (ucpGrounded && ucpOrigRef) {
+      var r = ucpOrigRef;
+      var vEnd = Math.min(r.verseEnd, r.verseStart + ORIG_MAX_VERSES - 1);
+      var url = '/api/original/' + encodeURIComponent(r.book) + '/' + encodeURIComponent(r.chapter) + '/' +
+        r.verseStart + (vEnd > r.verseStart ? '-' + vEnd : '');
+      ucpFetchOriginal(url, null, vEnd < r.verseEnd ? 'Showing the first ' + ORIG_MAX_VERSES + ' verses.' : '');
+      return;
+    }
+    // Ctrl+Alt+T: a typed reference is the target, as for Verse Lookup.
+    var typed = ucpGrounded ? '' : ucpEl.querySelector('.ucp-input').value.trim();
+    if (typed) { ucpFetchOriginal('/api/original?ref=' + encodeURIComponent(typed.slice(0, 80)), null, ''); return; }
+    ucpOriginalRefBox();
+  }
+
+  // No reference to go on — a small reference box inside the answer.
+  function ucpOriginalRefBox() {
+    origHideFooter();
+    var msg  = ucpAppendMsg('assistant', '', 'Original');
+    var body = msg.querySelector('.ucp-msg-body');
+    var form = document.createElement('form');
+    form.className = 'ucp-orig-refbox';
+    var label = document.createElement('label');
+    label.className = 'ucp-orig-msg';
+    label.textContent = 'Type a reference, e.g. Romans 5:1';
+    var input = document.createElement('input');
+    input.type = 'text'; input.className = 'ucp-orig-refinput'; input.maxLength = 80;
+    input.setAttribute('aria-label', 'Bible reference');
+    input.placeholder = 'Romans 5:1';
+    var btn = document.createElement('button');
+    btn.type = 'submit'; btn.className = 'ucp-orig-refbtn'; btn.textContent = 'Show';
+    label.appendChild(input);
+    form.appendChild(label);
+    form.appendChild(btn);
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var ref = input.value.trim();
+      if (!ref) { input.focus(); return; }
+      ucpFetchOriginal('/api/original?ref=' + encodeURIComponent(ref.slice(0, 80)), msg, '');
+    });
+    body.appendChild(form);
+    body.appendChild(origAttribution());
+    setTimeout(function () { input.focus(); }, 30);
+  }
+
+  function ucpFetchOriginal(url, msg, extraNote) {
+    origHideFooter();
+    if (!msg) msg = ucpAppendMsg('assistant', '', 'Original');
+    var body = msg.querySelector('.ucp-msg-body');
+    body.textContent = '';
+    var loading = document.createElement('span');
+    loading.className = 'up-loading';
+    loading.textContent = 'Looking up the original…';
+    body.appendChild(loading);
+    fetch(url, { headers: { 'Accept': 'application/json' } })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        body.textContent = '';
+        if (data && data.success) {
+          renderOriginal(body, data, extraNote);
+        } else {
+          origMessage(body, (data && (data.note || data.error)) || 'Original-language data unavailable.', !(data && data.note));
+          body.appendChild(origAttribution());
+        }
+        var t = ucpEl.querySelector('.ucp-thread'); t.scrollTop = t.scrollHeight;
+      })
+      .catch(function () {
+        body.textContent = '';
+        origMessage(body, 'Original-language data unavailable.', true);
+        body.appendChild(origAttribution());
+      });
+  }
+
+  function origDetailRow(dl, label, value, lang, dir) {
+    if (!value) return;
+    var dt = document.createElement('dt');
+    dt.textContent = label;
+    var dd = document.createElement('dd');
+    dd.textContent = value;
+    if (lang) { dd.lang = lang; dd.dir = dir; dd.className = 'ucp-orig-script'; }
+    dl.appendChild(dt);
+    dl.appendChild(dd);
+  }
+
+  function renderOriginal(body, data, extraNote) {
+    var greek = data.language === 'greek';
+    var lang  = greek ? 'grc' : 'he';
+    var dir   = data.direction === 'rtl' ? 'rtl' : 'ltr';
+    var langName = greek ? 'Greek' : 'Hebrew';
+    // The tint compares glosses with the highlighted ENGLISH words — only when
+    // the panel is grounded on a highlight.
+    var hl = ucpGrounded ? origStems(ucpSelection) : {};
+    var hasHl = Object.keys(hl).length > 0;
+
+    var wrap = document.createElement('div');
+    wrap.className = 'ucp-orig';
+    if (extraNote) origMessage(wrap, extraNote, false);
+
+    (data.verses || []).forEach(function (v) {
+      var sec = document.createElement('section');
+      sec.className = 'ucp-orig-verse';
+      var h = document.createElement('h4');
+      h.className = 'ucp-orig-ref';
+      h.textContent = v.ref + ' — ' + langName;
+      sec.appendChild(h);
+      if (!v.words || !v.words.length) {
+        origMessage(sec, v.note || 'No original-language data for this verse.', false);
+        wrap.appendChild(sec);
+        return;
+      }
+      var row = document.createElement('div');
+      row.className = 'ucp-orig-words';
+      row.dir = dir;
+      var detail = document.createElement('div');
+      detail.className = 'ucp-orig-detail';
+      detail.style.display = 'none';
+
+      v.words.forEach(function (w, idx) {
+        var card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'ucp-orig-word';
+        var ow = document.createElement('span');
+        ow.className = 'ucp-orig-w ucp-orig-script';
+        ow.lang = lang; ow.dir = dir;
+        ow.textContent = w.w;
+        var tr = document.createElement('span');
+        tr.className = 'ucp-orig-t';
+        tr.dir = 'ltr';
+        tr.textContent = w.t || '';
+        var gl = document.createElement('span');
+        gl.className = 'ucp-orig-g';
+        gl.dir = 'ltr';
+        gl.textContent = w.g || '';
+        card.appendChild(ow); card.appendChild(tr); card.appendChild(gl);
+        if (hasHl) {
+          var hit = String(w.g || '').split(/[^A-Za-z']+/).some(function (gw) {
+            var s = origStem(gw.replace(/'s$/i, ''));
+            return s.length >= 3 && ORIG_STOP.indexOf(gw.toLowerCase()) === -1 && hl[s];
+          });
+          if (hit) { card.classList.add('ucp-orig-match'); card.title = 'possible match'; }
+        }
+        card.setAttribute('aria-label', (w.t || '') + ' — ' + (w.g || '') + (card.title ? ' (possible match)' : ''));
+        card.addEventListener('click', function () {
+          var open = card.classList.contains('ucp-orig-active');
+          row.querySelectorAll('.ucp-orig-active').forEach(function (c) { c.classList.remove('ucp-orig-active'); });
+          if (open) { detail.style.display = 'none'; return; }
+          card.classList.add('ucp-orig-active');
+          showOriginalDetail(detail, data, v, idx, w, lang, dir);
+        });
+        row.appendChild(card);
+      });
+      sec.appendChild(row);
+      sec.appendChild(detail);
+      wrap.appendChild(sec);
+    });
+    body.appendChild(wrap);
+    body.appendChild(origAttribution());
+  }
+
+  function showOriginalDetail(detail, data, v, idx, w, lang, dir) {
+    detail.textContent = '';
+    var big = document.createElement('div');
+    big.className = 'ucp-orig-detail-word ucp-orig-script';
+    big.lang = lang; big.dir = dir;
+    big.textContent = w.w;
+    detail.appendChild(big);
+    var dl = document.createElement('dl');
+    dl.className = 'ucp-orig-dl';
+    origDetailRow(dl, 'Transliteration', w.t);
+    origDetailRow(dl, 'Dictionary form', w.l, lang, dir);
+    if (w.lt) origDetailRow(dl, 'Pronounced', w.lt);
+    origDetailRow(dl, 'Strong’s', w.s);
+    origDetailRow(dl, 'Gloss here', w.g);
+    origDetailRow(dl, 'Grammar', w.gram);
+    origDetailRow(dl, 'Lexicon', [w.lg, w.def].filter(Boolean).join(' — '));
+    detail.appendChild(dl);
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'ucp-orig-explain';
+    btn.textContent = 'Explain this word';
+    btn.addEventListener('click', function () {
+      ucpExplainWord({ book: data.book, chapter: data.chapter, verse: v.verse, index: idx }, v.ref, w);
+    });
+    detail.appendChild(btn);
+    detail.style.display = '';
+  }
+
+  // Explain this word → an Explore question about it. The server rebuilds the
+  // word's verified data from its position and adds the ORIGINAL LANGUAGE RULE.
+  function ucpExplainWord(pos, ref, w) {
+    ucpOrigWord = pos;
+    ucpRunAsk('Explain ' + w.w + (w.t ? ' (' + w.t + ')' : '') + ' in ' + ref + '.');
+  }
+
   // Add Note — leave a note without a lookup. The trigger decides anchoring for
   // the whole panel session: a GROUNDED panel always anchors to the original
   // selection, whether or not the input has text — typed text supplies the note
@@ -3380,7 +3730,10 @@
       // geo: a highlighted passage's Explore conversation gets map-aware answers
       // (places/roads it names are pinned under the answer). The ungrounded
       // Ctrl+Alt+T Ask panel does not.
-      body:    JSON.stringify({ history: ucpHistory, geo: ucpGrounded }),
+      // original: after "Explain this word", the word's position — the server
+      // rebuilds its verified data block from that (lib/original.js) for every
+      // turn of this conversation. Omitted (undefined) otherwise.
+      body:    JSON.stringify({ history: ucpHistory, geo: ucpGrounded, original: ucpOrigWord || undefined }),
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {

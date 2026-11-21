@@ -9,7 +9,7 @@ router.get('/copyright', (req, res) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Copyright &amp; Credits — Iron &amp; Ink</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/styles.css?v=106">
+  <link rel="stylesheet" href="/css/styles.css?v=107">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <style>
     body { font-family: 'EB Garamond', Georgia, serif; }
@@ -120,6 +120,22 @@ router.get('/copyright', (req, res) => {
         NASB verse is momentarily unavailable, the system silently falls back to the
         <strong>American Standard Version (ASV, 1901, public domain)</strong> so Scripture always displays;
         such verses are labeled ASV at the point of quotation.
+      </p>
+
+      <hr class="copy-rule">
+
+      <div class="copy-section-heading">Sources &mdash; Original-Language Data</div>
+      <p class="copy-body">
+        The Hebrew and Greek shown word by word in the highlight panel&rsquo;s Original tab &mdash; the
+        original words, transliterations, glosses, grammar, Strong&rsquo;s numbers and lexicon
+        definitions &mdash; come from <strong>STEP Bible</strong>
+        (<a href="https://www.STEPBible.org" target="_blank" rel="noopener">STEPBible.org</a>), based on
+        work at <strong>Tyndale House, Cambridge</strong>: the Translators Amalgamated Hebrew OT (TAHOT,
+        Leningrad codex), the Translators Amalgamated Greek NT (TAGNT), the Translators Brief lexicons of
+        Extended Strongs, and the Translators Expansions of Hebrew and Greek Morphology Codes. Licensed under
+        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>;
+        source: <a href="https://github.com/STEPBible/STEPBible-Data" target="_blank" rel="noopener">STEPBible-Data</a>.
+        Reformatted for this site; the data itself is unchanged.
       </p>
 
       <hr class="copy-rule">

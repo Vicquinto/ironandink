@@ -4701,7 +4701,8 @@ body {
 }
 .ucp-define-btn,
 .ucp-explore-btn,
-.ucp-verse-btn {
+.ucp-verse-btn,
+.ucp-orig-btn {
   flex: 0 0 auto;
   background: #5C1A28;
   border: none;
@@ -4715,12 +4716,14 @@ body {
   transition: background 0.12s;
 }
 .ucp-define-btn { border-radius: 4px 0 0 4px; }
-.ucp-verse-btn  { border-radius: 0 4px 4px 0; }
+.ucp-orig-btn   { border-radius: 0 4px 4px 0; }
 .ucp-explore-btn,
-.ucp-verse-btn { border-left: 1px solid rgba(232,217,184,0.30); }
+.ucp-verse-btn,
+.ucp-orig-btn { border-left: 1px solid rgba(232,217,184,0.30); }
 .ucp-define-btn:hover,
 .ucp-explore-btn:hover,
-.ucp-verse-btn:hover { background: #4A1520; }
+.ucp-verse-btn:hover,
+.ucp-orig-btn:hover { background: #4A1520; }
 
 /* Add Note — white outlined button set apart from the maroon lookup trio */
 .ucp-note-btn {
@@ -4739,6 +4742,107 @@ body {
   transition: background 0.12s, color 0.12s;
 }
 .ucp-note-btn:hover { background: #F1E6CC; color: #4A1520; }
+
+/* ── Original tab (Hebrew / Greek word by word) ─────────────────────────────
+   Reading text is em-based so the panel's A−/A/A+ scales the original words
+   too. Cards wrap (no horizontal scroll on phones); Hebrew rows run RTL. */
+.ucp-orig-script[lang="he"]  { font-family: 'Noto Serif Hebrew', 'SBL Hebrew', 'Times New Roman', serif; }
+.ucp-orig-script[lang="grc"] { font-family: 'Noto Serif', 'Gentium Plus', 'Times New Roman', serif; }
+.ucp-orig-verse + .ucp-orig-verse { margin-top: 0.9em; }
+.ucp-orig-ref {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 0.95em;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 0.4em;
+}
+.ucp-orig-words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35em;
+}
+.ucp-orig-word {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0.3em 0.45em;
+  background: rgba(232,217,184,0.55);
+  border: 1px solid rgba(160,132,92,0.35);
+  border-radius: 4px;
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  line-height: 1.25;
+  text-align: center;
+  transition: background 0.12s, border-color 0.12s;
+}
+.ucp-orig-word:hover { border-color: var(--warm-brown); }
+.ucp-orig-word.ucp-orig-match { background: rgba(92,26,40,0.10); border-color: rgba(92,26,40,0.35); }
+.ucp-orig-word.ucp-orig-active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.ucp-orig-w { font-size: 1.35em; color: var(--text); overflow-wrap: anywhere; }
+.ucp-orig-t { font-size: 0.72em; font-style: italic; color: var(--warm-brown); overflow-wrap: anywhere; }
+.ucp-orig-g { font-size: 0.72em; color: var(--warm-brown); opacity: 0.85; overflow-wrap: anywhere; }
+.ucp-orig-detail {
+  margin-top: 0.5em;
+  padding: 0.55em 0.7em;
+  background: rgba(232,217,184,0.6);
+  border: 1px solid rgba(160,132,92,0.3);
+  border-radius: 4px;
+}
+.ucp-orig-detail-word { font-size: 1.6em; color: var(--text); line-height: 1.3; }
+.ucp-orig-dl {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: 0.7em;
+  row-gap: 0.15em;
+  margin: 0.4em 0 0.55em;
+  font-size: 0.85em;
+  line-height: 1.45;
+}
+.ucp-orig-dl dt { color: var(--warm-brown); font-weight: 600; }
+.ucp-orig-dl dd { margin: 0; color: var(--text); overflow-wrap: anywhere; }
+.ucp-orig-dl dd.ucp-orig-script { font-size: 1.15em; }
+.ucp-orig-explain,
+.ucp-orig-refbtn {
+  background: var(--accent);
+  border: none;
+  border-radius: 4px;
+  color: var(--ink);
+  cursor: pointer;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+  padding: 4px 12px;
+}
+.ucp-orig-explain:hover,
+.ucp-orig-refbtn:hover { background: #4A1520; }
+.ucp-orig-msg { font-style: italic; color: var(--warm-brown); font-size: 0.92em; margin-bottom: 0.4em; }
+.ucp-orig-error { color: #5a0a0a; }
+.ucp-orig-refbox { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.4em; }
+.ucp-orig-refbox label { display: flex; flex-direction: column; gap: 0.25em; flex: 1 1 12em; margin: 0; }
+.ucp-orig-refinput {
+  font: inherit;
+  font-style: normal;
+  font-size: 0.95em;
+  color: var(--text);
+  background: #fff;
+  border: 1px solid rgba(160,132,92,0.5);
+  border-radius: 4px;
+  padding: 3px 7px;
+  min-width: 0;
+}
+.ucp-orig-attrib {
+  margin-top: 0.7em;
+  padding-top: 0.45em;
+  border-top: 1px solid rgba(107,66,38,0.2);
+  font-size: 0.72rem;
+  font-style: italic;
+  color: var(--warm-brown);
+  line-height: 1.4;
+}
+.ucp-orig-attrib a { color: var(--accent); }
 
 /* Inline empty-input notice (e.g. "Type a word to define.") */
 .ucp-notice {

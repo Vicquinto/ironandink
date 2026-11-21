@@ -10,6 +10,7 @@ const { deleteBookmarksForStudy } = require('./study-bookmarks');
 const { injectWithAttribution, resolve, NASB_ATTRIBUTION } = require('../lib/asv');
 const { takeGeneratedMap, deriveMap } = require('../lib/study-map');
 const geo = require('../lib/geo');
+const original = require('../lib/original');
 
 const router      = express.Router();
 const STUDIES_PATH = path.join(__dirname, '../data/studies.json');
@@ -167,7 +168,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=2"></script><script src="/js/study-bookmark.js?v=1"></script><script src="/js/teacher-entry.js?v=7"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/library.js?v=82"></script>',
+    scripts: '<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=2"></script><script src="/js/study-bookmark.js?v=1"></script><script src="/js/teacher-entry.js?v=7"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/library.js?v=83"></script>',
   }));
 });
 
@@ -456,6 +457,11 @@ router.post('/api/library/ask', requireAuth, async (req, res) => {
   // grounded) asks for map-aware answers. Every other caller — the Ask AI panel,
   // Study Chat — leaves it off and gets exactly what it always got.
   const geoMaps = req.body.geo === true;
+  // "Explain this word" (the Original tab): the client names a word by position
+  // only; the verified data block is rebuilt from orig/ (lib/original.js) and
+  // goes in the system prompt, hidden from the visible thread. The ORIGINAL
+  // LANGUAGE RULE is added only when that block is present.
+  const origBlock = req.body.original ? original.explainBlock(req.body.original) : null;
   const hasHistory = history && Array.isArray(history) && history.length > 0;
   if (!hasHistory && (!question || !String(question).trim())) {
     return res.status(400).json({ success: false, error: 'Question is required.' });
@@ -466,7 +472,8 @@ router.post('/api/library/ask', requireAuth, async (req, res) => {
     '\n\nYou are answering inline questions from a student reading a saved study guide. ' +
     'Be concise and precise — 2–4 sentences for quick questions, more thorough for follow-ups in a chat. ' +
     'Stay within the confessionally Reformed framework at all times.' +
-    (geoMaps ? '\n\n' + geo.GEO_RULE : '');
+    (geoMaps ? '\n\n' + geo.GEO_RULE : '') +
+    (origBlock ? '\n\n' + original.ORIGINAL_RULE + '\n\n' + origBlock.text : '');
 
   let messages;
   if (hasHistory) {
@@ -495,6 +502,15 @@ router.post('/api/library/ask', requireAuth, async (req, res) => {
     if (message.stop_reason === 'refusal' || !text) {
       console.error('Inline ask: no text returned — stop_reason:', message.stop_reason);
       return res.status(500).json({ success: false, error: 'Failed to get answer. Please try again.' });
+    }
+    // Monitoring only (the reply is never altered): log Hebrew/Greek the AI wrote
+    // that is not in the verified data block, so it can be watched in pm2.
+    if (origBlock) {
+      const stray = original.unverifiedRuns(text, origBlock);
+      if (stray.length) {
+        console.warn('[original] Explore reply for ' + origBlock.ref + ' (' + origBlock.word + ') has Hebrew/Greek not in the data block: ' +
+          stray.slice(0, 8).join(' ') + (stray.length > 8 ? ' (+' + (stray.length - 8) + ' more)' : ''));
+      }
     }
     // Map-aware answers: resolve {{place:...}} / {{road:...}} markers against the
     // gazetteer (plain names in the text, a map payload alongside).

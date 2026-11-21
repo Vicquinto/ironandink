@@ -43,3 +43,8 @@ data/*.backup-verse-numbers-*.json
 data/study_bookmarks.json
 sessions/
 .claude/launch.json
+
+# Original-language data (STEPBible) — 45 MB, built on the server by
+# scripts/build-original-data.js; never committed
+orig/
+orig.building/
