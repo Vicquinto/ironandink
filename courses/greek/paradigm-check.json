@@ -1,0 +1,6287 @@
+{
+  "generatedBy": "scripts/build-greek-course.js",
+  "rules": {
+    "attested-match": "the form occurs in orig/nt under the paradigm's lemma with a morph code whose description (minus any \"name:\" tag) equals the cell's parse",
+    "attested-other": "the form occurs, but not with that lemma + parse (seenAs lists what the data has; otherLemma = only under other lemmas) — check these",
+    "unattested": "the form does not occur in the NT",
+    "matching": "forms compared in Unicode NFC with grave read as acute and punctuation/elision marks dropped; if no exact hit, retried ignoring accents (how = \"ignoring accents\"); \"(ν)\" = movable nu, both spellings tried"
+  },
+  "summary": {
+    "attested-match": 310,
+    "attested-other": 5,
+    "unattested": 34
+  },
+  "cells": [
+    {
+      "paradigm": "article",
+      "cellLabel": "nom. sg. masc.",
+      "form": "ὁ",
+      "parse": "Definite article · nominative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "ὁ",
+      "how": "exact",
+      "occurrences": 2883,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-NSM",
+          "parse": "Definite article · nominative · singular · masculine",
+          "n": 2883
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "nom. sg. fem.",
+      "form": "ἡ",
+      "parse": "Definite article · nominative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "ἡ",
+      "how": "exact",
+      "occurrences": 966,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-NSF",
+          "parse": "Definite article · nominative · singular · feminine",
+          "n": 966
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "nom. sg. neut.",
+      "form": "τό",
+      "parse": "Definite article · nominative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "τό",
+      "how": "exact",
+      "occurrences": 596,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-NSN",
+          "parse": "Definite article · nominative · singular · neuter",
+          "n": 596
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "gen. sg. masc.",
+      "form": "τοῦ",
+      "parse": "Definite article · genitive · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "τοῦ",
+      "how": "exact",
+      "occurrences": 1917,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-GSM",
+          "parse": "Definite article · genitive · singular · masculine",
+          "n": 1917
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "gen. sg. fem.",
+      "form": "τῆς",
+      "parse": "Definite article · genitive · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "τῆς",
+      "how": "exact",
+      "occurrences": 1301,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-GSF",
+          "parse": "Definite article · genitive · singular · feminine",
+          "n": 1301
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "gen. sg. neut.",
+      "form": "τοῦ",
+      "parse": "Definite article · genitive · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "τοῦ",
+      "how": "exact",
+      "occurrences": 600,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-GSN",
+          "parse": "Definite article · genitive · singular · neuter",
+          "n": 600
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "dat. sg. masc.",
+      "form": "τῷ",
+      "parse": "Definite article · dative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "τῷ",
+      "how": "exact",
+      "occurrences": 828,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-DSM",
+          "parse": "Definite article · dative · singular · masculine",
+          "n": 828
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "dat. sg. fem.",
+      "form": "τῇ",
+      "parse": "Definite article · dative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "τῇ",
+      "how": "exact",
+      "occurrences": 878,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-DSF",
+          "parse": "Definite article · dative · singular · feminine",
+          "n": 878
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "dat. sg. neut.",
+      "form": "τῷ",
+      "parse": "Definite article · dative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "τῷ",
+      "how": "exact",
+      "occurrences": 411,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-DSN",
+          "parse": "Definite article · dative · singular · neuter",
+          "n": 411
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "acc. sg. masc.",
+      "form": "τόν",
+      "parse": "Definite article · accusative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "τόν",
+      "how": "exact",
+      "occurrences": 1580,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-ASM",
+          "parse": "Definite article · accusative · singular · masculine",
+          "n": 1580
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "acc. sg. fem.",
+      "form": "τήν",
+      "parse": "Definite article · accusative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "τήν",
+      "how": "exact",
+      "occurrences": 1528,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-ASF",
+          "parse": "Definite article · accusative · singular · feminine",
+          "n": 1528
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "acc. sg. neut.",
+      "form": "τό",
+      "parse": "Definite article · accusative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "τό",
+      "how": "exact",
+      "occurrences": 1093,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-ASN",
+          "parse": "Definite article · accusative · singular · neuter",
+          "n": 1093
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "nom. pl. masc.",
+      "form": "οἱ",
+      "parse": "Definite article · nominative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "οἱ",
+      "how": "exact",
+      "occurrences": 1077,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-NPM",
+          "parse": "Definite article · nominative · plural · masculine",
+          "n": 1077
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "nom. pl. fem.",
+      "form": "αἱ",
+      "parse": "Definite article · nominative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "αἱ",
+      "how": "exact",
+      "occurrences": 145,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-NPF",
+          "parse": "Definite article · nominative · plural · feminine",
+          "n": 145
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "nom. pl. neut.",
+      "form": "τά",
+      "parse": "Definite article · nominative · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "τά",
+      "how": "exact",
+      "occurrences": 217,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-NPN",
+          "parse": "Definite article · nominative · plural · neuter",
+          "n": 217
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "gen. pl. masc.",
+      "form": "τῶν",
+      "parse": "Definite article · genitive · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "τῶν",
+      "how": "exact",
+      "occurrences": 820,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-GPM",
+          "parse": "Definite article · genitive · plural · masculine",
+          "n": 820
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "gen. pl. fem.",
+      "form": "τῶν",
+      "parse": "Definite article · genitive · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "τῶν",
+      "how": "exact",
+      "occurrences": 139,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-GPF",
+          "parse": "Definite article · genitive · plural · feminine",
+          "n": 139
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "gen. pl. neut.",
+      "form": "τῶν",
+      "parse": "Definite article · genitive · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "τῶν",
+      "how": "exact",
+      "occurrences": 251,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-GPN",
+          "parse": "Definite article · genitive · plural · neuter",
+          "n": 251
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "dat. pl. masc.",
+      "form": "τοῖς",
+      "parse": "Definite article · dative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "τοῖς",
+      "how": "exact",
+      "occurrences": 458,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-DPM",
+          "parse": "Definite article · dative · plural · masculine",
+          "n": 458
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "dat. pl. fem.",
+      "form": "ταῖς",
+      "parse": "Definite article · dative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "ταῖς",
+      "how": "exact",
+      "occurrences": 203,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-DPF",
+          "parse": "Definite article · dative · plural · feminine",
+          "n": 203
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "dat. pl. neut.",
+      "form": "τοῖς",
+      "parse": "Definite article · dative · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "τοῖς",
+      "how": "exact",
+      "occurrences": 166,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-DPN",
+          "parse": "Definite article · dative · plural · neuter",
+          "n": 166
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "acc. pl. masc.",
+      "form": "τούς",
+      "parse": "Definite article · accusative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "τούς",
+      "how": "exact",
+      "occurrences": 730,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-APM",
+          "parse": "Definite article · accusative · plural · masculine",
+          "n": 730
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "acc. pl. fem.",
+      "form": "τάς",
+      "parse": "Definite article · accusative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "τάς",
+      "how": "exact",
+      "occurrences": 340,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-APF",
+          "parse": "Definite article · accusative · plural · feminine",
+          "n": 340
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "acc. pl. neut.",
+      "form": "τά",
+      "parse": "Definite article · accusative · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "τά",
+      "how": "exact",
+      "occurrences": 616,
+      "seenAs": [
+        {
+          "lemma": "ὁ",
+          "code": "T-APN",
+          "parse": "Definite article · accusative · plural · neuter",
+          "n": 616
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "logos",
+      "cellLabel": "nom. sg.",
+      "form": "λόγος",
+      "parse": "Noun · nominative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "λόγος",
+      "how": "exact",
+      "occurrences": 68,
+      "seenAs": [
+        {
+          "lemma": "λόγος",
+          "code": "N-NSM",
+          "parse": "Noun · nominative · singular · masculine",
+          "n": 68
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "logos",
+      "cellLabel": "nom. pl.",
+      "form": "λόγοι",
+      "parse": "Noun · nominative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "λόγοι",
+      "how": "exact",
+      "occurrences": 10,
+      "seenAs": [
+        {
+          "lemma": "λόγος",
+          "code": "N-NPM",
+          "parse": "Noun · nominative · plural · masculine",
+          "n": 10
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "logos",
+      "cellLabel": "gen. sg.",
+      "form": "λόγου",
+      "parse": "Noun · genitive · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "λόγου",
+      "how": "exact",
+      "occurrences": 27,
+      "seenAs": [
+        {
+          "lemma": "λόγος",
+          "code": "N-GSM",
+          "parse": "Noun · genitive · singular · masculine",
+          "n": 27
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "logos",
+      "cellLabel": "gen. pl.",
+      "form": "λόγων",
+      "parse": "Noun · genitive · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "λόγων",
+      "how": "exact",
+      "occurrences": 10,
+      "seenAs": [
+        {
+          "lemma": "λόγος",
+          "code": "N-GPM",
+          "parse": "Noun · genitive · plural · masculine",
+          "n": 10
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "logos",
+      "cellLabel": "dat. sg.",
+      "form": "λόγῳ",
+      "parse": "Noun · dative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "λόγῳ",
+      "how": "exact",
+      "occurrences": 45,
+      "seenAs": [
+        {
+          "lemma": "λόγος",
+          "code": "N-DSM",
+          "parse": "Noun · dative · singular · masculine",
+          "n": 45
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "logos",
+      "cellLabel": "dat. pl.",
+      "form": "λόγοις",
+      "parse": "Noun · dative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "λόγοις",
+      "how": "exact",
+      "occurrences": 17,
+      "seenAs": [
+        {
+          "lemma": "λόγος",
+          "code": "N-DPM",
+          "parse": "Noun · dative · plural · masculine",
+          "n": 17
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "logos",
+      "cellLabel": "acc. sg.",
+      "form": "λόγον",
+      "parse": "Noun · accusative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "λόγον",
+      "how": "exact",
+      "occurrences": 130,
+      "seenAs": [
+        {
+          "lemma": "λόγος",
+          "code": "N-ASM",
+          "parse": "Noun · accusative · singular · masculine",
+          "n": 130
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "logos",
+      "cellLabel": "acc. pl.",
+      "form": "λόγους",
+      "parse": "Noun · accusative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "λόγους",
+      "how": "exact",
+      "occurrences": 23,
+      "seenAs": [
+        {
+          "lemma": "λόγος",
+          "code": "N-APM",
+          "parse": "Noun · accusative · plural · masculine",
+          "n": 23
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "ergon",
+      "cellLabel": "nom. sg.",
+      "form": "ἔργον",
+      "parse": "Noun · nominative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "ἔργον",
+      "how": "exact",
+      "occurrences": 7,
+      "seenAs": [
+        {
+          "lemma": "ἔργον",
+          "code": "N-NSN",
+          "parse": "Noun · nominative · singular · neuter",
+          "n": 7
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "ergon",
+      "cellLabel": "nom. pl.",
+      "form": "ἔργα",
+      "parse": "Noun · nominative · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "ἔργα",
+      "how": "exact",
+      "occurrences": 15,
+      "seenAs": [
+        {
+          "lemma": "ἔργον",
+          "code": "N-NPN",
+          "parse": "Noun · nominative · plural · neuter",
+          "n": 15
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "ergon",
+      "cellLabel": "gen. sg.",
+      "form": "ἔργου",
+      "parse": "Noun · genitive · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "ἔργου",
+      "how": "exact",
+      "occurrences": 8,
+      "seenAs": [
+        {
+          "lemma": "ἔργον",
+          "code": "N-GSN",
+          "parse": "Noun · genitive · singular · neuter",
+          "n": 8
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "ergon",
+      "cellLabel": "gen. pl.",
+      "form": "ἔργων",
+      "parse": "Noun · genitive · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "ἔργων",
+      "how": "exact",
+      "occurrences": 42,
+      "seenAs": [
+        {
+          "lemma": "ἔργον",
+          "code": "N-GPN",
+          "parse": "Noun · genitive · plural · neuter",
+          "n": 42
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "ergon",
+      "cellLabel": "dat. sg.",
+      "form": "ἔργῳ",
+      "parse": "Noun · dative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "ἔργῳ",
+      "how": "exact",
+      "occurrences": 10,
+      "seenAs": [
+        {
+          "lemma": "ἔργον",
+          "code": "N-DSN",
+          "parse": "Noun · dative · singular · neuter",
+          "n": 10
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "ergon",
+      "cellLabel": "dat. pl.",
+      "form": "ἔργοις",
+      "parse": "Noun · dative · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "ἔργοις",
+      "how": "exact",
+      "occurrences": 13,
+      "seenAs": [
+        {
+          "lemma": "ἔργον",
+          "code": "N-DPN",
+          "parse": "Noun · dative · plural · neuter",
+          "n": 13
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "ergon",
+      "cellLabel": "acc. sg.",
+      "form": "ἔργον",
+      "parse": "Noun · accusative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "ἔργον",
+      "how": "exact",
+      "occurrences": 31,
+      "seenAs": [
+        {
+          "lemma": "ἔργον",
+          "code": "N-ASN",
+          "parse": "Noun · accusative · singular · neuter",
+          "n": 31
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "ergon",
+      "cellLabel": "acc. pl.",
+      "form": "ἔργα",
+      "parse": "Noun · accusative · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "ἔργα",
+      "how": "exact",
+      "occurrences": 43,
+      "seenAs": [
+        {
+          "lemma": "ἔργον",
+          "code": "N-APN",
+          "parse": "Noun · accusative · plural · neuter",
+          "n": 43
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "phone",
+      "cellLabel": "nom. sg.",
+      "form": "φωνή",
+      "parse": "Noun · nominative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "φωνή",
+      "how": "exact",
+      "occurrences": 32,
+      "seenAs": [
+        {
+          "lemma": "φωνή",
+          "code": "N-NSF",
+          "parse": "Noun · nominative · singular · feminine",
+          "n": 32
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "phone",
+      "cellLabel": "nom. pl.",
+      "form": "φωναί",
+      "parse": "Noun · nominative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "φωναί",
+      "how": "exact",
+      "occurrences": 6,
+      "seenAs": [
+        {
+          "lemma": "φωνή",
+          "code": "N-NPF",
+          "parse": "Noun · nominative · plural · feminine",
+          "n": 6
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "phone",
+      "cellLabel": "gen. sg.",
+      "form": "φωνῆς",
+      "parse": "Noun · genitive · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "φωνῆς",
+      "how": "exact",
+      "occurrences": 23,
+      "seenAs": [
+        {
+          "lemma": "φωνή",
+          "code": "N-GSF",
+          "parse": "Noun · genitive · singular · feminine",
+          "n": 23
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "phone",
+      "cellLabel": "gen. pl.",
+      "form": "φωνῶν",
+      "parse": "Noun · genitive · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "φωνῶν",
+      "how": "exact",
+      "occurrences": 2,
+      "seenAs": [
+        {
+          "lemma": "φωνή",
+          "code": "N-GPF",
+          "parse": "Noun · genitive · plural · feminine",
+          "n": 2
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "phone",
+      "cellLabel": "dat. sg.",
+      "form": "φωνῇ",
+      "parse": "Noun · dative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "φωνῇ",
+      "how": "exact",
+      "occurrences": 32,
+      "seenAs": [
+        {
+          "lemma": "φωνή",
+          "code": "N-DSF",
+          "parse": "Noun · dative · singular · feminine",
+          "n": 32
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "phone",
+      "cellLabel": "dat. pl.",
+      "form": "φωναῖς",
+      "parse": "Noun · dative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "φωναῖς",
+      "how": "exact",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "lemma": "φωνή",
+          "code": "N-DPF",
+          "parse": "Noun · dative · plural · feminine",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "phone",
+      "cellLabel": "acc. sg.",
+      "form": "φωνήν",
+      "parse": "Noun · accusative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "φωνήν",
+      "how": "exact",
+      "occurrences": 40,
+      "seenAs": [
+        {
+          "lemma": "φωνή",
+          "code": "N-ASF",
+          "parse": "Noun · accusative · singular · feminine",
+          "n": 40
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "phone",
+      "cellLabel": "acc. pl.",
+      "form": "φωνάς",
+      "parse": "Noun · accusative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "φωνάς",
+      "how": "exact",
+      "occurrences": 2,
+      "seenAs": [
+        {
+          "lemma": "φωνή",
+          "code": "N-APF",
+          "parse": "Noun · accusative · plural · feminine",
+          "n": 2
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hemera",
+      "cellLabel": "nom. sg.",
+      "form": "ἡμέρα",
+      "parse": "Noun · nominative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "ἡμέρα",
+      "how": "exact",
+      "occurrences": 23,
+      "seenAs": [
+        {
+          "lemma": "ἡμέρα",
+          "code": "N-NSF",
+          "parse": "Noun · nominative · singular · feminine",
+          "n": 23
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hemera",
+      "cellLabel": "nom. pl.",
+      "form": "ἡμέραι",
+      "parse": "Noun · nominative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "ἡμέραι",
+      "how": "exact",
+      "occurrences": 26,
+      "seenAs": [
+        {
+          "lemma": "ἡμέρα",
+          "code": "N-NPF",
+          "parse": "Noun · nominative · plural · feminine",
+          "n": 26
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hemera",
+      "cellLabel": "gen. sg.",
+      "form": "ἡμέρας",
+      "parse": "Noun · genitive · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "ἡμέρας",
+      "how": "exact",
+      "occurrences": 59,
+      "seenAs": [
+        {
+          "lemma": "ἡμέρα",
+          "code": "N-GSF",
+          "parse": "Noun · genitive · singular · feminine",
+          "n": 59
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hemera",
+      "cellLabel": "gen. pl.",
+      "form": "ἡμερῶν",
+      "parse": "Noun · genitive · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "ἡμερῶν",
+      "how": "exact",
+      "occurrences": 22,
+      "seenAs": [
+        {
+          "lemma": "ἡμέρα",
+          "code": "N-GPF",
+          "parse": "Noun · genitive · plural · feminine",
+          "n": 22
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hemera",
+      "cellLabel": "dat. sg.",
+      "form": "ἡμέρᾳ",
+      "parse": "Noun · dative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "ἡμέρᾳ",
+      "how": "exact",
+      "occurrences": 84,
+      "seenAs": [
+        {
+          "lemma": "ἡμέρα",
+          "code": "N-DSF",
+          "parse": "Noun · dative · singular · feminine",
+          "n": 84
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hemera",
+      "cellLabel": "dat. pl.",
+      "form": "ἡμέραις",
+      "parse": "Noun · dative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "ἡμέραις",
+      "how": "exact",
+      "occurrences": 49,
+      "seenAs": [
+        {
+          "lemma": "ἡμέρα",
+          "code": "N-DPF",
+          "parse": "Noun · dative · plural · feminine",
+          "n": 49
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hemera",
+      "cellLabel": "acc. sg.",
+      "form": "ἡμέραν",
+      "parse": "Noun · accusative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "ἡμέραν",
+      "how": "exact",
+      "occurrences": 58,
+      "seenAs": [
+        {
+          "lemma": "ἡμέρα",
+          "code": "N-ASF",
+          "parse": "Noun · accusative · singular · feminine",
+          "n": 58
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hemera",
+      "cellLabel": "acc. pl.",
+      "form": "ἡμέρας",
+      "parse": "Noun · accusative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "ἡμέρας",
+      "how": "exact",
+      "occurrences": 68,
+      "seenAs": [
+        {
+          "lemma": "ἡμέρα",
+          "code": "N-APF",
+          "parse": "Noun · accusative · plural · feminine",
+          "n": 68
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "doxa",
+      "cellLabel": "nom. sg.",
+      "form": "δόξα",
+      "parse": "Noun · nominative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "δόξα",
+      "how": "exact",
+      "occurrences": 36,
+      "seenAs": [
+        {
+          "lemma": "δόξα",
+          "code": "N-NSF",
+          "parse": "Noun · nominative · singular · feminine",
+          "n": 36
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "doxa",
+      "cellLabel": "nom. pl.",
+      "form": "δόξαι",
+      "parse": "Noun · nominative · plural · feminine",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "doxa",
+      "cellLabel": "gen. sg.",
+      "form": "δόξης",
+      "parse": "Noun · genitive · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "δόξης",
+      "how": "exact",
+      "occurrences": 48,
+      "seenAs": [
+        {
+          "lemma": "δόξα",
+          "code": "N-GSF",
+          "parse": "Noun · genitive · singular · feminine",
+          "n": 48
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "doxa",
+      "cellLabel": "gen. pl.",
+      "form": "δοξῶν",
+      "parse": "Noun · genitive · plural · feminine",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "doxa",
+      "cellLabel": "dat. sg.",
+      "form": "δόξῃ",
+      "parse": "Noun · dative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "δόξῃ",
+      "how": "exact",
+      "occurrences": 21,
+      "seenAs": [
+        {
+          "lemma": "δόξα",
+          "code": "N-DSF",
+          "parse": "Noun · dative · singular · feminine",
+          "n": 21
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "doxa",
+      "cellLabel": "dat. pl.",
+      "form": "δόξαις",
+      "parse": "Noun · dative · plural · feminine",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "doxa",
+      "cellLabel": "acc. sg.",
+      "form": "δόξαν",
+      "parse": "Noun · accusative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "δόξαν",
+      "how": "exact",
+      "occurrences": 58,
+      "seenAs": [
+        {
+          "lemma": "δόξα",
+          "code": "N-ASF",
+          "parse": "Noun · accusative · singular · feminine",
+          "n": 58
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "doxa",
+      "cellLabel": "acc. pl.",
+      "form": "δόξας",
+      "parse": "Noun · accusative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "δόξας",
+      "how": "exact",
+      "occurrences": 3,
+      "seenAs": [
+        {
+          "lemma": "δόξα",
+          "code": "N-APF",
+          "parse": "Noun · accusative · plural · feminine",
+          "n": 3
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "mathetes",
+      "cellLabel": "nom. sg.",
+      "form": "μαθητής",
+      "parse": "Noun · nominative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "μαθητής",
+      "how": "exact",
+      "occurrences": 20,
+      "seenAs": [
+        {
+          "lemma": "μαθητής",
+          "code": "N-NSM",
+          "parse": "Noun · nominative · singular · masculine",
+          "n": 20
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "mathetes",
+      "cellLabel": "nom. pl.",
+      "form": "μαθηταί",
+      "parse": "Noun · nominative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "μαθηταί",
+      "how": "exact",
+      "occurrences": 109,
+      "seenAs": [
+        {
+          "lemma": "μαθητής",
+          "code": "N-NPM",
+          "parse": "Noun · nominative · plural · masculine",
+          "n": 109
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "mathetes",
+      "cellLabel": "gen. sg.",
+      "form": "μαθητοῦ",
+      "parse": "Noun · genitive · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "μαθητοῦ",
+      "how": "exact",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "lemma": "μαθητής",
+          "code": "N-GSM",
+          "parse": "Noun · genitive · singular · masculine",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "mathetes",
+      "cellLabel": "gen. pl.",
+      "form": "μαθητῶν",
+      "parse": "Noun · genitive · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "μαθητῶν",
+      "how": "exact",
+      "occurrences": 45,
+      "seenAs": [
+        {
+          "lemma": "μαθητής",
+          "code": "N-GPM",
+          "parse": "Noun · genitive · plural · masculine",
+          "n": 45
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "mathetes",
+      "cellLabel": "dat. sg.",
+      "form": "μαθητῇ",
+      "parse": "Noun · dative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "μαθητῇ",
+      "how": "exact",
+      "occurrences": 3,
+      "seenAs": [
+        {
+          "lemma": "μαθητής",
+          "code": "N-DSM",
+          "parse": "Noun · dative · singular · masculine",
+          "n": 3
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "mathetes",
+      "cellLabel": "dat. pl.",
+      "form": "μαθηταῖς",
+      "parse": "Noun · dative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "μαθηταῖς",
+      "how": "exact",
+      "occurrences": 41,
+      "seenAs": [
+        {
+          "lemma": "μαθητής",
+          "code": "N-DPM",
+          "parse": "Noun · dative · plural · masculine",
+          "n": 41
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "mathetes",
+      "cellLabel": "acc. sg.",
+      "form": "μαθητήν",
+      "parse": "Noun · accusative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "μαθητήν",
+      "how": "exact",
+      "occurrences": 3,
+      "seenAs": [
+        {
+          "lemma": "μαθητής",
+          "code": "N-ASM",
+          "parse": "Noun · accusative · singular · masculine",
+          "n": 3
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "mathetes",
+      "cellLabel": "acc. pl.",
+      "form": "μαθητάς",
+      "parse": "Noun · accusative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "μαθητάς",
+      "how": "exact",
+      "occurrences": 39,
+      "seenAs": [
+        {
+          "lemma": "μαθητής",
+          "code": "N-APM",
+          "parse": "Noun · accusative · plural · masculine",
+          "n": 39
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "luo-pres-act-ind",
+      "cellLabel": "1st sg.",
+      "form": "λύω",
+      "parse": "Verb · present · active · indicative · 1st person · singular",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "luo-pres-act-ind",
+      "cellLabel": "1st pl.",
+      "form": "λύομεν",
+      "parse": "Verb · present · active · indicative · 1st person · plural",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "luo-pres-act-ind",
+      "cellLabel": "2nd sg.",
+      "form": "λύεις",
+      "parse": "Verb · present · active · indicative · 2nd person · singular",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "luo-pres-act-ind",
+      "cellLabel": "2nd pl.",
+      "form": "λύετε",
+      "parse": "Verb · present · active · indicative · 2nd person · plural",
+      "status": "attested-match",
+      "matchedForm": "λύετε",
+      "how": "exact",
+      "occurrences": 2,
+      "seenAs": [
+        {
+          "lemma": "λύω",
+          "code": "V-PAI-2P",
+          "parse": "Verb · present · active · indicative · 2nd person · plural",
+          "n": 2
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "luo-pres-act-ind",
+      "cellLabel": "3rd sg.",
+      "form": "λύει",
+      "parse": "Verb · present · active · indicative · 3rd person · singular",
+      "status": "attested-match",
+      "matchedForm": "λύει",
+      "how": "exact",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "lemma": "λύω",
+          "code": "V-PAI-3S",
+          "parse": "Verb · present · active · indicative · 3rd person · singular",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "luo-pres-act-ind",
+      "cellLabel": "3rd pl.",
+      "form": "λύουσι(ν)",
+      "parse": "Verb · present · active · indicative · 3rd person · plural",
+      "status": "attested-match",
+      "matchedForm": "λύουσιν",
+      "how": "exact",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "lemma": "λύω",
+          "code": "V-PAI-3P",
+          "parse": "Verb · present · active · indicative · 3rd person · plural",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "echo-pres-act-ind",
+      "cellLabel": "1st sg.",
+      "form": "ἔχω",
+      "parse": "Verb · present · active · indicative · 1st person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἔχω",
+      "how": "exact",
+      "occurrences": 43,
+      "seenAs": [
+        {
+          "lemma": "ἔχω",
+          "code": "V-PAI-1S",
+          "parse": "Verb · present · active · indicative · 1st person · singular",
+          "n": 43
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "echo-pres-act-ind",
+      "cellLabel": "1st pl.",
+      "form": "ἔχομεν",
+      "parse": "Verb · present · active · indicative · 1st person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἔχομεν",
+      "how": "exact",
+      "occurrences": 43,
+      "seenAs": [
+        {
+          "lemma": "ἔχω",
+          "code": "V-PAI-1P",
+          "parse": "Verb · present · active · indicative · 1st person · plural",
+          "n": 43
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "echo-pres-act-ind",
+      "cellLabel": "2nd sg.",
+      "form": "ἔχεις",
+      "parse": "Verb · present · active · indicative · 2nd person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἔχεις",
+      "how": "exact",
+      "occurrences": 28,
+      "seenAs": [
+        {
+          "lemma": "ἔχω",
+          "code": "V-PAI-2S",
+          "parse": "Verb · present · active · indicative · 2nd person · singular",
+          "n": 28
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "echo-pres-act-ind",
+      "cellLabel": "2nd pl.",
+      "form": "ἔχετε",
+      "parse": "Verb · present · active · indicative · 2nd person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἔχετε",
+      "how": "exact",
+      "occurrences": 46,
+      "seenAs": [
+        {
+          "lemma": "ἔχω",
+          "code": "V-PAI-2P",
+          "parse": "Verb · present · active · indicative · 2nd person · plural",
+          "n": 46
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "echo-pres-act-ind",
+      "cellLabel": "3rd sg.",
+      "form": "ἔχει",
+      "parse": "Verb · present · active · indicative · 3rd person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἔχει",
+      "how": "exact",
+      "occurrences": 103,
+      "seenAs": [
+        {
+          "lemma": "ἔχω",
+          "code": "V-PAI-3S",
+          "parse": "Verb · present · active · indicative · 3rd person · singular",
+          "n": 103
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "echo-pres-act-ind",
+      "cellLabel": "3rd pl.",
+      "form": "ἔχουσι(ν)",
+      "parse": "Verb · present · active · indicative · 3rd person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἔχουσι",
+      "how": "exact",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "lemma": "ἔχω",
+          "code": "V-PAI-3P",
+          "parse": "Verb · present · active · indicative · 3rd person · plural",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eimi-pres-ind",
+      "cellLabel": "1st sg.",
+      "form": "εἰμί",
+      "parse": "Verb · present · active · indicative · 1st person · singular",
+      "status": "attested-match",
+      "matchedForm": "εἰμί",
+      "how": "exact",
+      "occurrences": 44,
+      "seenAs": [
+        {
+          "lemma": "εἰμί",
+          "code": "V-PAI-1S",
+          "parse": "Verb · present · active · indicative · 1st person · singular",
+          "n": 44
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eimi-pres-ind",
+      "cellLabel": "1st pl.",
+      "form": "ἐσμέν",
+      "parse": "Verb · present · active · indicative · 1st person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἐσμέν",
+      "how": "exact",
+      "occurrences": 21,
+      "seenAs": [
+        {
+          "lemma": "εἰμί",
+          "code": "V-PAI-1P",
+          "parse": "Verb · present · active · indicative · 1st person · plural",
+          "n": 21
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eimi-pres-ind",
+      "cellLabel": "2nd sg.",
+      "form": "εἶ",
+      "parse": "Verb · present · active · indicative · 2nd person · singular",
+      "status": "attested-match",
+      "matchedForm": "εἶ",
+      "how": "exact",
+      "occurrences": 92,
+      "seenAs": [
+        {
+          "lemma": "εἰμί",
+          "code": "V-PAI-2S",
+          "parse": "Verb · present · active · indicative · 2nd person · singular",
+          "n": 92
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eimi-pres-ind",
+      "cellLabel": "2nd pl.",
+      "form": "ἐστέ",
+      "parse": "Verb · present · active · indicative · 2nd person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἐστέ",
+      "how": "exact",
+      "occurrences": 25,
+      "seenAs": [
+        {
+          "lemma": "εἰμί",
+          "code": "V-PAI-2P",
+          "parse": "Verb · present · active · indicative · 2nd person · plural",
+          "n": 25
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eimi-pres-ind",
+      "cellLabel": "3rd sg.",
+      "form": "ἐστί(ν)",
+      "parse": "Verb · present · active · indicative · 3rd person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἐστίν",
+      "how": "exact",
+      "occurrences": 179,
+      "seenAs": [
+        {
+          "lemma": "εἰμί",
+          "code": "V-PAI-3S",
+          "parse": "Verb · present · active · indicative · 3rd person · singular",
+          "n": 179
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eimi-pres-ind",
+      "cellLabel": "3rd pl.",
+      "form": "εἰσί(ν)",
+      "parse": "Verb · present · active · indicative · 3rd person · plural",
+      "status": "attested-match",
+      "matchedForm": "εἰσίν",
+      "how": "exact",
+      "occurrences": 68,
+      "seenAs": [
+        {
+          "lemma": "εἰμί",
+          "code": "V-PAI-3P",
+          "parse": "Verb · present · active · indicative · 3rd person · plural",
+          "n": 68
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eimi-impf-ind",
+      "cellLabel": "1st sg.",
+      "form": "ἤμην",
+      "parse": "Verb · imperfect · middle · indicative · 1st person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἤμην",
+      "how": "exact",
+      "occurrences": 15,
+      "seenAs": [
+        {
+          "lemma": "εἰμί",
+          "code": "V-IMI-1S",
+          "parse": "Verb · imperfect · middle · indicative · 1st person · singular",
+          "n": 15
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eimi-impf-ind",
+      "cellLabel": "1st pl.",
+      "form": "ἦμεν",
+      "parse": "Verb · imperfect · active · indicative · 1st person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἦμεν",
+      "how": "exact",
+      "occurrences": 8,
+      "seenAs": [
+        {
+          "lemma": "εἰμί",
+          "code": "V-IAI-1P",
+          "parse": "Verb · imperfect · active · indicative · 1st person · plural",
+          "n": 8
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eimi-impf-ind",
+      "cellLabel": "2nd sg.",
+      "form": "ἦς",
+      "parse": "Verb · imperfect · active · indicative · 2nd person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἦς",
+      "how": "exact",
+      "occurrences": 6,
+      "seenAs": [
+        {
+          "lemma": "εἰμί",
+          "code": "V-IAI-2S",
+          "parse": "Verb · imperfect · active · indicative · 2nd person · singular",
+          "n": 6
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eimi-impf-ind",
+      "cellLabel": "2nd pl.",
+      "form": "ἦτε",
+      "parse": "Verb · imperfect · active · indicative · 2nd person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἦτε",
+      "how": "exact",
+      "occurrences": 10,
+      "seenAs": [
+        {
+          "lemma": "εἰμί",
+          "code": "V-IAI-2P",
+          "parse": "Verb · imperfect · active · indicative · 2nd person · plural",
+          "n": 10
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eimi-impf-ind",
+      "cellLabel": "3rd sg.",
+      "form": "ἦν",
+      "parse": "Verb · imperfect · active · indicative · 3rd person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἦν",
+      "how": "exact",
+      "occurrences": 315,
+      "seenAs": [
+        {
+          "lemma": "εἰμί",
+          "code": "V-IAI-3S",
+          "parse": "Verb · imperfect · active · indicative · 3rd person · singular",
+          "n": 315
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eimi-impf-ind",
+      "cellLabel": "3rd pl.",
+      "form": "ἦσαν",
+      "parse": "Verb · imperfect · active · indicative · 3rd person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἦσαν",
+      "how": "exact",
+      "occurrences": 95,
+      "seenAs": [
+        {
+          "lemma": "εἰμί",
+          "code": "V-IAI-3P",
+          "parse": "Verb · imperfect · active · indicative · 3rd person · plural",
+          "n": 95
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "ego",
+      "cellLabel": "nom. sg.",
+      "form": "ἐγώ",
+      "parse": "Personal pronoun · 1st person · nominative · singular",
+      "status": "attested-match",
+      "matchedForm": "ἐγώ",
+      "how": "exact",
+      "occurrences": 347,
+      "seenAs": [
+        {
+          "lemma": "ἐγώ",
+          "code": "P-1NS",
+          "parse": "Personal pronoun · 1st person · nominative · singular",
+          "n": 347
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "ego",
+      "cellLabel": "nom. pl.",
+      "form": "ἡμεῖς",
+      "parse": "Personal pronoun · 1st person · nominative · plural",
+      "status": "attested-match",
+      "matchedForm": "ἡμεῖς",
+      "how": "exact",
+      "occurrences": 127,
+      "seenAs": [
+        {
+          "lemma": "ἐγώ",
+          "code": "P-1NP",
+          "parse": "Personal pronoun · 1st person · nominative · plural",
+          "n": 127
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "ego",
+      "cellLabel": "gen. sg. (emphatic)",
+      "form": "ἐμοῦ",
+      "parse": "Personal pronoun · 1st person · genitive · singular",
+      "status": "attested-other",
+      "matchedForm": "ἐμοῦ",
+      "how": "exact",
+      "occurrences": 0,
+      "seenAs": [
+        {
+          "lemma": "ἐγώ",
+          "code": "S-1SGSN",
+          "parse": "Possessive pronoun · 1st person person · genitive · singular · neuter",
+          "n": 110
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "ego",
+      "cellLabel": "gen. sg. (unemphatic)",
+      "form": "μου",
+      "parse": "Personal pronoun · 1st person · genitive · singular",
+      "status": "attested-match",
+      "matchedForm": "μου",
+      "how": "exact",
+      "occurrences": 554,
+      "seenAs": [
+        {
+          "lemma": "ἐγώ",
+          "code": "P-1GS",
+          "parse": "Personal pronoun · 1st person · genitive · singular",
+          "n": 554
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "ego",
+      "cellLabel": "gen. pl.",
+      "form": "ἡμῶν",
+      "parse": "Personal pronoun · 1st person · genitive · plural",
+      "status": "attested-match",
+      "matchedForm": "ἡμῶν",
+      "how": "exact",
+      "occurrences": 402,
+      "seenAs": [
+        {
+          "lemma": "ἐγώ",
+          "code": "P-1GP",
+          "parse": "Personal pronoun · 1st person · genitive · plural",
+          "n": 402
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "ego",
+      "cellLabel": "dat. sg. (emphatic)",
+      "form": "ἐμοί",
+      "parse": "Personal pronoun · 1st person · dative · singular",
+      "status": "attested-match",
+      "matchedForm": "ἐμοί",
+      "how": "exact",
+      "occurrences": 92,
+      "seenAs": [
+        {
+          "lemma": "ἐγώ",
+          "code": "P-1DS",
+          "parse": "Personal pronoun · 1st person · dative · singular",
+          "n": 92
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "ego",
+      "cellLabel": "dat. sg. (unemphatic)",
+      "form": "μοι",
+      "parse": "Personal pronoun · 1st person · dative · singular",
+      "status": "attested-match",
+      "matchedForm": "μοι",
+      "how": "exact",
+      "occurrences": 221,
+      "seenAs": [
+        {
+          "lemma": "ἐγώ",
+          "code": "P-1DS",
+          "parse": "Personal pronoun · 1st person · dative · singular",
+          "n": 221
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "ego",
+      "cellLabel": "dat. pl.",
+      "form": "ἡμῖν",
+      "parse": "Personal pronoun · 1st person · dative · plural",
+      "status": "attested-match",
+      "matchedForm": "ἡμῖν",
+      "how": "exact",
+      "occurrences": 169,
+      "seenAs": [
+        {
+          "lemma": "ἐγώ",
+          "code": "P-1DP",
+          "parse": "Personal pronoun · 1st person · dative · plural",
+          "n": 169
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "ego",
+      "cellLabel": "acc. sg. (emphatic)",
+      "form": "ἐμέ",
+      "parse": "Personal pronoun · 1st person · accusative · singular",
+      "status": "attested-match",
+      "matchedForm": "ἐμέ",
+      "how": "exact",
+      "occurrences": 90,
+      "seenAs": [
+        {
+          "lemma": "ἐγώ",
+          "code": "P-1AS",
+          "parse": "Personal pronoun · 1st person · accusative · singular",
+          "n": 90
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "ego",
+      "cellLabel": "acc. sg. (unemphatic)",
+      "form": "με",
+      "parse": "Personal pronoun · 1st person · accusative · singular",
+      "status": "attested-match",
+      "matchedForm": "με",
+      "how": "exact",
+      "occurrences": 290,
+      "seenAs": [
+        {
+          "lemma": "ἐγώ",
+          "code": "P-1AS",
+          "parse": "Personal pronoun · 1st person · accusative · singular",
+          "n": 290
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "ego",
+      "cellLabel": "acc. pl.",
+      "form": "ἡμᾶς",
+      "parse": "Personal pronoun · 1st person · accusative · plural",
+      "status": "attested-match",
+      "matchedForm": "ἡμᾶς",
+      "how": "exact",
+      "occurrences": 166,
+      "seenAs": [
+        {
+          "lemma": "ἐγώ",
+          "code": "P-1AP",
+          "parse": "Personal pronoun · 1st person · accusative · plural",
+          "n": 166
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "su",
+      "cellLabel": "nom. sg.",
+      "form": "σύ",
+      "parse": "Personal pronoun · 2nd person · nominative · singular",
+      "status": "attested-match",
+      "matchedForm": "σύ",
+      "how": "exact",
+      "occurrences": 174,
+      "seenAs": [
+        {
+          "lemma": "σύ",
+          "code": "P-2NS",
+          "parse": "Personal pronoun · 2nd person · nominative · singular",
+          "n": 174
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "su",
+      "cellLabel": "nom. pl.",
+      "form": "ὑμεῖς",
+      "parse": "Personal pronoun · 2nd person · nominative · plural",
+      "status": "attested-match",
+      "matchedForm": "ὑμεῖς",
+      "how": "exact",
+      "occurrences": 236,
+      "seenAs": [
+        {
+          "lemma": "σύ",
+          "code": "P-2NP",
+          "parse": "Personal pronoun · 2nd person · nominative · plural",
+          "n": 236
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "su",
+      "cellLabel": "gen. sg. (emphatic)",
+      "form": "σοῦ",
+      "parse": "Personal pronoun · 2nd person · genitive · singular",
+      "status": "attested-match",
+      "matchedForm": "σοῦ",
+      "how": "exact",
+      "occurrences": 57,
+      "seenAs": [
+        {
+          "lemma": "σύ",
+          "code": "P-2GS",
+          "parse": "Personal pronoun · 2nd person · genitive · singular",
+          "n": 57
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "su",
+      "cellLabel": "gen. sg. (unemphatic)",
+      "form": "σου",
+      "parse": "Personal pronoun · 2nd person · genitive · singular",
+      "status": "attested-match",
+      "matchedForm": "σου",
+      "how": "exact",
+      "occurrences": 421,
+      "seenAs": [
+        {
+          "lemma": "σύ",
+          "code": "P-2GS",
+          "parse": "Personal pronoun · 2nd person · genitive · singular",
+          "n": 421
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "su",
+      "cellLabel": "gen. pl.",
+      "form": "ὑμῶν",
+      "parse": "Personal pronoun · 2nd person · genitive · plural",
+      "status": "attested-match",
+      "matchedForm": "ὑμῶν",
+      "how": "exact",
+      "occurrences": 561,
+      "seenAs": [
+        {
+          "lemma": "σύ",
+          "code": "P-2GP",
+          "parse": "Personal pronoun · 2nd person · genitive · plural",
+          "n": 561
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "su",
+      "cellLabel": "dat. sg. (emphatic)",
+      "form": "σοί",
+      "parse": "Personal pronoun · 2nd person · dative · singular",
+      "status": "attested-match",
+      "matchedForm": "σοί",
+      "how": "exact",
+      "occurrences": 51,
+      "seenAs": [
+        {
+          "lemma": "σύ",
+          "code": "P-2DS",
+          "parse": "Personal pronoun · 2nd person · dative · singular",
+          "n": 51
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "su",
+      "cellLabel": "dat. sg. (unemphatic)",
+      "form": "σοι",
+      "parse": "Personal pronoun · 2nd person · dative · singular",
+      "status": "attested-match",
+      "matchedForm": "σοι",
+      "how": "exact",
+      "occurrences": 164,
+      "seenAs": [
+        {
+          "lemma": "σύ",
+          "code": "P-2DS",
+          "parse": "Personal pronoun · 2nd person · dative · singular",
+          "n": 164
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "su",
+      "cellLabel": "dat. pl.",
+      "form": "ὑμῖν",
+      "parse": "Personal pronoun · 2nd person · dative · plural",
+      "status": "attested-match",
+      "matchedForm": "ὑμῖν",
+      "how": "exact",
+      "occurrences": 608,
+      "seenAs": [
+        {
+          "lemma": "σύ",
+          "code": "P-2DP",
+          "parse": "Personal pronoun · 2nd person · dative · plural",
+          "n": 608
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "su",
+      "cellLabel": "acc. sg. (emphatic)",
+      "form": "σέ",
+      "parse": "Personal pronoun · 2nd person · accusative · singular",
+      "status": "attested-match",
+      "matchedForm": "σέ",
+      "how": "exact",
+      "occurrences": 37,
+      "seenAs": [
+        {
+          "lemma": "σύ",
+          "code": "P-2AS",
+          "parse": "Personal pronoun · 2nd person · accusative · singular",
+          "n": 37
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "su",
+      "cellLabel": "acc. sg. (unemphatic)",
+      "form": "σε",
+      "parse": "Personal pronoun · 2nd person · accusative · singular",
+      "status": "attested-match",
+      "matchedForm": "σε",
+      "how": "exact",
+      "occurrences": 160,
+      "seenAs": [
+        {
+          "lemma": "σύ",
+          "code": "P-2AS",
+          "parse": "Personal pronoun · 2nd person · accusative · singular",
+          "n": 160
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "su",
+      "cellLabel": "acc. pl.",
+      "form": "ὑμᾶς",
+      "parse": "Personal pronoun · 2nd person · accusative · plural",
+      "status": "attested-match",
+      "matchedForm": "ὑμᾶς",
+      "how": "exact",
+      "occurrences": 435,
+      "seenAs": [
+        {
+          "lemma": "σύ",
+          "code": "P-2AP",
+          "parse": "Personal pronoun · 2nd person · accusative · plural",
+          "n": 435
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "nom. sg. masc.",
+      "form": "αὐτός",
+      "parse": "Personal pronoun · nominative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "αὐτός",
+      "how": "exact",
+      "occurrences": 168,
+      "seenAs": [
+        {
+          "lemma": "αὐτός",
+          "code": "P-NSM",
+          "parse": "Personal pronoun · nominative · singular · masculine",
+          "n": 168
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "nom. sg. fem.",
+      "form": "αὐτή",
+      "parse": "Personal pronoun · nominative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "αὐτή",
+      "how": "exact",
+      "occurrences": 11,
+      "seenAs": [
+        {
+          "lemma": "αὐτός",
+          "code": "P-NSF",
+          "parse": "Personal pronoun · nominative · singular · feminine",
+          "n": 11
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "nom. sg. neut.",
+      "form": "αὐτό",
+      "parse": "Personal pronoun · nominative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "αὐτό",
+      "how": "exact",
+      "occurrences": 9,
+      "seenAs": [
+        {
+          "lemma": "αὐτός",
+          "code": "P-NSN",
+          "parse": "Personal pronoun · nominative · singular · neuter",
+          "n": 9
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "gen. sg. masc.",
+      "form": "αὐτοῦ",
+      "parse": "Personal pronoun · genitive · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "αὐτοῦ",
+      "how": "exact",
+      "occurrences": 1369,
+      "seenAs": [
+        {
+          "lemma": "αὐτός",
+          "code": "P-GSM",
+          "parse": "Personal pronoun · genitive · singular · masculine",
+          "n": 1369
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "gen. sg. fem.",
+      "form": "αὐτῆς",
+      "parse": "Personal pronoun · genitive · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "αὐτῆς",
+      "how": "exact",
+      "occurrences": 169,
+      "seenAs": [
+        {
+          "lemma": "αὐτός",
+          "code": "P-GSF",
+          "parse": "Personal pronoun · genitive · singular · feminine",
+          "n": 169
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "gen. sg. neut.",
+      "form": "αὐτοῦ",
+      "parse": "Personal pronoun · genitive · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "αὐτοῦ",
+      "how": "exact",
+      "occurrences": 51,
+      "seenAs": [
+        {
+          "lemma": "αὐτός",
+          "code": "P-GSN",
+          "parse": "Personal pronoun · genitive · singular · neuter",
+          "n": 51
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "dat. sg. masc.",
+      "form": "αὐτῷ",
+      "parse": "Personal pronoun · dative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "αὐτῷ",
+      "how": "exact",
+      "occurrences": 838,
+      "seenAs": [
+        {
+          "lemma": "αὐτός",
+          "code": "P-DSM",
+          "parse": "Personal pronoun · dative · singular · masculine",
+          "n": 838
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "dat. sg. fem.",
+      "form": "αὐτῇ",
+      "parse": "Personal pronoun · dative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "αὐτῇ",
+      "how": "exact",
+      "occurrences": 108,
+      "seenAs": [
+        {
+          "lemma": "αὐτός",
+          "code": "P-DSF",
+          "parse": "Personal pronoun · dative · singular · feminine",
+          "n": 108
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "dat. sg. neut.",
+      "form": "αὐτῷ",
+      "parse": "Personal pronoun · dative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "αὐτῷ",
+      "how": "exact",
+      "occurrences": 20,
+      "seenAs": [
+        {
+          "lemma": "αὐτός",
+          "code": "P-DSN",
+          "parse": "Personal pronoun · dative · singular · neuter",
+          "n": 20
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "acc. sg. masc.",
+      "form": "αὐτόν",
+      "parse": "Personal pronoun · accusative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "αὐτόν",
+      "how": "exact",
+      "occurrences": 960,
+      "seenAs": [
+        {
+          "lemma": "αὐτός",
+          "code": "P-ASM",
+          "parse": "Personal pronoun · accusative · singular · masculine",
+          "n": 960
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "acc. sg. fem.",
+      "form": "αὐτήν",
+      "parse": "Personal pronoun · accusative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "αὐτήν",
+      "how": "exact",
+      "occurrences": 137,
+      "seenAs": [
+        {
+          "lemma": "αὐτός",
+          "code": "P-ASF",
+          "parse": "Personal pronoun · accusative · singular · feminine",
+          "n": 137
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "acc. sg. neut.",
+      "form": "αὐτό",
+      "parse": "Personal pronoun · accusative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "αὐτό",
+      "how": "exact",
+      "occurrences": 96,
+      "seenAs": [
+        {
+          "lemma": "αὐτός",
+          "code": "P-ASN",
+          "parse": "Personal pronoun · accusative · singular · neuter",
+          "n": 96
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "nom. pl. masc.",
+      "form": "αὐτοί",
+      "parse": "Personal pronoun · nominative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "αὐτοί",
+      "how": "exact",
+      "occurrences": 86,
+      "seenAs": [
+        {
+          "lemma": "αὐτός",
+          "code": "P-NPM",
+          "parse": "Personal pronoun · nominative · plural · masculine",
+          "n": 86
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "nom. pl. fem.",
+      "form": "αὐταί",
+      "parse": "Personal pronoun · nominative · plural · feminine",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "nom. pl. neut.",
+      "form": "αὐτά",
+      "parse": "Personal pronoun · nominative · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "αὐτά",
+      "how": "exact",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "lemma": "αὐτός",
+          "code": "P-NPN",
+          "parse": "Personal pronoun · nominative · plural · neuter",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "gen. pl. masc.",
+      "form": "αὐτῶν",
+      "parse": "Personal pronoun · genitive · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "αὐτῶν",
+      "how": "exact",
+      "occurrences": 514,
+      "seenAs": [
+        {
+          "lemma": "αὐτός",
+          "code": "P-GPM",
+          "parse": "Personal pronoun · genitive · plural · masculine",
+          "n": 514
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "gen. pl. fem.",
+      "form": "αὐτῶν",
+      "parse": "Personal pronoun · genitive · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "αὐτῶν",
+      "how": "exact",
+      "occurrences": 20,
+      "seenAs": [
+        {
+          "lemma": "αὐτός",
+          "code": "P-GPF",
+          "parse": "Personal pronoun · genitive · plural · feminine",
+          "n": 20
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "gen. pl. neut.",
+      "form": "αὐτῶν",
+      "parse": "Personal pronoun · genitive · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "αὐτῶν",
+      "how": "exact",
+      "occurrences": 33,
+      "seenAs": [
+        {
+          "lemma": "αὐτός",
+          "code": "P-GPN",
+          "parse": "Personal pronoun · genitive · plural · neuter",
+          "n": 33
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "dat. pl. masc.",
+      "form": "αὐτοῖς",
+      "parse": "Personal pronoun · dative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "αὐτοῖς",
+      "how": "exact",
+      "occurrences": 539,
+      "seenAs": [
+        {
+          "lemma": "αὐτός",
+          "code": "P-DPM",
+          "parse": "Personal pronoun · dative · plural · masculine",
+          "n": 539
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "dat. pl. fem.",
+      "form": "αὐταῖς",
+      "parse": "Personal pronoun · dative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "αὐταῖς",
+      "how": "exact",
+      "occurrences": 20,
+      "seenAs": [
+        {
+          "lemma": "αὐτός",
+          "code": "P-DPF",
+          "parse": "Personal pronoun · dative · plural · feminine",
+          "n": 20
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "dat. pl. neut.",
+      "form": "αὐτοῖς",
+      "parse": "Personal pronoun · dative · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "αὐτοῖς",
+      "how": "exact",
+      "occurrences": 18,
+      "seenAs": [
+        {
+          "lemma": "αὐτός",
+          "code": "P-DPN",
+          "parse": "Personal pronoun · dative · plural · neuter",
+          "n": 18
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "acc. pl. masc.",
+      "form": "αὐτούς",
+      "parse": "Personal pronoun · accusative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "αὐτούς",
+      "how": "exact",
+      "occurrences": 358,
+      "seenAs": [
+        {
+          "lemma": "αὐτός",
+          "code": "P-APM",
+          "parse": "Personal pronoun · accusative · plural · masculine",
+          "n": 358
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "acc. pl. fem.",
+      "form": "αὐτάς",
+      "parse": "Personal pronoun · accusative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "αὐτάς",
+      "how": "exact",
+      "occurrences": 12,
+      "seenAs": [
+        {
+          "lemma": "αὐτός",
+          "code": "P-APF",
+          "parse": "Personal pronoun · accusative · plural · feminine",
+          "n": 12
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "autos",
+      "cellLabel": "acc. pl. neut.",
+      "form": "αὐτά",
+      "parse": "Personal pronoun · accusative · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "αὐτά",
+      "how": "exact",
+      "occurrences": 56,
+      "seenAs": [
+        {
+          "lemma": "αὐτός",
+          "code": "P-APN",
+          "parse": "Personal pronoun · accusative · plural · neuter",
+          "n": 56
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "nom. sg. masc.",
+      "form": "ἅγιος",
+      "parse": "Adjective · nominative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "ἅγιος",
+      "how": "exact",
+      "occurrences": 11,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-NSM",
+          "parse": "Adjective · nominative · singular · masculine",
+          "n": 11
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "nom. sg. fem.",
+      "form": "ἁγία",
+      "parse": "Adjective · nominative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "ἁγία",
+      "how": "exact",
+      "occurrences": 6,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-NSF",
+          "parse": "Adjective · nominative · singular · feminine",
+          "n": 6
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "nom. sg. neut.",
+      "form": "ἅγιον",
+      "parse": "Adjective · nominative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "ἅγιον",
+      "how": "exact",
+      "occurrences": 22,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-NSN",
+          "parse": "Adjective · nominative · singular · neuter",
+          "n": 22
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "gen. sg. masc.",
+      "form": "ἁγίου",
+      "parse": "Adjective · genitive · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "ἁγίου",
+      "how": "exact",
+      "occurrences": 4,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-GSM",
+          "parse": "Adjective · genitive · singular · masculine",
+          "n": 4
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "gen. sg. fem.",
+      "form": "ἁγίας",
+      "parse": "Adjective · genitive · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "ἁγίας",
+      "how": "exact",
+      "occurrences": 3,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-GSF",
+          "parse": "Adjective · genitive · singular · feminine",
+          "n": 3
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "gen. sg. neut.",
+      "form": "ἁγίου",
+      "parse": "Adjective · genitive · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "ἁγίου",
+      "how": "exact",
+      "occurrences": 38,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-GSN",
+          "parse": "Adjective · genitive · singular · neuter",
+          "n": 38
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "dat. sg. masc.",
+      "form": "ἁγίῳ",
+      "parse": "Adjective · dative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "ἁγίῳ",
+      "how": "exact",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-DSM",
+          "parse": "Adjective · dative · singular · masculine",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "dat. sg. fem.",
+      "form": "ἁγίᾳ",
+      "parse": "Adjective · dative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "ἁγίᾳ",
+      "how": "exact",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-DSF",
+          "parse": "Adjective · dative · singular · feminine",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "dat. sg. neut.",
+      "form": "ἁγίῳ",
+      "parse": "Adjective · dative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "ἁγίῳ",
+      "how": "exact",
+      "occurrences": 25,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-DSN",
+          "parse": "Adjective · dative · singular · neuter",
+          "n": 25
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "acc. sg. masc.",
+      "form": "ἅγιον",
+      "parse": "Adjective · accusative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "ἅγιον",
+      "how": "exact",
+      "occurrences": 7,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-ASM",
+          "parse": "Adjective · accusative · singular · masculine",
+          "n": 7
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "acc. sg. fem.",
+      "form": "ἁγίαν",
+      "parse": "Adjective · accusative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "ἁγίαν",
+      "how": "exact",
+      "occurrences": 6,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-ASF",
+          "parse": "Adjective · accusative · singular · feminine",
+          "n": 6
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "acc. sg. neut.",
+      "form": "ἅγιον",
+      "parse": "Adjective · accusative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "ἅγιον",
+      "how": "exact",
+      "occurrences": 17,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-ASN",
+          "parse": "Adjective · accusative · singular · neuter",
+          "n": 17
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "nom. pl. masc.",
+      "form": "ἅγιοι",
+      "parse": "Adjective · nominative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "ἅγιοι",
+      "how": "exact",
+      "occurrences": 6,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-NPM",
+          "parse": "Adjective · nominative · plural · masculine",
+          "n": 6
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "nom. pl. fem.",
+      "form": "ἅγιαι",
+      "parse": "Adjective · nominative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "ἅγιαι",
+      "how": "exact",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-NPF",
+          "parse": "Adjective · nominative · plural · feminine",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "nom. pl. neut.",
+      "form": "ἅγια",
+      "parse": "Adjective · nominative · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "ἅγια",
+      "how": "exact",
+      "occurrences": 2,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-NPN-L",
+          "parse": "Adjective · nominative · plural · neuter · name: location",
+          "n": 2
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "gen. pl. masc.",
+      "form": "ἁγίων",
+      "parse": "Adjective · genitive · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "ἁγίων",
+      "how": "exact",
+      "occurrences": 34,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-GPM",
+          "parse": "Adjective · genitive · plural · masculine",
+          "n": 34
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "gen. pl. fem.",
+      "form": "ἁγίων",
+      "parse": "Adjective · genitive · plural · feminine",
+      "status": "attested-other",
+      "matchedForm": "ἁγίων",
+      "how": "exact",
+      "occurrences": 0,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-GPM",
+          "parse": "Adjective · genitive · plural · masculine",
+          "n": 34
+        },
+        {
+          "lemma": "ἅγιος",
+          "code": "A-GPN",
+          "parse": "Adjective · genitive · plural · neuter",
+          "n": 3
+        },
+        {
+          "lemma": "ἅγιος",
+          "code": "A-GPN-L",
+          "parse": "Adjective · genitive · plural · neuter · name: location",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "gen. pl. neut.",
+      "form": "ἁγίων",
+      "parse": "Adjective · genitive · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "ἁγίων",
+      "how": "exact",
+      "occurrences": 4,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-GPN",
+          "parse": "Adjective · genitive · plural · neuter",
+          "n": 3
+        },
+        {
+          "lemma": "ἅγιος",
+          "code": "A-GPN-L",
+          "parse": "Adjective · genitive · plural · neuter · name: location",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "dat. pl. masc.",
+      "form": "ἁγίοις",
+      "parse": "Adjective · dative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "ἁγίοις",
+      "how": "exact",
+      "occurrences": 19,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-DPM",
+          "parse": "Adjective · dative · plural · masculine",
+          "n": 19
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "dat. pl. fem.",
+      "form": "ἁγίαις",
+      "parse": "Adjective · dative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "ἁγίαις",
+      "how": "exact",
+      "occurrences": 3,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-DPF",
+          "parse": "Adjective · dative · plural · feminine",
+          "n": 3
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "dat. pl. neut.",
+      "form": "ἁγίοις",
+      "parse": "Adjective · dative · plural · neuter",
+      "status": "attested-other",
+      "matchedForm": "ἁγίοις",
+      "how": "exact",
+      "occurrences": 0,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-DPM",
+          "parse": "Adjective · dative · plural · masculine",
+          "n": 19
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "acc. pl. masc.",
+      "form": "ἁγίους",
+      "parse": "Adjective · accusative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "ἁγίους",
+      "how": "exact",
+      "occurrences": 12,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-APM",
+          "parse": "Adjective · accusative · plural · masculine",
+          "n": 12
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "acc. pl. fem.",
+      "form": "ἁγίας",
+      "parse": "Adjective · accusative · plural · feminine",
+      "status": "attested-other",
+      "matchedForm": "ἁγίας",
+      "how": "exact",
+      "occurrences": 0,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-GSF",
+          "parse": "Adjective · genitive · singular · feminine",
+          "n": 3
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hagios",
+      "cellLabel": "acc. pl. neut.",
+      "form": "ἅγια",
+      "parse": "Adjective · accusative · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "ἅγια",
+      "how": "exact",
+      "occurrences": 4,
+      "seenAs": [
+        {
+          "lemma": "ἅγιος",
+          "code": "A-APN",
+          "parse": "Adjective · accusative · plural · neuter",
+          "n": 4
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "nom. sg. masc.",
+      "form": "πᾶς",
+      "parse": "Adjective · nominative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "πᾶς",
+      "how": "exact",
+      "occurrences": 95,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-NSM",
+          "parse": "Adjective · nominative · singular · masculine",
+          "n": 95
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "nom. sg. fem.",
+      "form": "πᾶσα",
+      "parse": "Adjective · nominative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "πᾶσα",
+      "how": "exact",
+      "occurrences": 46,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-NSF",
+          "parse": "Adjective · nominative · singular · feminine",
+          "n": 46
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "nom. sg. neut.",
+      "form": "πᾶν",
+      "parse": "Adjective · nominative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "πᾶν",
+      "how": "exact",
+      "occurrences": 37,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-NSN",
+          "parse": "Adjective · nominative · singular · neuter",
+          "n": 37
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "gen. sg. masc.",
+      "form": "παντός",
+      "parse": "Adjective · genitive · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "παντός",
+      "how": "exact",
+      "occurrences": 20,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-GSM",
+          "parse": "Adjective · genitive · singular · masculine",
+          "n": 20
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "gen. sg. fem.",
+      "form": "πάσης",
+      "parse": "Adjective · genitive · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "πάσης",
+      "how": "exact",
+      "occurrences": 42,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-GSF",
+          "parse": "Adjective · genitive · singular · feminine",
+          "n": 42
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "gen. sg. neut.",
+      "form": "παντός",
+      "parse": "Adjective · genitive · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "παντός",
+      "how": "exact",
+      "occurrences": 14,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-GSN",
+          "parse": "Adjective · genitive · singular · neuter",
+          "n": 14
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "dat. sg. masc.",
+      "form": "παντί",
+      "parse": "Adjective · dative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "παντί",
+      "how": "exact",
+      "occurrences": 34,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-DSM",
+          "parse": "Adjective · dative · singular · masculine",
+          "n": 34
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "dat. sg. fem.",
+      "form": "πάσῃ",
+      "parse": "Adjective · dative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "πάσῃ",
+      "how": "exact",
+      "occurrences": 45,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-DSF",
+          "parse": "Adjective · dative · singular · feminine",
+          "n": 45
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "dat. sg. neut.",
+      "form": "παντί",
+      "parse": "Adjective · dative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "παντί",
+      "how": "exact",
+      "occurrences": 25,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-DSN",
+          "parse": "Adjective · dative · singular · neuter",
+          "n": 25
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "acc. sg. masc.",
+      "form": "πάντα",
+      "parse": "Adjective · accusative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "πάντα",
+      "how": "exact",
+      "occurrences": 20,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-ASM",
+          "parse": "Adjective · accusative · singular · masculine",
+          "n": 20
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "acc. sg. fem.",
+      "form": "πᾶσαν",
+      "parse": "Adjective · accusative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "πᾶσαν",
+      "how": "exact",
+      "occurrences": 55,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-ASF",
+          "parse": "Adjective · accusative · singular · feminine",
+          "n": 55
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "acc. sg. neut.",
+      "form": "πᾶν",
+      "parse": "Adjective · accusative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "πᾶν",
+      "how": "exact",
+      "occurrences": 38,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-ASN",
+          "parse": "Adjective · accusative · singular · neuter",
+          "n": 38
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "nom. pl. masc.",
+      "form": "πάντες",
+      "parse": "Adjective · nominative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "πάντες",
+      "how": "exact",
+      "occurrences": 170,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-NPM",
+          "parse": "Adjective · nominative · plural · masculine",
+          "n": 170
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "nom. pl. fem.",
+      "form": "πᾶσαι",
+      "parse": "Adjective · nominative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "πᾶσαι",
+      "how": "exact",
+      "occurrences": 16,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-NPF",
+          "parse": "Adjective · nominative · plural · feminine",
+          "n": 16
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "nom. pl. neut.",
+      "form": "πάντα",
+      "parse": "Adjective · nominative · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "πάντα",
+      "how": "exact",
+      "occurrences": 81,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-NPN",
+          "parse": "Adjective · nominative · plural · neuter",
+          "n": 81
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "gen. pl. masc.",
+      "form": "πάντων",
+      "parse": "Adjective · genitive · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "πάντων",
+      "how": "exact",
+      "occurrences": 87,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-GPM",
+          "parse": "Adjective · genitive · plural · masculine",
+          "n": 87
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "gen. pl. fem.",
+      "form": "πασῶν",
+      "parse": "Adjective · genitive · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "πασῶν",
+      "how": "exact",
+      "occurrences": 5,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-GPF",
+          "parse": "Adjective · genitive · plural · feminine",
+          "n": 5
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "gen. pl. neut.",
+      "form": "πάντων",
+      "parse": "Adjective · genitive · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "πάντων",
+      "how": "exact",
+      "occurrences": 47,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-GPN",
+          "parse": "Adjective · genitive · plural · neuter",
+          "n": 47
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "dat. pl. masc.",
+      "form": "πᾶσι(ν)",
+      "parse": "Adjective · dative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "πᾶσιν",
+      "how": "exact",
+      "occurrences": 51,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-DPM",
+          "parse": "Adjective · dative · plural · masculine",
+          "n": 51
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "dat. pl. fem.",
+      "form": "πάσαις",
+      "parse": "Adjective · dative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "πάσαις",
+      "how": "exact",
+      "occurrences": 7,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-DPF",
+          "parse": "Adjective · dative · plural · feminine",
+          "n": 7
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "dat. pl. neut.",
+      "form": "πᾶσι(ν)",
+      "parse": "Adjective · dative · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "πᾶσιν",
+      "how": "exact",
+      "occurrences": 36,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-DPN",
+          "parse": "Adjective · dative · plural · neuter",
+          "n": 36
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "acc. pl. masc.",
+      "form": "πάντας",
+      "parse": "Adjective · accusative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "πάντας",
+      "how": "exact",
+      "occurrences": 90,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-APM",
+          "parse": "Adjective · accusative · plural · masculine",
+          "n": 90
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "acc. pl. fem.",
+      "form": "πάσας",
+      "parse": "Adjective · accusative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "πάσας",
+      "how": "exact",
+      "occurrences": 9,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-APF",
+          "parse": "Adjective · accusative · plural · feminine",
+          "n": 9
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pas",
+      "cellLabel": "acc. pl. neut.",
+      "form": "πάντα",
+      "parse": "Adjective · accusative · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "πάντα",
+      "how": "exact",
+      "occurrences": 161,
+      "seenAs": [
+        {
+          "lemma": "πᾶς",
+          "code": "A-APN",
+          "parse": "Adjective · accusative · plural · neuter",
+          "n": 161
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "nom. sg. masc.",
+      "form": "οὗτος",
+      "parse": "Demonstrative pronoun · nominative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "οὗτος",
+      "how": "exact",
+      "occurrences": 126,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-NSM",
+          "parse": "Demonstrative pronoun · nominative · singular · masculine",
+          "n": 126
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "nom. sg. fem.",
+      "form": "αὕτη",
+      "parse": "Demonstrative pronoun · nominative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "αὕτη",
+      "how": "exact",
+      "occurrences": 73,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-NSF",
+          "parse": "Demonstrative pronoun · nominative · singular · feminine",
+          "n": 73
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "nom. sg. neut.",
+      "form": "τοῦτο",
+      "parse": "Demonstrative pronoun · nominative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "τοῦτο",
+      "how": "exact",
+      "occurrences": 71,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-NSN",
+          "parse": "Demonstrative pronoun · nominative · singular · neuter",
+          "n": 71
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "gen. sg. masc.",
+      "form": "τούτου",
+      "parse": "Demonstrative pronoun · genitive · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "τούτου",
+      "how": "exact",
+      "occurrences": 41,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-GSM",
+          "parse": "Demonstrative pronoun · genitive · singular · masculine",
+          "n": 41
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "gen. sg. fem.",
+      "form": "ταύτης",
+      "parse": "Demonstrative pronoun · genitive · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "ταύτης",
+      "how": "exact",
+      "occurrences": 33,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-GSF",
+          "parse": "Demonstrative pronoun · genitive · singular · feminine",
+          "n": 33
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "gen. sg. neut.",
+      "form": "τούτου",
+      "parse": "Demonstrative pronoun · genitive · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "τούτου",
+      "how": "exact",
+      "occurrences": 28,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-GSN",
+          "parse": "Demonstrative pronoun · genitive · singular · neuter",
+          "n": 28
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "dat. sg. masc.",
+      "form": "τούτῳ",
+      "parse": "Demonstrative pronoun · dative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "τούτῳ",
+      "how": "exact",
+      "occurrences": 41,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-DSM",
+          "parse": "Demonstrative pronoun · dative · singular · masculine",
+          "n": 41
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "dat. sg. fem.",
+      "form": "ταύτῃ",
+      "parse": "Demonstrative pronoun · dative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "ταύτῃ",
+      "how": "exact",
+      "occurrences": 32,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-DSF",
+          "parse": "Demonstrative pronoun · dative · singular · feminine",
+          "n": 32
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "dat. sg. neut.",
+      "form": "τούτῳ",
+      "parse": "Demonstrative pronoun · dative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "τούτῳ",
+      "how": "exact",
+      "occurrences": 48,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-DSN",
+          "parse": "Demonstrative pronoun · dative · singular · neuter",
+          "n": 48
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "acc. sg. masc.",
+      "form": "τοῦτον",
+      "parse": "Demonstrative pronoun · accusative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "τοῦτον",
+      "how": "exact",
+      "occurrences": 60,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-ASM",
+          "parse": "Demonstrative pronoun · accusative · singular · masculine",
+          "n": 60
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "acc. sg. fem.",
+      "form": "ταύτην",
+      "parse": "Demonstrative pronoun · accusative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "ταύτην",
+      "how": "exact",
+      "occurrences": 53,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-ASF",
+          "parse": "Demonstrative pronoun · accusative · singular · feminine",
+          "n": 53
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "acc. sg. neut.",
+      "form": "τοῦτο",
+      "parse": "Demonstrative pronoun · accusative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "τοῦτο",
+      "how": "exact",
+      "occurrences": 234,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-ASN",
+          "parse": "Demonstrative pronoun · accusative · singular · neuter",
+          "n": 234
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "nom. pl. masc.",
+      "form": "οὗτοι",
+      "parse": "Demonstrative pronoun · nominative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "οὗτοι",
+      "how": "exact",
+      "occurrences": 58,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-NPM",
+          "parse": "Demonstrative pronoun · nominative · plural · masculine",
+          "n": 58
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "nom. pl. fem.",
+      "form": "αὗται",
+      "parse": "Demonstrative pronoun · nominative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "αὗται",
+      "how": "exact",
+      "occurrences": 2,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-NPF",
+          "parse": "Demonstrative pronoun · nominative · plural · feminine",
+          "n": 2
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "nom. pl. neut.",
+      "form": "ταῦτα",
+      "parse": "Demonstrative pronoun · nominative · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "ταῦτα",
+      "how": "exact",
+      "occurrences": 43,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-NPN",
+          "parse": "Demonstrative pronoun · nominative · plural · neuter",
+          "n": 43
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "gen. pl. masc.",
+      "form": "τούτων",
+      "parse": "Demonstrative pronoun · genitive · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "τούτων",
+      "how": "exact",
+      "occurrences": 22,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-GPM",
+          "parse": "Demonstrative pronoun · genitive · plural · masculine",
+          "n": 22
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "gen. pl. fem.",
+      "form": "τούτων",
+      "parse": "Demonstrative pronoun · genitive · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "τούτων",
+      "how": "exact",
+      "occurrences": 7,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-GPF",
+          "parse": "Demonstrative pronoun · genitive · plural · feminine",
+          "n": 7
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "gen. pl. neut.",
+      "form": "τούτων",
+      "parse": "Demonstrative pronoun · genitive · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "τούτων",
+      "how": "exact",
+      "occurrences": 43,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-GPN",
+          "parse": "Demonstrative pronoun · genitive · plural · neuter",
+          "n": 43
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "dat. pl. masc.",
+      "form": "τούτοις",
+      "parse": "Demonstrative pronoun · dative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "τούτοις",
+      "how": "exact",
+      "occurrences": 5,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-DPM",
+          "parse": "Demonstrative pronoun · dative · plural · masculine",
+          "n": 5
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "dat. pl. fem.",
+      "form": "ταύταις",
+      "parse": "Demonstrative pronoun · dative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "ταύταις",
+      "how": "exact",
+      "occurrences": 11,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-DPF",
+          "parse": "Demonstrative pronoun · dative · plural · feminine",
+          "n": 11
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "dat. pl. neut.",
+      "form": "τούτοις",
+      "parse": "Demonstrative pronoun · dative · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "τούτοις",
+      "how": "exact",
+      "occurrences": 14,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-DPN",
+          "parse": "Demonstrative pronoun · dative · plural · neuter",
+          "n": 14
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "acc. pl. masc.",
+      "form": "τούτους",
+      "parse": "Demonstrative pronoun · accusative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "τούτους",
+      "how": "exact",
+      "occurrences": 28,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-APM",
+          "parse": "Demonstrative pronoun · accusative · plural · masculine",
+          "n": 28
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "acc. pl. fem.",
+      "form": "ταύτας",
+      "parse": "Demonstrative pronoun · accusative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "ταύτας",
+      "how": "exact",
+      "occurrences": 9,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-APF",
+          "parse": "Demonstrative pronoun · accusative · plural · feminine",
+          "n": 9
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "houtos",
+      "cellLabel": "acc. pl. neut.",
+      "form": "ταῦτα",
+      "parse": "Demonstrative pronoun · accusative · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "ταῦτα",
+      "how": "exact",
+      "occurrences": 191,
+      "seenAs": [
+        {
+          "lemma": "οὗτος",
+          "code": "D-APN",
+          "parse": "Demonstrative pronoun · accusative · plural · neuter",
+          "n": 191
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "nom. sg. masc.",
+      "form": "ὅς",
+      "parse": "Relative pronoun · nominative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "ὅς",
+      "how": "exact",
+      "occurrences": 217,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-NSM",
+          "parse": "Relative pronoun · nominative · singular · masculine",
+          "n": 217
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "nom. sg. fem.",
+      "form": "ἥ",
+      "parse": "Relative pronoun · nominative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "ἥ",
+      "how": "exact",
+      "occurrences": 4,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-NSF",
+          "parse": "Relative pronoun · nominative · singular · feminine",
+          "n": 4
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "nom. sg. neut.",
+      "form": "ὅ",
+      "parse": "Relative pronoun · nominative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "ὅ",
+      "how": "exact",
+      "occurrences": 72,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-NSN",
+          "parse": "Relative pronoun · nominative · singular · neuter",
+          "n": 72
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "gen. sg. masc.",
+      "form": "οὗ",
+      "parse": "Relative pronoun · genitive · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "οὗ",
+      "how": "exact",
+      "occurrences": 97,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-GSM",
+          "parse": "Relative pronoun · genitive · singular · masculine",
+          "n": 97
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "gen. sg. fem.",
+      "form": "ἧς",
+      "parse": "Relative pronoun · genitive · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "ἧς",
+      "how": "exact",
+      "occurrences": 49,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-GSF",
+          "parse": "Relative pronoun · genitive · singular · feminine",
+          "n": 49
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "gen. sg. neut.",
+      "form": "οὗ",
+      "parse": "Relative pronoun · genitive · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "οὗ",
+      "how": "exact",
+      "occurrences": 18,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-GSN",
+          "parse": "Relative pronoun · genitive · singular · neuter",
+          "n": 18
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "dat. sg. masc.",
+      "form": "ᾧ",
+      "parse": "Relative pronoun · dative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "ᾧ",
+      "how": "exact",
+      "occurrences": 79,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-DSM",
+          "parse": "Relative pronoun · dative · singular · masculine",
+          "n": 79
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "dat. sg. fem.",
+      "form": "ᾗ",
+      "parse": "Relative pronoun · dative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "ᾗ",
+      "how": "exact",
+      "occurrences": 37,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-DSF",
+          "parse": "Relative pronoun · dative · singular · feminine",
+          "n": 37
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "dat. sg. neut.",
+      "form": "ᾧ",
+      "parse": "Relative pronoun · dative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "ᾧ",
+      "how": "exact",
+      "occurrences": 40,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-DSN",
+          "parse": "Relative pronoun · dative · singular · neuter",
+          "n": 40
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "acc. sg. masc.",
+      "form": "ὅν",
+      "parse": "Relative pronoun · accusative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "ὅν",
+      "how": "exact",
+      "occurrences": 167,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-ASM",
+          "parse": "Relative pronoun · accusative · singular · masculine",
+          "n": 167
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "acc. sg. fem.",
+      "form": "ἥν",
+      "parse": "Relative pronoun · accusative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "ἥν",
+      "how": "exact",
+      "occurrences": 98,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-ASF",
+          "parse": "Relative pronoun · accusative · singular · feminine",
+          "n": 98
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "acc. sg. neut.",
+      "form": "ὅ",
+      "parse": "Relative pronoun · accusative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "ὅ",
+      "how": "exact",
+      "occurrences": 178,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-ASN",
+          "parse": "Relative pronoun · accusative · singular · neuter",
+          "n": 178
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "nom. pl. masc.",
+      "form": "οἵ",
+      "parse": "Relative pronoun · nominative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "οἵ",
+      "how": "exact",
+      "occurrences": 34,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-NPM",
+          "parse": "Relative pronoun · nominative · plural · masculine",
+          "n": 34
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "nom. pl. fem.",
+      "form": "αἵ",
+      "parse": "Relative pronoun · nominative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "αἵ",
+      "how": "exact",
+      "occurrences": 5,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-NPF",
+          "parse": "Relative pronoun · nominative · plural · feminine",
+          "n": 5
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "nom. pl. neut.",
+      "form": "ἅ",
+      "parse": "Relative pronoun · nominative · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "ἅ",
+      "how": "exact",
+      "occurrences": 23,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-NPN",
+          "parse": "Relative pronoun · nominative · plural · neuter",
+          "n": 23
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "gen. pl. masc.",
+      "form": "ὧν",
+      "parse": "Relative pronoun · genitive · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "ὧν",
+      "how": "exact",
+      "occurrences": 31,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-GPM",
+          "parse": "Relative pronoun · genitive · plural · masculine",
+          "n": 31
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "gen. pl. fem.",
+      "form": "ὧν",
+      "parse": "Relative pronoun · genitive · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "ὧν",
+      "how": "exact",
+      "occurrences": 5,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-GPF",
+          "parse": "Relative pronoun · genitive · plural · feminine",
+          "n": 5
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "gen. pl. neut.",
+      "form": "ὧν",
+      "parse": "Relative pronoun · genitive · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "ὧν",
+      "how": "exact",
+      "occurrences": 44,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-GPN",
+          "parse": "Relative pronoun · genitive · plural · neuter",
+          "n": 44
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "dat. pl. masc.",
+      "form": "οἷς",
+      "parse": "Relative pronoun · dative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "οἷς",
+      "how": "exact",
+      "occurrences": 27,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-DPM",
+          "parse": "Relative pronoun · dative · plural · masculine",
+          "n": 27
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "dat. pl. fem.",
+      "form": "αἷς",
+      "parse": "Relative pronoun · dative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "αἷς",
+      "how": "exact",
+      "occurrences": 14,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-DPF",
+          "parse": "Relative pronoun · dative · plural · feminine",
+          "n": 14
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "dat. pl. neut.",
+      "form": "οἷς",
+      "parse": "Relative pronoun · dative · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "οἷς",
+      "how": "exact",
+      "occurrences": 19,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-DPN",
+          "parse": "Relative pronoun · dative · plural · neuter",
+          "n": 19
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "acc. pl. masc.",
+      "form": "οὕς",
+      "parse": "Relative pronoun · accusative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "οὕς",
+      "how": "exact",
+      "occurrences": 53,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-APM",
+          "parse": "Relative pronoun · accusative · plural · masculine",
+          "n": 53
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "acc. pl. fem.",
+      "form": "ἅς",
+      "parse": "Relative pronoun · accusative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "ἅς",
+      "how": "exact",
+      "occurrences": 2,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-APF",
+          "parse": "Relative pronoun · accusative · plural · feminine",
+          "n": 2
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "hos",
+      "cellLabel": "acc. pl. neut.",
+      "form": "ἅ",
+      "parse": "Relative pronoun · accusative · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "ἅ",
+      "how": "exact",
+      "occurrences": 95,
+      "seenAs": [
+        {
+          "lemma": "ὅς, ἥ",
+          "code": "R-APN",
+          "parse": "Relative pronoun · accusative · plural · neuter",
+          "n": 95
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "poieo-pres",
+      "cellLabel": "1st sg.",
+      "form": "ποιῶ",
+      "parse": "Verb · present · active · indicative · 1st person · singular",
+      "status": "attested-match",
+      "matchedForm": "ποιῶ",
+      "how": "exact",
+      "occurrences": 22,
+      "seenAs": [
+        {
+          "lemma": "ποιέω",
+          "code": "V-PAI-1S",
+          "parse": "Verb · present · active · indicative · 1st person · singular",
+          "n": 22
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "poieo-pres",
+      "cellLabel": "1st pl.",
+      "form": "ποιοῦμεν",
+      "parse": "Verb · present · active · indicative · 1st person · plural",
+      "status": "attested-match",
+      "matchedForm": "ποιοῦμεν",
+      "how": "exact",
+      "occurrences": 4,
+      "seenAs": [
+        {
+          "lemma": "ποιέω",
+          "code": "V-PAI-1P",
+          "parse": "Verb · present · active · indicative · 1st person · plural",
+          "n": 4
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "poieo-pres",
+      "cellLabel": "2nd sg.",
+      "form": "ποιεῖς",
+      "parse": "Verb · present · active · indicative · 2nd person · singular",
+      "status": "attested-match",
+      "matchedForm": "ποιεῖς",
+      "how": "exact",
+      "occurrences": 13,
+      "seenAs": [
+        {
+          "lemma": "ποιέω",
+          "code": "V-PAI-2S",
+          "parse": "Verb · present · active · indicative · 2nd person · singular",
+          "n": 13
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "poieo-pres",
+      "cellLabel": "2nd pl.",
+      "form": "ποιεῖτε",
+      "parse": "Verb · present · active · indicative · 2nd person · plural",
+      "status": "attested-match",
+      "matchedForm": "ποιεῖτε",
+      "how": "exact",
+      "occurrences": 18,
+      "seenAs": [
+        {
+          "lemma": "ποιέω",
+          "code": "V-PAI-2P",
+          "parse": "Verb · present · active · indicative · 2nd person · plural",
+          "n": 18
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "poieo-pres",
+      "cellLabel": "3rd sg.",
+      "form": "ποιεῖ",
+      "parse": "Verb · present · active · indicative · 3rd person · singular",
+      "status": "attested-match",
+      "matchedForm": "ποιεῖ",
+      "how": "exact",
+      "occurrences": 28,
+      "seenAs": [
+        {
+          "lemma": "ποιέω",
+          "code": "V-PAI-3S",
+          "parse": "Verb · present · active · indicative · 3rd person · singular",
+          "n": 28
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "poieo-pres",
+      "cellLabel": "3rd pl.",
+      "form": "ποιοῦσι(ν)",
+      "parse": "Verb · present · active · indicative · 3rd person · plural",
+      "status": "attested-match",
+      "matchedForm": "ποιοῦσιν",
+      "how": "exact",
+      "occurrences": 11,
+      "seenAs": [
+        {
+          "lemma": "ποιέω",
+          "code": "V-PAI-3P",
+          "parse": "Verb · present · active · indicative · 3rd person · plural",
+          "n": 11
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "agapao-pres",
+      "cellLabel": "1st sg.",
+      "form": "ἀγαπῶ",
+      "parse": "Verb · present · active · indicative · 1st person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἀγαπῶ",
+      "how": "exact",
+      "occurrences": 5,
+      "seenAs": [
+        {
+          "lemma": "ἀγαπάω",
+          "code": "V-PAI-1S",
+          "parse": "Verb · present · active · indicative · 1st person · singular",
+          "n": 5
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "agapao-pres",
+      "cellLabel": "1st pl.",
+      "form": "ἀγαπῶμεν",
+      "parse": "Verb · present · active · indicative · 1st person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἀγαπῶμεν",
+      "how": "exact",
+      "occurrences": 3,
+      "seenAs": [
+        {
+          "lemma": "ἀγαπάω",
+          "code": "V-PAI-1P",
+          "parse": "Verb · present · active · indicative · 1st person · plural",
+          "n": 3
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "agapao-pres",
+      "cellLabel": "2nd sg.",
+      "form": "ἀγαπᾷς",
+      "parse": "Verb · present · active · indicative · 2nd person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἀγαπᾷς",
+      "how": "exact",
+      "occurrences": 2,
+      "seenAs": [
+        {
+          "lemma": "ἀγαπάω",
+          "code": "V-PAI-2S",
+          "parse": "Verb · present · active · indicative · 2nd person · singular",
+          "n": 2
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "agapao-pres",
+      "cellLabel": "2nd pl.",
+      "form": "ἀγαπᾶτε",
+      "parse": "Verb · present · active · indicative · 2nd person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἀγαπᾶτε",
+      "how": "exact",
+      "occurrences": 3,
+      "seenAs": [
+        {
+          "lemma": "ἀγαπάω",
+          "code": "V-PAI-2P",
+          "parse": "Verb · present · active · indicative · 2nd person · plural",
+          "n": 3
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "agapao-pres",
+      "cellLabel": "3rd sg.",
+      "form": "ἀγαπᾷ",
+      "parse": "Verb · present · active · indicative · 3rd person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἀγαπᾷ",
+      "how": "exact",
+      "occurrences": 9,
+      "seenAs": [
+        {
+          "lemma": "ἀγαπάω",
+          "code": "V-PAI-3S",
+          "parse": "Verb · present · active · indicative · 3rd person · singular",
+          "n": 9
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "agapao-pres",
+      "cellLabel": "3rd pl.",
+      "form": "ἀγαπῶσι(ν)",
+      "parse": "Verb · present · active · indicative · 3rd person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἀγαπῶσιν",
+      "how": "exact",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "lemma": "ἀγαπάω",
+          "code": "V-PAI-3P",
+          "parse": "Verb · present · active · indicative · 3rd person · plural",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "erchomai-pres",
+      "cellLabel": "1st sg.",
+      "form": "ἔρχομαι",
+      "parse": "Verb · present · middle or passive deponent · indicative · 1st person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἔρχομαι",
+      "how": "exact",
+      "occurrences": 18,
+      "seenAs": [
+        {
+          "lemma": "ἔρχομαι",
+          "code": "V-PNI-1S",
+          "parse": "Verb · present · middle or passive deponent · indicative · 1st person · singular",
+          "n": 18
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "erchomai-pres",
+      "cellLabel": "1st pl.",
+      "form": "ἐρχόμεθα",
+      "parse": "Verb · present · middle or passive deponent · indicative · 1st person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἐρχόμεθα",
+      "how": "exact",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "lemma": "ἔρχομαι",
+          "code": "V-PNI-1P",
+          "parse": "Verb · present · middle or passive deponent · indicative · 1st person · plural",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "erchomai-pres",
+      "cellLabel": "2nd sg.",
+      "form": "ἔρχῃ",
+      "parse": "Verb · present · middle or passive deponent · indicative · 2nd person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἔρχῃ",
+      "how": "exact",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "lemma": "ἔρχομαι",
+          "code": "V-PNI-2S",
+          "parse": "Verb · present · middle or passive deponent · indicative · 2nd person · singular",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "erchomai-pres",
+      "cellLabel": "2nd pl.",
+      "form": "ἔρχεσθε",
+      "parse": "Verb · present · middle or passive deponent · indicative · 2nd person · plural",
+      "status": "attested-other",
+      "matchedForm": "ἔρχεσθε",
+      "how": "exact",
+      "occurrences": 0,
+      "seenAs": [
+        {
+          "lemma": "ἔρχομαι",
+          "code": "V-PNM-2P",
+          "parse": "Verb · present · middle or passive deponent · imperative · 2nd person · plural",
+          "n": 2
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "erchomai-pres",
+      "cellLabel": "3rd sg.",
+      "form": "ἔρχεται",
+      "parse": "Verb · present · middle or passive deponent · indicative · 3rd person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἔρχεται",
+      "how": "exact",
+      "occurrences": 88,
+      "seenAs": [
+        {
+          "lemma": "ἔρχομαι",
+          "code": "V-PNI-3S",
+          "parse": "Verb · present · middle or passive deponent · indicative · 3rd person · singular",
+          "n": 88
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "erchomai-pres",
+      "cellLabel": "3rd pl.",
+      "form": "ἔρχονται",
+      "parse": "Verb · present · middle or passive deponent · indicative · 3rd person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἔρχονται",
+      "how": "exact",
+      "occurrences": 19,
+      "seenAs": [
+        {
+          "lemma": "ἔρχομαι",
+          "code": "V-PNI-3P",
+          "parse": "Verb · present · middle or passive deponent · indicative · 3rd person · plural",
+          "n": 19
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pater",
+      "cellLabel": "nom. sg.",
+      "form": "πατήρ",
+      "parse": "Noun · nominative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "πατήρ",
+      "how": "exact",
+      "occurrences": 105,
+      "seenAs": [
+        {
+          "lemma": "πατήρ",
+          "code": "N-NSM-T",
+          "parse": "Noun · nominative · singular · masculine · name: title",
+          "n": 85
+        },
+        {
+          "lemma": "πατήρ",
+          "code": "N-NSM",
+          "parse": "Noun · nominative · singular · masculine",
+          "n": 20
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pater",
+      "cellLabel": "nom. pl.",
+      "form": "πατέρες",
+      "parse": "Noun · nominative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "πατέρες",
+      "how": "exact",
+      "occurrences": 18,
+      "seenAs": [
+        {
+          "lemma": "πατήρ",
+          "code": "N-NPM",
+          "parse": "Noun · nominative · plural · masculine",
+          "n": 18
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pater",
+      "cellLabel": "gen. sg.",
+      "form": "πατρός",
+      "parse": "Noun · genitive · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "πατρός",
+      "how": "exact",
+      "occurrences": 100,
+      "seenAs": [
+        {
+          "lemma": "πατήρ",
+          "code": "N-GSM-T",
+          "parse": "Noun · genitive · singular · masculine · name: title",
+          "n": 77
+        },
+        {
+          "lemma": "πατήρ",
+          "code": "N-GSM",
+          "parse": "Noun · genitive · singular · masculine",
+          "n": 23
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pater",
+      "cellLabel": "gen. pl.",
+      "form": "πατέρων",
+      "parse": "Noun · genitive · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "πατέρων",
+      "how": "exact",
+      "occurrences": 14,
+      "seenAs": [
+        {
+          "lemma": "πατήρ",
+          "code": "N-GPM",
+          "parse": "Noun · genitive · plural · masculine",
+          "n": 13
+        },
+        {
+          "lemma": "πατήρ",
+          "code": "N-GPM-T",
+          "parse": "Noun · genitive · plural · masculine · name: title",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pater",
+      "cellLabel": "dat. sg.",
+      "form": "πατρί",
+      "parse": "Noun · dative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "πατρί",
+      "how": "exact",
+      "occurrences": 33,
+      "seenAs": [
+        {
+          "lemma": "πατήρ",
+          "code": "N-DSM-T",
+          "parse": "Noun · dative · singular · masculine · name: title",
+          "n": 23
+        },
+        {
+          "lemma": "πατήρ",
+          "code": "N-DSM",
+          "parse": "Noun · dative · singular · masculine",
+          "n": 10
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pater",
+      "cellLabel": "dat. pl.",
+      "form": "πατράσι(ν)",
+      "parse": "Noun · dative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "πατράσιν",
+      "how": "exact",
+      "occurrences": 3,
+      "seenAs": [
+        {
+          "lemma": "πατήρ",
+          "code": "N-DPM",
+          "parse": "Noun · dative · plural · masculine",
+          "n": 3
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pater",
+      "cellLabel": "acc. sg.",
+      "form": "πατέρα",
+      "parse": "Noun · accusative · singular · masculine",
+      "status": "attested-match",
+      "matchedForm": "πατέρα",
+      "how": "exact",
+      "occurrences": 93,
+      "seenAs": [
+        {
+          "lemma": "πατήρ",
+          "code": "N-ASM-T",
+          "parse": "Noun · accusative · singular · masculine · name: title",
+          "n": 56
+        },
+        {
+          "lemma": "πατήρ",
+          "code": "N-ASM",
+          "parse": "Noun · accusative · singular · masculine",
+          "n": 37
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pater",
+      "cellLabel": "acc. pl.",
+      "form": "πατέρας",
+      "parse": "Noun · accusative · plural · masculine",
+      "status": "attested-match",
+      "matchedForm": "πατέρας",
+      "how": "exact",
+      "occurrences": 12,
+      "seenAs": [
+        {
+          "lemma": "πατήρ",
+          "code": "N-APM",
+          "parse": "Noun · accusative · plural · masculine",
+          "n": 12
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "sarx",
+      "cellLabel": "nom. sg.",
+      "form": "σάρξ",
+      "parse": "Noun · nominative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "σάρξ",
+      "how": "exact",
+      "occurrences": 26,
+      "seenAs": [
+        {
+          "lemma": "σάρξ",
+          "code": "N-NSF",
+          "parse": "Noun · nominative · singular · feminine",
+          "n": 26
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "sarx",
+      "cellLabel": "nom. pl.",
+      "form": "σάρκες",
+      "parse": "Noun · nominative · plural · feminine",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "sarx",
+      "cellLabel": "gen. sg.",
+      "form": "σαρκός",
+      "parse": "Noun · genitive · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "σαρκός",
+      "how": "exact",
+      "occurrences": 37,
+      "seenAs": [
+        {
+          "lemma": "σάρξ",
+          "code": "N-GSF",
+          "parse": "Noun · genitive · singular · feminine",
+          "n": 37
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "sarx",
+      "cellLabel": "gen. pl.",
+      "form": "σαρκῶν",
+      "parse": "Noun · genitive · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "σαρκῶν",
+      "how": "exact",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "lemma": "σάρξ",
+          "code": "N-GPF",
+          "parse": "Noun · genitive · plural · feminine",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "sarx",
+      "cellLabel": "dat. sg.",
+      "form": "σαρκί",
+      "parse": "Noun · dative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "σαρκί",
+      "how": "exact",
+      "occurrences": 39,
+      "seenAs": [
+        {
+          "lemma": "σάρξ",
+          "code": "N-DSF",
+          "parse": "Noun · dative · singular · feminine",
+          "n": 39
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "sarx",
+      "cellLabel": "dat. pl.",
+      "form": "σαρξί(ν)",
+      "parse": "Noun · dative · plural · feminine",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "sarx",
+      "cellLabel": "acc. sg.",
+      "form": "σάρκα",
+      "parse": "Noun · accusative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "σάρκα",
+      "how": "exact",
+      "occurrences": 37,
+      "seenAs": [
+        {
+          "lemma": "σάρξ",
+          "code": "N-ASF",
+          "parse": "Noun · accusative · singular · feminine",
+          "n": 37
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "sarx",
+      "cellLabel": "acc. pl.",
+      "form": "σάρκας",
+      "parse": "Noun · accusative · plural · feminine",
+      "status": "attested-match",
+      "matchedForm": "σάρκας",
+      "how": "exact",
+      "occurrences": 7,
+      "seenAs": [
+        {
+          "lemma": "σάρξ",
+          "code": "N-APF",
+          "parse": "Noun · accusative · plural · feminine",
+          "n": 7
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "onoma",
+      "cellLabel": "nom. sg.",
+      "form": "ὄνομα",
+      "parse": "Noun · nominative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "ὄνομα",
+      "how": "exact",
+      "occurrences": 30,
+      "seenAs": [
+        {
+          "lemma": "ὄνομα",
+          "code": "N-NSN",
+          "parse": "Noun · nominative · singular · neuter",
+          "n": 30
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "onoma",
+      "cellLabel": "nom. pl.",
+      "form": "ὀνόματα",
+      "parse": "Noun · nominative · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "ὀνόματα",
+      "how": "exact",
+      "occurrences": 4,
+      "seenAs": [
+        {
+          "lemma": "ὄνομα",
+          "code": "N-NPN",
+          "parse": "Noun · nominative · plural · neuter",
+          "n": 4
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "onoma",
+      "cellLabel": "gen. sg.",
+      "form": "ὀνόματος",
+      "parse": "Noun · genitive · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "ὀνόματος",
+      "how": "exact",
+      "occurrences": 14,
+      "seenAs": [
+        {
+          "lemma": "ὄνομα",
+          "code": "N-GSN",
+          "parse": "Noun · genitive · singular · neuter",
+          "n": 14
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "onoma",
+      "cellLabel": "gen. pl.",
+      "form": "ὀνομάτων",
+      "parse": "Noun · genitive · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "ὀνομάτων",
+      "how": "exact",
+      "occurrences": 2,
+      "seenAs": [
+        {
+          "lemma": "ὄνομα",
+          "code": "N-GPN",
+          "parse": "Noun · genitive · plural · neuter",
+          "n": 2
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "onoma",
+      "cellLabel": "dat. sg.",
+      "form": "ὀνόματι",
+      "parse": "Noun · dative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "ὀνόματι",
+      "how": "exact",
+      "occurrences": 74,
+      "seenAs": [
+        {
+          "lemma": "ὄνομα",
+          "code": "N-DSN",
+          "parse": "Noun · dative · singular · neuter",
+          "n": 74
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "onoma",
+      "cellLabel": "dat. pl.",
+      "form": "ὀνόμασι(ν)",
+      "parse": "Noun · dative · plural · neuter",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "onoma",
+      "cellLabel": "acc. sg.",
+      "form": "ὄνομα",
+      "parse": "Noun · accusative · singular · neuter",
+      "status": "attested-match",
+      "matchedForm": "ὄνομα",
+      "how": "exact",
+      "occurrences": 52,
+      "seenAs": [
+        {
+          "lemma": "ὄνομα",
+          "code": "N-ASN",
+          "parse": "Noun · accusative · singular · neuter",
+          "n": 52
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "onoma",
+      "cellLabel": "acc. pl.",
+      "form": "ὀνόματα",
+      "parse": "Noun · accusative · plural · neuter",
+      "status": "attested-match",
+      "matchedForm": "ὀνόματα",
+      "how": "exact",
+      "occurrences": 6,
+      "seenAs": [
+        {
+          "lemma": "ὄνομα",
+          "code": "N-APN",
+          "parse": "Noun · accusative · plural · neuter",
+          "n": 6
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "luo-aor-act",
+      "cellLabel": "1st sg.",
+      "form": "ἔλυσα",
+      "parse": "Verb · aorist · active · indicative · 1st person · singular",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "luo-aor-act",
+      "cellLabel": "1st pl.",
+      "form": "ἐλύσαμεν",
+      "parse": "Verb · aorist · active · indicative · 1st person · plural",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "luo-aor-act",
+      "cellLabel": "2nd sg.",
+      "form": "ἔλυσας",
+      "parse": "Verb · aorist · active · indicative · 2nd person · singular",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "luo-aor-act",
+      "cellLabel": "2nd pl.",
+      "form": "ἐλύσατε",
+      "parse": "Verb · aorist · active · indicative · 2nd person · plural",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "luo-aor-act",
+      "cellLabel": "3rd sg.",
+      "form": "ἔλυσε(ν)",
+      "parse": "Verb · aorist · active · indicative · 3rd person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἔλυσεν",
+      "how": "exact",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "lemma": "λύω",
+          "code": "V-AAI-3S",
+          "parse": "Verb · aorist · active · indicative · 3rd person · singular",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "luo-aor-act",
+      "cellLabel": "3rd pl.",
+      "form": "ἔλυσαν",
+      "parse": "Verb · aorist · active · indicative · 3rd person · plural",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "pisteuo-aor-act",
+      "cellLabel": "1st sg.",
+      "form": "ἐπίστευσα",
+      "parse": "Verb · aorist · active · indicative · 1st person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἐπίστευσα",
+      "how": "exact",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "lemma": "πιστεύω",
+          "code": "V-AAI-1S",
+          "parse": "Verb · aorist · active · indicative · 1st person · singular",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pisteuo-aor-act",
+      "cellLabel": "1st pl.",
+      "form": "ἐπιστεύσαμεν",
+      "parse": "Verb · aorist · active · indicative · 1st person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἐπιστεύσαμεν",
+      "how": "exact",
+      "occurrences": 2,
+      "seenAs": [
+        {
+          "lemma": "πιστεύω",
+          "code": "V-AAI-1P",
+          "parse": "Verb · aorist · active · indicative · 1st person · plural",
+          "n": 2
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pisteuo-aor-act",
+      "cellLabel": "2nd sg.",
+      "form": "ἐπίστευσας",
+      "parse": "Verb · aorist · active · indicative · 2nd person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἐπίστευσας",
+      "how": "exact",
+      "occurrences": 2,
+      "seenAs": [
+        {
+          "lemma": "πιστεύω",
+          "code": "V-AAI-2S",
+          "parse": "Verb · aorist · active · indicative · 2nd person · singular",
+          "n": 2
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pisteuo-aor-act",
+      "cellLabel": "2nd pl.",
+      "form": "ἐπιστεύσατε",
+      "parse": "Verb · aorist · active · indicative · 2nd person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἐπιστεύσατε",
+      "how": "exact",
+      "occurrences": 7,
+      "seenAs": [
+        {
+          "lemma": "πιστεύω",
+          "code": "V-AAI-2P",
+          "parse": "Verb · aorist · active · indicative · 2nd person · plural",
+          "n": 7
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pisteuo-aor-act",
+      "cellLabel": "3rd sg.",
+      "form": "ἐπίστευσε(ν)",
+      "parse": "Verb · aorist · active · indicative · 3rd person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἐπίστευσεν",
+      "how": "exact",
+      "occurrences": 14,
+      "seenAs": [
+        {
+          "lemma": "πιστεύω",
+          "code": "V-AAI-3S",
+          "parse": "Verb · aorist · active · indicative · 3rd person · singular",
+          "n": 14
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pisteuo-aor-act",
+      "cellLabel": "3rd pl.",
+      "form": "ἐπίστευσαν",
+      "parse": "Verb · aorist · active · indicative · 3rd person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἐπίστευσαν",
+      "how": "exact",
+      "occurrences": 22,
+      "seenAs": [
+        {
+          "lemma": "πιστεύω",
+          "code": "V-AAI-3P",
+          "parse": "Verb · aorist · active · indicative · 3rd person · plural",
+          "n": 22
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eipon-2aor",
+      "cellLabel": "1st sg.",
+      "form": "εἶπον",
+      "parse": "Verb · 2nd aorist · active · indicative · 1st person · singular",
+      "status": "attested-match",
+      "matchedForm": "εἶπον",
+      "how": "exact",
+      "occurrences": 29,
+      "seenAs": [
+        {
+          "lemma": "ἔπω, ἐρῶ, εἶπον",
+          "code": "V-2AAI-1S",
+          "parse": "Verb · 2nd aorist · active · indicative · 1st person · singular",
+          "n": 29
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eipon-2aor",
+      "cellLabel": "1st pl.",
+      "form": "εἴπομεν",
+      "parse": "Verb · 2nd aorist · active · indicative · 1st person · plural",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "eipon-2aor",
+      "cellLabel": "2nd sg.",
+      "form": "εἶπες",
+      "parse": "Verb · 2nd aorist · active · indicative · 2nd person · singular",
+      "status": "attested-match",
+      "matchedForm": "εἶπες",
+      "how": "exact",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "lemma": "ἔπω, ἐρῶ, εἶπον",
+          "code": "V-2AAI-2S",
+          "parse": "Verb · 2nd aorist · active · indicative · 2nd person · singular",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eipon-2aor",
+      "cellLabel": "2nd pl.",
+      "form": "εἴπατε",
+      "parse": "Verb · 2nd aorist · active · indicative · 2nd person · plural",
+      "status": "attested-match",
+      "matchedForm": "εἴπατε",
+      "how": "exact",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "lemma": "ἔπω, ἐρῶ, εἶπον",
+          "code": "V-2AAI-2P",
+          "parse": "Verb · 2nd aorist · active · indicative · 2nd person · plural",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eipon-2aor",
+      "cellLabel": "3rd sg.",
+      "form": "εἶπε(ν)",
+      "parse": "Verb · 2nd aorist · active · indicative · 3rd person · singular",
+      "status": "attested-match",
+      "matchedForm": "εἶπεν",
+      "how": "exact",
+      "occurrences": 596,
+      "seenAs": [
+        {
+          "lemma": "ἔπω, ἐρῶ, εἶπον",
+          "code": "V-2AAI-3S",
+          "parse": "Verb · 2nd aorist · active · indicative · 3rd person · singular",
+          "n": 596
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eipon-2aor",
+      "cellLabel": "3rd pl.",
+      "form": "εἶπον",
+      "parse": "Verb · 2nd aorist · active · indicative · 3rd person · plural",
+      "status": "attested-match",
+      "matchedForm": "εἶπον",
+      "how": "exact",
+      "occurrences": 23,
+      "seenAs": [
+        {
+          "lemma": "ἔπω, ἐρῶ, εἶπον",
+          "code": "V-2AAI-3P",
+          "parse": "Verb · 2nd aorist · active · indicative · 3rd person · plural",
+          "n": 23
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "theaomai-aor-mid",
+      "cellLabel": "1st sg.",
+      "form": "ἐθεασάμην",
+      "parse": "Verb · aorist · middle deponent · indicative · 1st person · singular",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "theaomai-aor-mid",
+      "cellLabel": "1st pl.",
+      "form": "ἐθεασάμεθα",
+      "parse": "Verb · aorist · middle deponent · indicative · 1st person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἐθεασάμεθα",
+      "how": "exact",
+      "occurrences": 2,
+      "seenAs": [
+        {
+          "lemma": "θεάομαι",
+          "code": "V-ADI-1P",
+          "parse": "Verb · aorist · middle deponent · indicative · 1st person · plural",
+          "n": 2
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "theaomai-aor-mid",
+      "cellLabel": "2nd sg.",
+      "form": "ἐθεάσω",
+      "parse": "Verb · aorist · middle deponent · indicative · 2nd person · singular",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "theaomai-aor-mid",
+      "cellLabel": "2nd pl.",
+      "form": "ἐθεάσασθε",
+      "parse": "Verb · aorist · middle deponent · indicative · 2nd person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἐθεάσασθε",
+      "how": "exact",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "lemma": "θεάομαι",
+          "code": "V-ADI-2P",
+          "parse": "Verb · aorist · middle deponent · indicative · 2nd person · plural",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "theaomai-aor-mid",
+      "cellLabel": "3rd sg.",
+      "form": "ἐθεάσατο",
+      "parse": "Verb · aorist · middle deponent · indicative · 3rd person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἐθεάσατο",
+      "how": "exact",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "lemma": "θεάομαι",
+          "code": "V-ADI-3S",
+          "parse": "Verb · aorist · middle deponent · indicative · 3rd person · singular",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "theaomai-aor-mid",
+      "cellLabel": "3rd pl.",
+      "form": "ἐθεάσαντο",
+      "parse": "Verb · aorist · middle deponent · indicative · 3rd person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἐθεάσαντο",
+      "how": "exact",
+      "occurrences": 2,
+      "seenAs": [
+        {
+          "lemma": "θεάομαι",
+          "code": "V-ADI-3P",
+          "parse": "Verb · aorist · middle deponent · indicative · 3rd person · plural",
+          "n": 2
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "egeiro-aor-pass",
+      "cellLabel": "1st sg.",
+      "form": "ἠγέρθην",
+      "parse": "Verb · aorist · passive · indicative · 1st person · singular",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "egeiro-aor-pass",
+      "cellLabel": "1st pl.",
+      "form": "ἠγέρθημεν",
+      "parse": "Verb · aorist · passive · indicative · 1st person · plural",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "egeiro-aor-pass",
+      "cellLabel": "2nd sg.",
+      "form": "ἠγέρθης",
+      "parse": "Verb · aorist · passive · indicative · 2nd person · singular",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "egeiro-aor-pass",
+      "cellLabel": "2nd pl.",
+      "form": "ἠγέρθητε",
+      "parse": "Verb · aorist · passive · indicative · 2nd person · plural",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "egeiro-aor-pass",
+      "cellLabel": "3rd sg.",
+      "form": "ἠγέρθη",
+      "parse": "Verb · aorist · passive · indicative · 3rd person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἠγέρθη",
+      "how": "exact",
+      "occurrences": 18,
+      "seenAs": [
+        {
+          "lemma": "ἐγείρω",
+          "code": "V-API-3S",
+          "parse": "Verb · aorist · passive · indicative · 3rd person · singular",
+          "n": 18
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "egeiro-aor-pass",
+      "cellLabel": "3rd pl.",
+      "form": "ἠγέρθησαν",
+      "parse": "Verb · aorist · passive · indicative · 3rd person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἠγέρθησαν",
+      "how": "exact",
+      "occurrences": 2,
+      "seenAs": [
+        {
+          "lemma": "ἐγείρω",
+          "code": "V-API-3P",
+          "parse": "Verb · aorist · passive · indicative · 3rd person · plural",
+          "n": 2
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "horao-perf",
+      "cellLabel": "1st sg.",
+      "form": "ἑώρακα",
+      "parse": "Verb · perfect · active · indicative · 1st person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἑώρακα",
+      "how": "exact",
+      "occurrences": 3,
+      "seenAs": [
+        {
+          "lemma": "ὁράω",
+          "code": "V-RAI-1S",
+          "parse": "Verb · perfect · active · indicative · 1st person · singular",
+          "n": 3
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "horao-perf",
+      "cellLabel": "1st pl.",
+      "form": "ἑωράκαμεν",
+      "parse": "Verb · perfect · active · indicative · 1st person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἑωράκαμεν",
+      "how": "exact",
+      "occurrences": 5,
+      "seenAs": [
+        {
+          "lemma": "ὁράω",
+          "code": "V-RAI-1P",
+          "parse": "Verb · perfect · active · indicative · 1st person · plural",
+          "n": 5
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "horao-perf",
+      "cellLabel": "2nd sg.",
+      "form": "ἑώρακας",
+      "parse": "Verb · perfect · active · indicative · 2nd person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἑώρακας",
+      "how": "exact",
+      "occurrences": 3,
+      "seenAs": [
+        {
+          "lemma": "ὁράω",
+          "code": "V-RAI-2S",
+          "parse": "Verb · perfect · active · indicative · 2nd person · singular",
+          "n": 3
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "horao-perf",
+      "cellLabel": "2nd pl.",
+      "form": "ἑωράκατε",
+      "parse": "Verb · perfect · active · indicative · 2nd person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἑωράκατε",
+      "how": "exact",
+      "occurrences": 2,
+      "seenAs": [
+        {
+          "lemma": "ὁράω",
+          "code": "V-RAI-2P",
+          "parse": "Verb · perfect · active · indicative · 2nd person · plural",
+          "n": 2
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "horao-perf",
+      "cellLabel": "3rd sg.",
+      "form": "ἑώρακε(ν)",
+      "parse": "Verb · perfect · active · indicative · 3rd person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἑώρακεν",
+      "how": "exact",
+      "occurrences": 9,
+      "seenAs": [
+        {
+          "lemma": "ὁράω",
+          "code": "V-RAI-3S",
+          "parse": "Verb · perfect · active · indicative · 3rd person · singular",
+          "n": 9
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "horao-perf",
+      "cellLabel": "3rd pl.",
+      "form": "ἑωράκασι(ν)",
+      "parse": "Verb · perfect · active · indicative · 3rd person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἑωράκασιν",
+      "how": "exact",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "lemma": "ὁράω",
+          "code": "V-RAI-3P",
+          "parse": "Verb · perfect · active · indicative · 3rd person · plural",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "akouo-2perf",
+      "cellLabel": "1st sg.",
+      "form": "ἀκήκοα",
+      "parse": "Verb · 2nd perfect · active · indicative · 1st person · singular",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "akouo-2perf",
+      "cellLabel": "1st pl.",
+      "form": "ἀκηκόαμεν",
+      "parse": "Verb · 2nd perfect · active · indicative · 1st person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἀκηκόαμεν",
+      "how": "exact",
+      "occurrences": 6,
+      "seenAs": [
+        {
+          "lemma": "ἀκούω",
+          "code": "V-2RAI-1P",
+          "parse": "Verb · 2nd perfect · active · indicative · 1st person · plural",
+          "n": 6
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "akouo-2perf",
+      "cellLabel": "2nd sg.",
+      "form": "ἀκήκοας",
+      "parse": "Verb · 2nd perfect · active · indicative · 2nd person · singular",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "akouo-2perf",
+      "cellLabel": "2nd pl.",
+      "form": "ἀκηκόατε",
+      "parse": "Verb · 2nd perfect · active · indicative · 2nd person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἀκηκόατε",
+      "how": "exact",
+      "occurrences": 2,
+      "seenAs": [
+        {
+          "lemma": "ἀκούω",
+          "code": "V-2RAI-2P",
+          "parse": "Verb · 2nd perfect · active · indicative · 2nd person · plural",
+          "n": 2
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "akouo-2perf",
+      "cellLabel": "3rd sg.",
+      "form": "ἀκήκοε(ν)",
+      "parse": "Verb · 2nd perfect · active · indicative · 3rd person · singular",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "akouo-2perf",
+      "cellLabel": "3rd pl.",
+      "form": "ἀκηκόασι(ν)",
+      "parse": "Verb · 2nd perfect · active · indicative · 3rd person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἀκηκόασιν",
+      "how": "exact",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "lemma": "ἀκούω",
+          "code": "V-2RAI-3P",
+          "parse": "Verb · 2nd perfect · active · indicative · 3rd person · plural",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "oida-perf",
+      "cellLabel": "1st sg.",
+      "form": "οἶδα",
+      "parse": "Verb · perfect · active · indicative · 1st person · singular",
+      "status": "attested-match",
+      "matchedForm": "οἶδα",
+      "how": "exact",
+      "occurrences": 36,
+      "seenAs": [
+        {
+          "lemma": "εἴδω",
+          "code": "V-RAI-1S",
+          "parse": "Verb · perfect · active · indicative · 1st person · singular",
+          "n": 36
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "oida-perf",
+      "cellLabel": "1st pl.",
+      "form": "οἴδαμεν",
+      "parse": "Verb · perfect · active · indicative · 1st person · plural",
+      "status": "attested-match",
+      "matchedForm": "οἴδαμεν",
+      "how": "exact",
+      "occurrences": 34,
+      "seenAs": [
+        {
+          "lemma": "εἴδω",
+          "code": "V-RAI-1P",
+          "parse": "Verb · perfect · active · indicative · 1st person · plural",
+          "n": 34
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "oida-perf",
+      "cellLabel": "2nd sg.",
+      "form": "οἶδας",
+      "parse": "Verb · perfect · active · indicative · 2nd person · singular",
+      "status": "attested-match",
+      "matchedForm": "οἶδας",
+      "how": "exact",
+      "occurrences": 14,
+      "seenAs": [
+        {
+          "lemma": "εἴδω",
+          "code": "V-RAI-2S",
+          "parse": "Verb · perfect · active · indicative · 2nd person · singular",
+          "n": 14
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "oida-perf",
+      "cellLabel": "2nd pl.",
+      "form": "οἴδατε",
+      "parse": "Verb · perfect · active · indicative · 2nd person · plural",
+      "status": "attested-match",
+      "matchedForm": "οἴδατε",
+      "how": "exact",
+      "occurrences": 53,
+      "seenAs": [
+        {
+          "lemma": "εἴδω",
+          "code": "V-RAI-2P",
+          "parse": "Verb · perfect · active · indicative · 2nd person · plural",
+          "n": 53
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "oida-perf",
+      "cellLabel": "3rd sg.",
+      "form": "οἶδε(ν)",
+      "parse": "Verb · perfect · active · indicative · 3rd person · singular",
+      "status": "attested-match",
+      "matchedForm": "οἶδεν",
+      "how": "exact",
+      "occurrences": 20,
+      "seenAs": [
+        {
+          "lemma": "εἴδω",
+          "code": "V-RAI-3S",
+          "parse": "Verb · perfect · active · indicative · 3rd person · singular",
+          "n": 20
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "oida-perf",
+      "cellLabel": "3rd pl.",
+      "form": "οἴδασι(ν)",
+      "parse": "Verb · perfect · active · indicative · 3rd person · plural",
+      "status": "attested-match",
+      "matchedForm": "οἴδασιν",
+      "how": "exact",
+      "occurrences": 7,
+      "seenAs": [
+        {
+          "lemma": "εἴδω",
+          "code": "V-RAI-3P",
+          "parse": "Verb · perfect · active · indicative · 3rd person · plural",
+          "n": 7
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pleroo-perf-ptc",
+      "cellLabel": "nom. sg. masc.",
+      "form": "πεπληρωμένος",
+      "parse": "Verb · perfect · passive · participle · nominative · singular · masculine",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "pleroo-perf-ptc",
+      "cellLabel": "nom. sg. fem.",
+      "form": "πεπληρωμένη",
+      "parse": "Verb · perfect · passive · participle · nominative · singular · feminine",
+      "status": "attested-match",
+      "matchedForm": "πεπληρωμένη",
+      "how": "exact",
+      "occurrences": 3,
+      "seenAs": [
+        {
+          "lemma": "πληρόω",
+          "code": "V-RPP-NSF",
+          "parse": "Verb · perfect · passive · participle · nominative · singular · feminine",
+          "n": 3
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "pleroo-perf-ptc",
+      "cellLabel": "nom. sg. neut.",
+      "form": "πεπληρωμένον",
+      "parse": "Verb · perfect · passive · participle · nominative · singular · neuter",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "luo-pres-subj",
+      "cellLabel": "1st sg.",
+      "form": "λύω",
+      "parse": "Verb · present · active · subjunctive · 1st person · singular",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "luo-pres-subj",
+      "cellLabel": "1st pl.",
+      "form": "λύωμεν",
+      "parse": "Verb · present · active · subjunctive · 1st person · plural",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "luo-pres-subj",
+      "cellLabel": "2nd sg.",
+      "form": "λύῃς",
+      "parse": "Verb · present · active · subjunctive · 2nd person · singular",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "luo-pres-subj",
+      "cellLabel": "2nd pl.",
+      "form": "λύητε",
+      "parse": "Verb · present · active · subjunctive · 2nd person · plural",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "luo-pres-subj",
+      "cellLabel": "3rd sg.",
+      "form": "λύῃ",
+      "parse": "Verb · present · active · subjunctive · 3rd person · singular",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "luo-pres-subj",
+      "cellLabel": "3rd pl.",
+      "form": "λύωσι(ν)",
+      "parse": "Verb · present · active · subjunctive · 3rd person · plural",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "echo-pres-subj",
+      "cellLabel": "1st sg.",
+      "form": "ἔχω",
+      "parse": "Verb · present · active · subjunctive · 1st person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἔχω",
+      "how": "exact",
+      "occurrences": 5,
+      "seenAs": [
+        {
+          "lemma": "ἔχω",
+          "code": "V-PAS-1S",
+          "parse": "Verb · present · active · subjunctive · 1st person · singular",
+          "n": 5
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "echo-pres-subj",
+      "cellLabel": "1st pl.",
+      "form": "ἔχωμεν",
+      "parse": "Verb · present · active · subjunctive · 1st person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἔχωμεν",
+      "how": "exact",
+      "occurrences": 4,
+      "seenAs": [
+        {
+          "lemma": "ἔχω",
+          "code": "V-PAS-1P",
+          "parse": "Verb · present · active · subjunctive · 1st person · plural",
+          "n": 4
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "echo-pres-subj",
+      "cellLabel": "2nd sg.",
+      "form": "ἔχῃς",
+      "parse": "Verb · present · active · subjunctive · 2nd person · singular",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "echo-pres-subj",
+      "cellLabel": "2nd pl.",
+      "form": "ἔχητε",
+      "parse": "Verb · present · active · subjunctive · 2nd person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἔχητε",
+      "how": "exact",
+      "occurrences": 11,
+      "seenAs": [
+        {
+          "lemma": "ἔχω",
+          "code": "V-PAS-2P",
+          "parse": "Verb · present · active · subjunctive · 2nd person · plural",
+          "n": 11
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "echo-pres-subj",
+      "cellLabel": "3rd sg.",
+      "form": "ἔχῃ",
+      "parse": "Verb · present · active · subjunctive · 3rd person · singular",
+      "status": "attested-match",
+      "matchedForm": "ἔχῃ",
+      "how": "exact",
+      "occurrences": 11,
+      "seenAs": [
+        {
+          "lemma": "ἔχω",
+          "code": "V-PAS-3S",
+          "parse": "Verb · present · active · subjunctive · 3rd person · singular",
+          "n": 11
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "echo-pres-subj",
+      "cellLabel": "3rd pl.",
+      "form": "ἔχωσι(ν)",
+      "parse": "Verb · present · active · subjunctive · 3rd person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἔχωσιν",
+      "how": "exact",
+      "occurrences": 5,
+      "seenAs": [
+        {
+          "lemma": "ἔχω",
+          "code": "V-PAS-3P",
+          "parse": "Verb · present · active · subjunctive · 3rd person · plural",
+          "n": 5
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eimi-pres-subj",
+      "cellLabel": "1st sg.",
+      "form": "ὦ",
+      "parse": "Verb · present · active · subjunctive · 1st person · singular",
+      "status": "attested-match",
+      "matchedForm": "ὦ",
+      "how": "exact",
+      "occurrences": 2,
+      "seenAs": [
+        {
+          "lemma": "εἰμί",
+          "code": "V-PAS-1S",
+          "parse": "Verb · present · active · subjunctive · 1st person · singular",
+          "n": 2
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eimi-pres-subj",
+      "cellLabel": "1st pl.",
+      "form": "ὦμεν",
+      "parse": "Verb · present · active · subjunctive · 1st person · plural",
+      "status": "attested-match",
+      "matchedForm": "ὦμεν",
+      "how": "exact",
+      "occurrences": 3,
+      "seenAs": [
+        {
+          "lemma": "εἰμί",
+          "code": "V-PAS-1P",
+          "parse": "Verb · present · active · subjunctive · 1st person · plural",
+          "n": 3
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eimi-pres-subj",
+      "cellLabel": "2nd sg.",
+      "form": "ᾖς",
+      "parse": "Verb · present · active · subjunctive · 2nd person · singular",
+      "status": "attested-match",
+      "matchedForm": "ᾖς",
+      "how": "exact",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "lemma": "εἰμί",
+          "code": "V-PAS-2S",
+          "parse": "Verb · present · active · subjunctive · 2nd person · singular",
+          "n": 1
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eimi-pres-subj",
+      "cellLabel": "2nd pl.",
+      "form": "ἦτε",
+      "parse": "Verb · present · active · subjunctive · 2nd person · plural",
+      "status": "attested-match",
+      "matchedForm": "ἦτε",
+      "how": "exact",
+      "occurrences": 9,
+      "seenAs": [
+        {
+          "lemma": "εἰμί",
+          "code": "V-PAS-2P",
+          "parse": "Verb · present · active · subjunctive · 2nd person · plural",
+          "n": 9
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eimi-pres-subj",
+      "cellLabel": "3rd sg.",
+      "form": "ᾖ",
+      "parse": "Verb · present · active · subjunctive · 3rd person · singular",
+      "status": "attested-match",
+      "matchedForm": "ᾖ",
+      "how": "exact",
+      "occurrences": 43,
+      "seenAs": [
+        {
+          "lemma": "εἰμί",
+          "code": "V-PAS-3S",
+          "parse": "Verb · present · active · subjunctive · 3rd person · singular",
+          "n": 43
+        }
+      ],
+      "otherLemma": false
+    },
+    {
+      "paradigm": "eimi-pres-subj",
+      "cellLabel": "3rd pl.",
+      "form": "ὦσι(ν)",
+      "parse": "Verb · present · active · subjunctive · 3rd person · plural",
+      "status": "attested-match",
+      "matchedForm": "ὦσιν",
+      "how": "exact",
+      "occurrences": 11,
+      "seenAs": [
+        {
+          "lemma": "εἰμί",
+          "code": "V-PAS-3P",
+          "parse": "Verb · present · active · subjunctive · 3rd person · plural",
+          "n": 11
+        }
+      ],
+      "otherLemma": false
+    }
+  ]
+}

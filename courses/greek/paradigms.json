@@ -1,0 +1,3022 @@
+{
+  "note": "Hand-written tables (Greek typed here and in alphabet.json only). Each cell is checked against orig/nt by scripts/build-greek-course.js; results in paradigm-check.json. parse uses the wording of orig/morph-grk.json descriptions. \"(ν)\" marks a movable nu.",
+  "paradigms": [
+    {
+      "id": "article",
+      "lemma": "ὁ",
+      "strongs": "G3588",
+      "lessonId": "L07",
+      "title": "The article",
+      "kind": "gendered",
+      "columns": [
+        "masculine",
+        "feminine",
+        "neuter"
+      ],
+      "rows": [
+        {
+          "label": "nominative singular",
+          "cells": [
+            {
+              "form": "ὁ",
+              "parse": "Definite article · nominative · singular · masculine",
+              "cellLabel": "nom. sg. masc."
+            },
+            {
+              "form": "ἡ",
+              "parse": "Definite article · nominative · singular · feminine",
+              "cellLabel": "nom. sg. fem."
+            },
+            {
+              "form": "τό",
+              "parse": "Definite article · nominative · singular · neuter",
+              "cellLabel": "nom. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "genitive singular",
+          "cells": [
+            {
+              "form": "τοῦ",
+              "parse": "Definite article · genitive · singular · masculine",
+              "cellLabel": "gen. sg. masc."
+            },
+            {
+              "form": "τῆς",
+              "parse": "Definite article · genitive · singular · feminine",
+              "cellLabel": "gen. sg. fem."
+            },
+            {
+              "form": "τοῦ",
+              "parse": "Definite article · genitive · singular · neuter",
+              "cellLabel": "gen. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "dative singular",
+          "cells": [
+            {
+              "form": "τῷ",
+              "parse": "Definite article · dative · singular · masculine",
+              "cellLabel": "dat. sg. masc."
+            },
+            {
+              "form": "τῇ",
+              "parse": "Definite article · dative · singular · feminine",
+              "cellLabel": "dat. sg. fem."
+            },
+            {
+              "form": "τῷ",
+              "parse": "Definite article · dative · singular · neuter",
+              "cellLabel": "dat. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "accusative singular",
+          "cells": [
+            {
+              "form": "τόν",
+              "parse": "Definite article · accusative · singular · masculine",
+              "cellLabel": "acc. sg. masc."
+            },
+            {
+              "form": "τήν",
+              "parse": "Definite article · accusative · singular · feminine",
+              "cellLabel": "acc. sg. fem."
+            },
+            {
+              "form": "τό",
+              "parse": "Definite article · accusative · singular · neuter",
+              "cellLabel": "acc. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "nominative plural",
+          "cells": [
+            {
+              "form": "οἱ",
+              "parse": "Definite article · nominative · plural · masculine",
+              "cellLabel": "nom. pl. masc."
+            },
+            {
+              "form": "αἱ",
+              "parse": "Definite article · nominative · plural · feminine",
+              "cellLabel": "nom. pl. fem."
+            },
+            {
+              "form": "τά",
+              "parse": "Definite article · nominative · plural · neuter",
+              "cellLabel": "nom. pl. neut."
+            }
+          ]
+        },
+        {
+          "label": "genitive plural",
+          "cells": [
+            {
+              "form": "τῶν",
+              "parse": "Definite article · genitive · plural · masculine",
+              "cellLabel": "gen. pl. masc."
+            },
+            {
+              "form": "τῶν",
+              "parse": "Definite article · genitive · plural · feminine",
+              "cellLabel": "gen. pl. fem."
+            },
+            {
+              "form": "τῶν",
+              "parse": "Definite article · genitive · plural · neuter",
+              "cellLabel": "gen. pl. neut."
+            }
+          ]
+        },
+        {
+          "label": "dative plural",
+          "cells": [
+            {
+              "form": "τοῖς",
+              "parse": "Definite article · dative · plural · masculine",
+              "cellLabel": "dat. pl. masc."
+            },
+            {
+              "form": "ταῖς",
+              "parse": "Definite article · dative · plural · feminine",
+              "cellLabel": "dat. pl. fem."
+            },
+            {
+              "form": "τοῖς",
+              "parse": "Definite article · dative · plural · neuter",
+              "cellLabel": "dat. pl. neut."
+            }
+          ]
+        },
+        {
+          "label": "accusative plural",
+          "cells": [
+            {
+              "form": "τούς",
+              "parse": "Definite article · accusative · plural · masculine",
+              "cellLabel": "acc. pl. masc."
+            },
+            {
+              "form": "τάς",
+              "parse": "Definite article · accusative · plural · feminine",
+              "cellLabel": "acc. pl. fem."
+            },
+            {
+              "form": "τά",
+              "parse": "Definite article · accusative · plural · neuter",
+              "cellLabel": "acc. pl. neut."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "logos",
+      "lemma": "λόγος",
+      "strongs": "G3056",
+      "lessonId": "L06",
+      "title": "Second declension masculine: word",
+      "kind": "noun",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "nominative",
+          "cells": [
+            {
+              "form": "λόγος",
+              "parse": "Noun · nominative · singular · masculine",
+              "cellLabel": "nom. sg."
+            },
+            {
+              "form": "λόγοι",
+              "parse": "Noun · nominative · plural · masculine",
+              "cellLabel": "nom. pl."
+            }
+          ]
+        },
+        {
+          "label": "genitive",
+          "cells": [
+            {
+              "form": "λόγου",
+              "parse": "Noun · genitive · singular · masculine",
+              "cellLabel": "gen. sg."
+            },
+            {
+              "form": "λόγων",
+              "parse": "Noun · genitive · plural · masculine",
+              "cellLabel": "gen. pl."
+            }
+          ]
+        },
+        {
+          "label": "dative",
+          "cells": [
+            {
+              "form": "λόγῳ",
+              "parse": "Noun · dative · singular · masculine",
+              "cellLabel": "dat. sg."
+            },
+            {
+              "form": "λόγοις",
+              "parse": "Noun · dative · plural · masculine",
+              "cellLabel": "dat. pl."
+            }
+          ]
+        },
+        {
+          "label": "accusative",
+          "cells": [
+            {
+              "form": "λόγον",
+              "parse": "Noun · accusative · singular · masculine",
+              "cellLabel": "acc. sg."
+            },
+            {
+              "form": "λόγους",
+              "parse": "Noun · accusative · plural · masculine",
+              "cellLabel": "acc. pl."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ergon",
+      "lemma": "ἔργον",
+      "strongs": "G2041",
+      "lessonId": "L07",
+      "title": "Second declension neuter: work",
+      "kind": "noun",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "nominative",
+          "cells": [
+            {
+              "form": "ἔργον",
+              "parse": "Noun · nominative · singular · neuter",
+              "cellLabel": "nom. sg."
+            },
+            {
+              "form": "ἔργα",
+              "parse": "Noun · nominative · plural · neuter",
+              "cellLabel": "nom. pl."
+            }
+          ]
+        },
+        {
+          "label": "genitive",
+          "cells": [
+            {
+              "form": "ἔργου",
+              "parse": "Noun · genitive · singular · neuter",
+              "cellLabel": "gen. sg."
+            },
+            {
+              "form": "ἔργων",
+              "parse": "Noun · genitive · plural · neuter",
+              "cellLabel": "gen. pl."
+            }
+          ]
+        },
+        {
+          "label": "dative",
+          "cells": [
+            {
+              "form": "ἔργῳ",
+              "parse": "Noun · dative · singular · neuter",
+              "cellLabel": "dat. sg."
+            },
+            {
+              "form": "ἔργοις",
+              "parse": "Noun · dative · plural · neuter",
+              "cellLabel": "dat. pl."
+            }
+          ]
+        },
+        {
+          "label": "accusative",
+          "cells": [
+            {
+              "form": "ἔργον",
+              "parse": "Noun · accusative · singular · neuter",
+              "cellLabel": "acc. sg."
+            },
+            {
+              "form": "ἔργα",
+              "parse": "Noun · accusative · plural · neuter",
+              "cellLabel": "acc. pl."
+            }
+          ]
+        }
+      ],
+      "note": "Neuter: nominative and accusative are always the same form."
+    },
+    {
+      "id": "phone",
+      "lemma": "φωνή",
+      "strongs": "G5456G",
+      "lessonId": "L08",
+      "title": "First declension (η type): voice",
+      "kind": "noun",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "nominative",
+          "cells": [
+            {
+              "form": "φωνή",
+              "parse": "Noun · nominative · singular · feminine",
+              "cellLabel": "nom. sg."
+            },
+            {
+              "form": "φωναί",
+              "parse": "Noun · nominative · plural · feminine",
+              "cellLabel": "nom. pl."
+            }
+          ]
+        },
+        {
+          "label": "genitive",
+          "cells": [
+            {
+              "form": "φωνῆς",
+              "parse": "Noun · genitive · singular · feminine",
+              "cellLabel": "gen. sg."
+            },
+            {
+              "form": "φωνῶν",
+              "parse": "Noun · genitive · plural · feminine",
+              "cellLabel": "gen. pl."
+            }
+          ]
+        },
+        {
+          "label": "dative",
+          "cells": [
+            {
+              "form": "φωνῇ",
+              "parse": "Noun · dative · singular · feminine",
+              "cellLabel": "dat. sg."
+            },
+            {
+              "form": "φωναῖς",
+              "parse": "Noun · dative · plural · feminine",
+              "cellLabel": "dat. pl."
+            }
+          ]
+        },
+        {
+          "label": "accusative",
+          "cells": [
+            {
+              "form": "φωνήν",
+              "parse": "Noun · accusative · singular · feminine",
+              "cellLabel": "acc. sg."
+            },
+            {
+              "form": "φωνάς",
+              "parse": "Noun · accusative · plural · feminine",
+              "cellLabel": "acc. pl."
+            }
+          ]
+        }
+      ],
+      "note": "ζωή and ἀρχή (1 John 1:1) follow this pattern."
+    },
+    {
+      "id": "hemera",
+      "lemma": "ἡμέρα",
+      "strongs": "G2250",
+      "lessonId": "L08",
+      "title": "First declension (α type): day",
+      "kind": "noun",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "nominative",
+          "cells": [
+            {
+              "form": "ἡμέρα",
+              "parse": "Noun · nominative · singular · feminine",
+              "cellLabel": "nom. sg."
+            },
+            {
+              "form": "ἡμέραι",
+              "parse": "Noun · nominative · plural · feminine",
+              "cellLabel": "nom. pl."
+            }
+          ]
+        },
+        {
+          "label": "genitive",
+          "cells": [
+            {
+              "form": "ἡμέρας",
+              "parse": "Noun · genitive · singular · feminine",
+              "cellLabel": "gen. sg."
+            },
+            {
+              "form": "ἡμερῶν",
+              "parse": "Noun · genitive · plural · feminine",
+              "cellLabel": "gen. pl."
+            }
+          ]
+        },
+        {
+          "label": "dative",
+          "cells": [
+            {
+              "form": "ἡμέρᾳ",
+              "parse": "Noun · dative · singular · feminine",
+              "cellLabel": "dat. sg."
+            },
+            {
+              "form": "ἡμέραις",
+              "parse": "Noun · dative · plural · feminine",
+              "cellLabel": "dat. pl."
+            }
+          ]
+        },
+        {
+          "label": "accusative",
+          "cells": [
+            {
+              "form": "ἡμέραν",
+              "parse": "Noun · accusative · singular · feminine",
+              "cellLabel": "acc. sg."
+            },
+            {
+              "form": "ἡμέρας",
+              "parse": "Noun · accusative · plural · feminine",
+              "cellLabel": "acc. pl."
+            }
+          ]
+        }
+      ],
+      "note": "After ε, ι or ρ the α stays through the singular; ἁμαρτία (1 John 1:7) follows this pattern."
+    },
+    {
+      "id": "doxa",
+      "lemma": "δόξα",
+      "strongs": "G1391",
+      "lessonId": "L08",
+      "title": "First declension (mixed α/η type): glory",
+      "kind": "noun",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "nominative",
+          "cells": [
+            {
+              "form": "δόξα",
+              "parse": "Noun · nominative · singular · feminine",
+              "cellLabel": "nom. sg."
+            },
+            {
+              "form": "δόξαι",
+              "parse": "Noun · nominative · plural · feminine",
+              "cellLabel": "nom. pl."
+            }
+          ]
+        },
+        {
+          "label": "genitive",
+          "cells": [
+            {
+              "form": "δόξης",
+              "parse": "Noun · genitive · singular · feminine",
+              "cellLabel": "gen. sg."
+            },
+            {
+              "form": "δοξῶν",
+              "parse": "Noun · genitive · plural · feminine",
+              "cellLabel": "gen. pl."
+            }
+          ]
+        },
+        {
+          "label": "dative",
+          "cells": [
+            {
+              "form": "δόξῃ",
+              "parse": "Noun · dative · singular · feminine",
+              "cellLabel": "dat. sg."
+            },
+            {
+              "form": "δόξαις",
+              "parse": "Noun · dative · plural · feminine",
+              "cellLabel": "dat. pl."
+            }
+          ]
+        },
+        {
+          "label": "accusative",
+          "cells": [
+            {
+              "form": "δόξαν",
+              "parse": "Noun · accusative · singular · feminine",
+              "cellLabel": "acc. sg."
+            },
+            {
+              "form": "δόξας",
+              "parse": "Noun · accusative · plural · feminine",
+              "cellLabel": "acc. pl."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mathetes",
+      "lemma": "μαθητής",
+      "strongs": "G3101",
+      "lessonId": "L08",
+      "title": "First declension masculine: disciple",
+      "kind": "noun",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "nominative",
+          "cells": [
+            {
+              "form": "μαθητής",
+              "parse": "Noun · nominative · singular · masculine",
+              "cellLabel": "nom. sg."
+            },
+            {
+              "form": "μαθηταί",
+              "parse": "Noun · nominative · plural · masculine",
+              "cellLabel": "nom. pl."
+            }
+          ]
+        },
+        {
+          "label": "genitive",
+          "cells": [
+            {
+              "form": "μαθητοῦ",
+              "parse": "Noun · genitive · singular · masculine",
+              "cellLabel": "gen. sg."
+            },
+            {
+              "form": "μαθητῶν",
+              "parse": "Noun · genitive · plural · masculine",
+              "cellLabel": "gen. pl."
+            }
+          ]
+        },
+        {
+          "label": "dative",
+          "cells": [
+            {
+              "form": "μαθητῇ",
+              "parse": "Noun · dative · singular · masculine",
+              "cellLabel": "dat. sg."
+            },
+            {
+              "form": "μαθηταῖς",
+              "parse": "Noun · dative · plural · masculine",
+              "cellLabel": "dat. pl."
+            }
+          ]
+        },
+        {
+          "label": "accusative",
+          "cells": [
+            {
+              "form": "μαθητήν",
+              "parse": "Noun · accusative · singular · masculine",
+              "cellLabel": "acc. sg."
+            },
+            {
+              "form": "μαθητάς",
+              "parse": "Noun · accusative · plural · masculine",
+              "cellLabel": "acc. pl."
+            }
+          ]
+        }
+      ],
+      "note": "ψεύστης (1 John 1:10) follows this pattern."
+    },
+    {
+      "id": "luo-pres-act-ind",
+      "lemma": "λύω",
+      "strongs": "G3089",
+      "lessonId": "L09",
+      "title": "Present active indicative: I loose (model verb)",
+      "kind": "verb",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "1st person",
+          "cells": [
+            {
+              "form": "λύω",
+              "parse": "Verb · present · active · indicative · 1st person · singular",
+              "cellLabel": "1st sg."
+            },
+            {
+              "form": "λύομεν",
+              "parse": "Verb · present · active · indicative · 1st person · plural",
+              "cellLabel": "1st pl."
+            }
+          ]
+        },
+        {
+          "label": "2nd person",
+          "cells": [
+            {
+              "form": "λύεις",
+              "parse": "Verb · present · active · indicative · 2nd person · singular",
+              "cellLabel": "2nd sg."
+            },
+            {
+              "form": "λύετε",
+              "parse": "Verb · present · active · indicative · 2nd person · plural",
+              "cellLabel": "2nd pl."
+            }
+          ]
+        },
+        {
+          "label": "3rd person",
+          "cells": [
+            {
+              "form": "λύει",
+              "parse": "Verb · present · active · indicative · 3rd person · singular",
+              "cellLabel": "3rd sg."
+            },
+            {
+              "form": "λύουσι(ν)",
+              "parse": "Verb · present · active · indicative · 3rd person · plural",
+              "cellLabel": "3rd pl."
+            }
+          ]
+        }
+      ],
+      "note": "λύω is the traditional model verb; few of its forms occur in the NT, so ἔχω is given alongside."
+    },
+    {
+      "id": "echo-pres-act-ind",
+      "lemma": "ἔχω",
+      "strongs": "G2192",
+      "lessonId": "L09",
+      "title": "Present active indicative: I have",
+      "kind": "verb",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "1st person",
+          "cells": [
+            {
+              "form": "ἔχω",
+              "parse": "Verb · present · active · indicative · 1st person · singular",
+              "cellLabel": "1st sg."
+            },
+            {
+              "form": "ἔχομεν",
+              "parse": "Verb · present · active · indicative · 1st person · plural",
+              "cellLabel": "1st pl."
+            }
+          ]
+        },
+        {
+          "label": "2nd person",
+          "cells": [
+            {
+              "form": "ἔχεις",
+              "parse": "Verb · present · active · indicative · 2nd person · singular",
+              "cellLabel": "2nd sg."
+            },
+            {
+              "form": "ἔχετε",
+              "parse": "Verb · present · active · indicative · 2nd person · plural",
+              "cellLabel": "2nd pl."
+            }
+          ]
+        },
+        {
+          "label": "3rd person",
+          "cells": [
+            {
+              "form": "ἔχει",
+              "parse": "Verb · present · active · indicative · 3rd person · singular",
+              "cellLabel": "3rd sg."
+            },
+            {
+              "form": "ἔχουσι(ν)",
+              "parse": "Verb · present · active · indicative · 3rd person · plural",
+              "cellLabel": "3rd pl."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "eimi-pres-ind",
+      "lemma": "εἰμί",
+      "strongs": "G1510",
+      "lessonId": "L10",
+      "title": "εἰμί, present: I am",
+      "kind": "verb",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "1st person",
+          "cells": [
+            {
+              "form": "εἰμί",
+              "parse": "Verb · present · active · indicative · 1st person · singular",
+              "cellLabel": "1st sg."
+            },
+            {
+              "form": "ἐσμέν",
+              "parse": "Verb · present · active · indicative · 1st person · plural",
+              "cellLabel": "1st pl."
+            }
+          ]
+        },
+        {
+          "label": "2nd person",
+          "cells": [
+            {
+              "form": "εἶ",
+              "parse": "Verb · present · active · indicative · 2nd person · singular",
+              "cellLabel": "2nd sg."
+            },
+            {
+              "form": "ἐστέ",
+              "parse": "Verb · present · active · indicative · 2nd person · plural",
+              "cellLabel": "2nd pl."
+            }
+          ]
+        },
+        {
+          "label": "3rd person",
+          "cells": [
+            {
+              "form": "ἐστί(ν)",
+              "parse": "Verb · present · active · indicative · 3rd person · singular",
+              "cellLabel": "3rd sg."
+            },
+            {
+              "form": "εἰσί(ν)",
+              "parse": "Verb · present · active · indicative · 3rd person · plural",
+              "cellLabel": "3rd pl."
+            }
+          ]
+        }
+      ],
+      "note": "Most of these are enclitic and often printed without an accent (ἐστιν)."
+    },
+    {
+      "id": "eimi-impf-ind",
+      "lemma": "εἰμί",
+      "strongs": "G1510",
+      "lessonId": "L10",
+      "title": "εἰμί, imperfect: I was",
+      "kind": "verb",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "1st person",
+          "cells": [
+            {
+              "form": "ἤμην",
+              "parse": "Verb · imperfect · middle · indicative · 1st person · singular",
+              "cellLabel": "1st sg."
+            },
+            {
+              "form": "ἦμεν",
+              "parse": "Verb · imperfect · active · indicative · 1st person · plural",
+              "cellLabel": "1st pl."
+            }
+          ]
+        },
+        {
+          "label": "2nd person",
+          "cells": [
+            {
+              "form": "ἦς",
+              "parse": "Verb · imperfect · active · indicative · 2nd person · singular",
+              "cellLabel": "2nd sg."
+            },
+            {
+              "form": "ἦτε",
+              "parse": "Verb · imperfect · active · indicative · 2nd person · plural",
+              "cellLabel": "2nd pl."
+            }
+          ]
+        },
+        {
+          "label": "3rd person",
+          "cells": [
+            {
+              "form": "ἦν",
+              "parse": "Verb · imperfect · active · indicative · 3rd person · singular",
+              "cellLabel": "3rd sg."
+            },
+            {
+              "form": "ἦσαν",
+              "parse": "Verb · imperfect · active · indicative · 3rd person · plural",
+              "cellLabel": "3rd pl."
+            }
+          ]
+        }
+      ],
+      "note": "The data tags ἤμην (1st singular) as middle — it has a middle ending — but it simply means \"I was\". 1 John 1:1 and 1:2: ἦν."
+    },
+    {
+      "id": "ego",
+      "lemma": "ἐγώ",
+      "strongs": "G1473",
+      "lessonId": "L11",
+      "title": "Personal pronoun, 1st person: I, we",
+      "kind": "pronoun",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "nominative",
+          "cells": [
+            {
+              "form": "ἐγώ",
+              "parse": "Personal pronoun · 1st person · nominative · singular",
+              "cellLabel": "nom. sg."
+            },
+            {
+              "form": "ἡμεῖς",
+              "parse": "Personal pronoun · 1st person · nominative · plural",
+              "cellLabel": "nom. pl."
+            }
+          ]
+        },
+        {
+          "label": "genitive",
+          "cells": [
+            {
+              "form": "ἐμοῦ",
+              "parse": "Personal pronoun · 1st person · genitive · singular",
+              "cellLabel": "gen. sg. (emphatic)"
+            },
+            {
+              "form": "μου",
+              "parse": "Personal pronoun · 1st person · genitive · singular",
+              "cellLabel": "gen. sg. (unemphatic)"
+            },
+            {
+              "form": "ἡμῶν",
+              "parse": "Personal pronoun · 1st person · genitive · plural",
+              "cellLabel": "gen. pl."
+            }
+          ]
+        },
+        {
+          "label": "dative",
+          "cells": [
+            {
+              "form": "ἐμοί",
+              "parse": "Personal pronoun · 1st person · dative · singular",
+              "cellLabel": "dat. sg. (emphatic)"
+            },
+            {
+              "form": "μοι",
+              "parse": "Personal pronoun · 1st person · dative · singular",
+              "cellLabel": "dat. sg. (unemphatic)"
+            },
+            {
+              "form": "ἡμῖν",
+              "parse": "Personal pronoun · 1st person · dative · plural",
+              "cellLabel": "dat. pl."
+            }
+          ]
+        },
+        {
+          "label": "accusative",
+          "cells": [
+            {
+              "form": "ἐμέ",
+              "parse": "Personal pronoun · 1st person · accusative · singular",
+              "cellLabel": "acc. sg. (emphatic)"
+            },
+            {
+              "form": "με",
+              "parse": "Personal pronoun · 1st person · accusative · singular",
+              "cellLabel": "acc. sg. (unemphatic)"
+            },
+            {
+              "form": "ἡμᾶς",
+              "parse": "Personal pronoun · 1st person · accusative · plural",
+              "cellLabel": "acc. pl."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "su",
+      "lemma": "σύ",
+      "strongs": "G4771",
+      "lessonId": "L11",
+      "title": "Personal pronoun, 2nd person: you",
+      "kind": "pronoun",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "nominative",
+          "cells": [
+            {
+              "form": "σύ",
+              "parse": "Personal pronoun · 2nd person · nominative · singular",
+              "cellLabel": "nom. sg."
+            },
+            {
+              "form": "ὑμεῖς",
+              "parse": "Personal pronoun · 2nd person · nominative · plural",
+              "cellLabel": "nom. pl."
+            }
+          ]
+        },
+        {
+          "label": "genitive",
+          "cells": [
+            {
+              "form": "σοῦ",
+              "parse": "Personal pronoun · 2nd person · genitive · singular",
+              "cellLabel": "gen. sg. (emphatic)"
+            },
+            {
+              "form": "σου",
+              "parse": "Personal pronoun · 2nd person · genitive · singular",
+              "cellLabel": "gen. sg. (unemphatic)"
+            },
+            {
+              "form": "ὑμῶν",
+              "parse": "Personal pronoun · 2nd person · genitive · plural",
+              "cellLabel": "gen. pl."
+            }
+          ]
+        },
+        {
+          "label": "dative",
+          "cells": [
+            {
+              "form": "σοί",
+              "parse": "Personal pronoun · 2nd person · dative · singular",
+              "cellLabel": "dat. sg. (emphatic)"
+            },
+            {
+              "form": "σοι",
+              "parse": "Personal pronoun · 2nd person · dative · singular",
+              "cellLabel": "dat. sg. (unemphatic)"
+            },
+            {
+              "form": "ὑμῖν",
+              "parse": "Personal pronoun · 2nd person · dative · plural",
+              "cellLabel": "dat. pl."
+            }
+          ]
+        },
+        {
+          "label": "accusative",
+          "cells": [
+            {
+              "form": "σέ",
+              "parse": "Personal pronoun · 2nd person · accusative · singular",
+              "cellLabel": "acc. sg. (emphatic)"
+            },
+            {
+              "form": "σε",
+              "parse": "Personal pronoun · 2nd person · accusative · singular",
+              "cellLabel": "acc. sg. (unemphatic)"
+            },
+            {
+              "form": "ὑμᾶς",
+              "parse": "Personal pronoun · 2nd person · accusative · plural",
+              "cellLabel": "acc. pl."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "autos",
+      "lemma": "αὐτός",
+      "strongs": "G0846",
+      "lessonId": "L11",
+      "title": "αὐτός: he, she, it; self; same",
+      "kind": "gendered",
+      "columns": [
+        "masculine",
+        "feminine",
+        "neuter"
+      ],
+      "rows": [
+        {
+          "label": "nominative singular",
+          "cells": [
+            {
+              "form": "αὐτός",
+              "parse": "Personal pronoun · nominative · singular · masculine",
+              "cellLabel": "nom. sg. masc."
+            },
+            {
+              "form": "αὐτή",
+              "parse": "Personal pronoun · nominative · singular · feminine",
+              "cellLabel": "nom. sg. fem."
+            },
+            {
+              "form": "αὐτό",
+              "parse": "Personal pronoun · nominative · singular · neuter",
+              "cellLabel": "nom. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "genitive singular",
+          "cells": [
+            {
+              "form": "αὐτοῦ",
+              "parse": "Personal pronoun · genitive · singular · masculine",
+              "cellLabel": "gen. sg. masc."
+            },
+            {
+              "form": "αὐτῆς",
+              "parse": "Personal pronoun · genitive · singular · feminine",
+              "cellLabel": "gen. sg. fem."
+            },
+            {
+              "form": "αὐτοῦ",
+              "parse": "Personal pronoun · genitive · singular · neuter",
+              "cellLabel": "gen. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "dative singular",
+          "cells": [
+            {
+              "form": "αὐτῷ",
+              "parse": "Personal pronoun · dative · singular · masculine",
+              "cellLabel": "dat. sg. masc."
+            },
+            {
+              "form": "αὐτῇ",
+              "parse": "Personal pronoun · dative · singular · feminine",
+              "cellLabel": "dat. sg. fem."
+            },
+            {
+              "form": "αὐτῷ",
+              "parse": "Personal pronoun · dative · singular · neuter",
+              "cellLabel": "dat. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "accusative singular",
+          "cells": [
+            {
+              "form": "αὐτόν",
+              "parse": "Personal pronoun · accusative · singular · masculine",
+              "cellLabel": "acc. sg. masc."
+            },
+            {
+              "form": "αὐτήν",
+              "parse": "Personal pronoun · accusative · singular · feminine",
+              "cellLabel": "acc. sg. fem."
+            },
+            {
+              "form": "αὐτό",
+              "parse": "Personal pronoun · accusative · singular · neuter",
+              "cellLabel": "acc. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "nominative plural",
+          "cells": [
+            {
+              "form": "αὐτοί",
+              "parse": "Personal pronoun · nominative · plural · masculine",
+              "cellLabel": "nom. pl. masc."
+            },
+            {
+              "form": "αὐταί",
+              "parse": "Personal pronoun · nominative · plural · feminine",
+              "cellLabel": "nom. pl. fem."
+            },
+            {
+              "form": "αὐτά",
+              "parse": "Personal pronoun · nominative · plural · neuter",
+              "cellLabel": "nom. pl. neut."
+            }
+          ]
+        },
+        {
+          "label": "genitive plural",
+          "cells": [
+            {
+              "form": "αὐτῶν",
+              "parse": "Personal pronoun · genitive · plural · masculine",
+              "cellLabel": "gen. pl. masc."
+            },
+            {
+              "form": "αὐτῶν",
+              "parse": "Personal pronoun · genitive · plural · feminine",
+              "cellLabel": "gen. pl. fem."
+            },
+            {
+              "form": "αὐτῶν",
+              "parse": "Personal pronoun · genitive · plural · neuter",
+              "cellLabel": "gen. pl. neut."
+            }
+          ]
+        },
+        {
+          "label": "dative plural",
+          "cells": [
+            {
+              "form": "αὐτοῖς",
+              "parse": "Personal pronoun · dative · plural · masculine",
+              "cellLabel": "dat. pl. masc."
+            },
+            {
+              "form": "αὐταῖς",
+              "parse": "Personal pronoun · dative · plural · feminine",
+              "cellLabel": "dat. pl. fem."
+            },
+            {
+              "form": "αὐτοῖς",
+              "parse": "Personal pronoun · dative · plural · neuter",
+              "cellLabel": "dat. pl. neut."
+            }
+          ]
+        },
+        {
+          "label": "accusative plural",
+          "cells": [
+            {
+              "form": "αὐτούς",
+              "parse": "Personal pronoun · accusative · plural · masculine",
+              "cellLabel": "acc. pl. masc."
+            },
+            {
+              "form": "αὐτάς",
+              "parse": "Personal pronoun · accusative · plural · feminine",
+              "cellLabel": "acc. pl. fem."
+            },
+            {
+              "form": "αὐτά",
+              "parse": "Personal pronoun · accusative · plural · neuter",
+              "cellLabel": "acc. pl. neut."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hagios",
+      "lemma": "ἅγιος",
+      "strongs": "G0040G",
+      "lessonId": "L14",
+      "title": "Adjective (2-1-2, α type): holy",
+      "kind": "gendered",
+      "columns": [
+        "masculine",
+        "feminine",
+        "neuter"
+      ],
+      "rows": [
+        {
+          "label": "nominative singular",
+          "cells": [
+            {
+              "form": "ἅγιος",
+              "parse": "Adjective · nominative · singular · masculine",
+              "cellLabel": "nom. sg. masc."
+            },
+            {
+              "form": "ἁγία",
+              "parse": "Adjective · nominative · singular · feminine",
+              "cellLabel": "nom. sg. fem."
+            },
+            {
+              "form": "ἅγιον",
+              "parse": "Adjective · nominative · singular · neuter",
+              "cellLabel": "nom. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "genitive singular",
+          "cells": [
+            {
+              "form": "ἁγίου",
+              "parse": "Adjective · genitive · singular · masculine",
+              "cellLabel": "gen. sg. masc."
+            },
+            {
+              "form": "ἁγίας",
+              "parse": "Adjective · genitive · singular · feminine",
+              "cellLabel": "gen. sg. fem."
+            },
+            {
+              "form": "ἁγίου",
+              "parse": "Adjective · genitive · singular · neuter",
+              "cellLabel": "gen. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "dative singular",
+          "cells": [
+            {
+              "form": "ἁγίῳ",
+              "parse": "Adjective · dative · singular · masculine",
+              "cellLabel": "dat. sg. masc."
+            },
+            {
+              "form": "ἁγίᾳ",
+              "parse": "Adjective · dative · singular · feminine",
+              "cellLabel": "dat. sg. fem."
+            },
+            {
+              "form": "ἁγίῳ",
+              "parse": "Adjective · dative · singular · neuter",
+              "cellLabel": "dat. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "accusative singular",
+          "cells": [
+            {
+              "form": "ἅγιον",
+              "parse": "Adjective · accusative · singular · masculine",
+              "cellLabel": "acc. sg. masc."
+            },
+            {
+              "form": "ἁγίαν",
+              "parse": "Adjective · accusative · singular · feminine",
+              "cellLabel": "acc. sg. fem."
+            },
+            {
+              "form": "ἅγιον",
+              "parse": "Adjective · accusative · singular · neuter",
+              "cellLabel": "acc. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "nominative plural",
+          "cells": [
+            {
+              "form": "ἅγιοι",
+              "parse": "Adjective · nominative · plural · masculine",
+              "cellLabel": "nom. pl. masc."
+            },
+            {
+              "form": "ἅγιαι",
+              "parse": "Adjective · nominative · plural · feminine",
+              "cellLabel": "nom. pl. fem."
+            },
+            {
+              "form": "ἅγια",
+              "parse": "Adjective · nominative · plural · neuter",
+              "cellLabel": "nom. pl. neut."
+            }
+          ]
+        },
+        {
+          "label": "genitive plural",
+          "cells": [
+            {
+              "form": "ἁγίων",
+              "parse": "Adjective · genitive · plural · masculine",
+              "cellLabel": "gen. pl. masc."
+            },
+            {
+              "form": "ἁγίων",
+              "parse": "Adjective · genitive · plural · feminine",
+              "cellLabel": "gen. pl. fem."
+            },
+            {
+              "form": "ἁγίων",
+              "parse": "Adjective · genitive · plural · neuter",
+              "cellLabel": "gen. pl. neut."
+            }
+          ]
+        },
+        {
+          "label": "dative plural",
+          "cells": [
+            {
+              "form": "ἁγίοις",
+              "parse": "Adjective · dative · plural · masculine",
+              "cellLabel": "dat. pl. masc."
+            },
+            {
+              "form": "ἁγίαις",
+              "parse": "Adjective · dative · plural · feminine",
+              "cellLabel": "dat. pl. fem."
+            },
+            {
+              "form": "ἁγίοις",
+              "parse": "Adjective · dative · plural · neuter",
+              "cellLabel": "dat. pl. neut."
+            }
+          ]
+        },
+        {
+          "label": "accusative plural",
+          "cells": [
+            {
+              "form": "ἁγίους",
+              "parse": "Adjective · accusative · plural · masculine",
+              "cellLabel": "acc. pl. masc."
+            },
+            {
+              "form": "ἁγίας",
+              "parse": "Adjective · accusative · plural · feminine",
+              "cellLabel": "acc. pl. fem."
+            },
+            {
+              "form": "ἅγια",
+              "parse": "Adjective · accusative · plural · neuter",
+              "cellLabel": "acc. pl. neut."
+            }
+          ]
+        }
+      ],
+      "note": "πιστός and δίκαιος (1 John 1:9) are adjectives of the same 2nd/1st-declension kind (their feminine has η: πιστή). αἰώνιος (1:2) is different: it uses its ‑ος/‑ον forms for the feminine too, as in τὴν ζωὴν τὴν αἰώνιον."
+    },
+    {
+      "id": "pas",
+      "lemma": "πᾶς",
+      "strongs": "G3956",
+      "lessonId": "L14",
+      "title": "πᾶς: all, every (recognition)",
+      "kind": "gendered",
+      "columns": [
+        "masculine",
+        "feminine",
+        "neuter"
+      ],
+      "rows": [
+        {
+          "label": "nominative singular",
+          "cells": [
+            {
+              "form": "πᾶς",
+              "parse": "Adjective · nominative · singular · masculine",
+              "cellLabel": "nom. sg. masc."
+            },
+            {
+              "form": "πᾶσα",
+              "parse": "Adjective · nominative · singular · feminine",
+              "cellLabel": "nom. sg. fem."
+            },
+            {
+              "form": "πᾶν",
+              "parse": "Adjective · nominative · singular · neuter",
+              "cellLabel": "nom. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "genitive singular",
+          "cells": [
+            {
+              "form": "παντός",
+              "parse": "Adjective · genitive · singular · masculine",
+              "cellLabel": "gen. sg. masc."
+            },
+            {
+              "form": "πάσης",
+              "parse": "Adjective · genitive · singular · feminine",
+              "cellLabel": "gen. sg. fem."
+            },
+            {
+              "form": "παντός",
+              "parse": "Adjective · genitive · singular · neuter",
+              "cellLabel": "gen. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "dative singular",
+          "cells": [
+            {
+              "form": "παντί",
+              "parse": "Adjective · dative · singular · masculine",
+              "cellLabel": "dat. sg. masc."
+            },
+            {
+              "form": "πάσῃ",
+              "parse": "Adjective · dative · singular · feminine",
+              "cellLabel": "dat. sg. fem."
+            },
+            {
+              "form": "παντί",
+              "parse": "Adjective · dative · singular · neuter",
+              "cellLabel": "dat. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "accusative singular",
+          "cells": [
+            {
+              "form": "πάντα",
+              "parse": "Adjective · accusative · singular · masculine",
+              "cellLabel": "acc. sg. masc."
+            },
+            {
+              "form": "πᾶσαν",
+              "parse": "Adjective · accusative · singular · feminine",
+              "cellLabel": "acc. sg. fem."
+            },
+            {
+              "form": "πᾶν",
+              "parse": "Adjective · accusative · singular · neuter",
+              "cellLabel": "acc. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "nominative plural",
+          "cells": [
+            {
+              "form": "πάντες",
+              "parse": "Adjective · nominative · plural · masculine",
+              "cellLabel": "nom. pl. masc."
+            },
+            {
+              "form": "πᾶσαι",
+              "parse": "Adjective · nominative · plural · feminine",
+              "cellLabel": "nom. pl. fem."
+            },
+            {
+              "form": "πάντα",
+              "parse": "Adjective · nominative · plural · neuter",
+              "cellLabel": "nom. pl. neut."
+            }
+          ]
+        },
+        {
+          "label": "genitive plural",
+          "cells": [
+            {
+              "form": "πάντων",
+              "parse": "Adjective · genitive · plural · masculine",
+              "cellLabel": "gen. pl. masc."
+            },
+            {
+              "form": "πασῶν",
+              "parse": "Adjective · genitive · plural · feminine",
+              "cellLabel": "gen. pl. fem."
+            },
+            {
+              "form": "πάντων",
+              "parse": "Adjective · genitive · plural · neuter",
+              "cellLabel": "gen. pl. neut."
+            }
+          ]
+        },
+        {
+          "label": "dative plural",
+          "cells": [
+            {
+              "form": "πᾶσι(ν)",
+              "parse": "Adjective · dative · plural · masculine",
+              "cellLabel": "dat. pl. masc."
+            },
+            {
+              "form": "πάσαις",
+              "parse": "Adjective · dative · plural · feminine",
+              "cellLabel": "dat. pl. fem."
+            },
+            {
+              "form": "πᾶσι(ν)",
+              "parse": "Adjective · dative · plural · neuter",
+              "cellLabel": "dat. pl. neut."
+            }
+          ]
+        },
+        {
+          "label": "accusative plural",
+          "cells": [
+            {
+              "form": "πάντας",
+              "parse": "Adjective · accusative · plural · masculine",
+              "cellLabel": "acc. pl. masc."
+            },
+            {
+              "form": "πάσας",
+              "parse": "Adjective · accusative · plural · feminine",
+              "cellLabel": "acc. pl. fem."
+            },
+            {
+              "form": "πάντα",
+              "parse": "Adjective · accusative · plural · neuter",
+              "cellLabel": "acc. pl. neut."
+            }
+          ]
+        }
+      ],
+      "note": "1 John 1:7 and 1:9: ἀπὸ πάσης."
+    },
+    {
+      "id": "houtos",
+      "lemma": "οὗτος",
+      "strongs": "G3778",
+      "lessonId": "L15",
+      "title": "οὗτος: this",
+      "kind": "gendered",
+      "columns": [
+        "masculine",
+        "feminine",
+        "neuter"
+      ],
+      "rows": [
+        {
+          "label": "nominative singular",
+          "cells": [
+            {
+              "form": "οὗτος",
+              "parse": "Demonstrative pronoun · nominative · singular · masculine",
+              "cellLabel": "nom. sg. masc."
+            },
+            {
+              "form": "αὕτη",
+              "parse": "Demonstrative pronoun · nominative · singular · feminine",
+              "cellLabel": "nom. sg. fem."
+            },
+            {
+              "form": "τοῦτο",
+              "parse": "Demonstrative pronoun · nominative · singular · neuter",
+              "cellLabel": "nom. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "genitive singular",
+          "cells": [
+            {
+              "form": "τούτου",
+              "parse": "Demonstrative pronoun · genitive · singular · masculine",
+              "cellLabel": "gen. sg. masc."
+            },
+            {
+              "form": "ταύτης",
+              "parse": "Demonstrative pronoun · genitive · singular · feminine",
+              "cellLabel": "gen. sg. fem."
+            },
+            {
+              "form": "τούτου",
+              "parse": "Demonstrative pronoun · genitive · singular · neuter",
+              "cellLabel": "gen. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "dative singular",
+          "cells": [
+            {
+              "form": "τούτῳ",
+              "parse": "Demonstrative pronoun · dative · singular · masculine",
+              "cellLabel": "dat. sg. masc."
+            },
+            {
+              "form": "ταύτῃ",
+              "parse": "Demonstrative pronoun · dative · singular · feminine",
+              "cellLabel": "dat. sg. fem."
+            },
+            {
+              "form": "τούτῳ",
+              "parse": "Demonstrative pronoun · dative · singular · neuter",
+              "cellLabel": "dat. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "accusative singular",
+          "cells": [
+            {
+              "form": "τοῦτον",
+              "parse": "Demonstrative pronoun · accusative · singular · masculine",
+              "cellLabel": "acc. sg. masc."
+            },
+            {
+              "form": "ταύτην",
+              "parse": "Demonstrative pronoun · accusative · singular · feminine",
+              "cellLabel": "acc. sg. fem."
+            },
+            {
+              "form": "τοῦτο",
+              "parse": "Demonstrative pronoun · accusative · singular · neuter",
+              "cellLabel": "acc. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "nominative plural",
+          "cells": [
+            {
+              "form": "οὗτοι",
+              "parse": "Demonstrative pronoun · nominative · plural · masculine",
+              "cellLabel": "nom. pl. masc."
+            },
+            {
+              "form": "αὗται",
+              "parse": "Demonstrative pronoun · nominative · plural · feminine",
+              "cellLabel": "nom. pl. fem."
+            },
+            {
+              "form": "ταῦτα",
+              "parse": "Demonstrative pronoun · nominative · plural · neuter",
+              "cellLabel": "nom. pl. neut."
+            }
+          ]
+        },
+        {
+          "label": "genitive plural",
+          "cells": [
+            {
+              "form": "τούτων",
+              "parse": "Demonstrative pronoun · genitive · plural · masculine",
+              "cellLabel": "gen. pl. masc."
+            },
+            {
+              "form": "τούτων",
+              "parse": "Demonstrative pronoun · genitive · plural · feminine",
+              "cellLabel": "gen. pl. fem."
+            },
+            {
+              "form": "τούτων",
+              "parse": "Demonstrative pronoun · genitive · plural · neuter",
+              "cellLabel": "gen. pl. neut."
+            }
+          ]
+        },
+        {
+          "label": "dative plural",
+          "cells": [
+            {
+              "form": "τούτοις",
+              "parse": "Demonstrative pronoun · dative · plural · masculine",
+              "cellLabel": "dat. pl. masc."
+            },
+            {
+              "form": "ταύταις",
+              "parse": "Demonstrative pronoun · dative · plural · feminine",
+              "cellLabel": "dat. pl. fem."
+            },
+            {
+              "form": "τούτοις",
+              "parse": "Demonstrative pronoun · dative · plural · neuter",
+              "cellLabel": "dat. pl. neut."
+            }
+          ]
+        },
+        {
+          "label": "accusative plural",
+          "cells": [
+            {
+              "form": "τούτους",
+              "parse": "Demonstrative pronoun · accusative · plural · masculine",
+              "cellLabel": "acc. pl. masc."
+            },
+            {
+              "form": "ταύτας",
+              "parse": "Demonstrative pronoun · accusative · plural · feminine",
+              "cellLabel": "acc. pl. fem."
+            },
+            {
+              "form": "ταῦτα",
+              "parse": "Demonstrative pronoun · accusative · plural · neuter",
+              "cellLabel": "acc. pl. neut."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hos",
+      "lemma": "ὅς, ἥ",
+      "strongs": "G3739",
+      "lessonId": "L15",
+      "title": "Relative pronoun: who, which, that",
+      "kind": "gendered",
+      "columns": [
+        "masculine",
+        "feminine",
+        "neuter"
+      ],
+      "rows": [
+        {
+          "label": "nominative singular",
+          "cells": [
+            {
+              "form": "ὅς",
+              "parse": "Relative pronoun · nominative · singular · masculine",
+              "cellLabel": "nom. sg. masc."
+            },
+            {
+              "form": "ἥ",
+              "parse": "Relative pronoun · nominative · singular · feminine",
+              "cellLabel": "nom. sg. fem."
+            },
+            {
+              "form": "ὅ",
+              "parse": "Relative pronoun · nominative · singular · neuter",
+              "cellLabel": "nom. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "genitive singular",
+          "cells": [
+            {
+              "form": "οὗ",
+              "parse": "Relative pronoun · genitive · singular · masculine",
+              "cellLabel": "gen. sg. masc."
+            },
+            {
+              "form": "ἧς",
+              "parse": "Relative pronoun · genitive · singular · feminine",
+              "cellLabel": "gen. sg. fem."
+            },
+            {
+              "form": "οὗ",
+              "parse": "Relative pronoun · genitive · singular · neuter",
+              "cellLabel": "gen. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "dative singular",
+          "cells": [
+            {
+              "form": "ᾧ",
+              "parse": "Relative pronoun · dative · singular · masculine",
+              "cellLabel": "dat. sg. masc."
+            },
+            {
+              "form": "ᾗ",
+              "parse": "Relative pronoun · dative · singular · feminine",
+              "cellLabel": "dat. sg. fem."
+            },
+            {
+              "form": "ᾧ",
+              "parse": "Relative pronoun · dative · singular · neuter",
+              "cellLabel": "dat. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "accusative singular",
+          "cells": [
+            {
+              "form": "ὅν",
+              "parse": "Relative pronoun · accusative · singular · masculine",
+              "cellLabel": "acc. sg. masc."
+            },
+            {
+              "form": "ἥν",
+              "parse": "Relative pronoun · accusative · singular · feminine",
+              "cellLabel": "acc. sg. fem."
+            },
+            {
+              "form": "ὅ",
+              "parse": "Relative pronoun · accusative · singular · neuter",
+              "cellLabel": "acc. sg. neut."
+            }
+          ]
+        },
+        {
+          "label": "nominative plural",
+          "cells": [
+            {
+              "form": "οἵ",
+              "parse": "Relative pronoun · nominative · plural · masculine",
+              "cellLabel": "nom. pl. masc."
+            },
+            {
+              "form": "αἵ",
+              "parse": "Relative pronoun · nominative · plural · feminine",
+              "cellLabel": "nom. pl. fem."
+            },
+            {
+              "form": "ἅ",
+              "parse": "Relative pronoun · nominative · plural · neuter",
+              "cellLabel": "nom. pl. neut."
+            }
+          ]
+        },
+        {
+          "label": "genitive plural",
+          "cells": [
+            {
+              "form": "ὧν",
+              "parse": "Relative pronoun · genitive · plural · masculine",
+              "cellLabel": "gen. pl. masc."
+            },
+            {
+              "form": "ὧν",
+              "parse": "Relative pronoun · genitive · plural · feminine",
+              "cellLabel": "gen. pl. fem."
+            },
+            {
+              "form": "ὧν",
+              "parse": "Relative pronoun · genitive · plural · neuter",
+              "cellLabel": "gen. pl. neut."
+            }
+          ]
+        },
+        {
+          "label": "dative plural",
+          "cells": [
+            {
+              "form": "οἷς",
+              "parse": "Relative pronoun · dative · plural · masculine",
+              "cellLabel": "dat. pl. masc."
+            },
+            {
+              "form": "αἷς",
+              "parse": "Relative pronoun · dative · plural · feminine",
+              "cellLabel": "dat. pl. fem."
+            },
+            {
+              "form": "οἷς",
+              "parse": "Relative pronoun · dative · plural · neuter",
+              "cellLabel": "dat. pl. neut."
+            }
+          ]
+        },
+        {
+          "label": "accusative plural",
+          "cells": [
+            {
+              "form": "οὕς",
+              "parse": "Relative pronoun · accusative · plural · masculine",
+              "cellLabel": "acc. pl. masc."
+            },
+            {
+              "form": "ἅς",
+              "parse": "Relative pronoun · accusative · plural · feminine",
+              "cellLabel": "acc. pl. fem."
+            },
+            {
+              "form": "ἅ",
+              "parse": "Relative pronoun · accusative · plural · neuter",
+              "cellLabel": "acc. pl. neut."
+            }
+          ]
+        }
+      ],
+      "note": "Looks like the article with a rough breathing and an accent. 1 John 1:1 opens with the neuter ὅ four times."
+    },
+    {
+      "id": "poieo-pres",
+      "lemma": "ποιέω",
+      "strongs": "G4160G",
+      "lessonId": "L16",
+      "title": "Contract verb (ε): I do, make",
+      "kind": "verb",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "1st person",
+          "cells": [
+            {
+              "form": "ποιῶ",
+              "parse": "Verb · present · active · indicative · 1st person · singular",
+              "cellLabel": "1st sg."
+            },
+            {
+              "form": "ποιοῦμεν",
+              "parse": "Verb · present · active · indicative · 1st person · plural",
+              "cellLabel": "1st pl."
+            }
+          ]
+        },
+        {
+          "label": "2nd person",
+          "cells": [
+            {
+              "form": "ποιεῖς",
+              "parse": "Verb · present · active · indicative · 2nd person · singular",
+              "cellLabel": "2nd sg."
+            },
+            {
+              "form": "ποιεῖτε",
+              "parse": "Verb · present · active · indicative · 2nd person · plural",
+              "cellLabel": "2nd pl."
+            }
+          ]
+        },
+        {
+          "label": "3rd person",
+          "cells": [
+            {
+              "form": "ποιεῖ",
+              "parse": "Verb · present · active · indicative · 3rd person · singular",
+              "cellLabel": "3rd sg."
+            },
+            {
+              "form": "ποιοῦσι(ν)",
+              "parse": "Verb · present · active · indicative · 3rd person · plural",
+              "cellLabel": "3rd pl."
+            }
+          ]
+        }
+      ],
+      "note": "μαρτυροῦμεν (1 John 1:2) and ποιοῦμεν (1:6, 1:10) are this pattern."
+    },
+    {
+      "id": "agapao-pres",
+      "lemma": "ἀγαπάω",
+      "strongs": "G0025",
+      "lessonId": "L16",
+      "title": "Contract verb (α): I love",
+      "kind": "verb",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "1st person",
+          "cells": [
+            {
+              "form": "ἀγαπῶ",
+              "parse": "Verb · present · active · indicative · 1st person · singular",
+              "cellLabel": "1st sg."
+            },
+            {
+              "form": "ἀγαπῶμεν",
+              "parse": "Verb · present · active · indicative · 1st person · plural",
+              "cellLabel": "1st pl."
+            }
+          ]
+        },
+        {
+          "label": "2nd person",
+          "cells": [
+            {
+              "form": "ἀγαπᾷς",
+              "parse": "Verb · present · active · indicative · 2nd person · singular",
+              "cellLabel": "2nd sg."
+            },
+            {
+              "form": "ἀγαπᾶτε",
+              "parse": "Verb · present · active · indicative · 2nd person · plural",
+              "cellLabel": "2nd pl."
+            }
+          ]
+        },
+        {
+          "label": "3rd person",
+          "cells": [
+            {
+              "form": "ἀγαπᾷ",
+              "parse": "Verb · present · active · indicative · 3rd person · singular",
+              "cellLabel": "3rd sg."
+            },
+            {
+              "form": "ἀγαπῶσι(ν)",
+              "parse": "Verb · present · active · indicative · 3rd person · plural",
+              "cellLabel": "3rd pl."
+            }
+          ]
+        }
+      ],
+      "note": "πλανῶμεν (1 John 1:8) is this pattern. In α-contracts the indicative and subjunctive look the same."
+    },
+    {
+      "id": "erchomai-pres",
+      "lemma": "ἔρχομαι",
+      "strongs": "G2064",
+      "lessonId": "L17",
+      "title": "Present middle/passive (deponent): I come",
+      "kind": "verb",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "1st person",
+          "cells": [
+            {
+              "form": "ἔρχομαι",
+              "parse": "Verb · present · middle or passive deponent · indicative · 1st person · singular",
+              "cellLabel": "1st sg."
+            },
+            {
+              "form": "ἐρχόμεθα",
+              "parse": "Verb · present · middle or passive deponent · indicative · 1st person · plural",
+              "cellLabel": "1st pl."
+            }
+          ]
+        },
+        {
+          "label": "2nd person",
+          "cells": [
+            {
+              "form": "ἔρχῃ",
+              "parse": "Verb · present · middle or passive deponent · indicative · 2nd person · singular",
+              "cellLabel": "2nd sg."
+            },
+            {
+              "form": "ἔρχεσθε",
+              "parse": "Verb · present · middle or passive deponent · indicative · 2nd person · plural",
+              "cellLabel": "2nd pl."
+            }
+          ]
+        },
+        {
+          "label": "3rd person",
+          "cells": [
+            {
+              "form": "ἔρχεται",
+              "parse": "Verb · present · middle or passive deponent · indicative · 3rd person · singular",
+              "cellLabel": "3rd sg."
+            },
+            {
+              "form": "ἔρχονται",
+              "parse": "Verb · present · middle or passive deponent · indicative · 3rd person · plural",
+              "cellLabel": "3rd pl."
+            }
+          ]
+        }
+      ],
+      "note": "Deponent: middle/passive endings, active meaning. ψευδόμεθα (1 John 1:6) has the same ending."
+    },
+    {
+      "id": "pater",
+      "lemma": "πατήρ",
+      "strongs": "G3962",
+      "lessonId": "L18",
+      "title": "Third declension: father",
+      "kind": "noun",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "nominative",
+          "cells": [
+            {
+              "form": "πατήρ",
+              "parse": "Noun · nominative · singular · masculine",
+              "cellLabel": "nom. sg."
+            },
+            {
+              "form": "πατέρες",
+              "parse": "Noun · nominative · plural · masculine",
+              "cellLabel": "nom. pl."
+            }
+          ]
+        },
+        {
+          "label": "genitive",
+          "cells": [
+            {
+              "form": "πατρός",
+              "parse": "Noun · genitive · singular · masculine",
+              "cellLabel": "gen. sg."
+            },
+            {
+              "form": "πατέρων",
+              "parse": "Noun · genitive · plural · masculine",
+              "cellLabel": "gen. pl."
+            }
+          ]
+        },
+        {
+          "label": "dative",
+          "cells": [
+            {
+              "form": "πατρί",
+              "parse": "Noun · dative · singular · masculine",
+              "cellLabel": "dat. sg."
+            },
+            {
+              "form": "πατράσι(ν)",
+              "parse": "Noun · dative · plural · masculine",
+              "cellLabel": "dat. pl."
+            }
+          ]
+        },
+        {
+          "label": "accusative",
+          "cells": [
+            {
+              "form": "πατέρα",
+              "parse": "Noun · accusative · singular · masculine",
+              "cellLabel": "acc. sg."
+            },
+            {
+              "form": "πατέρας",
+              "parse": "Noun · accusative · plural · masculine",
+              "cellLabel": "acc. pl."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sarx",
+      "lemma": "σάρξ",
+      "strongs": "G4561",
+      "lessonId": "L18",
+      "title": "Third declension (stem in κ): flesh",
+      "kind": "noun",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "nominative",
+          "cells": [
+            {
+              "form": "σάρξ",
+              "parse": "Noun · nominative · singular · feminine",
+              "cellLabel": "nom. sg."
+            },
+            {
+              "form": "σάρκες",
+              "parse": "Noun · nominative · plural · feminine",
+              "cellLabel": "nom. pl."
+            }
+          ]
+        },
+        {
+          "label": "genitive",
+          "cells": [
+            {
+              "form": "σαρκός",
+              "parse": "Noun · genitive · singular · feminine",
+              "cellLabel": "gen. sg."
+            },
+            {
+              "form": "σαρκῶν",
+              "parse": "Noun · genitive · plural · feminine",
+              "cellLabel": "gen. pl."
+            }
+          ]
+        },
+        {
+          "label": "dative",
+          "cells": [
+            {
+              "form": "σαρκί",
+              "parse": "Noun · dative · singular · feminine",
+              "cellLabel": "dat. sg."
+            },
+            {
+              "form": "σαρξί(ν)",
+              "parse": "Noun · dative · plural · feminine",
+              "cellLabel": "dat. pl."
+            }
+          ]
+        },
+        {
+          "label": "accusative",
+          "cells": [
+            {
+              "form": "σάρκα",
+              "parse": "Noun · accusative · singular · feminine",
+              "cellLabel": "acc. sg."
+            },
+            {
+              "form": "σάρκας",
+              "parse": "Noun · accusative · plural · feminine",
+              "cellLabel": "acc. pl."
+            }
+          ]
+        }
+      ],
+      "note": "χείρ (1 John 1:1) is third declension too: χεῖρες is nominative plural."
+    },
+    {
+      "id": "onoma",
+      "lemma": "ὄνομα",
+      "strongs": "G3686",
+      "lessonId": "L18",
+      "title": "Third declension neuter (‑μα): name",
+      "kind": "noun",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "nominative",
+          "cells": [
+            {
+              "form": "ὄνομα",
+              "parse": "Noun · nominative · singular · neuter",
+              "cellLabel": "nom. sg."
+            },
+            {
+              "form": "ὀνόματα",
+              "parse": "Noun · nominative · plural · neuter",
+              "cellLabel": "nom. pl."
+            }
+          ]
+        },
+        {
+          "label": "genitive",
+          "cells": [
+            {
+              "form": "ὀνόματος",
+              "parse": "Noun · genitive · singular · neuter",
+              "cellLabel": "gen. sg."
+            },
+            {
+              "form": "ὀνομάτων",
+              "parse": "Noun · genitive · plural · neuter",
+              "cellLabel": "gen. pl."
+            }
+          ]
+        },
+        {
+          "label": "dative",
+          "cells": [
+            {
+              "form": "ὀνόματι",
+              "parse": "Noun · dative · singular · neuter",
+              "cellLabel": "dat. sg."
+            },
+            {
+              "form": "ὀνόμασι(ν)",
+              "parse": "Noun · dative · plural · neuter",
+              "cellLabel": "dat. pl."
+            }
+          ]
+        },
+        {
+          "label": "accusative",
+          "cells": [
+            {
+              "form": "ὄνομα",
+              "parse": "Noun · accusative · singular · neuter",
+              "cellLabel": "acc. sg."
+            },
+            {
+              "form": "ὀνόματα",
+              "parse": "Noun · accusative · plural · neuter",
+              "cellLabel": "acc. pl."
+            }
+          ]
+        }
+      ],
+      "note": "αἷμα (1 John 1:7) declines the same way; φῶς and σκότος (1:5–7) are other neuter third-declension nouns."
+    },
+    {
+      "id": "luo-aor-act",
+      "lemma": "λύω",
+      "strongs": "G3089",
+      "lessonId": "L20",
+      "title": "First aorist active indicative (model verb)",
+      "kind": "verb",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "1st person",
+          "cells": [
+            {
+              "form": "ἔλυσα",
+              "parse": "Verb · aorist · active · indicative · 1st person · singular",
+              "cellLabel": "1st sg."
+            },
+            {
+              "form": "ἐλύσαμεν",
+              "parse": "Verb · aorist · active · indicative · 1st person · plural",
+              "cellLabel": "1st pl."
+            }
+          ]
+        },
+        {
+          "label": "2nd person",
+          "cells": [
+            {
+              "form": "ἔλυσας",
+              "parse": "Verb · aorist · active · indicative · 2nd person · singular",
+              "cellLabel": "2nd sg."
+            },
+            {
+              "form": "ἐλύσατε",
+              "parse": "Verb · aorist · active · indicative · 2nd person · plural",
+              "cellLabel": "2nd pl."
+            }
+          ]
+        },
+        {
+          "label": "3rd person",
+          "cells": [
+            {
+              "form": "ἔλυσε(ν)",
+              "parse": "Verb · aorist · active · indicative · 3rd person · singular",
+              "cellLabel": "3rd sg."
+            },
+            {
+              "form": "ἔλυσαν",
+              "parse": "Verb · aorist · active · indicative · 3rd person · plural",
+              "cellLabel": "3rd pl."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pisteuo-aor-act",
+      "lemma": "πιστεύω",
+      "strongs": "G4100",
+      "lessonId": "L20",
+      "title": "First aorist active indicative: I believed",
+      "kind": "verb",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "1st person",
+          "cells": [
+            {
+              "form": "ἐπίστευσα",
+              "parse": "Verb · aorist · active · indicative · 1st person · singular",
+              "cellLabel": "1st sg."
+            },
+            {
+              "form": "ἐπιστεύσαμεν",
+              "parse": "Verb · aorist · active · indicative · 1st person · plural",
+              "cellLabel": "1st pl."
+            }
+          ]
+        },
+        {
+          "label": "2nd person",
+          "cells": [
+            {
+              "form": "ἐπίστευσας",
+              "parse": "Verb · aorist · active · indicative · 2nd person · singular",
+              "cellLabel": "2nd sg."
+            },
+            {
+              "form": "ἐπιστεύσατε",
+              "parse": "Verb · aorist · active · indicative · 2nd person · plural",
+              "cellLabel": "2nd pl."
+            }
+          ]
+        },
+        {
+          "label": "3rd person",
+          "cells": [
+            {
+              "form": "ἐπίστευσε(ν)",
+              "parse": "Verb · aorist · active · indicative · 3rd person · singular",
+              "cellLabel": "3rd sg."
+            },
+            {
+              "form": "ἐπίστευσαν",
+              "parse": "Verb · aorist · active · indicative · 3rd person · plural",
+              "cellLabel": "3rd pl."
+            }
+          ]
+        }
+      ],
+      "note": "ἐψηλάφησαν (1 John 1:1) is a 3rd plural of this kind."
+    },
+    {
+      "id": "eipon-2aor",
+      "lemma": "ἔπω, ἐρῶ, εἶπον",
+      "strongs": "G2036",
+      "lessonId": "L20",
+      "title": "Second aorist active indicative: I said",
+      "kind": "verb",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "1st person",
+          "cells": [
+            {
+              "form": "εἶπον",
+              "parse": "Verb · 2nd aorist · active · indicative · 1st person · singular",
+              "cellLabel": "1st sg."
+            },
+            {
+              "form": "εἴπομεν",
+              "parse": "Verb · 2nd aorist · active · indicative · 1st person · plural",
+              "cellLabel": "1st pl."
+            }
+          ]
+        },
+        {
+          "label": "2nd person",
+          "cells": [
+            {
+              "form": "εἶπες",
+              "parse": "Verb · 2nd aorist · active · indicative · 2nd person · singular",
+              "cellLabel": "2nd sg."
+            },
+            {
+              "form": "εἴπατε",
+              "parse": "Verb · 2nd aorist · active · indicative · 2nd person · plural",
+              "cellLabel": "2nd pl."
+            }
+          ]
+        },
+        {
+          "label": "3rd person",
+          "cells": [
+            {
+              "form": "εἶπε(ν)",
+              "parse": "Verb · 2nd aorist · active · indicative · 3rd person · singular",
+              "cellLabel": "3rd sg."
+            },
+            {
+              "form": "εἶπον",
+              "parse": "Verb · 2nd aorist · active · indicative · 3rd person · plural",
+              "cellLabel": "3rd pl."
+            }
+          ]
+        }
+      ],
+      "note": "1st singular and 3rd plural are the same form. The NT also has εἶπαν for \"they said\"."
+    },
+    {
+      "id": "theaomai-aor-mid",
+      "lemma": "θεάομαι",
+      "strongs": "G2300",
+      "lessonId": "L20",
+      "title": "Aorist middle (deponent): I looked at",
+      "kind": "verb",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "1st person",
+          "cells": [
+            {
+              "form": "ἐθεασάμην",
+              "parse": "Verb · aorist · middle deponent · indicative · 1st person · singular",
+              "cellLabel": "1st sg."
+            },
+            {
+              "form": "ἐθεασάμεθα",
+              "parse": "Verb · aorist · middle deponent · indicative · 1st person · plural",
+              "cellLabel": "1st pl."
+            }
+          ]
+        },
+        {
+          "label": "2nd person",
+          "cells": [
+            {
+              "form": "ἐθεάσω",
+              "parse": "Verb · aorist · middle deponent · indicative · 2nd person · singular",
+              "cellLabel": "2nd sg."
+            },
+            {
+              "form": "ἐθεάσασθε",
+              "parse": "Verb · aorist · middle deponent · indicative · 2nd person · plural",
+              "cellLabel": "2nd pl."
+            }
+          ]
+        },
+        {
+          "label": "3rd person",
+          "cells": [
+            {
+              "form": "ἐθεάσατο",
+              "parse": "Verb · aorist · middle deponent · indicative · 3rd person · singular",
+              "cellLabel": "3rd sg."
+            },
+            {
+              "form": "ἐθεάσαντο",
+              "parse": "Verb · aorist · middle deponent · indicative · 3rd person · plural",
+              "cellLabel": "3rd pl."
+            }
+          ]
+        }
+      ],
+      "note": "Recognition only: 1 John 1:1 has ἐθεασάμεθα."
+    },
+    {
+      "id": "egeiro-aor-pass",
+      "lemma": "ἐγείρω",
+      "strongs": "G1453",
+      "lessonId": "L20",
+      "title": "Aorist passive indicative: I was raised",
+      "kind": "verb",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "1st person",
+          "cells": [
+            {
+              "form": "ἠγέρθην",
+              "parse": "Verb · aorist · passive · indicative · 1st person · singular",
+              "cellLabel": "1st sg."
+            },
+            {
+              "form": "ἠγέρθημεν",
+              "parse": "Verb · aorist · passive · indicative · 1st person · plural",
+              "cellLabel": "1st pl."
+            }
+          ]
+        },
+        {
+          "label": "2nd person",
+          "cells": [
+            {
+              "form": "ἠγέρθης",
+              "parse": "Verb · aorist · passive · indicative · 2nd person · singular",
+              "cellLabel": "2nd sg."
+            },
+            {
+              "form": "ἠγέρθητε",
+              "parse": "Verb · aorist · passive · indicative · 2nd person · plural",
+              "cellLabel": "2nd pl."
+            }
+          ]
+        },
+        {
+          "label": "3rd person",
+          "cells": [
+            {
+              "form": "ἠγέρθη",
+              "parse": "Verb · aorist · passive · indicative · 3rd person · singular",
+              "cellLabel": "3rd sg."
+            },
+            {
+              "form": "ἠγέρθησαν",
+              "parse": "Verb · aorist · passive · indicative · 3rd person · plural",
+              "cellLabel": "3rd pl."
+            }
+          ]
+        }
+      ],
+      "note": "Recognition only: the θη marks the aorist passive, as in ἐφανερώθη (1 John 1:2)."
+    },
+    {
+      "id": "horao-perf",
+      "lemma": "ὁράω",
+      "strongs": "G3708",
+      "lessonId": "L22",
+      "title": "Perfect active indicative: I have seen",
+      "kind": "verb",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "1st person",
+          "cells": [
+            {
+              "form": "ἑώρακα",
+              "parse": "Verb · perfect · active · indicative · 1st person · singular",
+              "cellLabel": "1st sg."
+            },
+            {
+              "form": "ἑωράκαμεν",
+              "parse": "Verb · perfect · active · indicative · 1st person · plural",
+              "cellLabel": "1st pl."
+            }
+          ]
+        },
+        {
+          "label": "2nd person",
+          "cells": [
+            {
+              "form": "ἑώρακας",
+              "parse": "Verb · perfect · active · indicative · 2nd person · singular",
+              "cellLabel": "2nd sg."
+            },
+            {
+              "form": "ἑωράκατε",
+              "parse": "Verb · perfect · active · indicative · 2nd person · plural",
+              "cellLabel": "2nd pl."
+            }
+          ]
+        },
+        {
+          "label": "3rd person",
+          "cells": [
+            {
+              "form": "ἑώρακε(ν)",
+              "parse": "Verb · perfect · active · indicative · 3rd person · singular",
+              "cellLabel": "3rd sg."
+            },
+            {
+              "form": "ἑωράκασι(ν)",
+              "parse": "Verb · perfect · active · indicative · 3rd person · plural",
+              "cellLabel": "3rd pl."
+            }
+          ]
+        }
+      ],
+      "note": "1 John 1:1, 1:2, 1:3: ἑωράκαμεν."
+    },
+    {
+      "id": "akouo-2perf",
+      "lemma": "ἀκούω",
+      "strongs": "G0191",
+      "lessonId": "L22",
+      "title": "Second perfect active indicative: I have heard",
+      "kind": "verb",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "1st person",
+          "cells": [
+            {
+              "form": "ἀκήκοα",
+              "parse": "Verb · 2nd perfect · active · indicative · 1st person · singular",
+              "cellLabel": "1st sg."
+            },
+            {
+              "form": "ἀκηκόαμεν",
+              "parse": "Verb · 2nd perfect · active · indicative · 1st person · plural",
+              "cellLabel": "1st pl."
+            }
+          ]
+        },
+        {
+          "label": "2nd person",
+          "cells": [
+            {
+              "form": "ἀκήκοας",
+              "parse": "Verb · 2nd perfect · active · indicative · 2nd person · singular",
+              "cellLabel": "2nd sg."
+            },
+            {
+              "form": "ἀκηκόατε",
+              "parse": "Verb · 2nd perfect · active · indicative · 2nd person · plural",
+              "cellLabel": "2nd pl."
+            }
+          ]
+        },
+        {
+          "label": "3rd person",
+          "cells": [
+            {
+              "form": "ἀκήκοε(ν)",
+              "parse": "Verb · 2nd perfect · active · indicative · 3rd person · singular",
+              "cellLabel": "3rd sg."
+            },
+            {
+              "form": "ἀκηκόασι(ν)",
+              "parse": "Verb · 2nd perfect · active · indicative · 3rd person · plural",
+              "cellLabel": "3rd pl."
+            }
+          ]
+        }
+      ],
+      "note": "1 John 1:1, 1:3, 1:5: ἀκηκόαμεν."
+    },
+    {
+      "id": "oida-perf",
+      "lemma": "εἴδω",
+      "strongs": "G6063",
+      "lessonId": "L22",
+      "title": "οἶδα: perfect form, present meaning \"I know\"",
+      "kind": "verb",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "1st person",
+          "cells": [
+            {
+              "form": "οἶδα",
+              "parse": "Verb · perfect · active · indicative · 1st person · singular",
+              "cellLabel": "1st sg."
+            },
+            {
+              "form": "οἴδαμεν",
+              "parse": "Verb · perfect · active · indicative · 1st person · plural",
+              "cellLabel": "1st pl."
+            }
+          ]
+        },
+        {
+          "label": "2nd person",
+          "cells": [
+            {
+              "form": "οἶδας",
+              "parse": "Verb · perfect · active · indicative · 2nd person · singular",
+              "cellLabel": "2nd sg."
+            },
+            {
+              "form": "οἴδατε",
+              "parse": "Verb · perfect · active · indicative · 2nd person · plural",
+              "cellLabel": "2nd pl."
+            }
+          ]
+        },
+        {
+          "label": "3rd person",
+          "cells": [
+            {
+              "form": "οἶδε(ν)",
+              "parse": "Verb · perfect · active · indicative · 3rd person · singular",
+              "cellLabel": "3rd sg."
+            },
+            {
+              "form": "οἴδασι(ν)",
+              "parse": "Verb · perfect · active · indicative · 3rd person · plural",
+              "cellLabel": "3rd pl."
+            }
+          ]
+        }
+      ],
+      "note": "The data files οἶδα under the lemma εἴδω."
+    },
+    {
+      "id": "pleroo-perf-ptc",
+      "lemma": "πληρόω",
+      "strongs": "G4137",
+      "lessonId": "L22",
+      "title": "Perfect passive participle: having been filled (recognition)",
+      "kind": "participle",
+      "columns": [
+        "masculine",
+        "feminine",
+        "neuter"
+      ],
+      "rows": [
+        {
+          "label": "nominative singular",
+          "cells": [
+            {
+              "form": "πεπληρωμένος",
+              "parse": "Verb · perfect · passive · participle · nominative · singular · masculine",
+              "cellLabel": "nom. sg. masc."
+            },
+            {
+              "form": "πεπληρωμένη",
+              "parse": "Verb · perfect · passive · participle · nominative · singular · feminine",
+              "cellLabel": "nom. sg. fem."
+            },
+            {
+              "form": "πεπληρωμένον",
+              "parse": "Verb · perfect · passive · participle · nominative · singular · neuter",
+              "cellLabel": "nom. sg. neut."
+            }
+          ]
+        }
+      ],
+      "note": "1 John 1:4: ἡ χαρὰ ἡμῶν ᾖ πεπληρωμένη. The repeated first consonant at the front of the word is the mark of the perfect."
+    },
+    {
+      "id": "luo-pres-subj",
+      "lemma": "λύω",
+      "strongs": "G3089",
+      "lessonId": "L23",
+      "title": "Present active subjunctive (model verb)",
+      "kind": "verb",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "1st person",
+          "cells": [
+            {
+              "form": "λύω",
+              "parse": "Verb · present · active · subjunctive · 1st person · singular",
+              "cellLabel": "1st sg."
+            },
+            {
+              "form": "λύωμεν",
+              "parse": "Verb · present · active · subjunctive · 1st person · plural",
+              "cellLabel": "1st pl."
+            }
+          ]
+        },
+        {
+          "label": "2nd person",
+          "cells": [
+            {
+              "form": "λύῃς",
+              "parse": "Verb · present · active · subjunctive · 2nd person · singular",
+              "cellLabel": "2nd sg."
+            },
+            {
+              "form": "λύητε",
+              "parse": "Verb · present · active · subjunctive · 2nd person · plural",
+              "cellLabel": "2nd pl."
+            }
+          ]
+        },
+        {
+          "label": "3rd person",
+          "cells": [
+            {
+              "form": "λύῃ",
+              "parse": "Verb · present · active · subjunctive · 3rd person · singular",
+              "cellLabel": "3rd sg."
+            },
+            {
+              "form": "λύωσι(ν)",
+              "parse": "Verb · present · active · subjunctive · 3rd person · plural",
+              "cellLabel": "3rd pl."
+            }
+          ]
+        }
+      ],
+      "note": "The subjunctive lengthens the linking vowel: ο → ω, ε → η."
+    },
+    {
+      "id": "echo-pres-subj",
+      "lemma": "ἔχω",
+      "strongs": "G2192",
+      "lessonId": "L23",
+      "title": "Present active subjunctive: I may have",
+      "kind": "verb",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "1st person",
+          "cells": [
+            {
+              "form": "ἔχω",
+              "parse": "Verb · present · active · subjunctive · 1st person · singular",
+              "cellLabel": "1st sg."
+            },
+            {
+              "form": "ἔχωμεν",
+              "parse": "Verb · present · active · subjunctive · 1st person · plural",
+              "cellLabel": "1st pl."
+            }
+          ]
+        },
+        {
+          "label": "2nd person",
+          "cells": [
+            {
+              "form": "ἔχῃς",
+              "parse": "Verb · present · active · subjunctive · 2nd person · singular",
+              "cellLabel": "2nd sg."
+            },
+            {
+              "form": "ἔχητε",
+              "parse": "Verb · present · active · subjunctive · 2nd person · plural",
+              "cellLabel": "2nd pl."
+            }
+          ]
+        },
+        {
+          "label": "3rd person",
+          "cells": [
+            {
+              "form": "ἔχῃ",
+              "parse": "Verb · present · active · subjunctive · 3rd person · singular",
+              "cellLabel": "3rd sg."
+            },
+            {
+              "form": "ἔχωσι(ν)",
+              "parse": "Verb · present · active · subjunctive · 3rd person · plural",
+              "cellLabel": "3rd pl."
+            }
+          ]
+        }
+      ],
+      "note": "1 John 1:3: ἵνα … ἔχητε."
+    },
+    {
+      "id": "eimi-pres-subj",
+      "lemma": "εἰμί",
+      "strongs": "G1510",
+      "lessonId": "L23",
+      "title": "εἰμί, subjunctive: I may be",
+      "kind": "verb",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "1st person",
+          "cells": [
+            {
+              "form": "ὦ",
+              "parse": "Verb · present · active · subjunctive · 1st person · singular",
+              "cellLabel": "1st sg."
+            },
+            {
+              "form": "ὦμεν",
+              "parse": "Verb · present · active · subjunctive · 1st person · plural",
+              "cellLabel": "1st pl."
+            }
+          ]
+        },
+        {
+          "label": "2nd person",
+          "cells": [
+            {
+              "form": "ᾖς",
+              "parse": "Verb · present · active · subjunctive · 2nd person · singular",
+              "cellLabel": "2nd sg."
+            },
+            {
+              "form": "ἦτε",
+              "parse": "Verb · present · active · subjunctive · 2nd person · plural",
+              "cellLabel": "2nd pl."
+            }
+          ]
+        },
+        {
+          "label": "3rd person",
+          "cells": [
+            {
+              "form": "ᾖ",
+              "parse": "Verb · present · active · subjunctive · 3rd person · singular",
+              "cellLabel": "3rd sg."
+            },
+            {
+              "form": "ὦσι(ν)",
+              "parse": "Verb · present · active · subjunctive · 3rd person · plural",
+              "cellLabel": "3rd pl."
+            }
+          ]
+        }
+      ],
+      "note": "1 John 1:4: ἵνα … ᾖ."
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "pronunciation": "Erasmian",
+  "note": "Hand-written. Example words are vocab.json entries (strongs + lemma, checked by scripts/build-greek-course.js); an optional form is an inflected spelling that occurs in orig/nt under that lemma. exampleRefs are verse references whose text comes from orig/ at display time. Sound-alikes are American English.",
+  "transliteration": {
+    "scheme": "STEPBible TAGNT (the t field of orig/nt), reproduced by translit() in scripts/build-greek-course.js",
+    "summary": "One Latin letter or pair per Greek letter: η = ē and ω = ō (macron marks the long vowel), θ th, φ ph, χ ch, ψ ps, ξ x, υ u (never y), ζ z. γγ = ng; γκ, γξ, γχ keep the g (gk, gx, gch). Rough breathing = h, written before the whole diphthong (houtos); initial ρ = rh. Smooth breathing, accents and iota subscript are not written. After an initial h-vowel that does not join the next vowel, an apostrophe marks the break (he'autou, he'ōrakamen).",
+    "dataQuirk": "The TAGNT text drops the h when a rough breathing and an accent sit on the same iota or diphthong (ina for ἵνα, aimatos for αἵματος, oitines for οἵτινες). vocab.json applies the scheme as stated (hina) and records the text's own spelling as translitInText."
+  },
+  "letters": [
+    { "order": 1, "name": "alpha", "capital": "Α", "small": "α", "translit": "a", "sound": "a as in father", "soundAlike": "α = a as in father", "examples": [ { "strongs": "G0575", "lemma": "ἀπό" }, { "strongs": "G0191", "lemma": "ἀκούω" } ] },
+    { "order": 2, "name": "beta", "capital": "Β", "small": "β", "translit": "b", "sound": "b", "soundAlike": "β = b as in boy", "examples": [ { "strongs": "G0991", "lemma": "βλέπω" }, { "strongs": "G0932", "lemma": "βασιλεία" } ] },
+    { "order": 3, "name": "gamma", "capital": "Γ", "small": "γ", "translit": "g", "sound": "hard g; before γ, κ, ξ or χ it is n as in sing", "soundAlike": "γ = g as in got (γγ = ng as in finger)", "examples": [ { "strongs": "G1125", "lemma": "γράφω" }, { "strongs": "G0032G", "lemma": "ἄγγελος" } ] },
+    { "order": 4, "name": "delta", "capital": "Δ", "small": "δ", "translit": "d", "sound": "d", "soundAlike": "δ = d as in dog", "examples": [ { "strongs": "G1161", "lemma": "δέ" }, { "strongs": "G1223", "lemma": "διά" } ] },
+    { "order": 5, "name": "epsilon", "capital": "Ε", "small": "ε", "translit": "e", "sound": "short e", "soundAlike": "ε = e as in get", "examples": [ { "strongs": "G1722", "lemma": "ἐν" }, { "strongs": "G2192", "lemma": "ἔχω" } ] },
+    { "order": 6, "name": "zeta", "capital": "Ζ", "small": "ζ", "translit": "z", "sound": "dz", "soundAlike": "ζ = dz as in adze", "examples": [ { "strongs": "G2222", "lemma": "ζωή" }, { "strongs": "G2198", "lemma": "ζάω" } ] },
+    { "order": 7, "name": "eta", "capital": "Η", "small": "η", "translit": "ē", "sound": "long e, like the a in late", "soundAlike": "η = ay as in obey", "examples": [ { "strongs": "G2250", "lemma": "ἡμέρα" }, { "strongs": "G3361", "lemma": "μή" } ] },
+    { "order": 8, "name": "theta", "capital": "Θ", "small": "θ", "translit": "th", "sound": "th (breathed, not voiced)", "soundAlike": "θ = th as in thing", "examples": [ { "strongs": "G2316", "lemma": "θεός" }, { "strongs": "G2288", "lemma": "θάνατος" } ] },
+    { "order": 9, "name": "iota", "capital": "Ι", "small": "ι", "translit": "i", "sound": "short i, or long ee", "soundAlike": "ι = i as in intrigue (short) or machine (long)", "examples": [ { "strongs": "G2443", "lemma": "ἵνα" }, { "strongs": "G2398", "lemma": "ἴδιος" } ] },
+    { "order": 10, "name": "kappa", "capital": "Κ", "small": "κ", "translit": "k", "sound": "k", "soundAlike": "κ = k as in kite", "examples": [ { "strongs": "G2532", "lemma": "καί" }, { "strongs": "G2889", "lemma": "κόσμος" } ] },
+    { "order": 11, "name": "lambda", "capital": "Λ", "small": "λ", "translit": "l", "sound": "l", "soundAlike": "λ = l as in law", "examples": [ { "strongs": "G3056", "lemma": "λόγος" }, { "strongs": "G3004G", "lemma": "λέγω" } ] },
+    { "order": 12, "name": "mu", "capital": "Μ", "small": "μ", "translit": "m", "sound": "m", "soundAlike": "μ = m as in mother", "examples": [ { "strongs": "G3326", "lemma": "μετά" }, { "strongs": "G3306", "lemma": "μένω" } ] },
+    { "order": 13, "name": "nu", "capital": "Ν", "small": "ν", "translit": "n", "sound": "n", "soundAlike": "ν = n as in new", "examples": [ { "strongs": "G3568", "lemma": "νῦν" }, { "strongs": "G3551", "lemma": "νόμος" } ] },
+    { "order": 14, "name": "xi", "capital": "Ξ", "small": "ξ", "translit": "x", "sound": "ks", "soundAlike": "ξ = x as in axiom", "examples": [ { "strongs": "G1831", "lemma": "ἐξέρχομαι" }, { "strongs": "G1391", "lemma": "δόξα" } ] },
+    { "order": 15, "name": "omicron", "capital": "Ο", "small": "ο", "translit": "o", "sound": "short o", "soundAlike": "ο = o as in not", "examples": [ { "strongs": "G3686", "lemma": "ὄνομα" }, { "strongs": "G3793", "lemma": "ὄχλος" } ] },
+    { "order": 16, "name": "pi", "capital": "Π", "small": "π", "translit": "p", "sound": "p", "soundAlike": "π = p as in pet", "examples": [ { "strongs": "G3962", "lemma": "πατήρ" }, { "strongs": "G3956", "lemma": "πᾶς" } ] },
+    { "order": 17, "name": "rho", "capital": "Ρ", "small": "ρ", "translit": "r", "sound": "r, lightly rolled; at the start of a word it always has a rough breathing (rh)", "soundAlike": "ρ = r as in rod", "examples": [ { "strongs": "G4314", "lemma": "πρός" }, { "strongs": "G5485", "lemma": "χάρις" } ] },
+    { "order": 18, "name": "sigma", "capital": "Σ", "small": "σ", "finalSmall": "ς", "translit": "s", "sound": "s (never z); written ς at the end of a word", "soundAlike": "σ, ς = s as in study", "examples": [ { "strongs": "G4771", "lemma": "σύ" }, { "strongs": "G3056", "lemma": "λόγος" } ] },
+    { "order": 19, "name": "tau", "capital": "Τ", "small": "τ", "translit": "t", "sound": "t", "soundAlike": "τ = t as in talk", "examples": [ { "strongs": "G5119", "lemma": "τότε" }, { "strongs": "G5101", "lemma": "τίς" } ] },
+    { "order": 20, "name": "upsilon", "capital": "Υ", "small": "υ", "translit": "u", "sound": "ü as in German über: say ee with rounded lips (many teachers simply say oo)", "soundAlike": "υ = ü as in French tu", "examples": [ { "strongs": "G5207", "lemma": "υἱός" }, { "strongs": "G5228", "lemma": "ὑπέρ" } ] },
+    { "order": 21, "name": "phi", "capital": "Φ", "small": "φ", "translit": "ph", "sound": "f", "soundAlike": "φ = ph as in phone", "examples": [ { "strongs": "G5456G", "lemma": "φωνή" }, { "strongs": "G0080", "lemma": "ἀδελφός" } ] },
+    { "order": 22, "name": "chi", "capital": "Χ", "small": "χ", "translit": "ch", "sound": "throaty ch (a k sound is acceptable)", "soundAlike": "χ = ch as in Scottish loch", "examples": [ { "strongs": "G5495", "lemma": "χείρ" }, { "strongs": "G5547", "lemma": "Χριστός" } ] },
+    { "order": 23, "name": "psi", "capital": "Ψ", "small": "ψ", "translit": "ps", "sound": "ps, also at the start of a word", "soundAlike": "ψ = ps as in lips", "examples": [], "exampleRefs": [ "1 John 1:1", "1 John 1:6" ], "noExampleNote": "None of the 150 vocabulary words has a ψ; 1 John 1:1 and 1:6 each have one (we have touched; we lie)." },
+    { "order": 24, "name": "omega", "capital": "Ω", "small": "ω", "translit": "ō", "sound": "long o", "soundAlike": "ω = o as in tone", "examples": [ { "strongs": "G5613", "lemma": "ὡς" }, { "strongs": "G2222", "lemma": "ζωή" } ] }
+  ],
+  "diphthongs": [
+    { "letters": "αι", "translit": "ai", "sound": "ai as in aisle", "examples": [ { "strongs": "G2532", "lemma": "καί" } ] },
+    { "letters": "ει", "translit": "ei", "sound": "ei as in eight", "examples": [ { "strongs": "G1510", "lemma": "εἰμί" }, { "strongs": "G1519", "lemma": "εἰς" } ] },
+    { "letters": "οι", "translit": "oi", "sound": "oi as in oil", "examples": [ { "strongs": "G3624G", "lemma": "οἶκος" } ] },
+    { "letters": "υι", "translit": "ui", "sound": "ui as in suite (wee)", "examples": [ { "strongs": "G5207", "lemma": "υἱός" } ] },
+    { "letters": "αυ", "translit": "au", "sound": "au as in sauerkraut (ow)", "examples": [ { "strongs": "G0846", "lemma": "αὐτός" } ] },
+    { "letters": "ευ", "translit": "eu", "sound": "eu as in feud", "examples": [ { "strongs": "G2147", "lemma": "εὑρίσκω" }, { "strongs": "G4100", "lemma": "πιστεύω" } ] },
+    { "letters": "ηυ", "translit": "ēu", "sound": "same as ευ (eu as in feud)", "examples": [], "noExampleNote": "Rare; none of the 150 vocabulary words has it." },
+    { "letters": "ου", "translit": "ou", "sound": "ou as in soup", "examples": [ { "strongs": "G3756", "lemma": "οὐ" }, { "strongs": "G3772", "lemma": "οὐρανός" } ] }
+  ],
+  "iotaSubscript": {
+    "letters": [ "ᾳ", "ῃ", "ῳ" ],
+    "description": "A small iota written under a long vowel. It is not pronounced and not transliterated: read ᾳ as α, ῃ as η, ῳ as ω. It often marks the dative case.",
+    "examples": [ { "strongs": "G3588", "lemma": "ὁ", "form": "τῷ" }, { "strongs": "G0846", "lemma": "αὐτός", "form": "αὐτῷ" } ],
+    "exampleRefs": [ "1 John 1:5", "1 John 1:6" ]
+  },
+  "breathings": [
+    { "name": "smooth breathing", "mark": "᾿", "description": "On every word that starts with a vowel or diphthong and has no h sound. Not pronounced, not transliterated.", "examples": [ { "strongs": "G1722", "lemma": "ἐν" }, { "strongs": "G0575", "lemma": "ἀπό" } ] },
+    { "name": "rough breathing", "mark": "῾", "description": "Adds an h before the vowel. A word starting with υ always has it, and so does a word starting with ρ (transliterated rh).", "examples": [ { "strongs": "G3588", "lemma": "ὁ" }, { "strongs": "G2250", "lemma": "ἡμέρα" } ] },
+    { "name": "breathing on a diphthong", "description": "The breathing sits on the second vowel of a diphthong but belongs to the whole syllable.", "examples": [ { "strongs": "G0846", "lemma": "αὐτός" }, { "strongs": "G3778", "lemma": "οὗτος" } ] },
+    { "name": "breathing on a capital", "description": "On a capital letter the breathing (and accent) is written before it, at the top left.", "examples": [ { "strongs": "G2424G", "lemma": "Ἰησοῦς" } ] }
+  ],
+  "accents": {
+    "level": "recognition only",
+    "description": "Three accent marks show the stressed syllable (in Erasmian reading, stress the accented syllable). You do not need to write them. They seldom change the meaning, but a few pairs differ only by accent.",
+    "marks": [
+      { "name": "acute", "mark": "´", "description": "The usual accent.", "examples": [ { "strongs": "G3056", "lemma": "λόγος" }, { "strongs": "G3754G", "lemma": "ὅτι" } ] },
+      { "name": "grave", "mark": "`", "description": "An acute on the last syllable turns grave when another word follows without punctuation.", "examples": [ { "strongs": "G2532", "lemma": "καί", "form": "καὶ" } ] },
+      { "name": "circumflex", "mark": "῀", "description": "Only on long vowels and diphthongs.", "examples": [ { "strongs": "G3568", "lemma": "νῦν" }, { "strongs": "G3956", "lemma": "πᾶς" } ] }
+    ],
+    "accentPair": { "description": "τίς (accented) asks who? or what?; τις (no accent of its own) means someone or a certain.", "examples": [ { "strongs": "G5101", "lemma": "τίς" }, { "strongs": "G5100", "lemma": "τις" } ] },
+    "enclitics": { "description": "Some short words lean on the word before and often lose their accent, so ἐστίν is usually printed ἐστιν.", "examples": [ { "strongs": "G1510", "lemma": "εἰμί", "form": "ἐστιν" } ], "exampleRefs": [ "1 John 1:5" ] }
+  },
+  "otherMarks": [
+    { "name": "diaeresis", "mark": "¨", "description": "Two dots over ι or υ: the vowel is said on its own, not as part of a diphthong.", "examples": [], "exampleRefs": [ "John 1:23" ], "noExampleNote": "None of the 150 vocabulary words has one; John 1:23 has the name Isaiah." },
+    { "name": "elision", "mark": "᾽", "description": "A short final vowel is dropped before a word that starts with a vowel and an apostrophe takes its place; before a rough breathing the consonant may also change (μετά → μεθ᾽).", "examples": [ { "strongs": "G0575", "lemma": "ἀπό", "form": "ἀπ᾽" }, { "strongs": "G3326", "lemma": "μετά", "form": "μεθ᾽" } ], "exampleRefs": [ "1 John 1:1", "1 John 1:3" ] },
+    { "name": "movable nu", "description": "Some endings (‑σι, and ‑ε in the 3rd singular) can add a ν. It does not change the meaning. The NA27 text used here nearly always prints it, so expect ἐστιν and εἰσιν; paradigm tables show it as (ν).", "examples": [ { "strongs": "G1510", "lemma": "εἰμί", "form": "ἐστίν" }, { "strongs": "G1510", "lemma": "εἰμί", "form": "εἰσίν" } ] }
+  ],
+  "punctuation": [
+    { "mark": ".", "name": "full stop", "meaning": "end of a sentence, as in English" },
+    { "mark": ",", "name": "comma", "meaning": "a pause, as in English" },
+    { "mark": "·", "name": "raised dot (ano teleia)", "meaning": "a colon or semicolon", "exampleRefs": [ "1 John 1:1", "1 John 1:3" ] },
+    { "mark": ";", "name": "Greek question mark", "meaning": "a question mark — it looks like an English semicolon", "exampleRefs": [ "John 1:21" ] }
+  ],
+  "punctuationNote": "The STEP text in orig/ keeps the raised dot and the question mark but no commas or full stops, so only those two appear when verse text is shown."
+}

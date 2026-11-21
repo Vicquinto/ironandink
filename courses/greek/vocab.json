@@ -1,0 +1,3065 @@
+{
+  "source": "orig/nt (STEPBible TAGNT, NA27 words) · glosses orig/lexicon-grk.json (TBESG) · parts of speech orig/morph-grk.json (TEGMC). CC BY 4.0, STEP Bible (STEPBible.org), based on work at Tyndale House, Cambridge.",
+  "generatedBy": "scripts/build-greek-course.js",
+  "note": "Counted by dictionary form (lemma). strongs = the lexicon entry for that lemma; strongsAll = every disambiguated Strong's number the data files under it. Lemmas are Unicode NFC. Total NT words counted: 138008.",
+  "count": 150,
+  "words": [
+    {
+      "rank": 1,
+      "strongs": "G3588",
+      "strongsAll": [
+        "G3588"
+      ],
+      "lemma": "ὁ",
+      "translit": "ho",
+      "gloss": "the/this/who",
+      "partOfSpeech": "Definite article",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "T-NSM",
+      "frequency": 19861,
+      "exampleRefs": [
+        "1 John 1:1",
+        "1 John 1:2",
+        "1 John 1:3"
+      ]
+    },
+    {
+      "rank": 2,
+      "strongs": "G2532",
+      "strongsAll": [
+        "G2532"
+      ],
+      "lemma": "καί",
+      "translit": "kai",
+      "gloss": "and",
+      "partOfSpeech": "Conjunction",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "CONJ",
+      "frequency": 9021,
+      "exampleRefs": [
+        "1 John 1:1",
+        "1 John 1:2",
+        "1 John 1:3"
+      ]
+    },
+    {
+      "rank": 3,
+      "strongs": "G0846",
+      "strongsAll": [
+        "G0846"
+      ],
+      "lemma": "αὐτός",
+      "translit": "autos",
+      "gloss": "it/s/he",
+      "partOfSpeech": "Personal pronoun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "P-GSM",
+      "frequency": 5593,
+      "exampleRefs": [
+        "1 John 1:3",
+        "1 John 1:5",
+        "1 John 1:6"
+      ]
+    },
+    {
+      "rank": 4,
+      "strongs": "G4771",
+      "strongsAll": [
+        "G4771"
+      ],
+      "lemma": "σύ",
+      "translit": "su",
+      "gloss": "you",
+      "partOfSpeech": "Personal pronoun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "P-2DP",
+      "frequency": 2907,
+      "exampleRefs": [
+        "1 John 1:2",
+        "1 John 1:3",
+        "1 John 1:5"
+      ]
+    },
+    {
+      "rank": 5,
+      "strongs": "G1161",
+      "strongsAll": [
+        "G1161"
+      ],
+      "lemma": "δέ",
+      "translit": "de",
+      "gloss": "then",
+      "partOfSpeech": "Conjunction",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "CONJ",
+      "frequency": 2792,
+      "exampleRefs": [
+        "1 John 1:3",
+        "1 John 1:7",
+        "1 John 2:2"
+      ]
+    },
+    {
+      "rank": 6,
+      "strongs": "G1722",
+      "strongsAll": [
+        "G1722"
+      ],
+      "lemma": "ἐν",
+      "translit": "en",
+      "gloss": "in/on/among",
+      "partOfSpeech": "Preposition",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "PREP",
+      "frequency": 2752,
+      "exampleRefs": [
+        "1 John 1:5",
+        "1 John 1:6",
+        "1 John 1:7"
+      ]
+    },
+    {
+      "rank": 7,
+      "strongs": "G1473",
+      "strongsAll": [
+        "G3165",
+        "G1473"
+      ],
+      "lemma": "ἐγώ",
+      "translit": "egō",
+      "gloss": "I/we; me",
+      "partOfSpeech": "Personal pronoun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "P-1GS",
+      "frequency": 2583,
+      "exampleRefs": [
+        "1 John 1:1",
+        "1 John 1:2",
+        "1 John 1:3"
+      ]
+    },
+    {
+      "rank": 8,
+      "strongs": "G1510",
+      "strongsAll": [
+        "G1510",
+        "G1511"
+      ],
+      "lemma": "εἰμί",
+      "translit": "eimi",
+      "gloss": "to be",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-PAI-3S",
+      "frequency": 2461,
+      "exampleRefs": [
+        "1 John 1:1",
+        "1 John 1:2",
+        "1 John 1:4"
+      ]
+    },
+    {
+      "rank": 9,
+      "strongs": "G1519",
+      "strongsAll": [
+        "G1519"
+      ],
+      "lemma": "εἰς",
+      "translit": "eis",
+      "gloss": "toward",
+      "partOfSpeech": "Preposition",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "PREP",
+      "frequency": 1768,
+      "exampleRefs": [
+        "1 John 2:17",
+        "1 John 3:8",
+        "1 John 3:14"
+      ]
+    },
+    {
+      "rank": 10,
+      "strongs": "G3756",
+      "strongsAll": [
+        "G3756"
+      ],
+      "lemma": "οὐ",
+      "translit": "ou",
+      "gloss": "no",
+      "partOfSpeech": "Negative Particle",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "PRT-N",
+      "frequency": 1670,
+      "exampleRefs": [
+        "1 John 1:5",
+        "1 John 1:6",
+        "1 John 1:8"
+      ]
+    },
+    {
+      "rank": 11,
+      "strongs": "G3739",
+      "strongsAll": [
+        "G3739"
+      ],
+      "lemma": "ὅς, ἥ",
+      "translit": "hos, hē",
+      "gloss": "which",
+      "partOfSpeech": "Relative pronoun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "R-NSM",
+      "frequency": 1409,
+      "exampleRefs": [
+        "1 John 1:1",
+        "1 John 1:3",
+        "1 John 1:5"
+      ]
+    },
+    {
+      "rank": 12,
+      "strongs": "G3778",
+      "strongsAll": [
+        "G3778"
+      ],
+      "lemma": "οὗτος",
+      "translit": "houtos",
+      "gloss": "this/he/she/it",
+      "partOfSpeech": "Demonstrative pronoun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "D-ASN",
+      "frequency": 1387,
+      "exampleRefs": [
+        "1 John 1:4",
+        "1 John 1:5",
+        "1 John 2:1"
+      ]
+    },
+    {
+      "rank": 13,
+      "strongs": "G3004G",
+      "strongsAll": [
+        "G3004G",
+        "G3004H"
+      ],
+      "lemma": "λέγω",
+      "translit": "legō",
+      "gloss": "to say",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-PAI-3S",
+      "frequency": 1329,
+      "exampleRefs": [
+        "1 John 2:4",
+        "1 John 2:6",
+        "1 John 2:9"
+      ]
+    },
+    {
+      "rank": 14,
+      "strongs": "G2316",
+      "strongsAll": [
+        "G2316"
+      ],
+      "lemma": "θεός",
+      "translit": "theos",
+      "gloss": "God",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": "title",
+      "commonMorph": "N-GSM-T",
+      "frequency": 1317,
+      "exampleRefs": [
+        "1 John 1:5",
+        "1 John 2:5",
+        "1 John 2:14"
+      ]
+    },
+    {
+      "rank": 15,
+      "strongs": "G3754G",
+      "strongsAll": [
+        "G3754G",
+        "G3754H"
+      ],
+      "lemma": "ὅτι",
+      "translit": "hoti",
+      "gloss": "that/since",
+      "partOfSpeech": "Conjunction",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "CONJ",
+      "frequency": 1296,
+      "exampleRefs": [
+        "1 John 1:5",
+        "1 John 1:6",
+        "1 John 1:8"
+      ]
+    },
+    {
+      "rank": 16,
+      "strongs": "G3956",
+      "strongsAll": [
+        "G3956"
+      ],
+      "lemma": "πᾶς",
+      "translit": "pas",
+      "gloss": "all",
+      "partOfSpeech": "Adjective",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "A-NPM",
+      "frequency": 1243,
+      "exampleRefs": [
+        "1 John 1:7",
+        "1 John 1:9",
+        "1 John 2:16"
+      ]
+    },
+    {
+      "rank": 17,
+      "strongs": "G3361",
+      "strongsAll": [
+        "G3361",
+        "G3385"
+      ],
+      "lemma": "μή",
+      "translit": "mē",
+      "gloss": "not",
+      "partOfSpeech": "Negative Particle",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "PRT-N",
+      "frequency": 1062,
+      "exampleRefs": [
+        "1 John 2:1",
+        "1 John 2:4",
+        "1 John 2:15"
+      ]
+    },
+    {
+      "rank": 18,
+      "strongs": "G1063",
+      "strongsAll": [
+        "G1063"
+      ],
+      "lemma": "γάρ",
+      "translit": "gar",
+      "gloss": "for",
+      "partOfSpeech": "Conjunction",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "CONJ",
+      "frequency": 1041,
+      "exampleRefs": [
+        "1 John 2:19",
+        "1 John 4:20",
+        "1 John 5:3"
+      ]
+    },
+    {
+      "rank": 19,
+      "strongs": "G2036",
+      "strongsAll": [
+        "G2036",
+        "G2046",
+        "G4483"
+      ],
+      "lemma": "ἔπω, ἐρῶ, εἶπον",
+      "translit": "epō, erō, eipon",
+      "gloss": "to say",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-2AAI-3S",
+      "frequency": 1024,
+      "exampleRefs": [
+        "1 John 1:6",
+        "1 John 1:8",
+        "1 John 1:10"
+      ]
+    },
+    {
+      "rank": 20,
+      "strongs": "G2424G",
+      "strongsAll": [
+        "G2424G",
+        "G2424I",
+        "G2424H",
+        "G2424J",
+        "G2424K"
+      ],
+      "lemma": "Ἰησοῦς",
+      "translit": "Iēsous",
+      "gloss": "Jesus",
+      "partOfSpeech": "Noun",
+      "properName": true,
+      "nameType": "individual",
+      "commonMorph": "N-NSM-P",
+      "frequency": 917,
+      "exampleRefs": [
+        "1 John 1:3",
+        "1 John 1:7",
+        "1 John 2:1"
+      ]
+    },
+    {
+      "rank": 21,
+      "strongs": "G1537",
+      "strongsAll": [
+        "G1537"
+      ],
+      "lemma": "ἐκ",
+      "translit": "ek",
+      "gloss": "out from",
+      "partOfSpeech": "Preposition",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "PREP",
+      "frequency": 915,
+      "exampleRefs": [
+        "1 John 2:16",
+        "1 John 2:19",
+        "1 John 2:21"
+      ]
+    },
+    {
+      "rank": 22,
+      "strongs": "G1909",
+      "strongsAll": [
+        "G1909"
+      ],
+      "lemma": "ἐπί",
+      "translit": "epi",
+      "gloss": "upon/to/against",
+      "partOfSpeech": "Preposition",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "PREP",
+      "frequency": 888,
+      "exampleRefs": [
+        "1 John 3:3",
+        "John 1:32",
+        "John 1:33"
+      ]
+    },
+    {
+      "rank": 23,
+      "strongs": "G2962G",
+      "strongsAll": [
+        "G2962G",
+        "G2962H"
+      ],
+      "lemma": "κύριος",
+      "translit": "kurios",
+      "gloss": "lord",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": "title",
+      "commonMorph": "N-GSM-T",
+      "frequency": 717,
+      "exampleRefs": [
+        "John 1:23",
+        "John 4:11",
+        "John 4:15"
+      ]
+    },
+    {
+      "rank": 24,
+      "strongs": "G2192",
+      "strongsAll": [
+        "G2192"
+      ],
+      "lemma": "ἔχω",
+      "translit": "echō",
+      "gloss": "to have/be",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-PAI-3S",
+      "frequency": 708,
+      "exampleRefs": [
+        "1 John 1:3",
+        "1 John 1:6",
+        "1 John 1:7"
+      ]
+    },
+    {
+      "rank": 25,
+      "strongs": "G4314",
+      "strongsAll": [
+        "G4314"
+      ],
+      "lemma": "πρός",
+      "translit": "pros",
+      "gloss": "to/with",
+      "partOfSpeech": "Preposition",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "PREP",
+      "frequency": 701,
+      "exampleRefs": [
+        "1 John 1:2",
+        "1 John 2:1",
+        "1 John 3:21"
+      ]
+    },
+    {
+      "rank": 26,
+      "strongs": "G1096",
+      "strongsAll": [
+        "G1096"
+      ],
+      "lemma": "γίνομαι",
+      "translit": "ginomai",
+      "gloss": "to be",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-2ADI-3S",
+      "frequency": 669,
+      "exampleRefs": [
+        "1 John 2:18",
+        "John 1:3",
+        "John 1:6"
+      ]
+    },
+    {
+      "rank": 27,
+      "strongs": "G2443",
+      "strongsAll": [
+        "G2443"
+      ],
+      "lemma": "ἵνα",
+      "translit": "hina",
+      "gloss": "in order that/to",
+      "partOfSpeech": "Conjunction",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "CONJ",
+      "frequency": 669,
+      "exampleRefs": [
+        "1 John 1:3",
+        "1 John 1:4",
+        "1 John 1:9"
+      ],
+      "translitInText": "ina"
+    },
+    {
+      "rank": 28,
+      "strongs": "G1223",
+      "strongsAll": [
+        "G1223"
+      ],
+      "lemma": "διά",
+      "translit": "dia",
+      "gloss": "through/because of",
+      "partOfSpeech": "Preposition",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "PREP",
+      "frequency": 668,
+      "exampleRefs": [
+        "1 John 2:12",
+        "1 John 3:1",
+        "1 John 4:5"
+      ]
+    },
+    {
+      "rank": 29,
+      "strongs": "G1492H",
+      "strongsAll": [
+        "G1492H",
+        "G6063",
+        "G1492I",
+        "G1492G",
+        "G2467"
+      ],
+      "lemma": "εἴδω",
+      "translit": "eidō",
+      "gloss": "to perceive; to know",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-2AAP-NSM",
+      "frequency": 658,
+      "exampleRefs": [
+        "1 John 2:11",
+        "1 John 2:20",
+        "1 John 2:21"
+      ]
+    },
+    {
+      "rank": 30,
+      "strongs": "G0575",
+      "strongsAll": [
+        "G0575"
+      ],
+      "lemma": "ἀπό",
+      "translit": "apo",
+      "gloss": "away from",
+      "partOfSpeech": "Preposition",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "PREP",
+      "frequency": 647,
+      "exampleRefs": [
+        "1 John 1:1",
+        "1 John 1:5",
+        "1 John 1:7"
+      ]
+    },
+    {
+      "rank": 31,
+      "strongs": "G0235",
+      "strongsAll": [
+        "G0235"
+      ],
+      "lemma": "ἀλλά",
+      "translit": "alla",
+      "gloss": "but",
+      "partOfSpeech": "Conjunction",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "CONJ",
+      "frequency": 638,
+      "exampleRefs": [
+        "1 John 2:2",
+        "1 John 2:7",
+        "1 John 2:16"
+      ]
+    },
+    {
+      "rank": 32,
+      "strongs": "G2064",
+      "strongsAll": [
+        "G2064"
+      ],
+      "lemma": "ἔρχομαι",
+      "translit": "erchomai",
+      "gloss": "to come/go",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-PNI-3S",
+      "frequency": 632,
+      "exampleRefs": [
+        "1 John 2:18",
+        "1 John 4:2",
+        "1 John 4:3"
+      ]
+    },
+    {
+      "rank": 33,
+      "strongs": "G4160G",
+      "strongsAll": [
+        "G4160G",
+        "G4160I",
+        "G4160J",
+        "G4160H"
+      ],
+      "lemma": "ποιέω",
+      "translit": "poieō",
+      "gloss": "to do/make",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-AAI-3S",
+      "frequency": 569,
+      "exampleRefs": [
+        "1 John 1:6",
+        "1 John 1:10",
+        "1 John 2:17"
+      ]
+    },
+    {
+      "rank": 34,
+      "strongs": "G5101",
+      "strongsAll": [
+        "G5101"
+      ],
+      "lemma": "τίς",
+      "translit": "tis",
+      "gloss": "which?",
+      "partOfSpeech": "Interrogative pronoun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "I-ASN",
+      "frequency": 558,
+      "exampleRefs": [
+        "1 John 2:22",
+        "1 John 3:2",
+        "1 John 3:12"
+      ]
+    },
+    {
+      "rank": 35,
+      "strongs": "G0444",
+      "strongsAll": [
+        "G0444"
+      ],
+      "lemma": "ἄνθρωπος",
+      "translit": "anthrōpos",
+      "gloss": "a human",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-NSM",
+      "frequency": 550,
+      "exampleRefs": [
+        "1 John 5:9",
+        "John 1:4",
+        "John 1:6"
+      ]
+    },
+    {
+      "rank": 36,
+      "strongs": "G5100",
+      "strongsAll": [
+        "G5100"
+      ],
+      "lemma": "τις",
+      "translit": "tis",
+      "gloss": "one",
+      "partOfSpeech": "Indefinite pronoun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "X-NSM",
+      "frequency": 531,
+      "exampleRefs": [
+        "1 John 2:1",
+        "1 John 2:15",
+        "1 John 2:27"
+      ]
+    },
+    {
+      "rank": 37,
+      "strongs": "G5547",
+      "strongsAll": [
+        "G5547"
+      ],
+      "lemma": "Χριστός",
+      "translit": "Christos",
+      "gloss": "Christ",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": "title",
+      "commonMorph": "N-GSM-T",
+      "frequency": 529,
+      "exampleRefs": [
+        "1 John 1:3",
+        "1 John 2:1",
+        "1 John 2:22"
+      ]
+    },
+    {
+      "rank": 38,
+      "strongs": "G1487G",
+      "strongsAll": [
+        "G1487G",
+        "G1487H",
+        "G1487M",
+        "G1487I",
+        "G1487L",
+        "G1487J",
+        "G1487K"
+      ],
+      "lemma": "εἰ",
+      "translit": "ei",
+      "gloss": "if",
+      "partOfSpeech": "Conjunction",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "COND",
+      "frequency": 508,
+      "exampleRefs": [
+        "1 John 2:19",
+        "1 John 2:22",
+        "1 John 3:13"
+      ]
+    },
+    {
+      "rank": 39,
+      "strongs": "G5613",
+      "strongsAll": [
+        "G5613"
+      ],
+      "lemma": "ὡς",
+      "translit": "hōs",
+      "gloss": "as/when",
+      "partOfSpeech": "Particle or Disjunctive",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "PRT",
+      "frequency": 504,
+      "exampleRefs": [
+        "1 John 1:7",
+        "1 John 2:27",
+        "John 1:14"
+      ]
+    },
+    {
+      "rank": 40,
+      "strongs": "G3767",
+      "strongsAll": [
+        "G3767"
+      ],
+      "lemma": "οὖν",
+      "translit": "oun",
+      "gloss": "therefore/then",
+      "partOfSpeech": "Conjunction",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "CONJ",
+      "frequency": 499,
+      "exampleRefs": [
+        "John 1:21",
+        "John 1:22",
+        "John 1:25"
+      ]
+    },
+    {
+      "rank": 41,
+      "strongs": "G2596",
+      "strongsAll": [
+        "G2596"
+      ],
+      "lemma": "κατά",
+      "translit": "kata",
+      "gloss": "according to",
+      "partOfSpeech": "Preposition",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "PREP",
+      "frequency": 473,
+      "exampleRefs": [
+        "1 John 5:14",
+        "John 2:6",
+        "John 7:24"
+      ]
+    },
+    {
+      "rank": 42,
+      "strongs": "G3326",
+      "strongsAll": [
+        "G3326"
+      ],
+      "lemma": "μετά",
+      "translit": "meta",
+      "gloss": "with/after",
+      "partOfSpeech": "Preposition",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "PREP",
+      "frequency": 469,
+      "exampleRefs": [
+        "1 John 1:3",
+        "1 John 1:6",
+        "1 John 1:7"
+      ]
+    },
+    {
+      "rank": 43,
+      "strongs": "G0191",
+      "strongsAll": [
+        "G0191"
+      ],
+      "lemma": "ἀκούω",
+      "translit": "akouō",
+      "gloss": "to hear",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-AAP-NPM",
+      "frequency": 428,
+      "exampleRefs": [
+        "1 John 1:1",
+        "1 John 1:3",
+        "1 John 1:5"
+      ]
+    },
+    {
+      "rank": 44,
+      "strongs": "G1325",
+      "strongsAll": [
+        "G1325"
+      ],
+      "lemma": "δίδωμι",
+      "translit": "didōmi",
+      "gloss": "to give",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-AAI-3S",
+      "frequency": 415,
+      "exampleRefs": [
+        "1 John 3:1",
+        "1 John 3:23",
+        "1 John 3:24"
+      ]
+    },
+    {
+      "rank": 45,
+      "strongs": "G3962",
+      "strongsAll": [
+        "G3962"
+      ],
+      "lemma": "πατήρ",
+      "translit": "patēr",
+      "gloss": "father",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": "title",
+      "commonMorph": "N-NSM-T",
+      "frequency": 413,
+      "exampleRefs": [
+        "1 John 1:2",
+        "1 John 1:3",
+        "1 John 2:1"
+      ]
+    },
+    {
+      "rank": 46,
+      "strongs": "G2250",
+      "strongsAll": [
+        "G2250"
+      ],
+      "lemma": "ἡμέρα",
+      "translit": "hēmera",
+      "gloss": "day",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-DSF",
+      "frequency": 389,
+      "exampleRefs": [
+        "1 John 4:17",
+        "John 1:39",
+        "John 2:1"
+      ]
+    },
+    {
+      "rank": 47,
+      "strongs": "G4151G",
+      "strongsAll": [
+        "G4151G",
+        "G4151H"
+      ],
+      "lemma": "πνεῦμα",
+      "translit": "pneuma",
+      "gloss": "spirit/breath",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-GSN",
+      "frequency": 379,
+      "exampleRefs": [
+        "1 John 3:24",
+        "1 John 4:1",
+        "1 John 4:2"
+      ]
+    },
+    {
+      "rank": 48,
+      "strongs": "G5207",
+      "strongsAll": [
+        "G5207"
+      ],
+      "lemma": "υἱός",
+      "translit": "huios",
+      "gloss": "son",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-NSM",
+      "frequency": 377,
+      "exampleRefs": [
+        "1 John 1:3",
+        "1 John 1:7",
+        "1 John 2:22"
+      ]
+    },
+    {
+      "rank": 49,
+      "strongs": "G4183",
+      "strongsAll": [
+        "G4183"
+      ],
+      "lemma": "πολύς",
+      "translit": "polus",
+      "gloss": "much",
+      "partOfSpeech": "Adjective",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "A-NPM",
+      "frequency": 367,
+      "exampleRefs": [
+        "1 John 2:18",
+        "1 John 4:1",
+        "John 2:12"
+      ]
+    },
+    {
+      "rank": 50,
+      "strongs": "G1520",
+      "strongsAll": [
+        "G1520"
+      ],
+      "lemma": "εἷς",
+      "translit": "heis",
+      "gloss": "one",
+      "partOfSpeech": "Adjective",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "A-NSM",
+      "frequency": 345,
+      "exampleRefs": [
+        "1 John 5:8",
+        "John 1:3",
+        "John 1:40"
+      ]
+    },
+    {
+      "rank": 51,
+      "strongs": "G0080",
+      "strongsAll": [
+        "G0080"
+      ],
+      "lemma": "ἀδελφός",
+      "translit": "adelphos",
+      "gloss": "brother",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-VPM",
+      "frequency": 343,
+      "exampleRefs": [
+        "1 John 2:9",
+        "1 John 2:10",
+        "1 John 2:11"
+      ]
+    },
+    {
+      "rank": 52,
+      "strongs": "G2228",
+      "strongsAll": [
+        "G2228"
+      ],
+      "lemma": "ἤ",
+      "translit": "ē",
+      "gloss": "or",
+      "partOfSpeech": "Conjunction",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "CONJ",
+      "frequency": 343,
+      "exampleRefs": [
+        "1 John 4:4",
+        "John 2:6",
+        "John 3:19"
+      ]
+    },
+    {
+      "rank": 53,
+      "strongs": "G1437",
+      "strongsAll": [
+        "G1437"
+      ],
+      "lemma": "ἐάν",
+      "translit": "ean",
+      "gloss": "if",
+      "partOfSpeech": "Conjunction",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "COND",
+      "frequency": 336,
+      "exampleRefs": [
+        "1 John 1:6",
+        "1 John 1:7",
+        "1 John 1:8"
+      ]
+    },
+    {
+      "rank": 54,
+      "strongs": "G4012",
+      "strongsAll": [
+        "G4012"
+      ],
+      "lemma": "περί",
+      "translit": "peri",
+      "gloss": "about",
+      "partOfSpeech": "Preposition",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "PREP",
+      "frequency": 333,
+      "exampleRefs": [
+        "1 John 1:1",
+        "1 John 2:2",
+        "1 John 2:26"
+      ]
+    },
+    {
+      "rank": 55,
+      "strongs": "G3056",
+      "strongsAll": [
+        "G3056"
+      ],
+      "lemma": "λόγος",
+      "translit": "logos",
+      "gloss": "word",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-ASM",
+      "frequency": 330,
+      "exampleRefs": [
+        "1 John 1:1",
+        "1 John 1:10",
+        "1 John 2:5"
+      ]
+    },
+    {
+      "rank": 56,
+      "strongs": "G1438",
+      "strongsAll": [
+        "G1438"
+      ],
+      "lemma": "ἑαυτοῦ",
+      "translit": "he'autou",
+      "gloss": "themself",
+      "partOfSpeech": "Reflexive pronoun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "F-3ASM",
+      "frequency": 322,
+      "exampleRefs": [
+        "1 John 1:8",
+        "1 John 3:3",
+        "1 John 5:10"
+      ]
+    },
+    {
+      "rank": 57,
+      "strongs": "G2980",
+      "strongsAll": [
+        "G2980"
+      ],
+      "lemma": "λαλέω",
+      "translit": "laleō",
+      "gloss": "to speak",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-AAI-3S",
+      "frequency": 296,
+      "exampleRefs": [
+        "1 John 4:5",
+        "John 1:37",
+        "John 3:11"
+      ]
+    },
+    {
+      "rank": 58,
+      "strongs": "G3772",
+      "strongsAll": [
+        "G3772"
+      ],
+      "lemma": "οὐρανός",
+      "translit": "ouranos",
+      "gloss": "heaven",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-GSM",
+      "frequency": 273,
+      "exampleRefs": [
+        "John 1:32",
+        "John 1:51",
+        "John 3:13"
+      ]
+    },
+    {
+      "rank": 59,
+      "strongs": "G3101",
+      "strongsAll": [
+        "G3101"
+      ],
+      "lemma": "μαθητής",
+      "translit": "mathētēs",
+      "gloss": "disciple",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-NPM",
+      "frequency": 261,
+      "exampleRefs": [
+        "John 1:35",
+        "John 1:37",
+        "John 2:2"
+      ]
+    },
+    {
+      "rank": 60,
+      "strongs": "G2983",
+      "strongsAll": [
+        "G2983"
+      ],
+      "lemma": "λαμβάνω",
+      "translit": "lambanō",
+      "gloss": "to take",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-2AAP-NSM",
+      "frequency": 258,
+      "exampleRefs": [
+        "1 John 2:27",
+        "1 John 3:22",
+        "1 John 5:9"
+      ]
+    },
+    {
+      "rank": 61,
+      "strongs": "G1093G",
+      "strongsAll": [
+        "G1093G",
+        "G1093H",
+        "G1093I"
+      ],
+      "lemma": "γῆ",
+      "translit": "gē",
+      "gloss": "earth",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-GSF",
+      "frequency": 250,
+      "exampleRefs": [
+        "John 3:22",
+        "John 3:31",
+        "John 6:21"
+      ]
+    },
+    {
+      "rank": 62,
+      "strongs": "G3173",
+      "strongsAll": [
+        "G3173"
+      ],
+      "lemma": "μέγας",
+      "translit": "megas",
+      "gloss": "great",
+      "partOfSpeech": "Adjective",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "A-DSF",
+      "frequency": 243,
+      "exampleRefs": [
+        "1 John 3:20",
+        "1 John 4:4",
+        "1 John 5:9"
+      ]
+    },
+    {
+      "rank": 63,
+      "strongs": "G4102G",
+      "strongsAll": [
+        "G4102G",
+        "G4102H"
+      ],
+      "lemma": "πίστις",
+      "translit": "pistis",
+      "gloss": "faith",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-GSF",
+      "frequency": 243,
+      "exampleRefs": [
+        "1 John 5:4",
+        "Matthew 8:10",
+        "Matthew 9:2"
+      ]
+    },
+    {
+      "rank": 64,
+      "strongs": "G1565",
+      "strongsAll": [
+        "G1565"
+      ],
+      "lemma": "ἐκεῖνος",
+      "translit": "ekeinos",
+      "gloss": "that",
+      "partOfSpeech": "Demonstrative pronoun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "D-NSM",
+      "frequency": 243,
+      "exampleRefs": [
+        "1 John 2:6",
+        "1 John 3:3",
+        "1 John 3:5"
+      ]
+    },
+    {
+      "rank": 65,
+      "strongs": "G4100",
+      "strongsAll": [
+        "G4100"
+      ],
+      "lemma": "πιστεύω",
+      "translit": "pisteuō",
+      "gloss": "to trust (in)",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-PAP-NSM",
+      "frequency": 241,
+      "exampleRefs": [
+        "1 John 3:23",
+        "1 John 4:1",
+        "1 John 4:16"
+      ]
+    },
+    {
+      "rank": 66,
+      "strongs": "G3762",
+      "strongsAll": [
+        "G3762"
+      ],
+      "lemma": "οὐδείς",
+      "translit": "oudeis",
+      "gloss": "none",
+      "partOfSpeech": "Adjective",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "A-NSM",
+      "frequency": 234,
+      "exampleRefs": [
+        "1 John 1:5",
+        "1 John 4:12",
+        "John 1:18"
+      ]
+    },
+    {
+      "rank": 67,
+      "strongs": "G0040G",
+      "strongsAll": [
+        "G0040G",
+        "G0040H",
+        "G0039G",
+        "G0039H"
+      ],
+      "lemma": "ἅγιος",
+      "translit": "hagios",
+      "gloss": "holy",
+      "partOfSpeech": "Adjective",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "A-GSN",
+      "frequency": 233,
+      "exampleRefs": [
+        "1 John 2:20",
+        "John 1:33",
+        "John 6:69"
+      ]
+    },
+    {
+      "rank": 68,
+      "strongs": "G0611",
+      "strongsAll": [
+        "G0611"
+      ],
+      "lemma": "ἀποκρίνω",
+      "translit": "apokrinō",
+      "gloss": "to answer",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-AOP-NSM",
+      "frequency": 231,
+      "exampleRefs": [
+        "John 1:21",
+        "John 1:26",
+        "John 1:48"
+      ]
+    },
+    {
+      "rank": 69,
+      "strongs": "G3686",
+      "strongsAll": [
+        "G3686"
+      ],
+      "lemma": "ὄνομα",
+      "translit": "onoma",
+      "gloss": "name",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-DSN",
+      "frequency": 230,
+      "exampleRefs": [
+        "1 John 2:12",
+        "1 John 3:23",
+        "1 John 5:13"
+      ]
+    },
+    {
+      "rank": 70,
+      "strongs": "G1097",
+      "strongsAll": [
+        "G1097"
+      ],
+      "lemma": "γινώσκω",
+      "translit": "ginōskō",
+      "gloss": "to know",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-2AAI-3P",
+      "frequency": 222,
+      "exampleRefs": [
+        "1 John 2:3",
+        "1 John 2:4",
+        "1 John 2:5"
+      ]
+    },
+    {
+      "rank": 71,
+      "strongs": "G5259G",
+      "strongsAll": [
+        "G5259G",
+        "G5259H"
+      ],
+      "lemma": "ὑπό",
+      "translit": "hupo",
+      "gloss": "by/under",
+      "partOfSpeech": "Preposition",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "PREP",
+      "frequency": 220,
+      "exampleRefs": [
+        "John 1:48",
+        "John 14:21",
+        "Matthew 1:22"
+      ]
+    },
+    {
+      "rank": 72,
+      "strongs": "G1831",
+      "strongsAll": [
+        "G1831"
+      ],
+      "lemma": "ἐξέρχομαι",
+      "translit": "exerchomai",
+      "gloss": "to go out",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-2AAI-3S",
+      "frequency": 218,
+      "exampleRefs": [
+        "1 John 2:19",
+        "1 John 4:1",
+        "John 1:43"
+      ]
+    },
+    {
+      "rank": 73,
+      "strongs": "G0435G",
+      "strongsAll": [
+        "G0435G",
+        "G0435H"
+      ],
+      "lemma": "ἀνήρ",
+      "translit": "anēr",
+      "gloss": "man",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-NSM",
+      "frequency": 216,
+      "exampleRefs": [
+        "John 1:13",
+        "John 1:30",
+        "John 4:16"
+      ]
+    },
+    {
+      "rank": 74,
+      "strongs": "G5037",
+      "strongsAll": [
+        "G5037"
+      ],
+      "lemma": "τε",
+      "translit": "te",
+      "gloss": "and/both",
+      "partOfSpeech": "Conjunction",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "CONJ",
+      "frequency": 215,
+      "exampleRefs": [
+        "John 2:15",
+        "John 4:42",
+        "John 6:18"
+      ]
+    },
+    {
+      "rank": 75,
+      "strongs": "G1135G",
+      "strongsAll": [
+        "G1135G",
+        "G1135H"
+      ],
+      "lemma": "γυνή",
+      "translit": "gunē",
+      "gloss": "woman",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-NSF",
+      "frequency": 214,
+      "exampleRefs": [
+        "John 2:4",
+        "John 4:7",
+        "John 4:9"
+      ]
+    },
+    {
+      "rank": 76,
+      "strongs": "G1410",
+      "strongsAll": [
+        "G1410"
+      ],
+      "lemma": "δύναμαι",
+      "translit": "dunamai",
+      "gloss": "be able",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-PNI-3S",
+      "frequency": 210,
+      "exampleRefs": [
+        "1 John 3:9",
+        "1 John 4:20",
+        "John 1:46"
+      ]
+    },
+    {
+      "rank": 77,
+      "strongs": "G2309",
+      "strongsAll": [
+        "G2309"
+      ],
+      "lemma": "θέλω",
+      "translit": "thelō",
+      "gloss": "to will/desire",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-PAI-1S",
+      "frequency": 208,
+      "exampleRefs": [
+        "John 1:43",
+        "John 3:8",
+        "John 5:6"
+      ]
+    },
+    {
+      "rank": 78,
+      "strongs": "G3779",
+      "strongsAll": [
+        "G3779"
+      ],
+      "lemma": "οὕτω, οὕτως",
+      "translit": "houtō, houtōs",
+      "gloss": "thus(-ly)",
+      "partOfSpeech": "Adverb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "ADV",
+      "frequency": 208,
+      "exampleRefs": [
+        "1 John 2:6",
+        "1 John 4:11",
+        "John 3:8"
+      ]
+    },
+    {
+      "rank": 79,
+      "strongs": "G2400",
+      "strongsAll": [
+        "G2400"
+      ],
+      "lemma": "ἰδού",
+      "translit": "idou",
+      "gloss": "look!",
+      "partOfSpeech": "Interjection",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "INJ",
+      "frequency": 200,
+      "exampleRefs": [
+        "John 4:35",
+        "John 12:15",
+        "John 16:32"
+      ]
+    },
+    {
+      "rank": 80,
+      "strongs": "G1525",
+      "strongsAll": [
+        "G1525"
+      ],
+      "lemma": "εἰσέρχομαι",
+      "translit": "eiserchomai",
+      "gloss": "to enter",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-2AAI-3S",
+      "frequency": 194,
+      "exampleRefs": [
+        "John 3:4",
+        "John 3:5",
+        "John 4:38"
+      ]
+    },
+    {
+      "rank": 81,
+      "strongs": "G3551",
+      "strongsAll": [
+        "G3551"
+      ],
+      "lemma": "νόμος",
+      "translit": "nomos",
+      "gloss": "law",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-GSM",
+      "frequency": 194,
+      "exampleRefs": [
+        "John 1:17",
+        "John 1:45",
+        "John 7:19"
+      ]
+    },
+    {
+      "rank": 82,
+      "strongs": "G3844",
+      "strongsAll": [
+        "G3844"
+      ],
+      "lemma": "παρά",
+      "translit": "para",
+      "gloss": "from/with/beside",
+      "partOfSpeech": "Preposition",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "PREP",
+      "frequency": 194,
+      "exampleRefs": [
+        "John 1:6",
+        "John 1:14",
+        "John 1:39"
+      ]
+    },
+    {
+      "rank": 83,
+      "strongs": "G2453",
+      "strongsAll": [
+        "G2453"
+      ],
+      "lemma": "Ἰουδαῖος",
+      "translit": "Ioudaios",
+      "gloss": "Jew",
+      "partOfSpeech": "Noun",
+      "properName": true,
+      "nameType": "person gentilic",
+      "commonMorph": "N-GPM-PG",
+      "frequency": 194,
+      "exampleRefs": [
+        "John 1:19",
+        "John 2:6",
+        "John 2:13"
+      ]
+    },
+    {
+      "rank": 84,
+      "strongs": "G1125",
+      "strongsAll": [
+        "G1125"
+      ],
+      "lemma": "γράφω",
+      "translit": "graphō",
+      "gloss": "to write",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-RPI-3S",
+      "frequency": 191,
+      "exampleRefs": [
+        "1 John 1:4",
+        "1 John 2:1",
+        "1 John 2:7"
+      ]
+    },
+    {
+      "rank": 85,
+      "strongs": "G2889",
+      "strongsAll": [
+        "G2889"
+      ],
+      "lemma": "κόσμος",
+      "translit": "kosmos",
+      "gloss": "world",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-GSM",
+      "frequency": 186,
+      "exampleRefs": [
+        "1 John 2:2",
+        "1 John 2:15",
+        "1 John 2:16"
+      ]
+    },
+    {
+      "rank": 86,
+      "strongs": "G2531",
+      "strongsAll": [
+        "G2531"
+      ],
+      "lemma": "καθώς",
+      "translit": "kathōs",
+      "gloss": "as/just as",
+      "partOfSpeech": "Conjunction",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "CONJ",
+      "frequency": 182,
+      "exampleRefs": [
+        "1 John 2:6",
+        "1 John 2:18",
+        "1 John 2:27"
+      ]
+    },
+    {
+      "rank": 87,
+      "strongs": "G3303",
+      "strongsAll": [
+        "G3303"
+      ],
+      "lemma": "μέν",
+      "translit": "men",
+      "gloss": "on the other hand",
+      "partOfSpeech": "Particle or Disjunctive",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "PRT",
+      "frequency": 179,
+      "exampleRefs": [
+        "John 7:12",
+        "John 10:41",
+        "John 11:6"
+      ]
+    },
+    {
+      "rank": 88,
+      "strongs": "G5495",
+      "strongsAll": [
+        "G5495"
+      ],
+      "lemma": "χείρ",
+      "translit": "cheir",
+      "gloss": "hand",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-APF",
+      "frequency": 177,
+      "exampleRefs": [
+        "1 John 1:1",
+        "John 3:35",
+        "John 7:30"
+      ]
+    },
+    {
+      "rank": 89,
+      "strongs": "G2147",
+      "strongsAll": [
+        "G2147"
+      ],
+      "lemma": "εὑρίσκω",
+      "translit": "heuriskō",
+      "gloss": "to find/meet",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-2AAI-3P",
+      "frequency": 176,
+      "exampleRefs": [
+        "John 1:41",
+        "John 1:43",
+        "John 1:45"
+      ]
+    },
+    {
+      "rank": 90,
+      "strongs": "G0032G",
+      "strongsAll": [
+        "G0032G",
+        "G0032H"
+      ],
+      "lemma": "ἄγγελος",
+      "translit": "angelos",
+      "gloss": "angel",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-NSM",
+      "frequency": 175,
+      "exampleRefs": [
+        "John 1:51",
+        "John 12:29",
+        "John 20:12"
+      ]
+    },
+    {
+      "rank": 91,
+      "strongs": "G3793",
+      "strongsAll": [
+        "G3793"
+      ],
+      "lemma": "ὄχλος",
+      "translit": "ochlos",
+      "gloss": "crowd",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-NSM",
+      "frequency": 175,
+      "exampleRefs": [
+        "John 5:13",
+        "John 6:2",
+        "John 6:5"
+      ]
+    },
+    {
+      "rank": 92,
+      "strongs": "G0266",
+      "strongsAll": [
+        "G0266"
+      ],
+      "lemma": "ἁμαρτία",
+      "translit": "hamartia",
+      "gloss": "sin",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-GSF",
+      "frequency": 173,
+      "exampleRefs": [
+        "1 John 1:7",
+        "1 John 1:8",
+        "1 John 1:9"
+      ]
+    },
+    {
+      "rank": 93,
+      "strongs": "G2041",
+      "strongsAll": [
+        "G2041"
+      ],
+      "lemma": "ἔργον",
+      "translit": "ergon",
+      "gloss": "work",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-APN",
+      "frequency": 169,
+      "exampleRefs": [
+        "1 John 3:8",
+        "1 John 3:12",
+        "1 John 3:18"
+      ]
+    },
+    {
+      "rank": 94,
+      "strongs": "G1391",
+      "strongsAll": [
+        "G1391"
+      ],
+      "lemma": "δόξα",
+      "translit": "doxa",
+      "gloss": "glory",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-ASF",
+      "frequency": 166,
+      "exampleRefs": [
+        "John 1:14",
+        "John 2:11",
+        "John 5:41"
+      ]
+    },
+    {
+      "rank": 95,
+      "strongs": "G0302",
+      "strongsAll": [
+        "G0302"
+      ],
+      "lemma": "ἄν",
+      "translit": "an",
+      "gloss": "if",
+      "partOfSpeech": "Particle or Disjunctive",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "PRT",
+      "frequency": 166,
+      "exampleRefs": [
+        "1 John 2:5",
+        "1 John 2:19",
+        "1 John 3:17"
+      ]
+    },
+    {
+      "rank": 96,
+      "strongs": "G4172",
+      "strongsAll": [
+        "G4172"
+      ],
+      "lemma": "πόλις",
+      "translit": "polis",
+      "gloss": "city",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-ASF",
+      "frequency": 163,
+      "exampleRefs": [
+        "John 1:44",
+        "John 4:5",
+        "John 4:8"
+      ]
+    },
+    {
+      "rank": 97,
+      "strongs": "G0932",
+      "strongsAll": [
+        "G0932"
+      ],
+      "lemma": "βασιλεία",
+      "translit": "basileia",
+      "gloss": "kingdom",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-ASF",
+      "frequency": 162,
+      "exampleRefs": [
+        "John 3:3",
+        "John 3:5",
+        "John 18:36"
+      ]
+    },
+    {
+      "rank": 98,
+      "strongs": "G1484",
+      "strongsAll": [
+        "G1484"
+      ],
+      "lemma": "ἔθνος",
+      "translit": "ethnos",
+      "gloss": "Gentiles",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-GPN",
+      "frequency": 162,
+      "exampleRefs": [
+        "John 11:48",
+        "John 11:50",
+        "John 11:51"
+      ]
+    },
+    {
+      "rank": 99,
+      "strongs": "G5119",
+      "strongsAll": [
+        "G5119"
+      ],
+      "lemma": "τότε",
+      "translit": "tote",
+      "gloss": "then",
+      "partOfSpeech": "Adverb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "ADV",
+      "frequency": 160,
+      "exampleRefs": [
+        "John 7:10",
+        "John 8:28",
+        "John 10:22"
+      ]
+    },
+    {
+      "rank": 100,
+      "strongs": "G3972G",
+      "strongsAll": [
+        "G3972G",
+        "G3972H"
+      ],
+      "lemma": "Παῦλος",
+      "translit": "Paulos",
+      "gloss": "Paul",
+      "partOfSpeech": "Noun",
+      "properName": true,
+      "nameType": "individual",
+      "commonMorph": "N-NSM-P",
+      "frequency": 158,
+      "exampleRefs": [
+        "Acts 13:7",
+        "Acts 13:9",
+        "Acts 13:13"
+      ]
+    },
+    {
+      "rank": 101,
+      "strongs": "G4074G",
+      "strongsAll": [
+        "G4074G"
+      ],
+      "lemma": "Πέτρος",
+      "translit": "Petros",
+      "gloss": "Peter",
+      "partOfSpeech": "Noun",
+      "properName": true,
+      "nameType": "individual",
+      "commonMorph": "N-NSM-P",
+      "frequency": 156,
+      "exampleRefs": [
+        "John 1:40",
+        "John 1:42",
+        "John 1:44"
+      ]
+    },
+    {
+      "rank": 102,
+      "strongs": "G2588",
+      "strongsAll": [
+        "G2588"
+      ],
+      "lemma": "καρδία",
+      "translit": "kardia",
+      "gloss": "heart",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-DSF",
+      "frequency": 156,
+      "exampleRefs": [
+        "1 John 3:19",
+        "1 John 3:20",
+        "1 John 3:21"
+      ]
+    },
+    {
+      "rank": 103,
+      "strongs": "G5228",
+      "strongsAll": [
+        "G5228"
+      ],
+      "lemma": "ὑπέρ",
+      "translit": "huper",
+      "gloss": "above/for",
+      "partOfSpeech": "Preposition",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "PREP",
+      "frequency": 156,
+      "exampleRefs": [
+        "1 John 3:16",
+        "John 1:30",
+        "John 6:51"
+      ]
+    },
+    {
+      "rank": 104,
+      "strongs": "G4413G",
+      "strongsAll": [
+        "G4413G",
+        "G4413J",
+        "G4413H",
+        "G4413I"
+      ],
+      "lemma": "πρῶτος",
+      "translit": "prōtos",
+      "gloss": "first",
+      "partOfSpeech": "Adjective",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "A-ASN",
+      "frequency": 155,
+      "exampleRefs": [
+        "1 John 4:19",
+        "John 1:15",
+        "John 1:30"
+      ]
+    },
+    {
+      "rank": 105,
+      "strongs": "G5485",
+      "strongsAll": [
+        "G5485"
+      ],
+      "lemma": "χάρις",
+      "translit": "charis",
+      "gloss": "grace",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-NSF",
+      "frequency": 155,
+      "exampleRefs": [
+        "John 1:14",
+        "John 1:16",
+        "John 1:17"
+      ]
+    },
+    {
+      "rank": 106,
+      "strongs": "G0243",
+      "strongsAll": [
+        "G0243"
+      ],
+      "lemma": "ἄλλος",
+      "translit": "allos",
+      "gloss": "another",
+      "partOfSpeech": "Adjective",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "A-NPM",
+      "frequency": 155,
+      "exampleRefs": [
+        "John 4:37",
+        "John 4:38",
+        "John 5:7"
+      ]
+    },
+    {
+      "rank": 107,
+      "strongs": "G2476",
+      "strongsAll": [
+        "G2476"
+      ],
+      "lemma": "ἵστημι",
+      "translit": "histēmi",
+      "gloss": "to stand",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-2AAI-3S",
+      "frequency": 155,
+      "exampleRefs": [
+        "John 1:26",
+        "John 1:35",
+        "John 3:29"
+      ]
+    },
+    {
+      "rank": 108,
+      "strongs": "G4198",
+      "strongsAll": [
+        "G4198"
+      ],
+      "lemma": "πορεύω",
+      "translit": "poreuō",
+      "gloss": "to travel",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-PNN",
+      "frequency": 152,
+      "exampleRefs": [
+        "John 4:50",
+        "John 7:35",
+        "John 8:1"
+      ]
+    },
+    {
+      "rank": 109,
+      "strongs": "G2564G",
+      "strongsAll": [
+        "G2564G",
+        "G2564H"
+      ],
+      "lemma": "καλέω",
+      "translit": "kaleō",
+      "gloss": "to call",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-FPI-3S",
+      "frequency": 148,
+      "exampleRefs": [
+        "1 John 3:1",
+        "John 1:42",
+        "John 2:2"
+      ]
+    },
+    {
+      "rank": 110,
+      "strongs": "G3568",
+      "strongsAll": [
+        "G3568"
+      ],
+      "lemma": "νῦν",
+      "translit": "nun",
+      "gloss": "now",
+      "partOfSpeech": "Adverb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "ADV",
+      "frequency": 147,
+      "exampleRefs": [
+        "1 John 2:18",
+        "1 John 2:28",
+        "1 John 3:2"
+      ]
+    },
+    {
+      "rank": 111,
+      "strongs": "G4561",
+      "strongsAll": [
+        "G4561"
+      ],
+      "lemma": "σάρξ",
+      "translit": "sarx",
+      "gloss": "flesh",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-DSF",
+      "frequency": 147,
+      "exampleRefs": [
+        "1 John 2:16",
+        "1 John 4:2",
+        "John 1:13"
+      ]
+    },
+    {
+      "rank": 112,
+      "strongs": "G2193",
+      "strongsAll": [
+        "G2193"
+      ],
+      "lemma": "ἕως",
+      "translit": "he'ōs",
+      "gloss": "until",
+      "partOfSpeech": "Preposition",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "PREP",
+      "frequency": 146,
+      "exampleRefs": [
+        "1 John 2:9",
+        "John 2:7",
+        "John 2:10"
+      ]
+    },
+    {
+      "rank": 113,
+      "strongs": "G4396",
+      "strongsAll": [
+        "G4396"
+      ],
+      "lemma": "προφήτης",
+      "translit": "prophētēs",
+      "gloss": "prophet",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-GPM",
+      "frequency": 144,
+      "exampleRefs": [
+        "John 1:21",
+        "John 1:23",
+        "John 1:25"
+      ]
+    },
+    {
+      "rank": 114,
+      "strongs": "G1453",
+      "strongsAll": [
+        "G1453"
+      ],
+      "lemma": "ἐγείρω",
+      "translit": "egeirō",
+      "gloss": "to arise",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-AAI-3S",
+      "frequency": 144,
+      "exampleRefs": [
+        "John 2:19",
+        "John 2:20",
+        "John 2:22"
+      ]
+    },
+    {
+      "rank": 115,
+      "strongs": "G3748",
+      "strongsAll": [
+        "G3748"
+      ],
+      "lemma": "ὅστις",
+      "translit": "hostis",
+      "gloss": "who/which",
+      "partOfSpeech": "Relative pronoun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "R-NPM",
+      "frequency": 144,
+      "exampleRefs": [
+        "1 John 1:2",
+        "John 8:53",
+        "John 9:18"
+      ]
+    },
+    {
+      "rank": 116,
+      "strongs": "G3761",
+      "strongsAll": [
+        "G3761"
+      ],
+      "lemma": "οὐδέ",
+      "translit": "oude",
+      "gloss": "nor",
+      "partOfSpeech": "Conjunction",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "CONJ-N",
+      "frequency": 143,
+      "exampleRefs": [
+        "1 John 2:23",
+        "1 John 3:6",
+        "John 1:3"
+      ]
+    },
+    {
+      "rank": 117,
+      "strongs": "G0025",
+      "strongsAll": [
+        "G0025"
+      ],
+      "lemma": "ἀγαπάω",
+      "translit": "agapaō",
+      "gloss": "to love",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-PAP-NSM",
+      "frequency": 143,
+      "exampleRefs": [
+        "1 John 2:10",
+        "1 John 2:15",
+        "1 John 3:10"
+      ]
+    },
+    {
+      "rank": 118,
+      "strongs": "G0863G",
+      "strongsAll": [
+        "G0863G",
+        "G0863H",
+        "G0863I"
+      ],
+      "lemma": "ἀφίημι",
+      "translit": "aphiēmi",
+      "gloss": "to release",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-AAI-3S",
+      "frequency": 143,
+      "exampleRefs": [
+        "1 John 1:9",
+        "1 John 2:12",
+        "John 4:3"
+      ]
+    },
+    {
+      "rank": 119,
+      "strongs": "G2992",
+      "strongsAll": [
+        "G2992"
+      ],
+      "lemma": "λαός",
+      "translit": "laos",
+      "gloss": "a people",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-ASM",
+      "frequency": 142,
+      "exampleRefs": [
+        "John 8:2",
+        "John 11:50",
+        "John 18:14"
+      ]
+    },
+    {
+      "rank": 120,
+      "strongs": "G4983",
+      "strongsAll": [
+        "G4983"
+      ],
+      "lemma": "σῶμα",
+      "translit": "sōma",
+      "gloss": "body",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-NSN",
+      "frequency": 142,
+      "exampleRefs": [
+        "John 2:21",
+        "John 19:31",
+        "John 19:38"
+      ]
+    },
+    {
+      "rank": 121,
+      "strongs": "G3825",
+      "strongsAll": [
+        "G3825"
+      ],
+      "lemma": "πάλιν",
+      "translit": "palin",
+      "gloss": "again",
+      "partOfSpeech": "Adverb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "ADV",
+      "frequency": 141,
+      "exampleRefs": [
+        "1 John 2:8",
+        "John 1:35",
+        "John 4:3"
+      ]
+    },
+    {
+      "rank": 122,
+      "strongs": "G2198",
+      "strongsAll": [
+        "G2198"
+      ],
+      "lemma": "ζάω",
+      "translit": "zaō",
+      "gloss": "to live",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-PAI-3S",
+      "frequency": 140,
+      "exampleRefs": [
+        "1 John 4:9",
+        "John 4:10",
+        "John 4:11"
+      ]
+    },
+    {
+      "rank": 123,
+      "strongs": "G5456G",
+      "strongsAll": [
+        "G5456G",
+        "G5456H"
+      ],
+      "lemma": "φωνή",
+      "translit": "phōnē",
+      "gloss": "voice/sound",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-ASF",
+      "frequency": 139,
+      "exampleRefs": [
+        "John 1:23",
+        "John 3:8",
+        "John 3:29"
+      ]
+    },
+    {
+      "rank": 124,
+      "strongs": "G1417",
+      "strongsAll": [
+        "G1417"
+      ],
+      "lemma": "δύο",
+      "translit": "duo",
+      "gloss": "two",
+      "partOfSpeech": "Adjective",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "A-NUI",
+      "frequency": 135,
+      "exampleRefs": [
+        "John 1:35",
+        "John 1:37",
+        "John 1:40"
+      ]
+    },
+    {
+      "rank": 125,
+      "strongs": "G2222",
+      "strongsAll": [
+        "G2222"
+      ],
+      "lemma": "ζωή",
+      "translit": "zōē",
+      "gloss": "life",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-ASF",
+      "frequency": 135,
+      "exampleRefs": [
+        "1 John 1:1",
+        "1 John 1:2",
+        "1 John 2:25"
+      ]
+    },
+    {
+      "rank": 126,
+      "strongs": "G2491G",
+      "strongsAll": [
+        "G2491G",
+        "G2491H",
+        "G2491J",
+        "G2491K",
+        "G2491I"
+      ],
+      "lemma": "Ἰωάννης",
+      "translit": "Iōannēs",
+      "gloss": "John",
+      "partOfSpeech": "Noun",
+      "properName": true,
+      "nameType": "individual",
+      "commonMorph": "N-NSM-P",
+      "frequency": 135,
+      "exampleRefs": [
+        "John 1:6",
+        "John 1:15",
+        "John 1:19"
+      ]
+    },
+    {
+      "rank": 127,
+      "strongs": "G0991",
+      "strongsAll": [
+        "G0991"
+      ],
+      "lemma": "βλέπω",
+      "translit": "blepō",
+      "gloss": "to see",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-PAM-2P",
+      "frequency": 132,
+      "exampleRefs": [
+        "John 1:29",
+        "John 5:19",
+        "John 9:7"
+      ]
+    },
+    {
+      "rank": 128,
+      "strongs": "G0649",
+      "strongsAll": [
+        "G0649"
+      ],
+      "lemma": "ἀποστέλλω",
+      "translit": "apostellō",
+      "gloss": "to send",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-AAI-3S",
+      "frequency": 132,
+      "exampleRefs": [
+        "1 John 4:9",
+        "1 John 4:10",
+        "1 John 4:14"
+      ]
+    },
+    {
+      "rank": 129,
+      "strongs": "G0281",
+      "strongsAll": [
+        "G0281"
+      ],
+      "lemma": "ἀμήν",
+      "translit": "amēn",
+      "gloss": "amen",
+      "partOfSpeech": "Interjection",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "INJ-HEB",
+      "frequency": 129,
+      "exampleRefs": [
+        "John 1:51",
+        "John 3:3",
+        "John 3:5"
+      ]
+    },
+    {
+      "rank": 130,
+      "strongs": "G3498",
+      "strongsAll": [
+        "G3498"
+      ],
+      "lemma": "νεκρός",
+      "translit": "nekros",
+      "gloss": "dead",
+      "partOfSpeech": "Adjective",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "A-GPM",
+      "frequency": 128,
+      "exampleRefs": [
+        "John 2:22",
+        "John 5:21",
+        "John 5:25"
+      ]
+    },
+    {
+      "rank": 131,
+      "strongs": "G4862",
+      "strongsAll": [
+        "G4862"
+      ],
+      "lemma": "σύν",
+      "translit": "sun",
+      "gloss": "with",
+      "partOfSpeech": "Preposition",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "PREP",
+      "frequency": 128,
+      "exampleRefs": [
+        "John 12:2",
+        "John 18:1",
+        "John 21:3"
+      ]
+    },
+    {
+      "rank": 132,
+      "strongs": "G1401",
+      "strongsAll": [
+        "G1401"
+      ],
+      "lemma": "δοῦλος",
+      "translit": "doulos",
+      "gloss": "slave",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-NSM",
+      "frequency": 126,
+      "exampleRefs": [
+        "John 4:51",
+        "John 8:34",
+        "John 8:35"
+      ]
+    },
+    {
+      "rank": 133,
+      "strongs": "G3752",
+      "strongsAll": [
+        "G3752"
+      ],
+      "lemma": "ὅταν",
+      "translit": "hotan",
+      "gloss": "when(-ever)",
+      "partOfSpeech": "Conjunction",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "CONJ",
+      "frequency": 123,
+      "exampleRefs": [
+        "1 John 5:2",
+        "John 2:10",
+        "John 4:25"
+      ]
+    },
+    {
+      "rank": 134,
+      "strongs": "G0165H",
+      "strongsAll": [
+        "G0165H",
+        "G0165G"
+      ],
+      "lemma": "αἰών",
+      "translit": "aiōn",
+      "gloss": "an age",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-ASM",
+      "frequency": 122,
+      "exampleRefs": [
+        "1 John 2:17",
+        "John 4:14",
+        "John 6:51"
+      ]
+    },
+    {
+      "rank": 135,
+      "strongs": "G0906G",
+      "strongsAll": [
+        "G0906G",
+        "G0906H",
+        "G0906J",
+        "G0906I"
+      ],
+      "lemma": "βάλλω",
+      "translit": "ballō",
+      "gloss": "to throw",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-2AAI-3S",
+      "frequency": 122,
+      "exampleRefs": [
+        "1 John 4:18",
+        "John 3:24",
+        "John 5:7"
+      ]
+    },
+    {
+      "rank": 136,
+      "strongs": "G0749",
+      "strongsAll": [
+        "G0749"
+      ],
+      "lemma": "ἀρχιερεύς",
+      "translit": "archiereus",
+      "gloss": "high-priest",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-NPM",
+      "frequency": 122,
+      "exampleRefs": [
+        "John 7:32",
+        "John 7:45",
+        "John 11:47"
+      ]
+    },
+    {
+      "rank": 137,
+      "strongs": "G2288",
+      "strongsAll": [
+        "G2288"
+      ],
+      "lemma": "θάνατος",
+      "translit": "thanatos",
+      "gloss": "death",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-GSM",
+      "frequency": 120,
+      "exampleRefs": [
+        "1 John 3:14",
+        "1 John 5:16",
+        "1 John 5:17"
+      ]
+    },
+    {
+      "rank": 138,
+      "strongs": "G1411",
+      "strongsAll": [
+        "G1411"
+      ],
+      "lemma": "δύναμις",
+      "translit": "dunamis",
+      "gloss": "power",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-ASF",
+      "frequency": 119,
+      "exampleRefs": [
+        "Matthew 7:22",
+        "Matthew 11:20",
+        "Matthew 11:21"
+      ]
+    },
+    {
+      "rank": 139,
+      "strongs": "G3860",
+      "strongsAll": [
+        "G3860"
+      ],
+      "lemma": "παραδίδωμι",
+      "translit": "paradidōmi",
+      "gloss": "to deliver",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-AAI-3S",
+      "frequency": 119,
+      "exampleRefs": [
+        "John 6:64",
+        "John 6:71",
+        "John 12:4"
+      ]
+    },
+    {
+      "rank": 140,
+      "strongs": "G4458",
+      "strongsAll": [
+        "G4459",
+        "G4458"
+      ],
+      "lemma": "πως",
+      "translit": "pōs",
+      "gloss": "how; how?!",
+      "partOfSpeech": "Interrogative Particle",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "PRT-I",
+      "frequency": 119,
+      "exampleRefs": [
+        "1 John 3:17",
+        "John 3:4",
+        "John 3:9"
+      ]
+    },
+    {
+      "rank": 141,
+      "strongs": "G3306",
+      "strongsAll": [
+        "G3306"
+      ],
+      "lemma": "μένω",
+      "translit": "menō",
+      "gloss": "to stay",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-PAI-3S",
+      "frequency": 118,
+      "exampleRefs": [
+        "1 John 2:6",
+        "1 John 2:10",
+        "1 John 2:14"
+      ]
+    },
+    {
+      "rank": 142,
+      "strongs": "G2212",
+      "strongsAll": [
+        "G2212"
+      ],
+      "lemma": "ζητέω",
+      "translit": "zēteō",
+      "gloss": "to seek",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-IAI-3P",
+      "frequency": 117,
+      "exampleRefs": [
+        "John 1:38",
+        "John 4:23",
+        "John 4:27"
+      ]
+    },
+    {
+      "rank": 143,
+      "strongs": "G0565",
+      "strongsAll": [
+        "G0565"
+      ],
+      "lemma": "ἀπέρχομαι",
+      "translit": "aperchomai",
+      "gloss": "to go away",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-2AAI-3S",
+      "frequency": 117,
+      "exampleRefs": [
+        "John 4:3",
+        "John 4:8",
+        "John 4:28"
+      ]
+    },
+    {
+      "rank": 144,
+      "strongs": "G0026",
+      "strongsAll": [
+        "G0026"
+      ],
+      "lemma": "ἀγάπη",
+      "translit": "agapē",
+      "gloss": "love",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-NSF",
+      "frequency": 116,
+      "exampleRefs": [
+        "1 John 2:5",
+        "1 John 2:15",
+        "1 John 3:1"
+      ]
+    },
+    {
+      "rank": 145,
+      "strongs": "G0935",
+      "strongsAll": [
+        "G0935"
+      ],
+      "lemma": "βασιλεύς",
+      "translit": "basileus",
+      "gloss": "king",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": "title",
+      "commonMorph": "N-NSM-T",
+      "frequency": 115,
+      "exampleRefs": [
+        "John 1:49",
+        "John 6:15",
+        "John 12:13"
+      ]
+    },
+    {
+      "rank": 146,
+      "strongs": "G2919",
+      "strongsAll": [
+        "G2919"
+      ],
+      "lemma": "κρίνω",
+      "translit": "krinō",
+      "gloss": "to judge",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-PAI-3S",
+      "frequency": 114,
+      "exampleRefs": [
+        "John 3:17",
+        "John 3:18",
+        "John 5:22"
+      ]
+    },
+    {
+      "rank": 147,
+      "strongs": "G3624G",
+      "strongsAll": [
+        "G3624G",
+        "G3624H"
+      ],
+      "lemma": "οἶκος",
+      "translit": "oikos",
+      "gloss": "house",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-ASM",
+      "frequency": 114,
+      "exampleRefs": [
+        "John 2:16",
+        "John 2:17",
+        "John 7:53"
+      ]
+    },
+    {
+      "rank": 148,
+      "strongs": "G1577",
+      "strongsAll": [
+        "G1577"
+      ],
+      "lemma": "ἐκκλησία",
+      "translit": "ekklēsia",
+      "gloss": "assembly",
+      "partOfSpeech": "Noun",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "N-GSF",
+      "frequency": 114,
+      "exampleRefs": [
+        "Matthew 16:18",
+        "Matthew 18:17",
+        "Acts 5:11"
+      ]
+    },
+    {
+      "rank": 149,
+      "strongs": "G2398",
+      "strongsAll": [
+        "G2398"
+      ],
+      "lemma": "ἴδιος",
+      "translit": "idios",
+      "gloss": "one's own/private",
+      "partOfSpeech": "Adjective",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "A-ASF",
+      "frequency": 114,
+      "exampleRefs": [
+        "John 1:11",
+        "John 1:41",
+        "John 4:44"
+      ]
+    },
+    {
+      "rank": 150,
+      "strongs": "G3708",
+      "strongsAll": [
+        "G3708",
+        "G3700G",
+        "G3700H"
+      ],
+      "lemma": "ὁράω",
+      "translit": "horaō",
+      "gloss": "to see; to appear",
+      "partOfSpeech": "Verb",
+      "properName": false,
+      "nameType": null,
+      "commonMorph": "V-API-3S",
+      "frequency": 113,
+      "exampleRefs": [
+        "1 John 1:1",
+        "1 John 1:2",
+        "1 John 1:3"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,789 @@
+{
+  "language": "greek",
+  "title": "Biblical Greek: from the alphabet to 1 John 1",
+  "pronunciation": "Erasmian",
+  "text": "NA27 words as built in orig/nt (STEPBible TAGNT)",
+  "note": "Hand-written lesson plan. vocab lists Strong's numbers from vocab.json (each lemma taught once, in frequency order within a lesson). exampleRefs are references only: verse text is read from orig/ at display time. No Greek is typed here; paradigm tables live in paradigms.json, the alphabet in alphabet.json.",
+  "files": {
+    "vocab": "vocab.json",
+    "alphabet": "alphabet.json",
+    "paradigms": "paradigms.json",
+    "paradigmCheck": "paradigm-check.json",
+    "reading": "reading-1john1.json",
+    "check": "course-check.json"
+  },
+  "lessons": [
+    {
+      "id": "L01",
+      "number": 1,
+      "title": "The alphabet, part 1: alpha to mu",
+      "type": "alphabet",
+      "goals": [
+        "Recognize and name the first twelve Greek letters, capital and small.",
+        "Say each one with its Erasmian sound, using the English sound-alikes.",
+        "Write each letter in the course transliteration."
+      ],
+      "vocab": [],
+      "grammarTopic": null,
+      "paradigmIds": [],
+      "exampleRefs": [
+        "John 11:35",
+        "John 1:1"
+      ],
+      "prereqs": []
+    },
+    {
+      "id": "L02",
+      "number": 2,
+      "title": "The alphabet, part 2: nu to omega",
+      "type": "alphabet",
+      "goals": [
+        "Recognize and name the last twelve letters, including the final form of sigma.",
+        "Tell apart letters that look like English letters but sound different (eta, nu, rho, chi, omega).",
+        "Sound out a short verse letter by letter."
+      ],
+      "vocab": [],
+      "grammarTopic": null,
+      "paradigmIds": [],
+      "exampleRefs": [
+        "1 John 1:5",
+        "John 11:35"
+      ],
+      "prereqs": [
+        "L01"
+      ]
+    },
+    {
+      "id": "L03",
+      "number": 3,
+      "title": "Vowels, diphthongs and breathing marks",
+      "type": "alphabet",
+      "goals": [
+        "Know the seven vowels and which are always long, always short, or either.",
+        "Read the eight diphthongs as single sounds.",
+        "Hear the rough breathing as h and ignore the smooth one; read past the iota subscript."
+      ],
+      "vocab": [],
+      "grammarTopic": "Vowels, diphthongs, breathings, iota subscript",
+      "paradigmIds": [],
+      "exampleRefs": [
+        "1 John 1:1",
+        "1 John 1:5"
+      ],
+      "prereqs": [
+        "L02"
+      ]
+    },
+    {
+      "id": "L04",
+      "number": 4,
+      "title": "Accents, punctuation and reading aloud",
+      "type": "alphabet",
+      "goals": [
+        "Recognize the three accents and stress the accented syllable when reading.",
+        "Read the raised dot as a pause and the semicolon-shaped mark as a question mark.",
+        "Spot elision and the movable nu, then read 1 John 1:1 aloud slowly."
+      ],
+      "vocab": [],
+      "grammarTopic": "Accents (recognition), punctuation, elision, movable nu",
+      "paradigmIds": [],
+      "exampleRefs": [
+        "John 1:21",
+        "1 John 1:1",
+        "1 John 1:3"
+      ],
+      "prereqs": [
+        "L03"
+      ]
+    },
+    {
+      "id": "L05",
+      "number": 5,
+      "title": "First words: and, but, for, not, in",
+      "type": "vocab",
+      "goals": [
+        "Learn the small words that hold most sentences together.",
+        "Read the names Jesus and Christ.",
+        "Find these words in verses of John and 1 John."
+      ],
+      "vocab": [
+        "G2532",
+        "G1161",
+        "G1722",
+        "G1519",
+        "G3756",
+        "G3754G",
+        "G3361",
+        "G1063",
+        "G2424G",
+        "G0575",
+        "G0235",
+        "G5547",
+        "G0281"
+      ],
+      "grammarTopic": null,
+      "paradigmIds": [],
+      "exampleRefs": [
+        "John 1:20",
+        "John 6:36",
+        "John 4:2"
+      ],
+      "prereqs": [
+        "L04"
+      ]
+    },
+    {
+      "id": "L06",
+      "number": 6,
+      "title": "Nouns and their cases: the second declension",
+      "type": "grammar",
+      "goals": [
+        "Understand that a Greek noun changes its ending to show its job in the sentence (case).",
+        "Learn the four cases: nominative (subject), genitive (of), dative (to/for/in), accusative (object).",
+        "Decline the word for word, logos, in singular and plural."
+      ],
+      "vocab": [
+        "G2316",
+        "G2962G",
+        "G0444",
+        "G5207",
+        "G0080",
+        "G3056",
+        "G3772",
+        "G3551",
+        "G2889"
+      ],
+      "grammarTopic": "Case, number and gender; second declension masculine",
+      "paradigmIds": [
+        "logos"
+      ],
+      "exampleRefs": [
+        "John 1:1",
+        "Mark 1:1",
+        "Mark 13:31"
+      ],
+      "prereqs": [
+        "L05"
+      ]
+    },
+    {
+      "id": "L07",
+      "number": 7,
+      "title": "The article: the",
+      "type": "grammar",
+      "goals": [
+        "Learn all the forms of the article and use them to identify case, number and gender.",
+        "See that Greek has no word for a or an.",
+        "Decline a second declension neuter noun, where subject and object look the same."
+      ],
+      "vocab": [
+        "G3588",
+        "G0032G",
+        "G2041",
+        "G1401",
+        "G2288",
+        "G3624G"
+      ],
+      "grammarTopic": "The definite article; second declension neuter",
+      "paradigmIds": [
+        "article",
+        "ergon"
+      ],
+      "exampleRefs": [
+        "John 1:1",
+        "John 8:35",
+        "John 3:13"
+      ],
+      "prereqs": [
+        "L06"
+      ]
+    },
+    {
+      "id": "L08",
+      "number": 8,
+      "title": "The first declension: life, day, glory",
+      "type": "grammar",
+      "goals": [
+        "Decline feminine nouns of the first declension in their three patterns.",
+        "Recognize the masculine first-declension nouns such as disciple and prophet.",
+        "Read the word for life in 1 John 1:1–2."
+      ],
+      "vocab": [
+        "G2250",
+        "G3101",
+        "G1093G",
+        "G0266",
+        "G1391",
+        "G0932",
+        "G2588",
+        "G4396",
+        "G5456G",
+        "G2222",
+        "G2491G",
+        "G0026",
+        "G1577"
+      ],
+      "grammarTopic": "First declension (eta, alpha and mixed types; masculine)",
+      "paradigmIds": [
+        "phone",
+        "hemera",
+        "doxa",
+        "mathetes"
+      ],
+      "exampleRefs": [
+        "1 John 5:12",
+        "1 John 4:8",
+        "John 12:43"
+      ],
+      "prereqs": [
+        "L07"
+      ]
+    },
+    {
+      "id": "L09",
+      "number": 9,
+      "title": "Verbs: the present active indicative",
+      "type": "grammar",
+      "goals": [
+        "See how a verb ending shows person and number, so the subject pronoun is often left out.",
+        "Learn the six present active endings.",
+        "Read short sentences with have, say, hear and write."
+      ],
+      "vocab": [
+        "G3004G",
+        "G2192",
+        "G0191",
+        "G2983",
+        "G4100",
+        "G1097",
+        "G1125",
+        "G2147",
+        "G0991",
+        "G3306"
+      ],
+      "grammarTopic": "Present active indicative",
+      "paradigmIds": [
+        "luo-pres-act-ind",
+        "echo-pres-act-ind"
+      ],
+      "exampleRefs": [
+        "1 John 5:12",
+        "John 6:47",
+        "John 5:42"
+      ],
+      "prereqs": [
+        "L08"
+      ]
+    },
+    {
+      "id": "L10",
+      "number": 10,
+      "title": "The verb to be: eimi",
+      "type": "grammar",
+      "goals": [
+        "Learn the present of the verb to be, which takes a nominative on both sides.",
+        "Recognize the imperfect was, the first verb in 1 John 1:1.",
+        "Add four common adverbs: now, then, again, thus."
+      ],
+      "vocab": [
+        "G1510",
+        "G3779",
+        "G5119",
+        "G3568",
+        "G3825"
+      ],
+      "grammarTopic": "eimi: present and imperfect",
+      "paradigmIds": [
+        "eimi-pres-ind",
+        "eimi-impf-ind"
+      ],
+      "exampleRefs": [
+        "1 John 4:8",
+        "John 1:1",
+        "John 1:4"
+      ],
+      "prereqs": [
+        "L09"
+      ]
+    },
+    {
+      "id": "L11",
+      "number": 11,
+      "title": "Personal pronouns: I, you, he, she, it",
+      "type": "grammar",
+      "goals": [
+        "Learn the pronouns I/we and you, with their emphatic and unemphatic forms.",
+        "Learn autos as he/she/it, and recognize its other uses (self, same).",
+        "Read the we, us and you that run through 1 John 1."
+      ],
+      "vocab": [
+        "G0846",
+        "G4771",
+        "G1473",
+        "G1438"
+      ],
+      "grammarTopic": "Personal pronouns; autos; reflexive",
+      "paradigmIds": [
+        "ego",
+        "su",
+        "autos"
+      ],
+      "exampleRefs": [
+        "John 4:26",
+        "John 14:1",
+        "John 6:69"
+      ],
+      "prereqs": [
+        "L10"
+      ]
+    },
+    {
+      "id": "L12",
+      "number": 12,
+      "title": "Prepositions and the cases they take",
+      "type": "vocab",
+      "goals": [
+        "Learn twelve more prepositions.",
+        "See that the case after a preposition changes its meaning (with + genitive, after + accusative).",
+        "Read prepositional phrases in John and 1 John."
+      ],
+      "vocab": [
+        "G1537",
+        "G1909",
+        "G4314",
+        "G1223",
+        "G2596",
+        "G3326",
+        "G4012",
+        "G5259G",
+        "G3844",
+        "G5228",
+        "G2193",
+        "G4862"
+      ],
+      "grammarTopic": "Prepositions with genitive, dative and accusative; elided forms",
+      "paradigmIds": [],
+      "exampleRefs": [
+        "John 1:1",
+        "John 17:16",
+        "1 John 4:5"
+      ],
+      "prereqs": [
+        "L11"
+      ]
+    },
+    {
+      "id": "L13",
+      "number": 13,
+      "title": "Connecting words: if, as, therefore, or",
+      "type": "vocab",
+      "goals": [
+        "Learn the common conjunctions and particles that link clauses.",
+        "Notice that some, like de and gar, never come first in their clause.",
+        "Read short verses built from known words."
+      ],
+      "vocab": [
+        "G1487G",
+        "G5613",
+        "G3767",
+        "G2228",
+        "G5037",
+        "G2400",
+        "G2531",
+        "G3303",
+        "G3761",
+        "G4458"
+      ],
+      "grammarTopic": null,
+      "paradigmIds": [],
+      "exampleRefs": [
+        "John 7:5",
+        "John 16:9",
+        "John 14:11"
+      ],
+      "prereqs": [
+        "L12"
+      ]
+    },
+    {
+      "id": "L14",
+      "number": 14,
+      "title": "Adjectives",
+      "type": "grammar",
+      "goals": [
+        "See that an adjective takes the case, number and gender of its noun.",
+        "Tell an attributive adjective (the holy one) from a predicate one (is holy) by the article.",
+        "Recognize the forms of all, every, which appear twice in 1 John 1."
+      ],
+      "vocab": [
+        "G3956",
+        "G4183",
+        "G1520",
+        "G3173",
+        "G3762",
+        "G0040G",
+        "G4413G",
+        "G0243",
+        "G1417",
+        "G3498",
+        "G2398"
+      ],
+      "grammarTopic": "Adjectives: agreement, attributive and predicate position",
+      "paradigmIds": [
+        "hagios",
+        "pas"
+      ],
+      "exampleRefs": [
+        "John 6:69",
+        "John 2:24",
+        "1 John 4:4"
+      ],
+      "prereqs": [
+        "L13"
+      ]
+    },
+    {
+      "id": "L15",
+      "number": 15,
+      "title": "This, that, who and which",
+      "type": "grammar",
+      "goals": [
+        "Learn the demonstratives this and that.",
+        "Learn the relative pronoun who/which, which opens 1 John 1:1.",
+        "Tell the question word who? from the indefinite someone."
+      ],
+      "vocab": [
+        "G3739",
+        "G3778",
+        "G5101",
+        "G5100",
+        "G1565",
+        "G3748"
+      ],
+      "grammarTopic": "Demonstrative, relative, interrogative and indefinite pronouns",
+      "paradigmIds": [
+        "houtos",
+        "hos"
+      ],
+      "exampleRefs": [
+        "1 John 5:5",
+        "John 8:47",
+        "1 John 4:15"
+      ],
+      "prereqs": [
+        "L14"
+      ]
+    },
+    {
+      "id": "L16",
+      "number": 16,
+      "title": "Contract verbs: do, love, speak",
+      "type": "grammar",
+      "goals": [
+        "See how verbs whose stem ends in a vowel blend that vowel with the ending.",
+        "Recognize the contracted we-forms in 1 John 1 (we testify, we do, we deceive).",
+        "Learn six common contract verbs."
+      ],
+      "vocab": [
+        "G4160G",
+        "G2980",
+        "G2564G",
+        "G0025",
+        "G2198",
+        "G2212"
+      ],
+      "grammarTopic": "Contract verbs (epsilon and alpha), present indicative",
+      "paradigmIds": [
+        "poieo-pres",
+        "agapao-pres"
+      ],
+      "exampleRefs": [
+        "1 John 4:19",
+        "Luke 6:46",
+        "John 8:30"
+      ],
+      "prereqs": [
+        "L15"
+      ]
+    },
+    {
+      "id": "L17",
+      "number": 17,
+      "title": "Middle and passive endings; deponent verbs",
+      "type": "grammar",
+      "goals": [
+        "Learn the present middle/passive endings.",
+        "Understand deponent verbs: middle or passive in form, active in meaning (I come, I become).",
+        "Recognize we lie in 1 John 1:6."
+      ],
+      "vocab": [
+        "G1096",
+        "G2064",
+        "G0611",
+        "G1831",
+        "G1410",
+        "G1525",
+        "G4198",
+        "G0565"
+      ],
+      "grammarTopic": "Present middle/passive indicative; deponents",
+      "paradigmIds": [
+        "erchomai-pres"
+      ],
+      "exampleRefs": [
+        "John 7:41",
+        "John 9:33",
+        "John 1:10"
+      ],
+      "prereqs": [
+        "L16"
+      ]
+    },
+    {
+      "id": "L18",
+      "number": 18,
+      "title": "The third declension: father, flesh, name",
+      "type": "grammar",
+      "goals": [
+        "Find the stem of a third-declension noun from its genitive.",
+        "Learn the endings through three patterns.",
+        "Recognize father, hands, light and blood in 1 John 1."
+      ],
+      "vocab": [
+        "G3962",
+        "G4151G",
+        "G3686",
+        "G0435G",
+        "G1135G",
+        "G5495",
+        "G5485",
+        "G4561",
+        "G4983"
+      ],
+      "grammarTopic": "Third declension",
+      "paradigmIds": [
+        "pater",
+        "sarx",
+        "onoma"
+      ],
+      "exampleRefs": [
+        "John 10:30",
+        "John 5:43",
+        "Matthew 10:20"
+      ],
+      "prereqs": [
+        "L17"
+      ]
+    },
+    {
+      "id": "L19",
+      "number": 19,
+      "title": "More nouns: faith, city, nations, people",
+      "type": "vocab",
+      "goals": [
+        "Learn twelve frequent nouns, mostly third declension.",
+        "Read the names Paul, Peter and the word Jew.",
+        "Practise finding the stem from the genitive."
+      ],
+      "vocab": [
+        "G4102G",
+        "G2453",
+        "G3793",
+        "G4172",
+        "G1484",
+        "G3972G",
+        "G4074G",
+        "G2992",
+        "G0165H",
+        "G0749",
+        "G1411",
+        "G0935"
+      ],
+      "grammarTopic": null,
+      "paradigmIds": [],
+      "exampleRefs": [
+        "Mark 11:22",
+        "John 4:30",
+        "Mark 8:29"
+      ],
+      "prereqs": [
+        "L18"
+      ]
+    },
+    {
+      "id": "L20",
+      "number": 20,
+      "title": "The aorist: what happened (recognition)",
+      "type": "grammar",
+      "goals": [
+        "Recognize the aorist, the simple past, by its augment (e- at the front) and sa endings.",
+        "Recognize second aorists such as said, and the aorist passive marked by thē.",
+        "Spot the three aorists in 1 John 1:1–2 (we looked at, they touched, was revealed)."
+      ],
+      "vocab": [
+        "G2036",
+        "G2309",
+        "G1453",
+        "G0649",
+        "G0906G",
+        "G2919"
+      ],
+      "grammarTopic": "Aorist active, middle and passive indicative (recognition)",
+      "paradigmIds": [
+        "luo-aor-act",
+        "pisteuo-aor-act",
+        "eipon-2aor",
+        "theaomai-aor-mid",
+        "egeiro-aor-pass"
+      ],
+      "exampleRefs": [
+        "Mark 10:36",
+        "Luke 9:20",
+        "1 John 1:2"
+      ],
+      "prereqs": [
+        "L19"
+      ]
+    },
+    {
+      "id": "L21",
+      "number": 21,
+      "title": "Give, hand over, stand, forgive",
+      "type": "vocab",
+      "goals": [
+        "Learn four common verbs whose dictionary form ends in -mi.",
+        "See that forgive in 1 John 1:9 is one of them.",
+        "Recognize them by their stems rather than by full tables."
+      ],
+      "vocab": [
+        "G1325",
+        "G2476",
+        "G0863G",
+        "G3860"
+      ],
+      "grammarTopic": "-mi verbs (vocabulary and recognition)",
+      "paradigmIds": [],
+      "exampleRefs": [
+        "John 3:35",
+        "1 John 4:13",
+        "Luke 7:48"
+      ],
+      "prereqs": [
+        "L20"
+      ]
+    },
+    {
+      "id": "L22",
+      "number": 22,
+      "title": "The perfect: what has happened (recognition)",
+      "type": "grammar",
+      "goals": [
+        "Recognize the perfect, a past act with a lasting result, by its repeated first syllable and (usually) ka endings.",
+        "Read we have heard and we have seen, the perfects of 1 John 1:1–3.",
+        "Learn oida, perfect in form but present in meaning: I know."
+      ],
+      "vocab": [
+        "G1492H",
+        "G3708"
+      ],
+      "grammarTopic": "Perfect active indicative; perfect passive participle (recognition)",
+      "paradigmIds": [
+        "horao-perf",
+        "akouo-2perf",
+        "oida-perf",
+        "pleroo-perf-ptc"
+      ],
+      "exampleRefs": [
+        "John 6:36",
+        "John 9:37",
+        "1 John 1:3"
+      ],
+      "prereqs": [
+        "L21"
+      ]
+    },
+    {
+      "id": "L23",
+      "number": 23,
+      "title": "If and so that: the subjunctive (recognition)",
+      "type": "grammar",
+      "goals": [
+        "Recognize the subjunctive by its long linking vowel (long o, long e).",
+        "Read ean (if) and hina (so that) with the subjunctive, the backbone of 1 John 1:6–10.",
+        "Recognize the subjunctive of to be in 1 John 1:4."
+      ],
+      "vocab": [
+        "G2443",
+        "G1437",
+        "G0302",
+        "G3752"
+      ],
+      "grammarTopic": "Present and aorist subjunctive with ean and hina (recognition)",
+      "paradigmIds": [
+        "luo-pres-subj",
+        "echo-pres-subj",
+        "eimi-pres-subj"
+      ],
+      "exampleRefs": [
+        "John 5:40",
+        "John 11:40",
+        "Matthew 7:1"
+      ],
+      "prereqs": [
+        "L22"
+      ]
+    },
+    {
+      "id": "L24",
+      "number": 24,
+      "title": "Reading 1 John 1:1–10",
+      "type": "reading",
+      "goals": [
+        "Read 1 John 1:1–10 in Greek with help for the words not yet learned.",
+        "Identify case, tense and person in each verse using the earlier lessons.",
+        "Follow the passage from what was heard and seen (1–4) to walking in the light (5–7) and confessing sin (8–10)."
+      ],
+      "vocab": [],
+      "grammarTopic": "Review",
+      "paradigmIds": [],
+      "exampleRefs": [
+        "1 John 1:1",
+        "1 John 1:2",
+        "1 John 1:3",
+        "1 John 1:4",
+        "1 John 1:5",
+        "1 John 1:6",
+        "1 John 1:7",
+        "1 John 1:8",
+        "1 John 1:9",
+        "1 John 1:10"
+      ],
+      "prereqs": [
+        "L01",
+        "L02",
+        "L03",
+        "L04",
+        "L05",
+        "L06",
+        "L07",
+        "L08",
+        "L09",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14",
+        "L15",
+        "L16",
+        "L17",
+        "L18",
+        "L19",
+        "L20",
+        "L21",
+        "L22",
+        "L23"
+      ],
+      "reading": "reading-1john1.json"
+    }
+  ]
+}
