@@ -1,0 +1,2269 @@
+{
+  "generatedBy": "scripts/build-hebrew-course.js",
+  "rules": {
+    "attested-match": "the form occurs in the OT (as a whole word for scope \"word\", as one morpheme for scope \"morpheme\") as the paradigm's word with exactly the cell's code",
+    "attested-other": "the form occurs, but not as that word with that code (seenAs lists what the data has; otherKey = only as other words) — check these",
+    "unattested": "the form does not occur in the OT",
+    "matching": "NFC, cantillation, meteg, maqqef, sof pasuq and paragraph letters removed; vowels, dagesh and shin/sin dots kept"
+  },
+  "summary": {
+    "attested-match": 121,
+    "attested-other": 1,
+    "unattested": 5
+  },
+  "cells": [
+    {
+      "paradigm": "article",
+      "cellLabel": "the",
+      "form": "הַ",
+      "code": "HTd",
+      "parse": "Particle · definite article (hebrew)",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 16895,
+      "seenAs": [
+        {
+          "key": "H9009",
+          "code": "HTd",
+          "parse": "Particle · definite article (hebrew)",
+          "n": 16895
+        }
+      ]
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "the",
+      "form": "הָ",
+      "code": "HTd",
+      "parse": "Particle · definite article (hebrew)",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 6657,
+      "seenAs": [
+        {
+          "key": "H9009",
+          "code": "HTd",
+          "parse": "Particle · definite article (hebrew)",
+          "n": 6657
+        }
+      ]
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "the",
+      "form": "הֶ",
+      "code": "HTd",
+      "parse": "Particle · definite article (hebrew)",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 392,
+      "seenAs": [
+        {
+          "key": "H9009",
+          "code": "HTd",
+          "parse": "Particle · definite article (hebrew)",
+          "n": 392
+        }
+      ]
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "the heavens",
+      "form": "הַשָּׁמַיִם",
+      "code": "HTd/Ncmpa",
+      "parse": "Particle · definite article (hebrew) + Noun · common · masculine · plural · absolute",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 173,
+      "seenAs": [
+        {
+          "key": "שָׁמַיִם",
+          "code": "HTd/HNcmpa",
+          "parse": "Particle · definite article (hebrew) + HHNcmpa",
+          "n": 173
+        }
+      ]
+    },
+    {
+      "paradigm": "article",
+      "cellLabel": "the earth",
+      "form": "הָאָרֶץ",
+      "code": "HTd/Ncfsa",
+      "parse": "Particle · definite article (hebrew) + Noun · common · feminine · singular · absolute",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 933,
+      "seenAs": [
+        {
+          "key": "אֶרֶץ",
+          "code": "HTd/HNcfsa",
+          "parse": "Particle · definite article (hebrew) + HHNcfsa",
+          "n": 933
+        }
+      ]
+    },
+    {
+      "paradigm": "vav",
+      "cellLabel": "and",
+      "form": "וְ",
+      "code": "HC",
+      "parse": "Conjunction",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 18945,
+      "seenAs": [
+        {
+          "key": "H9002",
+          "code": "HC",
+          "parse": "Conjunction",
+          "n": 18945
+        }
+      ]
+    },
+    {
+      "paradigm": "vav",
+      "cellLabel": "and",
+      "form": "וּ",
+      "code": "HC",
+      "parse": "Conjunction",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 7503,
+      "seenAs": [
+        {
+          "key": "H9002",
+          "code": "HC",
+          "parse": "Conjunction",
+          "n": 7503
+        }
+      ]
+    },
+    {
+      "paradigm": "vav",
+      "cellLabel": "and",
+      "form": "וָ",
+      "code": "HC",
+      "parse": "Conjunction",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 634,
+      "seenAs": [
+        {
+          "key": "H9002",
+          "code": "HC",
+          "parse": "Conjunction",
+          "n": 634
+        }
+      ]
+    },
+    {
+      "paradigm": "preps",
+      "cellLabel": "in",
+      "form": "בְּ",
+      "code": "HR",
+      "parse": "Preposition",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 6573,
+      "seenAs": [
+        {
+          "key": "H9003",
+          "code": "HR",
+          "parse": "Preposition",
+          "n": 6573
+        }
+      ]
+    },
+    {
+      "paradigm": "preps",
+      "cellLabel": "to",
+      "form": "לְ",
+      "code": "HR",
+      "parse": "Preposition",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 7664,
+      "seenAs": [
+        {
+          "key": "H9005",
+          "code": "HR",
+          "parse": "Preposition",
+          "n": 7664
+        }
+      ]
+    },
+    {
+      "paradigm": "preps",
+      "cellLabel": "like",
+      "form": "כְּ",
+      "code": "HR",
+      "parse": "Preposition",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 1042,
+      "seenAs": [
+        {
+          "key": "H9004",
+          "code": "HR",
+          "parse": "Preposition",
+          "n": 1042
+        }
+      ]
+    },
+    {
+      "paradigm": "preps",
+      "cellLabel": "from",
+      "form": "מִ",
+      "code": "HR",
+      "parse": "Preposition",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 4154,
+      "seenAs": [
+        {
+          "key": "H9006",
+          "code": "HR",
+          "parse": "Preposition",
+          "n": 4154
+        }
+      ]
+    },
+    {
+      "paradigm": "preps",
+      "cellLabel": "from (before a guttural)",
+      "form": "מֵ",
+      "code": "HR",
+      "parse": "Preposition",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 2143,
+      "seenAs": [
+        {
+          "key": "H9006",
+          "code": "HR",
+          "parse": "Preposition",
+          "n": 2143
+        }
+      ]
+    },
+    {
+      "paradigm": "preps-article",
+      "cellLabel": "in the",
+      "form": "בַּ",
+      "code": "HRd",
+      "parse": "Preposition · definite",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 2252,
+      "seenAs": [
+        {
+          "key": "H9003",
+          "code": "HRd",
+          "parse": "Preposition · definite",
+          "n": 2252
+        }
+      ]
+    },
+    {
+      "paradigm": "preps-article",
+      "cellLabel": "to the",
+      "form": "לַ",
+      "code": "HRd",
+      "parse": "Preposition · definite",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 1419,
+      "seenAs": [
+        {
+          "key": "H9005",
+          "code": "HRd",
+          "parse": "Preposition · definite",
+          "n": 1419
+        }
+      ]
+    },
+    {
+      "paradigm": "preps-article",
+      "cellLabel": "to the (before א ע ר)",
+      "form": "לָ",
+      "code": "HRd",
+      "parse": "Preposition · definite",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 1469,
+      "seenAs": [
+        {
+          "key": "H9005",
+          "code": "HRd",
+          "parse": "Preposition · definite",
+          "n": 1469
+        }
+      ]
+    },
+    {
+      "paradigm": "preps-article",
+      "cellLabel": "like the",
+      "form": "כַּ",
+      "code": "HRd",
+      "parse": "Preposition · definite",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 372,
+      "seenAs": [
+        {
+          "key": "H9004",
+          "code": "HRd",
+          "parse": "Preposition · definite",
+          "n": 372
+        }
+      ]
+    },
+    {
+      "paradigm": "preps-article",
+      "cellLabel": "to the light",
+      "form": "לָאוֹר",
+      "code": "HRd/Ncfsa",
+      "parse": "Preposition · definite + Noun · common · feminine · singular · absolute",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 7,
+      "seenAs": [
+        {
+          "key": "אוֹר",
+          "code": "HRd/HNcfsa",
+          "parse": "Preposition · definite + HHNcfsa",
+          "n": 7
+        }
+      ]
+    },
+    {
+      "paradigm": "noun-m",
+      "cellLabel": "sg.",
+      "form": "דָּבָר",
+      "code": "HNcmsa",
+      "parse": "Noun · common · masculine · singular · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 402,
+      "seenAs": [
+        {
+          "key": "דָּבָר",
+          "code": "HNcmsa",
+          "parse": "Noun · common · masculine · singular · absolute",
+          "n": 402
+        }
+      ]
+    },
+    {
+      "paradigm": "noun-m",
+      "cellLabel": "pl.",
+      "form": "דְּבָרִים",
+      "code": "HNcmpa",
+      "parse": "Noun · common · masculine · plural · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 176,
+      "seenAs": [
+        {
+          "key": "דָּבָר",
+          "code": "HNcmpa",
+          "parse": "Noun · common · masculine · plural · absolute",
+          "n": 176
+        }
+      ]
+    },
+    {
+      "paradigm": "noun-f",
+      "cellLabel": "sg.",
+      "form": "מִשְׁפָּחָה",
+      "code": "HNcfsa",
+      "parse": "Noun · common · feminine · singular · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 5,
+      "seenAs": [
+        {
+          "key": "מִשְׁפָּחָה",
+          "code": "HNcfsa",
+          "parse": "Noun · common · feminine · singular · absolute",
+          "n": 5
+        }
+      ]
+    },
+    {
+      "paradigm": "noun-f",
+      "cellLabel": "pl.",
+      "form": "מִשְׁפָּחוֹת",
+      "code": "HNcfpa",
+      "parse": "Noun · common · feminine · plural · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 8,
+      "seenAs": [
+        {
+          "key": "מִשְׁפָּחָה",
+          "code": "HNcfpa",
+          "parse": "Noun · common · feminine · plural · absolute",
+          "n": 8
+        }
+      ]
+    },
+    {
+      "paradigm": "construct",
+      "cellLabel": "a word",
+      "form": "דָּבָר",
+      "code": "HNcmsa",
+      "parse": "Noun · common · masculine · singular · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 402,
+      "seenAs": [
+        {
+          "key": "דָּבָר",
+          "code": "HNcmsa",
+          "parse": "Noun · common · masculine · singular · absolute",
+          "n": 402
+        }
+      ]
+    },
+    {
+      "paradigm": "construct",
+      "cellLabel": "words",
+      "form": "דְּבָרִים",
+      "code": "HNcmpa",
+      "parse": "Noun · common · masculine · plural · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 176,
+      "seenAs": [
+        {
+          "key": "דָּבָר",
+          "code": "HNcmpa",
+          "parse": "Noun · common · masculine · plural · absolute",
+          "n": 176
+        }
+      ]
+    },
+    {
+      "paradigm": "construct",
+      "cellLabel": "word of",
+      "form": "דְּבַר",
+      "code": "HNcmsc",
+      "parse": "Noun · common · masculine · singular · construct",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 159,
+      "seenAs": [
+        {
+          "key": "דָּבָר",
+          "code": "HNcmsc",
+          "parse": "Noun · common · masculine · singular · construct",
+          "n": 159
+        }
+      ]
+    },
+    {
+      "paradigm": "construct",
+      "cellLabel": "words of",
+      "form": "דִּבְרֵי",
+      "code": "HNcmpc",
+      "parse": "Noun · common · masculine · plural · construct",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 218,
+      "seenAs": [
+        {
+          "key": "דָּבָר",
+          "code": "HNcmpc",
+          "parse": "Noun · common · masculine · plural · construct",
+          "n": 218
+        }
+      ]
+    },
+    {
+      "paradigm": "construct",
+      "cellLabel": "family of",
+      "form": "מִשְׁפַּחַת",
+      "code": "HNcfsc",
+      "parse": "Noun · common · feminine · singular · construct",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 90,
+      "seenAs": [
+        {
+          "key": "מִשְׁפָּחָה",
+          "code": "HNcfsc",
+          "parse": "Noun · common · feminine · singular · construct",
+          "n": 90
+        }
+      ]
+    },
+    {
+      "paradigm": "construct",
+      "cellLabel": "families of",
+      "form": "מִשְׁפְּחֹת",
+      "code": "HNcfpc",
+      "parse": "Noun · common · feminine · plural · construct",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 38,
+      "seenAs": [
+        {
+          "key": "מִשְׁפָּחָה",
+          "code": "HNcfpc",
+          "parse": "Noun · common · feminine · plural · construct",
+          "n": 38
+        }
+      ]
+    },
+    {
+      "paradigm": "construct",
+      "cellLabel": "the face of",
+      "form": "פְּנֵי",
+      "code": "HNcmpc",
+      "parse": "Noun · common · masculine · plural · construct",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 537,
+      "seenAs": [
+        {
+          "key": "פָּנֶה",
+          "code": "HNcmpc",
+          "parse": "Noun · common · masculine · plural · construct",
+          "n": 537
+        }
+      ]
+    },
+    {
+      "paradigm": "adjective",
+      "cellLabel": "great",
+      "form": "גָּדוֹל",
+      "code": "HAamsa",
+      "parse": "Adjective · common · masculine · singular · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 245,
+      "seenAs": [
+        {
+          "key": "גָּדוֹל",
+          "code": "HAamsa",
+          "parse": "Adjective · common · masculine · singular · absolute",
+          "n": 245
+        }
+      ]
+    },
+    {
+      "paradigm": "adjective",
+      "cellLabel": "great",
+      "form": "גְּדוֹלָה",
+      "code": "HAafsa",
+      "parse": "Adjective · common · feminine · singular · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 51,
+      "seenAs": [
+        {
+          "key": "גָּדוֹל",
+          "code": "HAafsa",
+          "parse": "Adjective · common · feminine · singular · absolute",
+          "n": 51
+        }
+      ]
+    },
+    {
+      "paradigm": "adjective",
+      "cellLabel": "great",
+      "form": "גְּדֹלִים",
+      "code": "HAampa",
+      "parse": "Adjective · common · masculine · plural · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 28,
+      "seenAs": [
+        {
+          "key": "גָּדוֹל",
+          "code": "HAampa",
+          "parse": "Adjective · common · masculine · plural · absolute",
+          "n": 28
+        }
+      ]
+    },
+    {
+      "paradigm": "adjective",
+      "cellLabel": "great",
+      "form": "גְּדֹלוֹת",
+      "code": "HAafpa",
+      "parse": "Adjective · common · feminine · plural · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 26,
+      "seenAs": [
+        {
+          "key": "גָּדוֹל",
+          "code": "HAafpa",
+          "parse": "Adjective · common · feminine · plural · absolute",
+          "n": 26
+        }
+      ]
+    },
+    {
+      "paradigm": "adjective-tov",
+      "cellLabel": "good",
+      "form": "טוֹב",
+      "code": "HAamsa",
+      "parse": "Adjective · common · masculine · singular · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 263,
+      "seenAs": [
+        {
+          "key": "טוֹב",
+          "code": "HAamsa",
+          "parse": "Adjective · common · masculine · singular · absolute",
+          "n": 263
+        }
+      ]
+    },
+    {
+      "paradigm": "adjective-tov",
+      "cellLabel": "good",
+      "form": "טוֹבָה",
+      "code": "HAafsa",
+      "parse": "Adjective · common · feminine · singular · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 30,
+      "seenAs": [
+        {
+          "key": "טוֹב",
+          "code": "HAafsa",
+          "parse": "Adjective · common · feminine · singular · absolute",
+          "n": 30
+        }
+      ]
+    },
+    {
+      "paradigm": "adjective-tov",
+      "cellLabel": "good",
+      "form": "טוֹבִים",
+      "code": "HAampa",
+      "parse": "Adjective · common · masculine · plural · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 24,
+      "seenAs": [
+        {
+          "key": "טוֹב",
+          "code": "HAampa",
+          "parse": "Adjective · common · masculine · plural · absolute",
+          "n": 24
+        }
+      ]
+    },
+    {
+      "paradigm": "one",
+      "cellLabel": "one",
+      "form": "אֶחָד",
+      "code": "HAcmsa",
+      "parse": "Adjective · numerical · masculine · singular · absolute",
+      "scope": "morpheme",
+      "status": "attested-other",
+      "occurrences": 0,
+      "seenAs": [
+        {
+          "key": "אֶחָד",
+          "code": "HAcfsa",
+          "parse": "Adjective · numerical · feminine · singular · absolute",
+          "n": 465
+        },
+        {
+          "key": "אֶחָד",
+          "code": "HNcfsa",
+          "parse": "Noun · common · feminine · singular · absolute",
+          "n": 155
+        },
+        {
+          "key": "אֶחָד",
+          "code": "HAcfsc",
+          "parse": "Adjective · numerical · feminine · singular · construct",
+          "n": 14
+        }
+      ]
+    },
+    {
+      "paradigm": "one",
+      "cellLabel": "one",
+      "form": "אַחַת",
+      "code": "HAcfsa",
+      "parse": "Adjective · numerical · feminine · singular · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 105,
+      "seenAs": [
+        {
+          "key": "אֶחָד",
+          "code": "HAcfsa",
+          "parse": "Adjective · numerical · feminine · singular · absolute",
+          "n": 105
+        }
+      ]
+    },
+    {
+      "paradigm": "one",
+      "cellLabel": "two",
+      "form": "שְׁנַיִם",
+      "code": "HAcbda",
+      "parse": "Adjective · numerical · either gender · dual · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 61,
+      "seenAs": [
+        {
+          "key": "שְׁנַיִם",
+          "code": "HAcbda",
+          "parse": "Adjective · numerical · either gender · dual · absolute",
+          "n": 61
+        }
+      ]
+    },
+    {
+      "paradigm": "one",
+      "cellLabel": "two",
+      "form": "שְׁתַּיִם",
+      "code": "HAcfda",
+      "parse": "Adjective · numerical · feminine · dual · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 38,
+      "seenAs": [
+        {
+          "key": "שְׁנַיִם",
+          "code": "HAcfda",
+          "parse": "Adjective · numerical · feminine · dual · absolute",
+          "n": 38
+        }
+      ]
+    },
+    {
+      "paradigm": "pronouns",
+      "cellLabel": "I",
+      "form": "אֲנִי",
+      "code": "HPp1bs",
+      "parse": "Pronoun · personal · first person · either gender · singular",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 768,
+      "seenAs": [
+        {
+          "key": "אֲנִי",
+          "code": "HPp1bs",
+          "parse": "Pronoun · personal · first person · either gender · singular",
+          "n": 768
+        }
+      ]
+    },
+    {
+      "paradigm": "pronouns",
+      "cellLabel": "I",
+      "form": "אָנֹכִי",
+      "code": "HPp1bs",
+      "parse": "Pronoun · personal · first person · either gender · singular",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 358,
+      "seenAs": [
+        {
+          "key": "אָנֹכִי",
+          "code": "HPp1bs",
+          "parse": "Pronoun · personal · first person · either gender · singular",
+          "n": 358
+        }
+      ]
+    },
+    {
+      "paradigm": "pronouns",
+      "cellLabel": "you",
+      "form": "אַתָּה",
+      "code": "HPp2ms",
+      "parse": "Pronoun · personal · second person · masculine · singular",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 691,
+      "seenAs": [
+        {
+          "key": "אַתָּה",
+          "code": "HPp2ms",
+          "parse": "Pronoun · personal · second person · masculine · singular",
+          "n": 691
+        }
+      ]
+    },
+    {
+      "paradigm": "pronouns",
+      "cellLabel": "you",
+      "form": "אַתְּ",
+      "code": "HPp2fs",
+      "parse": "Pronoun · personal · second person · feminine · singular",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 50,
+      "seenAs": [
+        {
+          "key": "אַתְּ",
+          "code": "HPp2fs",
+          "parse": "Pronoun · personal · second person · feminine · singular",
+          "n": 50
+        }
+      ]
+    },
+    {
+      "paradigm": "pronouns",
+      "cellLabel": "he",
+      "form": "הוּא",
+      "code": "HPp3ms",
+      "parse": "Pronoun · personal · third person · masculine · singular",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 1392,
+      "seenAs": [
+        {
+          "key": "הוּא",
+          "code": "HPp3ms",
+          "parse": "Pronoun · personal · third person · masculine · singular",
+          "n": 1392
+        }
+      ]
+    },
+    {
+      "paradigm": "pronouns",
+      "cellLabel": "she",
+      "form": "הִיא",
+      "code": "HPp3fs",
+      "parse": "Pronoun · personal · third person · feminine · singular",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 292,
+      "seenAs": [
+        {
+          "key": "הוּא",
+          "code": "HPp3fs",
+          "parse": "Pronoun · personal · third person · feminine · singular",
+          "n": 292
+        }
+      ]
+    },
+    {
+      "paradigm": "pronouns",
+      "cellLabel": "we",
+      "form": "אֲנַחְנוּ",
+      "code": "HPp1bp",
+      "parse": "Pronoun · personal · first person · either gender · plural",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 106,
+      "seenAs": [
+        {
+          "key": "אֲנַחְנוּ",
+          "code": "HPp1bp",
+          "parse": "Pronoun · personal · first person · either gender · plural",
+          "n": 106
+        }
+      ]
+    },
+    {
+      "paradigm": "pronouns",
+      "cellLabel": "you",
+      "form": "אַתֶּם",
+      "code": "HPp2mp",
+      "parse": "Pronoun · personal · second person · masculine · plural",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 283,
+      "seenAs": [
+        {
+          "key": "אַתֶּם",
+          "code": "HPp2mp",
+          "parse": "Pronoun · personal · second person · masculine · plural",
+          "n": 283
+        }
+      ]
+    },
+    {
+      "paradigm": "pronouns",
+      "cellLabel": "they",
+      "form": "הֵם",
+      "code": "HPp3mp",
+      "parse": "Pronoun · personal · third person · masculine · plural",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 267,
+      "seenAs": [
+        {
+          "key": "הֵמָּה",
+          "code": "HPp3mp",
+          "parse": "Pronoun · personal · third person · masculine · plural",
+          "n": 267
+        }
+      ]
+    },
+    {
+      "paradigm": "pronouns",
+      "cellLabel": "they",
+      "form": "הֵמָּה",
+      "code": "HPp3mp",
+      "parse": "Pronoun · personal · third person · masculine · plural",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 284,
+      "seenAs": [
+        {
+          "key": "הֵמָּה",
+          "code": "HPp3mp",
+          "parse": "Pronoun · personal · third person · masculine · plural",
+          "n": 284
+        }
+      ]
+    },
+    {
+      "paradigm": "demonstratives",
+      "cellLabel": "this",
+      "form": "זֶה",
+      "code": "HTm",
+      "parse": "Particle · demonstrative",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 368,
+      "seenAs": [
+        {
+          "key": "זֶה",
+          "code": "HTm",
+          "parse": "Particle · demonstrative",
+          "n": 368
+        }
+      ]
+    },
+    {
+      "paradigm": "demonstratives",
+      "cellLabel": "this",
+      "form": "זֹאת",
+      "code": "HTm",
+      "parse": "Particle · demonstrative",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 298,
+      "seenAs": [
+        {
+          "key": "זֹאת",
+          "code": "HTm",
+          "parse": "Particle · demonstrative",
+          "n": 298
+        }
+      ]
+    },
+    {
+      "paradigm": "demonstratives",
+      "cellLabel": "these",
+      "form": "אֵלֶּה",
+      "code": "HTm",
+      "parse": "Particle · demonstrative",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 745,
+      "seenAs": [
+        {
+          "key": "אֵלֶּה",
+          "code": "HTm",
+          "parse": "Particle · demonstrative",
+          "n": 745
+        }
+      ]
+    },
+    {
+      "paradigm": "suffix-noun",
+      "cellLabel": "my God",
+      "form": "אֱלֹהַי",
+      "code": "HNcmpc/Sp1bs",
+      "parse": "Noun · common · masculine · plural · construct + Suffix · personal · first person · either gender · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 61,
+      "seenAs": [
+        {
+          "key": "אֱלֹהִים",
+          "code": "HNcmpc/HSp1bs",
+          "parse": "Noun · common · masculine · plural · construct + HHSp1bs",
+          "n": 61
+        }
+      ]
+    },
+    {
+      "paradigm": "suffix-noun",
+      "cellLabel": "your God",
+      "form": "אֱלֹהֶיךָ",
+      "code": "HNcmpc/Sp2ms",
+      "parse": "Noun · common · masculine · plural · construct + Suffix · personal · second person · masculine · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 326,
+      "seenAs": [
+        {
+          "key": "אֱלֹהִים",
+          "code": "HNcmpc/HSp2ms",
+          "parse": "Noun · common · masculine · plural · construct + HHSp2ms",
+          "n": 326
+        }
+      ]
+    },
+    {
+      "paradigm": "suffix-noun",
+      "cellLabel": "your God",
+      "form": "אֱלֹהַיִךְ",
+      "code": "HNcmpc/Sp2fs",
+      "parse": "Noun · common · masculine · plural · construct + Suffix · personal · second person · feminine · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 6,
+      "seenAs": [
+        {
+          "key": "אֱלֹהִים",
+          "code": "HNcmpc/HSp2fs",
+          "parse": "Noun · common · masculine · plural · construct + HHSp2fs",
+          "n": 6
+        }
+      ]
+    },
+    {
+      "paradigm": "suffix-noun",
+      "cellLabel": "his God",
+      "form": "אֱלֹהָיו",
+      "code": "HNcmpc/Sp3ms",
+      "parse": "Noun · common · masculine · plural · construct + Suffix · personal · third person · masculine · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 58,
+      "seenAs": [
+        {
+          "key": "אֱלֹהִים",
+          "code": "HNcmpc/HSp3ms",
+          "parse": "Noun · common · masculine · plural · construct + HHSp3ms",
+          "n": 58
+        }
+      ]
+    },
+    {
+      "paradigm": "suffix-noun",
+      "cellLabel": "her God",
+      "form": "אֱלֹהֶיהָ",
+      "code": "HNcmpc/Sp3fs",
+      "parse": "Noun · common · masculine · plural · construct + Suffix · personal · third person · feminine · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 5,
+      "seenAs": [
+        {
+          "key": "אֱלֹהִים",
+          "code": "HNcmpc/HSp3fs",
+          "parse": "Noun · common · masculine · plural · construct + HHSp3fs",
+          "n": 5
+        }
+      ]
+    },
+    {
+      "paradigm": "suffix-noun",
+      "cellLabel": "our God",
+      "form": "אֱלֹהֵינוּ",
+      "code": "HNcmpc/Sp1bp",
+      "parse": "Noun · common · masculine · plural · construct + Suffix · personal · first person · either gender · plural",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 174,
+      "seenAs": [
+        {
+          "key": "אֱלֹהִים",
+          "code": "HNcmpc/HSp1bp",
+          "parse": "Noun · common · masculine · plural · construct + HHSp1bp",
+          "n": 174
+        }
+      ]
+    },
+    {
+      "paradigm": "suffix-noun",
+      "cellLabel": "your God",
+      "form": "אֱלֹהֵיכֶם",
+      "code": "HNcmpc/Sp2mp",
+      "parse": "Noun · common · masculine · plural · construct + Suffix · personal · second person · masculine · plural",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 162,
+      "seenAs": [
+        {
+          "key": "אֱלֹהִים",
+          "code": "HNcmpc/HSp2mp",
+          "parse": "Noun · common · masculine · plural · construct + HHSp2mp",
+          "n": 162
+        }
+      ]
+    },
+    {
+      "paradigm": "suffix-noun",
+      "cellLabel": "their God",
+      "form": "אֱלֹהֵיהֶם",
+      "code": "HNcmpc/Sp3mp",
+      "parse": "Noun · common · masculine · plural · construct + Suffix · personal · third person · masculine · plural",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 71,
+      "seenAs": [
+        {
+          "key": "אֱלֹהִים",
+          "code": "HNcmpc/HSp3mp",
+          "parse": "Noun · common · masculine · plural · construct + HHSp3mp",
+          "n": 71
+        }
+      ]
+    },
+    {
+      "paradigm": "suffix-lamed",
+      "cellLabel": "to me",
+      "form": "לִי",
+      "code": "HR/Sp1bs",
+      "parse": "Preposition + Suffix · personal · first person · either gender · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 313,
+      "seenAs": [
+        {
+          "key": "H9030",
+          "code": "HR/HSp1bs",
+          "parse": "Preposition + HHSp1bs",
+          "n": 313
+        }
+      ]
+    },
+    {
+      "paradigm": "suffix-lamed",
+      "cellLabel": "to you",
+      "form": "לְךָ",
+      "code": "HR/Sp2ms",
+      "parse": "Preposition + Suffix · personal · second person · masculine · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 195,
+      "seenAs": [
+        {
+          "key": "H9031",
+          "code": "HR/HSp2ms",
+          "parse": "Preposition + HHSp2ms",
+          "n": 195
+        }
+      ]
+    },
+    {
+      "paradigm": "suffix-lamed",
+      "cellLabel": "to you",
+      "form": "לָךְ",
+      "code": "HR/Sp2fs",
+      "parse": "Preposition + Suffix · personal · second person · feminine · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 69,
+      "seenAs": [
+        {
+          "key": "H9032",
+          "code": "HR/HSp2fs",
+          "parse": "Preposition + HHSp2fs",
+          "n": 69
+        }
+      ]
+    },
+    {
+      "paradigm": "suffix-lamed",
+      "cellLabel": "to him",
+      "form": "לוֹ",
+      "code": "HR/Sp3ms",
+      "parse": "Preposition + Suffix · personal · third person · masculine · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 446,
+      "seenAs": [
+        {
+          "key": "H9033",
+          "code": "HR/HSp3ms",
+          "parse": "Preposition + HHSp3ms",
+          "n": 446
+        }
+      ]
+    },
+    {
+      "paradigm": "suffix-lamed",
+      "cellLabel": "to her",
+      "form": "לָהּ",
+      "code": "HR/Sp3fs",
+      "parse": "Preposition + Suffix · personal · third person · feminine · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 71,
+      "seenAs": [
+        {
+          "key": "H9034",
+          "code": "HR/HSp3fs",
+          "parse": "Preposition + HHSp3fs",
+          "n": 71
+        }
+      ]
+    },
+    {
+      "paradigm": "suffix-lamed",
+      "cellLabel": "to us",
+      "form": "לָנוּ",
+      "code": "HR/Sp1bp",
+      "parse": "Preposition + Suffix · personal · first person · either gender · plural",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 89,
+      "seenAs": [
+        {
+          "key": "H9035",
+          "code": "HR/HSp1bp",
+          "parse": "Preposition + HHSp1bp",
+          "n": 89
+        }
+      ]
+    },
+    {
+      "paradigm": "suffix-lamed",
+      "cellLabel": "to you",
+      "form": "לָכֶם",
+      "code": "HR/Sp2mp",
+      "parse": "Preposition + Suffix · personal · second person · masculine · plural",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 155,
+      "seenAs": [
+        {
+          "key": "H9036",
+          "code": "HR/HSp2mp",
+          "parse": "Preposition + HHSp2mp",
+          "n": 155
+        }
+      ]
+    },
+    {
+      "paradigm": "suffix-lamed",
+      "cellLabel": "to them",
+      "form": "לָהֶם",
+      "code": "HR/Sp3mp",
+      "parse": "Preposition + Suffix · personal · third person · masculine · plural",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 310,
+      "seenAs": [
+        {
+          "key": "H9038",
+          "code": "HR/HSp3mp",
+          "parse": "Preposition + HHSp3mp",
+          "n": 310
+        }
+      ]
+    },
+    {
+      "paradigm": "suffix-et",
+      "cellLabel": "me",
+      "form": "אֹתִי",
+      "code": "HTo/Sp1bs",
+      "parse": "Particle · object indicator + Suffix · personal · first person · either gender · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 80,
+      "seenAs": [
+        {
+          "key": "אֵת",
+          "code": "HTo/HSp1bs",
+          "parse": "Particle · object indicator + HHSp1bs",
+          "n": 80
+        }
+      ]
+    },
+    {
+      "paradigm": "suffix-et",
+      "cellLabel": "you",
+      "form": "אֹתְךָ",
+      "code": "HTo/Sp2ms",
+      "parse": "Particle · object indicator + Suffix · personal · second person · masculine · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 32,
+      "seenAs": [
+        {
+          "key": "אֵת",
+          "code": "HTo/HSp2ms",
+          "parse": "Particle · object indicator + HHSp2ms",
+          "n": 32
+        }
+      ]
+    },
+    {
+      "paradigm": "suffix-et",
+      "cellLabel": "him",
+      "form": "אֹתוֹ",
+      "code": "HTo/Sp3ms",
+      "parse": "Particle · object indicator + Suffix · personal · third person · masculine · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 438,
+      "seenAs": [
+        {
+          "key": "אֵת",
+          "code": "HTo/HSp3ms",
+          "parse": "Particle · object indicator + HHSp3ms",
+          "n": 438
+        }
+      ]
+    },
+    {
+      "paradigm": "suffix-et",
+      "cellLabel": "her",
+      "form": "אֹתָהּ",
+      "code": "HTo/Sp3fs",
+      "parse": "Particle · object indicator + Suffix · personal · third person · feminine · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 110,
+      "seenAs": [
+        {
+          "key": "אֵת",
+          "code": "HTo/HSp3fs",
+          "parse": "Particle · object indicator + HHSp3fs",
+          "n": 110
+        }
+      ]
+    },
+    {
+      "paradigm": "suffix-et",
+      "cellLabel": "us",
+      "form": "אֹתָנוּ",
+      "code": "HTo/Sp1bp",
+      "parse": "Particle · object indicator + Suffix · personal · first person · either gender · plural",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 29,
+      "seenAs": [
+        {
+          "key": "אֵת",
+          "code": "HTo/HSp1bp",
+          "parse": "Particle · object indicator + HHSp1bp",
+          "n": 29
+        }
+      ]
+    },
+    {
+      "paradigm": "suffix-et",
+      "cellLabel": "you",
+      "form": "אֶתְכֶם",
+      "code": "HTo/Sp2mp",
+      "parse": "Particle · object indicator + Suffix · personal · second person · masculine · plural",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 297,
+      "seenAs": [
+        {
+          "key": "אֵת",
+          "code": "HTo/HSp2mp",
+          "parse": "Particle · object indicator + HHSp2mp",
+          "n": 297
+        }
+      ]
+    },
+    {
+      "paradigm": "suffix-et",
+      "cellLabel": "them",
+      "form": "אֹתָם",
+      "code": "HTo/Sp3mp",
+      "parse": "Particle · object indicator + Suffix · personal · third person · masculine · plural",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 279,
+      "seenAs": [
+        {
+          "key": "אֵת",
+          "code": "HTo/HSp3mp",
+          "parse": "Particle · object indicator + HHSp3mp",
+          "n": 279
+        }
+      ]
+    },
+    {
+      "paradigm": "qal-perfect",
+      "cellLabel": "he kept",
+      "form": "שָׁמַר",
+      "code": "HVqp3ms",
+      "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · third person · masculine · singular",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 8,
+      "seenAs": [
+        {
+          "key": "שָׁמַר",
+          "code": "HVqp3ms",
+          "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · third person · masculine · singular",
+          "n": 8
+        }
+      ]
+    },
+    {
+      "paradigm": "qal-perfect",
+      "cellLabel": "they kept",
+      "form": "שָׁמְרוּ",
+      "code": "HVqp3cp",
+      "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · third person · either gender · plural",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 10,
+      "seenAs": [
+        {
+          "key": "שָׁמַר",
+          "code": "HVqp3cp",
+          "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · third person · either gender · plural",
+          "n": 10
+        }
+      ]
+    },
+    {
+      "paradigm": "qal-perfect",
+      "cellLabel": "she kept",
+      "form": "שָׁמְרָה",
+      "code": "HVqp3fs",
+      "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · third person · feminine · singular",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 3,
+      "seenAs": [
+        {
+          "key": "שָׁמַר",
+          "code": "HVqp3fs",
+          "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · third person · feminine · singular",
+          "n": 3
+        }
+      ]
+    },
+    {
+      "paradigm": "qal-perfect",
+      "cellLabel": "you kept",
+      "form": "שָׁמַרְתָּ",
+      "code": "HVqp2ms",
+      "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · second person · masculine · singular",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 8,
+      "seenAs": [
+        {
+          "key": "שָׁמַר",
+          "code": "HVqp2ms",
+          "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · second person · masculine · singular",
+          "n": 8
+        }
+      ]
+    },
+    {
+      "paradigm": "qal-perfect",
+      "cellLabel": "you kept",
+      "form": "שְׁמַרְתֶּם",
+      "code": "HVqp2mp",
+      "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · second person · masculine · plural",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 4,
+      "seenAs": [
+        {
+          "key": "שָׁמַר",
+          "code": "HVqp2mp",
+          "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · second person · masculine · plural",
+          "n": 4
+        }
+      ]
+    },
+    {
+      "paradigm": "qal-perfect",
+      "cellLabel": "you kept",
+      "form": "שָׁמַרְתְּ",
+      "code": "HVqp2fs",
+      "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · second person · feminine · singular",
+      "scope": "morpheme",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "qal-perfect",
+      "cellLabel": "you kept",
+      "form": "שְׁמַרְתֶּן",
+      "code": "HVqp2fp",
+      "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · second person · feminine · plural",
+      "scope": "morpheme",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "qal-perfect",
+      "cellLabel": "I kept",
+      "form": "שָׁמַרְתִּי",
+      "code": "HVqp1cs",
+      "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · first person · either gender · singular",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 6,
+      "seenAs": [
+        {
+          "key": "שָׁמַר",
+          "code": "HVqp1cs",
+          "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · first person · either gender · singular",
+          "n": 6
+        }
+      ]
+    },
+    {
+      "paradigm": "qal-perfect",
+      "cellLabel": "we kept",
+      "form": "שָׁמַרְנוּ",
+      "code": "HVqp1cp",
+      "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · first person · either gender · plural",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 2,
+      "seenAs": [
+        {
+          "key": "שָׁמַר",
+          "code": "HVqp1cp",
+          "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · first person · either gender · plural",
+          "n": 2
+        }
+      ]
+    },
+    {
+      "paradigm": "qal-imperfect",
+      "cellLabel": "he will keep",
+      "form": "יִשְׁמֹר",
+      "code": "HVqi3ms",
+      "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · third person · masculine · singular",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 5,
+      "seenAs": [
+        {
+          "key": "שָׁמַר",
+          "code": "HVqi3ms",
+          "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · third person · masculine · singular",
+          "n": 5
+        }
+      ]
+    },
+    {
+      "paradigm": "qal-imperfect",
+      "cellLabel": "they will keep",
+      "form": "יִשְׁמְרוּ",
+      "code": "HVqi3mp",
+      "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · third person · masculine · plural",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 11,
+      "seenAs": [
+        {
+          "key": "שָׁמַר",
+          "code": "HVqi3mp",
+          "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · third person · masculine · plural",
+          "n": 11
+        }
+      ]
+    },
+    {
+      "paradigm": "qal-imperfect",
+      "cellLabel": "she will keep",
+      "form": "תִּשְׁמֹר",
+      "code": "HVqi3fs",
+      "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · third person · feminine · singular",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 3,
+      "seenAs": [
+        {
+          "key": "שָׁמַר",
+          "code": "HVqi3fs",
+          "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · third person · feminine · singular",
+          "n": 3
+        }
+      ]
+    },
+    {
+      "paradigm": "qal-imperfect",
+      "cellLabel": "they will keep",
+      "form": "תִּשְׁמֹרְנָה",
+      "code": "HVqi3fp",
+      "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · third person · feminine · plural",
+      "scope": "morpheme",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "qal-imperfect",
+      "cellLabel": "you will keep",
+      "form": "תִּשְׁמֹר",
+      "code": "HVqi2ms",
+      "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · second person · masculine · singular",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 8,
+      "seenAs": [
+        {
+          "key": "שָׁמַר",
+          "code": "HVqi2ms",
+          "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · second person · masculine · singular",
+          "n": 8
+        }
+      ]
+    },
+    {
+      "paradigm": "qal-imperfect",
+      "cellLabel": "you will keep",
+      "form": "תִּשְׁמְרוּ",
+      "code": "HVqi2mp",
+      "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · second person · masculine · plural",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 13,
+      "seenAs": [
+        {
+          "key": "שָׁמַר",
+          "code": "HVqi2mp",
+          "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · second person · masculine · plural",
+          "n": 13
+        }
+      ]
+    },
+    {
+      "paradigm": "qal-imperfect",
+      "cellLabel": "you will keep",
+      "form": "תִּשְׁמְרִי",
+      "code": "HVqi2fs",
+      "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · second person · feminine · singular",
+      "scope": "morpheme",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "qal-imperfect",
+      "cellLabel": "you will keep",
+      "form": "תִּשְׁמֹרְנָה",
+      "code": "HVqi2fp",
+      "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · second person · feminine · plural",
+      "scope": "morpheme",
+      "status": "unattested"
+    },
+    {
+      "paradigm": "qal-imperfect",
+      "cellLabel": "I will keep",
+      "form": "אֶשְׁמֹר",
+      "code": "HVqi1cs",
+      "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/cohortative) · first person · either gender · singular",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 3,
+      "seenAs": [
+        {
+          "key": "שָׁמַר",
+          "code": "HVqi1cs",
+          "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/cohortative) · first person · either gender · singular",
+          "n": 3
+        }
+      ]
+    },
+    {
+      "paradigm": "qal-imperfect",
+      "cellLabel": "we will keep",
+      "form": "נִשְׁמֹר",
+      "code": "HVqi1cp",
+      "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/cohortative) · first person · either gender · plural",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "key": "שָׁמַר",
+          "code": "HVqi1cp",
+          "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/cohortative) · first person · either gender · plural",
+          "n": 1
+        }
+      ]
+    },
+    {
+      "paradigm": "wayyiqtol",
+      "cellLabel": "and he said",
+      "form": "וַיֹּאמֶר",
+      "code": "Hc/Vqw3ms",
+      "parse": "Conjunction · consecutive + Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative) · third person · masculine · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 1948,
+      "seenAs": [
+        {
+          "key": "אָמַר",
+          "code": "Hc/HVqw3ms",
+          "parse": "Conjunction · consecutive + HHVqw3ms",
+          "n": 1948
+        }
+      ]
+    },
+    {
+      "paradigm": "wayyiqtol",
+      "cellLabel": "and she said",
+      "form": "וַתֹּאמֶר",
+      "code": "Hc/Vqw3fs",
+      "parse": "Conjunction · consecutive + Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative) · third person · feminine · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 188,
+      "seenAs": [
+        {
+          "key": "אָמַר",
+          "code": "Hc/HVqw3fs",
+          "parse": "Conjunction · consecutive + HHVqw3fs",
+          "n": 188
+        }
+      ]
+    },
+    {
+      "paradigm": "wayyiqtol",
+      "cellLabel": "and they said",
+      "form": "וַיֹּאמְרוּ",
+      "code": "Hc/Vqw3mp",
+      "parse": "Conjunction · consecutive + Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative) · third person · masculine · plural",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 297,
+      "seenAs": [
+        {
+          "key": "אָמַר",
+          "code": "Hc/HVqw3mp",
+          "parse": "Conjunction · consecutive + HHVqw3mp",
+          "n": 297
+        }
+      ]
+    },
+    {
+      "paradigm": "wayyiqtol",
+      "cellLabel": "and I said",
+      "form": "וָאֹמַר",
+      "code": "Hc/Vqw1cs",
+      "parse": "Conjunction · consecutive + Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative) · first person · either gender · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 90,
+      "seenAs": [
+        {
+          "key": "אָמַר",
+          "code": "Hc/HVqw1cs",
+          "parse": "Conjunction · consecutive + HHVqw1cs",
+          "n": 90
+        }
+      ]
+    },
+    {
+      "paradigm": "wayyiqtol",
+      "cellLabel": "and we said",
+      "form": "וַנֹּאמֶר",
+      "code": "Hc/Vqw1cp",
+      "parse": "Conjunction · consecutive + Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative) · first person · either gender · plural",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 8,
+      "seenAs": [
+        {
+          "key": "אָמַר",
+          "code": "Hc/HVqw1cp",
+          "parse": "Conjunction · consecutive + HHVqw1cp",
+          "n": 8
+        }
+      ]
+    },
+    {
+      "paradigm": "wayyiqtol",
+      "cellLabel": "and he saw",
+      "form": "וַיַּרְא",
+      "code": "Hc/Vqw3ms",
+      "parse": "Conjunction · consecutive + Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative) · third person · masculine · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 130,
+      "seenAs": [
+        {
+          "key": "רָאָה",
+          "code": "Hc/HVqw3ms",
+          "parse": "Conjunction · consecutive + HHVqw3ms",
+          "n": 130
+        }
+      ]
+    },
+    {
+      "paradigm": "wayyiqtol",
+      "cellLabel": "and he called",
+      "form": "וַיִּקְרָא",
+      "code": "Hc/Vqw3ms",
+      "parse": "Conjunction · consecutive + Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative) · third person · masculine · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 201,
+      "seenAs": [
+        {
+          "key": "קָרָא",
+          "code": "Hc/HVqw3ms",
+          "parse": "Conjunction · consecutive + HHVqw3ms",
+          "n": 201
+        }
+      ]
+    },
+    {
+      "paradigm": "wayyiqtol",
+      "cellLabel": "and he kept",
+      "form": "וַיִּשְׁמֹר",
+      "code": "Hc/Vqw3ms",
+      "parse": "Conjunction · consecutive + Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative) · third person · masculine · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 3,
+      "seenAs": [
+        {
+          "key": "שָׁמַר",
+          "code": "Hc/HVqw3ms",
+          "parse": "Conjunction · consecutive + HHVqw3ms",
+          "n": 3
+        }
+      ]
+    },
+    {
+      "paradigm": "hayah",
+      "cellLabel": "he was",
+      "form": "הָיָה",
+      "code": "HVqp3ms",
+      "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · third person · masculine · singular",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 345,
+      "seenAs": [
+        {
+          "key": "הָיָה",
+          "code": "HVqp3ms",
+          "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · third person · masculine · singular",
+          "n": 345
+        }
+      ]
+    },
+    {
+      "paradigm": "hayah",
+      "cellLabel": "she / it was",
+      "form": "הָיְתָה",
+      "code": "HVqp3fs",
+      "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · third person · feminine · singular",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 112,
+      "seenAs": [
+        {
+          "key": "הָיָה",
+          "code": "HVqp3fs",
+          "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · third person · feminine · singular",
+          "n": 112
+        }
+      ]
+    },
+    {
+      "paradigm": "hayah",
+      "cellLabel": "they were",
+      "form": "הָיוּ",
+      "code": "HVqp3cp",
+      "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · third person · either gender · plural",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 168,
+      "seenAs": [
+        {
+          "key": "הָיָה",
+          "code": "HVqp3cp",
+          "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · third person · either gender · plural",
+          "n": 168
+        }
+      ]
+    },
+    {
+      "paradigm": "hayah",
+      "cellLabel": "he will be",
+      "form": "יִהְיֶה",
+      "code": "HVqi3ms",
+      "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · third person · masculine · singular",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 417,
+      "seenAs": [
+        {
+          "key": "הָיָה",
+          "code": "HVqi3ms",
+          "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · third person · masculine · singular",
+          "n": 417
+        }
+      ]
+    },
+    {
+      "paradigm": "hayah",
+      "cellLabel": "let it be",
+      "form": "יְהִי",
+      "code": "HVqj3ms",
+      "parse": "Verb · Qal (simple, active) · imperfect (future/present, jussive) · third person · masculine · singular",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 47,
+      "seenAs": [
+        {
+          "key": "הָיָה",
+          "code": "HVqj3ms",
+          "parse": "Verb · Qal (simple, active) · imperfect (future/present, jussive) · third person · masculine · singular",
+          "n": 47
+        }
+      ]
+    },
+    {
+      "paradigm": "hayah",
+      "cellLabel": "and it was",
+      "form": "וַיְהִי",
+      "code": "Hc/Vqw3ms",
+      "parse": "Conjunction · consecutive + Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative) · third person · masculine · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 782,
+      "seenAs": [
+        {
+          "key": "הָיָה",
+          "code": "Hc/HVqw3ms",
+          "parse": "Conjunction · consecutive + HHVqw3ms",
+          "n": 782
+        }
+      ]
+    },
+    {
+      "paradigm": "hayah",
+      "cellLabel": "and she / it was",
+      "form": "וַתְּהִי",
+      "code": "Hc/Vqw3fs",
+      "parse": "Conjunction · consecutive + Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative) · third person · feminine · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 85,
+      "seenAs": [
+        {
+          "key": "הָיָה",
+          "code": "Hc/HVqw3fs",
+          "parse": "Conjunction · consecutive + HHVqw3fs",
+          "n": 85
+        }
+      ]
+    },
+    {
+      "paradigm": "hayah",
+      "cellLabel": "and they were",
+      "form": "וַיִּהְיוּ",
+      "code": "Hc/Vqw3mp",
+      "parse": "Conjunction · consecutive + Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative) · third person · masculine · plural",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 105,
+      "seenAs": [
+        {
+          "key": "הָיָה",
+          "code": "Hc/HVqw3mp",
+          "parse": "Conjunction · consecutive + HHVqw3mp",
+          "n": 105
+        }
+      ]
+    },
+    {
+      "paradigm": "hiphil-wayyiqtol",
+      "cellLabel": "and he brought out",
+      "form": "וַיּוֹצֵא",
+      "code": "Hc/Vhw3ms",
+      "parse": "Conjunction · consecutive + Verb · Hiphil (causative/declarative, active) · consecutive imperfect (past/present, indicative) · third person · masculine · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 11,
+      "seenAs": [
+        {
+          "key": "יָצָא",
+          "code": "Hc/HVhw3ms",
+          "parse": "Conjunction · consecutive + HHVhw3ms",
+          "n": 11
+        }
+      ]
+    },
+    {
+      "paradigm": "hiphil-wayyiqtol",
+      "cellLabel": "and it brought out",
+      "form": "וַתּוֹצֵא",
+      "code": "Hc/Vhw3fs",
+      "parse": "Conjunction · consecutive + Verb · Hiphil (causative/declarative, active) · consecutive imperfect (past/present, indicative) · third person · feminine · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 2,
+      "seenAs": [
+        {
+          "key": "יָצָא",
+          "code": "Hc/HVhw3fs",
+          "parse": "Conjunction · consecutive + HHVhw3fs",
+          "n": 2
+        }
+      ]
+    },
+    {
+      "paradigm": "hiphil-wayyiqtol",
+      "cellLabel": "and he separated",
+      "form": "וַיַּבְדֵּל",
+      "code": "Hc/Vhw3ms",
+      "parse": "Conjunction · consecutive + Verb · Hiphil (causative/declarative, active) · consecutive imperfect (past/present, indicative) · third person · masculine · singular",
+      "scope": "word",
+      "status": "attested-match",
+      "occurrences": 3,
+      "seenAs": [
+        {
+          "key": "בָּדַל",
+          "code": "Hc/HVhw3ms",
+          "parse": "Conjunction · consecutive + HHVhw3ms",
+          "n": 3
+        }
+      ]
+    },
+    {
+      "paradigm": "piel",
+      "cellLabel": "he spoke",
+      "form": "דִּבֶּר",
+      "code": "HVpp3ms",
+      "parse": "Verb · Piel (intensive/resultive/transtive, active) · perfect (past/present, indicative) · third person · masculine · singular",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 200,
+      "seenAs": [
+        {
+          "key": "דָבַר",
+          "code": "HVpp3ms",
+          "parse": "Verb · Piel (intensive/resultive/transtive, active) · perfect (past/present, indicative) · third person · masculine · singular",
+          "n": 200
+        }
+      ]
+    },
+    {
+      "paradigm": "piel",
+      "cellLabel": "she spoke",
+      "form": "דִּבְּרָה",
+      "code": "HVpp3fs",
+      "parse": "Verb · Piel (intensive/resultive/transtive, active) · perfect (past/present, indicative) · third person · feminine · singular",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 3,
+      "seenAs": [
+        {
+          "key": "דָבַר",
+          "code": "HVpp3fs",
+          "parse": "Verb · Piel (intensive/resultive/transtive, active) · perfect (past/present, indicative) · third person · feminine · singular",
+          "n": 3
+        }
+      ]
+    },
+    {
+      "paradigm": "piel",
+      "cellLabel": "you spoke",
+      "form": "דִּבַּרְתָּ",
+      "code": "HVpp2ms",
+      "parse": "Verb · Piel (intensive/resultive/transtive, active) · perfect (past/present, indicative) · second person · masculine · singular",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 35,
+      "seenAs": [
+        {
+          "key": "דָבַר",
+          "code": "HVpp2ms",
+          "parse": "Verb · Piel (intensive/resultive/transtive, active) · perfect (past/present, indicative) · second person · masculine · singular",
+          "n": 35
+        }
+      ]
+    },
+    {
+      "paradigm": "piel",
+      "cellLabel": "I spoke",
+      "form": "דִּבַּרְתִּי",
+      "code": "HVpp1cs",
+      "parse": "Verb · Piel (intensive/resultive/transtive, active) · perfect (past/present, indicative) · first person · either gender · singular",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 60,
+      "seenAs": [
+        {
+          "key": "דָבַר",
+          "code": "HVpp1cs",
+          "parse": "Verb · Piel (intensive/resultive/transtive, active) · perfect (past/present, indicative) · first person · either gender · singular",
+          "n": 60
+        }
+      ]
+    },
+    {
+      "paradigm": "piel",
+      "cellLabel": "they spoke",
+      "form": "דִּבְּרוּ",
+      "code": "HVpp3cp",
+      "parse": "Verb · Piel (intensive/resultive/transtive, active) · perfect (past/present, indicative) · third person · either gender · plural",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 19,
+      "seenAs": [
+        {
+          "key": "דָבַר",
+          "code": "HVpp3cp",
+          "parse": "Verb · Piel (intensive/resultive/transtive, active) · perfect (past/present, indicative) · third person · either gender · plural",
+          "n": 19
+        }
+      ]
+    },
+    {
+      "paradigm": "piel",
+      "cellLabel": "speaking (m.)",
+      "form": "מְדַבֵּר",
+      "code": "HVprmsa",
+      "parse": "Verb · Piel (intensive/resultive/transtive, active) · participle · masculine · singular · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 30,
+      "seenAs": [
+        {
+          "key": "דָבַר",
+          "code": "HVprmsa",
+          "parse": "Verb · Piel (intensive/resultive/transtive, active) · participle · masculine · singular · absolute",
+          "n": 30
+        }
+      ]
+    },
+    {
+      "paradigm": "piel",
+      "cellLabel": "speaking (f.)",
+      "form": "מְדַבֶּרֶת",
+      "code": "HVprfsa",
+      "parse": "Verb · Piel (intensive/resultive/transtive, active) · participle · feminine · singular · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 4,
+      "seenAs": [
+        {
+          "key": "דָבַר",
+          "code": "HVprfsa",
+          "parse": "Verb · Piel (intensive/resultive/transtive, active) · participle · feminine · singular · absolute",
+          "n": 4
+        }
+      ]
+    },
+    {
+      "paradigm": "piel",
+      "cellLabel": "speaking (m. pl.)",
+      "form": "מְדַבְּרִים",
+      "code": "HVprmpa",
+      "parse": "Verb · Piel (intensive/resultive/transtive, active) · participle · masculine · plural · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 4,
+      "seenAs": [
+        {
+          "key": "דָבַר",
+          "code": "HVprmpa",
+          "parse": "Verb · Piel (intensive/resultive/transtive, active) · participle · masculine · plural · absolute",
+          "n": 4
+        }
+      ]
+    },
+    {
+      "paradigm": "piel",
+      "cellLabel": "hovering (f.)",
+      "form": "מְרַחֶפֶת",
+      "code": "HVprfsa",
+      "parse": "Verb · Piel (intensive/resultive/transtive, active) · participle · feminine · singular · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 1,
+      "seenAs": [
+        {
+          "key": "רָחַף",
+          "code": "HVprfsa",
+          "parse": "Verb · Piel (intensive/resultive/transtive, active) · participle · feminine · singular · absolute",
+          "n": 1
+        }
+      ]
+    },
+    {
+      "paradigm": "qal-participle",
+      "cellLabel": "dwelling",
+      "form": "יֹשֵׁב",
+      "code": "HVqrmsa",
+      "parse": "Verb · Qal (simple, active) · participle · masculine · singular · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 60,
+      "seenAs": [
+        {
+          "key": "יָשַׁב",
+          "code": "HVqrmsa",
+          "parse": "Verb · Qal (simple, active) · participle · masculine · singular · absolute",
+          "n": 60
+        }
+      ]
+    },
+    {
+      "paradigm": "qal-participle",
+      "cellLabel": "dwelling",
+      "form": "יֹשֶׁבֶת",
+      "code": "HVqrfsa",
+      "parse": "Verb · Qal (simple, active) · participle · feminine · singular · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 6,
+      "seenAs": [
+        {
+          "key": "יָשַׁב",
+          "code": "HVqrfsa",
+          "parse": "Verb · Qal (simple, active) · participle · feminine · singular · absolute",
+          "n": 6
+        }
+      ]
+    },
+    {
+      "paradigm": "qal-participle",
+      "cellLabel": "dwelling",
+      "form": "יֹשְׁבִים",
+      "code": "HVqrmpa",
+      "parse": "Verb · Qal (simple, active) · participle · masculine · plural · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 26,
+      "seenAs": [
+        {
+          "key": "יָשַׁב",
+          "code": "HVqrmpa",
+          "parse": "Verb · Qal (simple, active) · participle · masculine · plural · absolute",
+          "n": 26
+        }
+      ]
+    },
+    {
+      "paradigm": "qal-participle",
+      "cellLabel": "dwelling",
+      "form": "יֹשְׁבוֹת",
+      "code": "HVqrfpa",
+      "parse": "Verb · Qal (simple, active) · participle · feminine · plural · absolute",
+      "scope": "morpheme",
+      "status": "attested-match",
+      "occurrences": 3,
+      "seenAs": [
+        {
+          "key": "יָשַׁב",
+          "code": "HVqrfpa",
+          "parse": "Verb · Qal (simple, active) · participle · feminine · plural · absolute",
+          "n": 3
+        }
+      ]
+    }
+  ]
+}

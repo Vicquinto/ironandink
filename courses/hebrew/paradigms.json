@@ -1,0 +1,1571 @@
+{
+  "note": "Hand-written tables (Hebrew typed here and in alphabet.json only). Each cell: form, code (the STEP morphology code it should have), parse (the data's own description of that code, from orig/morph-heb.json), cellLabel, and scope: \"morpheme\" compares one part of a word (the article הַ; a verb form without a prefix), \"word\" the whole word with its prefixes and suffixes. key (on the table, or on a cell) = the course key of the word, or the H9xxx number of a prefix or suffix. Checked against orig/ot by scripts/build-hebrew-course.js; results in paradigm-check.json.",
+  "paradigms": [
+    {
+      "id": "article",
+      "key": "H9009",
+      "lessonId": "L07",
+      "title": "The article: the",
+      "scope": "morpheme",
+      "columns": [
+        "form"
+      ],
+      "rows": [
+        {
+          "label": "before most letters (the next letter is doubled)",
+          "cells": [
+            {
+              "form": "הַ",
+              "code": "HTd",
+              "parse": "Particle · definite article (hebrew)",
+              "cellLabel": "the"
+            }
+          ]
+        },
+        {
+          "label": "before א ע ר (which cannot be doubled)",
+          "cells": [
+            {
+              "form": "הָ",
+              "code": "HTd",
+              "parse": "Particle · definite article (hebrew)",
+              "cellLabel": "the"
+            }
+          ]
+        },
+        {
+          "label": "before unstressed ח, ה, ע",
+          "cells": [
+            {
+              "form": "הֶ",
+              "code": "HTd",
+              "parse": "Particle · definite article (hebrew)",
+              "cellLabel": "the"
+            }
+          ]
+        },
+        {
+          "label": "in Genesis 1:1",
+          "cells": [
+            {
+              "form": "הַשָּׁמַיִם",
+              "code": "HTd/Ncmpa",
+              "parse": "Particle · definite article (hebrew) + Noun · common · masculine · plural · absolute",
+              "cellLabel": "the heavens",
+              "scope": "word",
+              "key": "שָׁמַיִם"
+            },
+            {
+              "form": "הָאָרֶץ",
+              "code": "HTd/Ncfsa",
+              "parse": "Particle · definite article (hebrew) + Noun · common · feminine · singular · absolute",
+              "cellLabel": "the earth",
+              "scope": "word",
+              "key": "אֶרֶץ"
+            }
+          ]
+        }
+      ],
+      "note": "The article is never a word on its own: it is joined to the front of its noun."
+    },
+    {
+      "id": "vav",
+      "key": "H9002",
+      "lessonId": "L08",
+      "title": "The conjunction vav: and",
+      "scope": "morpheme",
+      "columns": [
+        "form"
+      ],
+      "rows": [
+        {
+          "label": "usually",
+          "cells": [
+            {
+              "form": "וְ",
+              "code": "HC",
+              "parse": "Conjunction",
+              "cellLabel": "and"
+            }
+          ]
+        },
+        {
+          "label": "before בּ מ פּ and before a shewa",
+          "cells": [
+            {
+              "form": "וּ",
+              "code": "HC",
+              "parse": "Conjunction",
+              "cellLabel": "and"
+            }
+          ]
+        },
+        {
+          "label": "often before a stressed syllable",
+          "cells": [
+            {
+              "form": "וָ",
+              "code": "HC",
+              "parse": "Conjunction",
+              "cellLabel": "and"
+            }
+          ]
+        }
+      ],
+      "note": "Genesis 1:2 has all three: וְהָאָרֶץ, וָבֹהוּ, and (1:4) וּבֵין."
+    },
+    {
+      "id": "preps",
+      "key": "H9003",
+      "lessonId": "L08",
+      "title": "The inseparable prepositions: in, to, like, from",
+      "scope": "morpheme",
+      "columns": [
+        "form"
+      ],
+      "rows": [
+        {
+          "label": "in, with, by",
+          "cells": [
+            {
+              "form": "בְּ",
+              "code": "HR",
+              "parse": "Preposition",
+              "cellLabel": "in"
+            }
+          ]
+        },
+        {
+          "label": "to, for",
+          "cells": [
+            {
+              "form": "לְ",
+              "code": "HR",
+              "parse": "Preposition",
+              "cellLabel": "to",
+              "key": "H9005"
+            }
+          ]
+        },
+        {
+          "label": "like, as",
+          "cells": [
+            {
+              "form": "כְּ",
+              "code": "HR",
+              "parse": "Preposition",
+              "cellLabel": "like",
+              "key": "H9004"
+            }
+          ]
+        },
+        {
+          "label": "from (מִן shortened)",
+          "cells": [
+            {
+              "form": "מִ",
+              "code": "HR",
+              "parse": "Preposition",
+              "cellLabel": "from",
+              "key": "H9006"
+            },
+            {
+              "form": "מֵ",
+              "code": "HR",
+              "parse": "Preposition",
+              "cellLabel": "from (before a guttural)",
+              "key": "H9006"
+            }
+          ]
+        }
+      ],
+      "note": "בְּ, לְ and כְּ are always joined to the next word, like the article."
+    },
+    {
+      "id": "preps-article",
+      "key": "H9003",
+      "lessonId": "L08",
+      "title": "Preposition + article: in the, to the, like the",
+      "scope": "morpheme",
+      "columns": [
+        "form"
+      ],
+      "rows": [
+        {
+          "label": "in the",
+          "cells": [
+            {
+              "form": "בַּ",
+              "code": "HRd",
+              "parse": "Preposition · definite",
+              "cellLabel": "in the"
+            }
+          ]
+        },
+        {
+          "label": "to the",
+          "cells": [
+            {
+              "form": "לַ",
+              "code": "HRd",
+              "parse": "Preposition · definite",
+              "cellLabel": "to the",
+              "key": "H9005"
+            },
+            {
+              "form": "לָ",
+              "code": "HRd",
+              "parse": "Preposition · definite",
+              "cellLabel": "to the (before א ע ר)",
+              "key": "H9005"
+            }
+          ]
+        },
+        {
+          "label": "like the",
+          "cells": [
+            {
+              "form": "כַּ",
+              "code": "HRd",
+              "parse": "Preposition · definite",
+              "cellLabel": "like the",
+              "key": "H9004"
+            }
+          ]
+        },
+        {
+          "label": "in Genesis 1:5",
+          "cells": [
+            {
+              "form": "לָאוֹר",
+              "code": "HRd/Ncfsa",
+              "parse": "Preposition · definite + Noun · common · feminine · singular · absolute",
+              "cellLabel": "to the light",
+              "scope": "word",
+              "key": "אוֹר"
+            }
+          ]
+        }
+      ],
+      "note": "When a preposition meets the article, the ה drops out and the preposition takes the article's vowel. STEP tags such a preposition \"Preposition · definite\". It does not always do so: some לַ and לָ are tagged as plain prepositions."
+    },
+    {
+      "id": "noun-m",
+      "key": "דָּבָר",
+      "lessonId": "L09",
+      "title": "Nouns, masculine: word",
+      "scope": "morpheme",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "absolute",
+          "cells": [
+            {
+              "form": "דָּבָר",
+              "code": "HNcmsa",
+              "parse": "Noun · common · masculine · singular · absolute",
+              "cellLabel": "sg."
+            },
+            {
+              "form": "דְּבָרִים",
+              "code": "HNcmpa",
+              "parse": "Noun · common · masculine · plural · absolute",
+              "cellLabel": "pl."
+            }
+          ]
+        }
+      ],
+      "note": "The masculine plural ends in -im."
+    },
+    {
+      "id": "noun-f",
+      "key": "מִשְׁפָּחָה",
+      "lessonId": "L09",
+      "title": "Nouns, feminine: family",
+      "scope": "morpheme",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "absolute",
+          "cells": [
+            {
+              "form": "מִשְׁפָּחָה",
+              "code": "HNcfsa",
+              "parse": "Noun · common · feminine · singular · absolute",
+              "cellLabel": "sg."
+            },
+            {
+              "form": "מִשְׁפָּחוֹת",
+              "code": "HNcfpa",
+              "parse": "Noun · common · feminine · plural · absolute",
+              "cellLabel": "pl."
+            }
+          ]
+        }
+      ],
+      "note": "The feminine singular usually ends in -ah, the plural in -ot."
+    },
+    {
+      "id": "construct",
+      "key": "דָּבָר",
+      "lessonId": "L10",
+      "title": "The construct state: \"the word of …\"",
+      "scope": "morpheme",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "absolute",
+          "cells": [
+            {
+              "form": "דָּבָר",
+              "code": "HNcmsa",
+              "parse": "Noun · common · masculine · singular · absolute",
+              "cellLabel": "a word"
+            },
+            {
+              "form": "דְּבָרִים",
+              "code": "HNcmpa",
+              "parse": "Noun · common · masculine · plural · absolute",
+              "cellLabel": "words"
+            }
+          ]
+        },
+        {
+          "label": "construct",
+          "cells": [
+            {
+              "form": "דְּבַר",
+              "code": "HNcmsc",
+              "parse": "Noun · common · masculine · singular · construct",
+              "cellLabel": "word of"
+            },
+            {
+              "form": "דִּבְרֵי",
+              "code": "HNcmpc",
+              "parse": "Noun · common · masculine · plural · construct",
+              "cellLabel": "words of"
+            }
+          ]
+        },
+        {
+          "label": "feminine construct",
+          "cells": [
+            {
+              "form": "מִשְׁפַּחַת",
+              "code": "HNcfsc",
+              "parse": "Noun · common · feminine · singular · construct",
+              "cellLabel": "family of",
+              "key": "מִשְׁפָּחָה"
+            },
+            {
+              "form": "מִשְׁפְּחֹת",
+              "code": "HNcfpc",
+              "parse": "Noun · common · feminine · plural · construct",
+              "cellLabel": "families of",
+              "key": "מִשְׁפָּחָה"
+            }
+          ]
+        },
+        {
+          "label": "in Genesis 1:2",
+          "cells": [
+            {
+              "form": "פְּנֵי",
+              "code": "HNcmpc",
+              "parse": "Noun · common · masculine · plural · construct",
+              "cellLabel": "the face of",
+              "key": "פָּנֶה"
+            }
+          ]
+        }
+      ],
+      "note": "A noun in the construct state is joined to the noun after it (\"of\"): it shortens its vowels and never takes the article. Genesis 1:2: פְּנֵי תְהוֹם, \"the face of the deep\"; וְרוּחַ אֱלֹהִים, \"and the Spirit of God\"."
+    },
+    {
+      "id": "adjective",
+      "key": "גָּדוֹל",
+      "lessonId": "L11",
+      "title": "Adjectives: great",
+      "scope": "morpheme",
+      "columns": [
+        "form"
+      ],
+      "rows": [
+        {
+          "label": "masc. sg.",
+          "cells": [
+            {
+              "form": "גָּדוֹל",
+              "code": "HAamsa",
+              "parse": "Adjective · common · masculine · singular · absolute",
+              "cellLabel": "great"
+            }
+          ]
+        },
+        {
+          "label": "fem. sg.",
+          "cells": [
+            {
+              "form": "גְּדוֹלָה",
+              "code": "HAafsa",
+              "parse": "Adjective · common · feminine · singular · absolute",
+              "cellLabel": "great"
+            }
+          ]
+        },
+        {
+          "label": "masc. pl.",
+          "cells": [
+            {
+              "form": "גְּדֹלִים",
+              "code": "HAampa",
+              "parse": "Adjective · common · masculine · plural · absolute",
+              "cellLabel": "great"
+            }
+          ]
+        },
+        {
+          "label": "fem. pl.",
+          "cells": [
+            {
+              "form": "גְּדֹלוֹת",
+              "code": "HAafpa",
+              "parse": "Adjective · common · feminine · plural · absolute",
+              "cellLabel": "great"
+            }
+          ]
+        }
+      ],
+      "note": "An adjective takes the gender and number of its noun. After the noun it describes it (\"a great king\"); as a predicate it can come first."
+    },
+    {
+      "id": "adjective-tov",
+      "key": "טוֹב",
+      "lessonId": "L11",
+      "title": "Adjectives: good",
+      "scope": "morpheme",
+      "columns": [
+        "form"
+      ],
+      "rows": [
+        {
+          "label": "masc. sg.",
+          "cells": [
+            {
+              "form": "טוֹב",
+              "code": "HAamsa",
+              "parse": "Adjective · common · masculine · singular · absolute",
+              "cellLabel": "good"
+            }
+          ]
+        },
+        {
+          "label": "fem. sg.",
+          "cells": [
+            {
+              "form": "טוֹבָה",
+              "code": "HAafsa",
+              "parse": "Adjective · common · feminine · singular · absolute",
+              "cellLabel": "good"
+            }
+          ]
+        },
+        {
+          "label": "masc. pl.",
+          "cells": [
+            {
+              "form": "טוֹבִים",
+              "code": "HAampa",
+              "parse": "Adjective · common · masculine · plural · absolute",
+              "cellLabel": "good"
+            }
+          ]
+        }
+      ],
+      "note": "In Genesis 1:4 (כִּי־טוֹב, \"that it was good\") STEP tags טוֹב as the verb \"to be good\"."
+    },
+    {
+      "id": "one",
+      "key": "אֶחָד",
+      "lessonId": "L12",
+      "title": "One",
+      "scope": "morpheme",
+      "columns": [
+        "form"
+      ],
+      "rows": [
+        {
+          "label": "masc.",
+          "cells": [
+            {
+              "form": "אֶחָד",
+              "code": "HAcmsa",
+              "parse": "Adjective · numerical · masculine · singular · absolute",
+              "cellLabel": "one"
+            }
+          ]
+        },
+        {
+          "label": "fem.",
+          "cells": [
+            {
+              "form": "אַחַת",
+              "code": "HAcfsa",
+              "parse": "Adjective · numerical · feminine · singular · absolute",
+              "cellLabel": "one"
+            }
+          ]
+        },
+        {
+          "label": "two (masc. / fem.)",
+          "cells": [
+            {
+              "form": "שְׁנַיִם",
+              "code": "HAcbda",
+              "parse": "Adjective · numerical · either gender · dual · absolute",
+              "cellLabel": "two",
+              "key": "שְׁנַיִם"
+            },
+            {
+              "form": "שְׁתַּיִם",
+              "code": "HAcfda",
+              "parse": "Adjective · numerical · feminine · dual · absolute",
+              "cellLabel": "two",
+              "key": "שְׁנַיִם"
+            }
+          ]
+        }
+      ],
+      "note": "Genesis 1:5 ends יוֹם אֶחָד, \"day one\". STEP tags numbers (and a few words such as בֵּין, \"between\") as \"Adjective · numerical\"."
+    },
+    {
+      "id": "pronouns",
+      "key": "אֲנִי",
+      "lessonId": "L14",
+      "title": "Personal pronouns",
+      "scope": "morpheme",
+      "columns": [
+        "form"
+      ],
+      "rows": [
+        {
+          "label": "I",
+          "cells": [
+            {
+              "form": "אֲנִי",
+              "code": "HPp1bs",
+              "parse": "Pronoun · personal · first person · either gender · singular",
+              "cellLabel": "I"
+            },
+            {
+              "form": "אָנֹכִי",
+              "code": "HPp1bs",
+              "parse": "Pronoun · personal · first person · either gender · singular",
+              "cellLabel": "I",
+              "key": "אָנֹכִי"
+            }
+          ]
+        },
+        {
+          "label": "you (masc. sg.)",
+          "cells": [
+            {
+              "form": "אַתָּה",
+              "code": "HPp2ms",
+              "parse": "Pronoun · personal · second person · masculine · singular",
+              "cellLabel": "you",
+              "key": "אַתָּה"
+            }
+          ]
+        },
+        {
+          "label": "you (fem. sg.)",
+          "cells": [
+            {
+              "form": "אַתְּ",
+              "code": "HPp2fs",
+              "parse": "Pronoun · personal · second person · feminine · singular",
+              "cellLabel": "you",
+              "key": "אַתְּ"
+            }
+          ]
+        },
+        {
+          "label": "he / she",
+          "cells": [
+            {
+              "form": "הוּא",
+              "code": "HPp3ms",
+              "parse": "Pronoun · personal · third person · masculine · singular",
+              "cellLabel": "he",
+              "key": "הוּא"
+            },
+            {
+              "form": "הִיא",
+              "code": "HPp3fs",
+              "parse": "Pronoun · personal · third person · feminine · singular",
+              "cellLabel": "she",
+              "key": "הוּא"
+            }
+          ]
+        },
+        {
+          "label": "we",
+          "cells": [
+            {
+              "form": "אֲנַחְנוּ",
+              "code": "HPp1bp",
+              "parse": "Pronoun · personal · first person · either gender · plural",
+              "cellLabel": "we",
+              "key": "אֲנַחְנוּ"
+            }
+          ]
+        },
+        {
+          "label": "you (masc. pl.)",
+          "cells": [
+            {
+              "form": "אַתֶּם",
+              "code": "HPp2mp",
+              "parse": "Pronoun · personal · second person · masculine · plural",
+              "cellLabel": "you",
+              "key": "אַתֶּם"
+            }
+          ]
+        },
+        {
+          "label": "they (masc.)",
+          "cells": [
+            {
+              "form": "הֵם",
+              "code": "HPp3mp",
+              "parse": "Pronoun · personal · third person · masculine · plural",
+              "cellLabel": "they",
+              "key": "הֵמָּה"
+            },
+            {
+              "form": "הֵמָּה",
+              "code": "HPp3mp",
+              "parse": "Pronoun · personal · third person · masculine · plural",
+              "cellLabel": "they",
+              "key": "הֵמָּה"
+            }
+          ]
+        }
+      ],
+      "note": "A verb already shows its subject, so these are used for emphasis and in sentences without a verb (\"I am the LORD\")."
+    },
+    {
+      "id": "demonstratives",
+      "key": "זֶה",
+      "lessonId": "L14",
+      "title": "This, these",
+      "scope": "morpheme",
+      "columns": [
+        "form"
+      ],
+      "rows": [
+        {
+          "label": "this (masc.)",
+          "cells": [
+            {
+              "form": "זֶה",
+              "code": "HTm",
+              "parse": "Particle · demonstrative",
+              "cellLabel": "this"
+            }
+          ]
+        },
+        {
+          "label": "this (fem.)",
+          "cells": [
+            {
+              "form": "זֹאת",
+              "code": "HTm",
+              "parse": "Particle · demonstrative",
+              "cellLabel": "this",
+              "key": "זֹאת"
+            }
+          ]
+        },
+        {
+          "label": "these",
+          "cells": [
+            {
+              "form": "אֵלֶּה",
+              "code": "HTm",
+              "parse": "Particle · demonstrative",
+              "cellLabel": "these",
+              "key": "אֵלֶּה"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "suffix-noun",
+      "key": "אֱלֹהִים",
+      "lessonId": "L16",
+      "title": "Possessive suffixes: my God, your God …",
+      "scope": "word",
+      "columns": [
+        "form"
+      ],
+      "rows": [
+        {
+          "label": "my",
+          "cells": [
+            {
+              "form": "אֱלֹהַי",
+              "code": "HNcmpc/Sp1bs",
+              "parse": "Noun · common · masculine · plural · construct + Suffix · personal · first person · either gender · singular",
+              "cellLabel": "my God"
+            }
+          ]
+        },
+        {
+          "label": "your (masc. sg.)",
+          "cells": [
+            {
+              "form": "אֱלֹהֶיךָ",
+              "code": "HNcmpc/Sp2ms",
+              "parse": "Noun · common · masculine · plural · construct + Suffix · personal · second person · masculine · singular",
+              "cellLabel": "your God"
+            }
+          ]
+        },
+        {
+          "label": "your (fem. sg.)",
+          "cells": [
+            {
+              "form": "אֱלֹהַיִךְ",
+              "code": "HNcmpc/Sp2fs",
+              "parse": "Noun · common · masculine · plural · construct + Suffix · personal · second person · feminine · singular",
+              "cellLabel": "your God"
+            }
+          ]
+        },
+        {
+          "label": "his",
+          "cells": [
+            {
+              "form": "אֱלֹהָיו",
+              "code": "HNcmpc/Sp3ms",
+              "parse": "Noun · common · masculine · plural · construct + Suffix · personal · third person · masculine · singular",
+              "cellLabel": "his God"
+            }
+          ]
+        },
+        {
+          "label": "her",
+          "cells": [
+            {
+              "form": "אֱלֹהֶיהָ",
+              "code": "HNcmpc/Sp3fs",
+              "parse": "Noun · common · masculine · plural · construct + Suffix · personal · third person · feminine · singular",
+              "cellLabel": "her God"
+            }
+          ]
+        },
+        {
+          "label": "our",
+          "cells": [
+            {
+              "form": "אֱלֹהֵינוּ",
+              "code": "HNcmpc/Sp1bp",
+              "parse": "Noun · common · masculine · plural · construct + Suffix · personal · first person · either gender · plural",
+              "cellLabel": "our God"
+            }
+          ]
+        },
+        {
+          "label": "your (masc. pl.)",
+          "cells": [
+            {
+              "form": "אֱלֹהֵיכֶם",
+              "code": "HNcmpc/Sp2mp",
+              "parse": "Noun · common · masculine · plural · construct + Suffix · personal · second person · masculine · plural",
+              "cellLabel": "your God"
+            }
+          ]
+        },
+        {
+          "label": "their (masc.)",
+          "cells": [
+            {
+              "form": "אֱלֹהֵיהֶם",
+              "code": "HNcmpc/Sp3mp",
+              "parse": "Noun · common · masculine · plural · construct + Suffix · personal · third person · masculine · plural",
+              "cellLabel": "their God"
+            }
+          ]
+        }
+      ],
+      "note": "Recognition only. The suffix is joined to the construct form of the noun; STEP counts it as a separate part of the word."
+    },
+    {
+      "id": "suffix-lamed",
+      "key": "H9030",
+      "lessonId": "L17",
+      "title": "לְ with suffixes: to me, to you …",
+      "scope": "word",
+      "columns": [
+        "form"
+      ],
+      "rows": [
+        {
+          "label": "to me",
+          "cells": [
+            {
+              "form": "לִי",
+              "code": "HR/Sp1bs",
+              "parse": "Preposition + Suffix · personal · first person · either gender · singular",
+              "cellLabel": "to me"
+            }
+          ]
+        },
+        {
+          "label": "to you (masc. sg.)",
+          "cells": [
+            {
+              "form": "לְךָ",
+              "code": "HR/Sp2ms",
+              "parse": "Preposition + Suffix · personal · second person · masculine · singular",
+              "cellLabel": "to you",
+              "key": "H9031"
+            }
+          ]
+        },
+        {
+          "label": "to you (fem. sg.)",
+          "cells": [
+            {
+              "form": "לָךְ",
+              "code": "HR/Sp2fs",
+              "parse": "Preposition + Suffix · personal · second person · feminine · singular",
+              "cellLabel": "to you",
+              "key": "H9032"
+            }
+          ]
+        },
+        {
+          "label": "to him",
+          "cells": [
+            {
+              "form": "לוֹ",
+              "code": "HR/Sp3ms",
+              "parse": "Preposition + Suffix · personal · third person · masculine · singular",
+              "cellLabel": "to him",
+              "key": "H9033"
+            }
+          ]
+        },
+        {
+          "label": "to her",
+          "cells": [
+            {
+              "form": "לָהּ",
+              "code": "HR/Sp3fs",
+              "parse": "Preposition + Suffix · personal · third person · feminine · singular",
+              "cellLabel": "to her",
+              "key": "H9034"
+            }
+          ]
+        },
+        {
+          "label": "to us",
+          "cells": [
+            {
+              "form": "לָנוּ",
+              "code": "HR/Sp1bp",
+              "parse": "Preposition + Suffix · personal · first person · either gender · plural",
+              "cellLabel": "to us",
+              "key": "H9035"
+            }
+          ]
+        },
+        {
+          "label": "to you (masc. pl.)",
+          "cells": [
+            {
+              "form": "לָכֶם",
+              "code": "HR/Sp2mp",
+              "parse": "Preposition + Suffix · personal · second person · masculine · plural",
+              "cellLabel": "to you",
+              "key": "H9036"
+            }
+          ]
+        },
+        {
+          "label": "to them (masc.)",
+          "cells": [
+            {
+              "form": "לָהֶם",
+              "code": "HR/Sp3mp",
+              "parse": "Preposition + Suffix · personal · third person · masculine · plural",
+              "cellLabel": "to them",
+              "key": "H9038"
+            }
+          ]
+        }
+      ],
+      "note": "Recognition only. STEP often tags this לְ as \"Preposition · definite\" (HRd) even though there is no article, so several of these forms are also found with that code."
+    },
+    {
+      "id": "suffix-et",
+      "key": "אֵת",
+      "lessonId": "L17",
+      "title": "The object marker with suffixes: me, you, him …",
+      "scope": "word",
+      "columns": [
+        "form"
+      ],
+      "rows": [
+        {
+          "label": "me",
+          "cells": [
+            {
+              "form": "אֹתִי",
+              "code": "HTo/Sp1bs",
+              "parse": "Particle · object indicator + Suffix · personal · first person · either gender · singular",
+              "cellLabel": "me"
+            }
+          ]
+        },
+        {
+          "label": "you (masc. sg.)",
+          "cells": [
+            {
+              "form": "אֹתְךָ",
+              "code": "HTo/Sp2ms",
+              "parse": "Particle · object indicator + Suffix · personal · second person · masculine · singular",
+              "cellLabel": "you"
+            }
+          ]
+        },
+        {
+          "label": "him",
+          "cells": [
+            {
+              "form": "אֹתוֹ",
+              "code": "HTo/Sp3ms",
+              "parse": "Particle · object indicator + Suffix · personal · third person · masculine · singular",
+              "cellLabel": "him"
+            }
+          ]
+        },
+        {
+          "label": "her",
+          "cells": [
+            {
+              "form": "אֹתָהּ",
+              "code": "HTo/Sp3fs",
+              "parse": "Particle · object indicator + Suffix · personal · third person · feminine · singular",
+              "cellLabel": "her"
+            }
+          ]
+        },
+        {
+          "label": "us",
+          "cells": [
+            {
+              "form": "אֹתָנוּ",
+              "code": "HTo/Sp1bp",
+              "parse": "Particle · object indicator + Suffix · personal · first person · either gender · plural",
+              "cellLabel": "us"
+            }
+          ]
+        },
+        {
+          "label": "you (masc. pl.)",
+          "cells": [
+            {
+              "form": "אֶתְכֶם",
+              "code": "HTo/Sp2mp",
+              "parse": "Particle · object indicator + Suffix · personal · second person · masculine · plural",
+              "cellLabel": "you"
+            }
+          ]
+        },
+        {
+          "label": "them (masc.)",
+          "cells": [
+            {
+              "form": "אֹתָם",
+              "code": "HTo/Sp3mp",
+              "parse": "Particle · object indicator + Suffix · personal · third person · masculine · plural",
+              "cellLabel": "them"
+            }
+          ]
+        }
+      ],
+      "note": "Recognition only. With a suffix אֵת usually becomes אֹת."
+    },
+    {
+      "id": "qal-perfect",
+      "key": "שָׁמַר",
+      "lessonId": "L19",
+      "title": "Qal perfect: he kept (strong verb שָׁמַר)",
+      "scope": "morpheme",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "3rd masc.",
+          "cells": [
+            {
+              "form": "שָׁמַר",
+              "code": "HVqp3ms",
+              "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · third person · masculine · singular",
+              "cellLabel": "he kept"
+            },
+            {
+              "form": "שָׁמְרוּ",
+              "code": "HVqp3cp",
+              "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · third person · either gender · plural",
+              "cellLabel": "they kept"
+            }
+          ]
+        },
+        {
+          "label": "3rd fem.",
+          "cells": [
+            {
+              "form": "שָׁמְרָה",
+              "code": "HVqp3fs",
+              "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · third person · feminine · singular",
+              "cellLabel": "she kept"
+            }
+          ]
+        },
+        {
+          "label": "2nd masc.",
+          "cells": [
+            {
+              "form": "שָׁמַרְתָּ",
+              "code": "HVqp2ms",
+              "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · second person · masculine · singular",
+              "cellLabel": "you kept"
+            },
+            {
+              "form": "שְׁמַרְתֶּם",
+              "code": "HVqp2mp",
+              "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · second person · masculine · plural",
+              "cellLabel": "you kept"
+            }
+          ]
+        },
+        {
+          "label": "2nd fem.",
+          "cells": [
+            {
+              "form": "שָׁמַרְתְּ",
+              "code": "HVqp2fs",
+              "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · second person · feminine · singular",
+              "cellLabel": "you kept"
+            },
+            {
+              "form": "שְׁמַרְתֶּן",
+              "code": "HVqp2fp",
+              "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · second person · feminine · plural",
+              "cellLabel": "you kept"
+            }
+          ]
+        },
+        {
+          "label": "1st",
+          "cells": [
+            {
+              "form": "שָׁמַרְתִּי",
+              "code": "HVqp1cs",
+              "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · first person · either gender · singular",
+              "cellLabel": "I kept"
+            },
+            {
+              "form": "שָׁמַרְנוּ",
+              "code": "HVqp1cp",
+              "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · first person · either gender · plural",
+              "cellLabel": "we kept"
+            }
+          ]
+        }
+      ],
+      "note": "שָׁמַר, \"to keep\", is a strong verb (no weak letters in its root) that occurs 469 times. The perfect adds endings; the dictionary form is the 3rd masc. sg. (he kept). In Genesis 1:1 בָּרָא and 1:2 הָיְתָה are perfects. 3rd plural is common gender."
+    },
+    {
+      "id": "qal-imperfect",
+      "key": "שָׁמַר",
+      "lessonId": "L20",
+      "title": "Qal imperfect: he will keep",
+      "scope": "morpheme",
+      "columns": [
+        "singular",
+        "plural"
+      ],
+      "rows": [
+        {
+          "label": "3rd masc.",
+          "cells": [
+            {
+              "form": "יִשְׁמֹר",
+              "code": "HVqi3ms",
+              "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · third person · masculine · singular",
+              "cellLabel": "he will keep"
+            },
+            {
+              "form": "יִשְׁמְרוּ",
+              "code": "HVqi3mp",
+              "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · third person · masculine · plural",
+              "cellLabel": "they will keep"
+            }
+          ]
+        },
+        {
+          "label": "3rd fem.",
+          "cells": [
+            {
+              "form": "תִּשְׁמֹר",
+              "code": "HVqi3fs",
+              "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · third person · feminine · singular",
+              "cellLabel": "she will keep"
+            },
+            {
+              "form": "תִּשְׁמֹרְנָה",
+              "code": "HVqi3fp",
+              "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · third person · feminine · plural",
+              "cellLabel": "they will keep"
+            }
+          ]
+        },
+        {
+          "label": "2nd masc.",
+          "cells": [
+            {
+              "form": "תִּשְׁמֹר",
+              "code": "HVqi2ms",
+              "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · second person · masculine · singular",
+              "cellLabel": "you will keep"
+            },
+            {
+              "form": "תִּשְׁמְרוּ",
+              "code": "HVqi2mp",
+              "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · second person · masculine · plural",
+              "cellLabel": "you will keep"
+            }
+          ]
+        },
+        {
+          "label": "2nd fem.",
+          "cells": [
+            {
+              "form": "תִּשְׁמְרִי",
+              "code": "HVqi2fs",
+              "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · second person · feminine · singular",
+              "cellLabel": "you will keep"
+            },
+            {
+              "form": "תִּשְׁמֹרְנָה",
+              "code": "HVqi2fp",
+              "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · second person · feminine · plural",
+              "cellLabel": "you will keep"
+            }
+          ]
+        },
+        {
+          "label": "1st",
+          "cells": [
+            {
+              "form": "אֶשְׁמֹר",
+              "code": "HVqi1cs",
+              "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/cohortative) · first person · either gender · singular",
+              "cellLabel": "I will keep"
+            },
+            {
+              "form": "נִשְׁמֹר",
+              "code": "HVqi1cp",
+              "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/cohortative) · first person · either gender · plural",
+              "cellLabel": "we will keep"
+            }
+          ]
+        }
+      ],
+      "note": "The imperfect adds prefixes (and some endings). A shortened imperfect, the jussive, says \"let …\": Genesis 1:3 יְהִי אוֹר, \"let there be light\"."
+    },
+    {
+      "id": "wayyiqtol",
+      "key": "אָמַר",
+      "lessonId": "L21",
+      "title": "The wayyiqtol: and he said",
+      "scope": "word",
+      "columns": [
+        "form"
+      ],
+      "rows": [
+        {
+          "label": "and he said",
+          "cells": [
+            {
+              "form": "וַיֹּאמֶר",
+              "code": "Hc/Vqw3ms",
+              "parse": "Conjunction · consecutive + Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative) · third person · masculine · singular",
+              "cellLabel": "and he said"
+            }
+          ]
+        },
+        {
+          "label": "and she said",
+          "cells": [
+            {
+              "form": "וַתֹּאמֶר",
+              "code": "Hc/Vqw3fs",
+              "parse": "Conjunction · consecutive + Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative) · third person · feminine · singular",
+              "cellLabel": "and she said"
+            }
+          ]
+        },
+        {
+          "label": "and they said",
+          "cells": [
+            {
+              "form": "וַיֹּאמְרוּ",
+              "code": "Hc/Vqw3mp",
+              "parse": "Conjunction · consecutive + Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative) · third person · masculine · plural",
+              "cellLabel": "and they said"
+            }
+          ]
+        },
+        {
+          "label": "and I said",
+          "cells": [
+            {
+              "form": "וָאֹמַר",
+              "code": "Hc/Vqw1cs",
+              "parse": "Conjunction · consecutive + Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative) · first person · either gender · singular",
+              "cellLabel": "and I said"
+            }
+          ]
+        },
+        {
+          "label": "and we said",
+          "cells": [
+            {
+              "form": "וַנֹּאמֶר",
+              "code": "Hc/Vqw1cp",
+              "parse": "Conjunction · consecutive + Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative) · first person · either gender · plural",
+              "cellLabel": "and we said"
+            }
+          ]
+        },
+        {
+          "label": "in Genesis 1",
+          "cells": [
+            {
+              "form": "וַיַּרְא",
+              "code": "Hc/Vqw3ms",
+              "parse": "Conjunction · consecutive + Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative) · third person · masculine · singular",
+              "cellLabel": "and he saw",
+              "key": "רָאָה"
+            },
+            {
+              "form": "וַיִּקְרָא",
+              "code": "Hc/Vqw3ms",
+              "parse": "Conjunction · consecutive + Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative) · third person · masculine · singular",
+              "cellLabel": "and he called",
+              "key": "קָרָא"
+            },
+            {
+              "form": "וַיִּשְׁמֹר",
+              "code": "Hc/Vqw3ms",
+              "parse": "Conjunction · consecutive + Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative) · third person · masculine · singular",
+              "cellLabel": "and he kept",
+              "key": "שָׁמַר"
+            }
+          ]
+        }
+      ],
+      "note": "וַ + the doubled first letter of an imperfect: the past narrative tense, \"and he said … and he saw\". Genesis 1:3–5 tells the story this way."
+    },
+    {
+      "id": "hayah",
+      "key": "הָיָה",
+      "lessonId": "L22",
+      "title": "הָיָה: to be",
+      "scope": "morpheme",
+      "columns": [
+        "form"
+      ],
+      "rows": [
+        {
+          "label": "perfect",
+          "cells": [
+            {
+              "form": "הָיָה",
+              "code": "HVqp3ms",
+              "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · third person · masculine · singular",
+              "cellLabel": "he was"
+            },
+            {
+              "form": "הָיְתָה",
+              "code": "HVqp3fs",
+              "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · third person · feminine · singular",
+              "cellLabel": "she / it was"
+            },
+            {
+              "form": "הָיוּ",
+              "code": "HVqp3cp",
+              "parse": "Verb · Qal (simple, active) · perfect (past/present, indicative) · third person · either gender · plural",
+              "cellLabel": "they were"
+            }
+          ]
+        },
+        {
+          "label": "imperfect",
+          "cells": [
+            {
+              "form": "יִהְיֶה",
+              "code": "HVqi3ms",
+              "parse": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive) · third person · masculine · singular",
+              "cellLabel": "he will be"
+            }
+          ]
+        },
+        {
+          "label": "jussive",
+          "cells": [
+            {
+              "form": "יְהִי",
+              "code": "HVqj3ms",
+              "parse": "Verb · Qal (simple, active) · imperfect (future/present, jussive) · third person · masculine · singular",
+              "cellLabel": "let it be"
+            }
+          ]
+        },
+        {
+          "label": "wayyiqtol",
+          "cells": [
+            {
+              "form": "וַיְהִי",
+              "code": "Hc/Vqw3ms",
+              "parse": "Conjunction · consecutive + Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative) · third person · masculine · singular",
+              "cellLabel": "and it was",
+              "scope": "word"
+            },
+            {
+              "form": "וַתְּהִי",
+              "code": "Hc/Vqw3fs",
+              "parse": "Conjunction · consecutive + Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative) · third person · feminine · singular",
+              "cellLabel": "and she / it was",
+              "scope": "word"
+            },
+            {
+              "form": "וַיִּהְיוּ",
+              "code": "Hc/Vqw3mp",
+              "parse": "Conjunction · consecutive + Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative) · third person · masculine · plural",
+              "cellLabel": "and they were",
+              "scope": "word"
+            }
+          ]
+        }
+      ],
+      "note": "Genesis 1:2 הָיְתָה (\"was\"), 1:3 יְהִי (\"let there be\") and וַיְהִי (\"and there was\"), 1:5 וַיְהִי twice. Its final ה is weak, so the short forms drop it."
+    },
+    {
+      "id": "hiphil-wayyiqtol",
+      "key": "יָצָא",
+      "lessonId": "L24",
+      "title": "Hiphil wayyiqtol (recognition): and he brought out",
+      "scope": "word",
+      "columns": [
+        "form"
+      ],
+      "rows": [
+        {
+          "label": "and he brought out",
+          "cells": [
+            {
+              "form": "וַיּוֹצֵא",
+              "code": "Hc/Vhw3ms",
+              "parse": "Conjunction · consecutive + Verb · Hiphil (causative/declarative, active) · consecutive imperfect (past/present, indicative) · third person · masculine · singular",
+              "cellLabel": "and he brought out"
+            }
+          ]
+        },
+        {
+          "label": "and she brought out",
+          "cells": [
+            {
+              "form": "וַתּוֹצֵא",
+              "code": "Hc/Vhw3fs",
+              "parse": "Conjunction · consecutive + Verb · Hiphil (causative/declarative, active) · consecutive imperfect (past/present, indicative) · third person · feminine · singular",
+              "cellLabel": "and it brought out"
+            }
+          ]
+        },
+        {
+          "label": "in Genesis 1:4",
+          "cells": [
+            {
+              "form": "וַיַּבְדֵּל",
+              "code": "Hc/Vhw3ms",
+              "parse": "Conjunction · consecutive + Verb · Hiphil (causative/declarative, active) · consecutive imperfect (past/present, indicative) · third person · masculine · singular",
+              "cellLabel": "and he separated",
+              "key": "בָּדַל"
+            }
+          ]
+        }
+      ],
+      "note": "The Hiphil is the causative stem (\"make go out\" = bring out). Its imperfect has an a-vowel under the prefix: וַיַּבְדֵּל, \"and he separated\" (Genesis 1:4)."
+    },
+    {
+      "id": "piel",
+      "key": "דָבַר",
+      "lessonId": "L24",
+      "title": "Piel (recognition): he spoke",
+      "scope": "morpheme",
+      "columns": [
+        "form"
+      ],
+      "rows": [
+        {
+          "label": "perfect",
+          "cells": [
+            {
+              "form": "דִּבֶּר",
+              "code": "HVpp3ms",
+              "parse": "Verb · Piel (intensive/resultive/transtive, active) · perfect (past/present, indicative) · third person · masculine · singular",
+              "cellLabel": "he spoke"
+            },
+            {
+              "form": "דִּבְּרָה",
+              "code": "HVpp3fs",
+              "parse": "Verb · Piel (intensive/resultive/transtive, active) · perfect (past/present, indicative) · third person · feminine · singular",
+              "cellLabel": "she spoke"
+            },
+            {
+              "form": "דִּבַּרְתָּ",
+              "code": "HVpp2ms",
+              "parse": "Verb · Piel (intensive/resultive/transtive, active) · perfect (past/present, indicative) · second person · masculine · singular",
+              "cellLabel": "you spoke"
+            },
+            {
+              "form": "דִּבַּרְתִּי",
+              "code": "HVpp1cs",
+              "parse": "Verb · Piel (intensive/resultive/transtive, active) · perfect (past/present, indicative) · first person · either gender · singular",
+              "cellLabel": "I spoke"
+            },
+            {
+              "form": "דִּבְּרוּ",
+              "code": "HVpp3cp",
+              "parse": "Verb · Piel (intensive/resultive/transtive, active) · perfect (past/present, indicative) · third person · either gender · plural",
+              "cellLabel": "they spoke"
+            }
+          ]
+        },
+        {
+          "label": "participle",
+          "cells": [
+            {
+              "form": "מְדַבֵּר",
+              "code": "HVprmsa",
+              "parse": "Verb · Piel (intensive/resultive/transtive, active) · participle · masculine · singular · absolute",
+              "cellLabel": "speaking (m.)"
+            },
+            {
+              "form": "מְדַבֶּרֶת",
+              "code": "HVprfsa",
+              "parse": "Verb · Piel (intensive/resultive/transtive, active) · participle · feminine · singular · absolute",
+              "cellLabel": "speaking (f.)"
+            },
+            {
+              "form": "מְדַבְּרִים",
+              "code": "HVprmpa",
+              "parse": "Verb · Piel (intensive/resultive/transtive, active) · participle · masculine · plural · absolute",
+              "cellLabel": "speaking (m. pl.)"
+            }
+          ]
+        },
+        {
+          "label": "in Genesis 1:2",
+          "cells": [
+            {
+              "form": "מְרַחֶפֶת",
+              "code": "HVprfsa",
+              "parse": "Verb · Piel (intensive/resultive/transtive, active) · participle · feminine · singular · absolute",
+              "cellLabel": "hovering (f.)",
+              "key": "רָחַף"
+            }
+          ]
+        }
+      ],
+      "note": "The Piel doubles the middle letter of the root (דִּבֶּר); its participle begins with מְ. Genesis 1:2 מְרַחֶפֶת, \"hovering\", agrees with רוּחַ, which is feminine."
+    },
+    {
+      "id": "qal-participle",
+      "key": "יָשַׁב",
+      "lessonId": "L25",
+      "title": "Qal participle: dwelling",
+      "scope": "morpheme",
+      "columns": [
+        "form"
+      ],
+      "rows": [
+        {
+          "label": "masc. sg.",
+          "cells": [
+            {
+              "form": "יֹשֵׁב",
+              "code": "HVqrmsa",
+              "parse": "Verb · Qal (simple, active) · participle · masculine · singular · absolute",
+              "cellLabel": "dwelling"
+            }
+          ]
+        },
+        {
+          "label": "fem. sg.",
+          "cells": [
+            {
+              "form": "יֹשֶׁבֶת",
+              "code": "HVqrfsa",
+              "parse": "Verb · Qal (simple, active) · participle · feminine · singular · absolute",
+              "cellLabel": "dwelling"
+            }
+          ]
+        },
+        {
+          "label": "masc. pl.",
+          "cells": [
+            {
+              "form": "יֹשְׁבִים",
+              "code": "HVqrmpa",
+              "parse": "Verb · Qal (simple, active) · participle · masculine · plural · absolute",
+              "cellLabel": "dwelling"
+            }
+          ]
+        },
+        {
+          "label": "fem. pl.",
+          "cells": [
+            {
+              "form": "יֹשְׁבוֹת",
+              "code": "HVqrfpa",
+              "parse": "Verb · Qal (simple, active) · participle · feminine · plural · absolute",
+              "cellLabel": "dwelling"
+            }
+          ]
+        }
+      ],
+      "note": "The participle is a verbal adjective (\"dwelling, one who dwells\"); like an adjective it takes gender and number. The Qal participle has o after the first letter."
+    }
+  ]
+}

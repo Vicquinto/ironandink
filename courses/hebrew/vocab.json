@@ -1,0 +1,7780 @@
+{
+  "source": "orig/ot + the STEPBible TAHOT morpheme split (Leningrad codex) · glosses orig/lexicon-heb.json (TBESH) · grammar orig/morph-heb.json (TEHMC). CC BY 4.0, STEP Bible (STEPBible.org), based on work at Tyndale House, Cambridge.",
+  "generatedBy": "scripts/build-hebrew-course.js",
+  "note": "Counted by morpheme: prefixes (and, the, in, to, like, from …) and pronoun suffixes are counted on their own (morphemes), never as part of the word they attach to; words are the remaining parts, by dictionary form (key; split by Strong's number for the homographs in splits). Aramaic words (4827) are left out. lemma = the data's dictionary form; lexiconLemma = the lexicon's where it differs. displayLemma / displayNote / courseGloss come from display.json (course display only). translit = STEP TAHOT scheme (dotted syllables; a capital marks the stressed syllable). All Hebrew NFC. Hebrew words counted: 300807; morphemes: 461701.",
+  "splits": {
+    "אֵת": {
+      "H0854": "אֵת (H0854)",
+      "H0855": "אֵת (H0855)"
+    },
+    "עַד": {
+      "H5703": "עַד (H5703)",
+      "H5706": "עַד (H5706)"
+    },
+    "שָׁנָה": {
+      "H8138": "שָׁנָה (H8138)"
+    },
+    "קָרָא": {
+      "H7122": "קָרָא (H7122)"
+    },
+    "אַיִן": {
+      "H0370": "אַיִן (H0370)"
+    },
+    "כֵּן": {
+      "H3653": "כֵּן (H3653)",
+      "H3654": "כֵּן (H3654)"
+    },
+    "בַּת": {
+      "H1324": "בַּת (H1324)"
+    },
+    "אָדָם": {
+      "H0121": "אָדָם (H0121)"
+    },
+    "גַּל": {
+      "H1419": "גָּדוֹל"
+    },
+    "טוֹב": {
+      "H2897": "טוֹב (H2897)"
+    },
+    "צָבָא": {
+      "H6633": "צָבָא (H6633)"
+    },
+    "רָעָה": {
+      "H7462": "בֵּיתעֵקֶדהָרֹעִים"
+    },
+    "עָנָה": {
+      "H6031": "עָנָה (H6031)"
+    },
+    "אַף": {
+      "H0637": "אַף (H0637)"
+    },
+    "שֶׁבַע": {
+      "H7652": "שֶׁבַע (H7652)"
+    },
+    "שֵׁשׁ": {
+      "H8336": "שֵׁשׁ (H8336)"
+    },
+    "אֵל": {
+      "H0411": "אֵל (H0411)"
+    },
+    "בַּד": {
+      "H0906": "בַּד (H0906)",
+      "H0907": "בַּד (H0907)"
+    },
+    "עֵדָה": {
+      "H5713": "עֵדָה (H5713)"
+    },
+    "זֶבַח": {
+      "H2078": "זֶבַח (H2078)"
+    },
+    "מַעַל": {
+      "H4604": "מַעַל (H4604)"
+    },
+    "כָּבֵד": {
+      "H3516": "כָּבֵד (H3516)"
+    },
+    "שָׁבַר": {
+      "H7666": "שָׁבַר (H7666)"
+    },
+    "בַּעַל": {
+      "H1168": "בַּעַל (H1168)"
+    },
+    "יָמִין": {
+      "H3226": "יָמִין (H3226)"
+    }
+  },
+  "count": 250,
+  "words": [
+    {
+      "rank": 1,
+      "key": "אֵת",
+      "strongs": "H0853",
+      "strongsAll": [
+        "H0853"
+      ],
+      "lemma": "אֵת",
+      "displayLemma": "אֵת",
+      "translit": "'et",
+      "gloss": "[Obj.]",
+      "courseGloss": "(marks the definite direct object; not translated)",
+      "partOfSpeech": "Particle",
+      "category": "Particle · object indicator",
+      "properName": false,
+      "commonMorph": "HTo",
+      "frequency": 10946,
+      "exampleRefs": [
+        "Genesis 1:1",
+        "Genesis 1:4",
+        "Genesis 1:7"
+      ]
+    },
+    {
+      "rank": 2,
+      "key": "יהוה",
+      "strongs": "H3068G",
+      "strongsAll": [
+        "H3068G"
+      ],
+      "lemma": "יהוה",
+      "lexiconLemma": "יְהֹוָה",
+      "displayLemma": "יְהֹוָה",
+      "displayNote": "the divine name; read aloud as Adonai, \"the LORD\"",
+      "translit": "Yah.weh",
+      "gloss": "LORD",
+      "courseGloss": "the LORD",
+      "partOfSpeech": "Noun",
+      "category": "Noun · proper name",
+      "properName": true,
+      "commonMorph": "HNpt",
+      "frequency": 6526,
+      "exampleRefs": [
+        "Genesis 2:4",
+        "Genesis 2:5",
+        "Genesis 2:7"
+      ]
+    },
+    {
+      "rank": 3,
+      "key": "עַל",
+      "strongs": "H5921A",
+      "strongsAll": [
+        "H5921A",
+        "H5920H"
+      ],
+      "lemma": "עַל",
+      "displayLemma": "עַל",
+      "translit": "'al",
+      "gloss": "upon",
+      "courseGloss": "on, over, against",
+      "partOfSpeech": "Preposition",
+      "category": "Preposition",
+      "properName": false,
+      "commonMorph": "HR",
+      "frequency": 5768,
+      "exampleRefs": [
+        "Genesis 1:2",
+        "Genesis 1:7",
+        "Genesis 1:11"
+      ]
+    },
+    {
+      "rank": 4,
+      "key": "אֶל",
+      "strongs": "H0413",
+      "strongsAll": [
+        "H0413"
+      ],
+      "lemma": "אֶל",
+      "displayLemma": "אֶל",
+      "translit": "'el",
+      "gloss": "to(wards)",
+      "courseGloss": "to, toward",
+      "partOfSpeech": "Preposition",
+      "category": "Preposition",
+      "properName": false,
+      "commonMorph": "HR",
+      "frequency": 5516,
+      "exampleRefs": [
+        "Genesis 1:9",
+        "Genesis 2:19",
+        "Genesis 2:22"
+      ]
+    },
+    {
+      "rank": 5,
+      "key": "כֹּל",
+      "strongs": "H3605",
+      "strongsAll": [
+        "H3605"
+      ],
+      "lemma": "כֹּל",
+      "displayLemma": "כֹּל",
+      "translit": "kol",
+      "gloss": "all",
+      "courseGloss": "all, every",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 5415,
+      "exampleRefs": [
+        "Genesis 1:21",
+        "Genesis 1:25",
+        "Genesis 1:26"
+      ]
+    },
+    {
+      "rank": 6,
+      "key": "אָמַר",
+      "strongs": "H0559",
+      "strongsAll": [
+        "H0559"
+      ],
+      "lemma": "אָמַר",
+      "displayLemma": "אָמַר",
+      "translit": "'a.Mar",
+      "gloss": "to say",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqw3ms",
+      "frequency": 5309,
+      "exampleRefs": [
+        "Genesis 1:3",
+        "Genesis 1:6",
+        "Genesis 1:9"
+      ]
+    },
+    {
+      "rank": 7,
+      "key": "לֹא",
+      "strongs": "H3808",
+      "strongsAll": [
+        "H3808"
+      ],
+      "lemma": "לֹא",
+      "displayLemma": "לֹא",
+      "translit": "lo'",
+      "gloss": "not",
+      "partOfSpeech": "Particle",
+      "category": "Particle · negative",
+      "properName": false,
+      "commonMorph": "HTn",
+      "frequency": 5170,
+      "exampleRefs": [
+        "Genesis 2:5",
+        "Genesis 2:17",
+        "Genesis 2:18"
+      ]
+    },
+    {
+      "rank": 8,
+      "key": "אֲשֶׁר",
+      "strongs": "H0834A",
+      "strongsAll": [
+        "H0834A"
+      ],
+      "lemma": "אֲשֶׁר",
+      "displayLemma": "אֲשֶׁר",
+      "translit": "'a.Sher",
+      "gloss": "which",
+      "courseGloss": "who, which, that",
+      "partOfSpeech": "Particle",
+      "category": "Particle · relative",
+      "properName": false,
+      "commonMorph": "HTr",
+      "frequency": 4952,
+      "exampleRefs": [
+        "Genesis 1:7",
+        "Genesis 1:11",
+        "Genesis 1:12"
+      ]
+    },
+    {
+      "rank": 9,
+      "key": "בֵּן",
+      "strongs": "H1121A",
+      "strongsAll": [
+        "H1121A",
+        "H1121G",
+        "H1121L",
+        "H1121H",
+        "H1121I",
+        "H1121K",
+        "H1121J",
+        "H1122"
+      ],
+      "lemma": "בֵּן",
+      "displayLemma": "בֵּן",
+      "translit": "Ben",
+      "gloss": "son",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmpc",
+      "frequency": 4940,
+      "exampleRefs": [
+        "Genesis 3:16",
+        "Psalms 2:7",
+        "Psalms 2:12"
+      ]
+    },
+    {
+      "rank": 10,
+      "key": "כִּי",
+      "strongs": "H3588A",
+      "strongsAll": [
+        "H3588A",
+        "H3587"
+      ],
+      "lemma": "כִּי",
+      "displayLemma": "כִּי",
+      "translit": "ki",
+      "gloss": "for",
+      "courseGloss": "that, because, for, when",
+      "partOfSpeech": "Particle",
+      "category": "Particle · conditional",
+      "properName": false,
+      "commonMorph": "HTc",
+      "frequency": 4337,
+      "exampleRefs": [
+        "Genesis 1:4",
+        "Genesis 1:10",
+        "Genesis 1:12"
+      ]
+    },
+    {
+      "rank": 11,
+      "key": "הָיָה",
+      "strongs": "H1961",
+      "strongsAll": [
+        "H1961"
+      ],
+      "lemma": "הָיָה",
+      "displayLemma": "הָיָה",
+      "translit": "ha.Yah",
+      "gloss": "to be",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqw3ms",
+      "frequency": 3562,
+      "exampleRefs": [
+        "Genesis 1:2",
+        "Genesis 1:3",
+        "Genesis 1:5"
+      ]
+    },
+    {
+      "rank": 12,
+      "key": "עָשָׂה",
+      "strongs": "H6213A",
+      "strongsAll": [
+        "H6213A",
+        "H6213H",
+        "H6213I",
+        "H6213J",
+        "H6213B"
+      ],
+      "lemma": "עָשָׂה",
+      "displayLemma": "עָשָׂה",
+      "translit": "'a.Sah",
+      "gloss": "to make",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · perfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqp3ms",
+      "frequency": 2629,
+      "exampleRefs": [
+        "Genesis 1:7",
+        "Genesis 1:11",
+        "Genesis 1:12"
+      ]
+    },
+    {
+      "rank": 13,
+      "key": "אֱלֹהִים",
+      "strongs": "H0430G",
+      "strongsAll": [
+        "H0430G",
+        "H0430J",
+        "H0430H",
+        "H0430I"
+      ],
+      "lemma": "אֱלֹהִים",
+      "displayLemma": "אֱלֹהִים",
+      "translit": "'E.lo.Him",
+      "gloss": "God",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmpc",
+      "frequency": 2603,
+      "exampleRefs": [
+        "Genesis 1:1",
+        "Genesis 1:2",
+        "Genesis 1:3"
+      ]
+    },
+    {
+      "rank": 14,
+      "key": "בּוֹא",
+      "strongs": "H0935G",
+      "strongsAll": [
+        "H0935G",
+        "H0935P",
+        "H0935I",
+        "H0935K",
+        "H0935M",
+        "H0935H",
+        "H0935J",
+        "H0935N",
+        "H0935L",
+        "H0935O"
+      ],
+      "lemma": "בּוֹא",
+      "displayLemma": "בּוֹא",
+      "translit": "Bo'",
+      "gloss": "to come (in)",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · infinitive",
+      "properName": false,
+      "commonMorph": "HVqcc",
+      "frequency": 2572,
+      "exampleRefs": [
+        "Genesis 2:19",
+        "Genesis 2:22",
+        "Psalms 5:7"
+      ]
+    },
+    {
+      "rank": 15,
+      "key": "מֶלֶךְ",
+      "strongs": "H4428G",
+      "strongsAll": [
+        "H4428G",
+        "H4428L",
+        "H4428K",
+        "H4428I",
+        "H4429",
+        "H4428J"
+      ],
+      "lemma": "מֶ֫לֶךְ",
+      "displayLemma": "מֶלֶךְ",
+      "translit": "Me.lekh",
+      "gloss": "king",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 2525,
+      "exampleRefs": [
+        "Psalms 2:2",
+        "Psalms 2:6",
+        "Psalms 2:10"
+      ]
+    },
+    {
+      "rank": 16,
+      "key": "יִשְׂרָאֵל",
+      "strongs": "H3478",
+      "strongsAll": [
+        "H3478"
+      ],
+      "lemma": "יִשְׂרָאֵל",
+      "displayLemma": "יִשְׂרָאֵל",
+      "translit": "Yis.ra.'El",
+      "gloss": "Israel",
+      "partOfSpeech": "Noun",
+      "category": "Noun · proper name",
+      "properName": true,
+      "commonMorph": "HNpl",
+      "frequency": 2508,
+      "exampleRefs": [
+        "Psalms 14:7",
+        "Psalms 22:3",
+        "Psalms 22:23"
+      ]
+    },
+    {
+      "rank": 17,
+      "key": "אֶרֶץ",
+      "strongs": "H0776G",
+      "strongsAll": [
+        "H0776G",
+        "H0776H"
+      ],
+      "lemma": "אֶ֫רֶץ",
+      "displayLemma": "אֶרֶץ",
+      "translit": "'E.retz",
+      "gloss": "land",
+      "courseGloss": "earth, land",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcfsa",
+      "frequency": 2504,
+      "exampleRefs": [
+        "Genesis 1:1",
+        "Genesis 1:2",
+        "Genesis 1:10"
+      ]
+    },
+    {
+      "rank": 18,
+      "key": "יוֹם",
+      "strongs": "H3117G",
+      "strongsAll": [
+        "H3117G",
+        "H3117L",
+        "H3117J",
+        "H3117K",
+        "H3117I",
+        "H3117H"
+      ],
+      "lemma": "יוֹם",
+      "displayLemma": "יוֹם",
+      "translit": "Yom",
+      "gloss": "day",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 2306,
+      "exampleRefs": [
+        "Genesis 1:5",
+        "Genesis 1:8",
+        "Genesis 1:13"
+      ]
+    },
+    {
+      "rank": 19,
+      "key": "פָּנֶה",
+      "strongs": "H6440G",
+      "strongsAll": [
+        "H6440G",
+        "H6440H",
+        "H6440J",
+        "H6440L",
+        "H6440I",
+        "H6440N",
+        "H6440K",
+        "H6440M"
+      ],
+      "lemma": "פָּנֶה",
+      "displayLemma": "פָּנִים",
+      "displayNote": "always plural",
+      "translit": "pa.Nim",
+      "gloss": "face",
+      "courseGloss": "face; (with a preposition) before",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmpc",
+      "frequency": 2127,
+      "exampleRefs": [
+        "Genesis 1:2",
+        "Genesis 1:20",
+        "Genesis 1:29"
+      ]
+    },
+    {
+      "rank": 20,
+      "key": "בַּיִת",
+      "strongs": "H1004B",
+      "strongsAll": [
+        "H1004B",
+        "H1004M",
+        "H1004Q",
+        "H1004P",
+        "H1004O",
+        "H1004N",
+        "H1004K",
+        "H1004G",
+        "H1004I",
+        "H1004A",
+        "H1004H",
+        "H1004J"
+      ],
+      "lemma": "בַּ֫יִת",
+      "displayLemma": "בַּיִת",
+      "translit": "Ba.yit",
+      "gloss": "house",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 2045,
+      "exampleRefs": [
+        "Psalms 5:7",
+        "Psalms 23:6",
+        "Psalms 26:8"
+      ]
+    },
+    {
+      "rank": 21,
+      "key": "נָתַן",
+      "strongs": "H5414G",
+      "strongsAll": [
+        "H5414G",
+        "H5414H",
+        "H5414I",
+        "H5414O",
+        "H5414K",
+        "H5414N",
+        "H5414M",
+        "H5414Q",
+        "H5414P",
+        "H5414L",
+        "H5414J"
+      ],
+      "lemma": "נָתַן",
+      "displayLemma": "נָתַן",
+      "translit": "na.Tan",
+      "gloss": "to give",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqw3ms",
+      "frequency": 2011,
+      "exampleRefs": [
+        "Genesis 1:17",
+        "Genesis 1:29",
+        "Genesis 3:6"
+      ]
+    },
+    {
+      "rank": 22,
+      "key": "הוּא",
+      "strongs": "H1931",
+      "strongsAll": [
+        "H1931"
+      ],
+      "lemma": "הוּא",
+      "displayLemma": "הוּא",
+      "translit": "Hu'",
+      "gloss": "he/she/it",
+      "courseGloss": "he, it; that",
+      "partOfSpeech": "Pronoun",
+      "category": "Pronoun · personal",
+      "properName": false,
+      "commonMorph": "HPp3ms",
+      "frequency": 1878,
+      "exampleRefs": [
+        "Genesis 2:11",
+        "Genesis 2:12",
+        "Genesis 2:13"
+      ]
+    },
+    {
+      "rank": 23,
+      "key": "עַם",
+      "strongs": "H5971A",
+      "strongsAll": [
+        "H5971A",
+        "H5971K",
+        "H5971B",
+        "H5971H",
+        "H5971I",
+        "H5971L"
+      ],
+      "lemma": "עַם",
+      "displayLemma": "עַם",
+      "translit": "'am",
+      "gloss": "people",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 1873,
+      "exampleRefs": [
+        "Psalms 3:6",
+        "Psalms 3:8",
+        "Psalms 7:8"
+      ]
+    },
+    {
+      "rank": 24,
+      "key": "אִישׁ",
+      "strongs": "H0376G",
+      "strongsAll": [
+        "H0376G",
+        "H0376I",
+        "H0376H"
+      ],
+      "lemma": "אִישׁ",
+      "displayLemma": "אִישׁ",
+      "translit": "'ish",
+      "gloss": "man",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 1663,
+      "exampleRefs": [
+        "Genesis 2:23",
+        "Genesis 2:24",
+        "Genesis 3:6"
+      ]
+    },
+    {
+      "rank": 25,
+      "key": "יָד",
+      "strongs": "H3027G",
+      "strongsAll": [
+        "H3027G",
+        "H3027H",
+        "H3027I",
+        "H3027J",
+        "H3027K",
+        "H3027S",
+        "H3027W",
+        "H3027R",
+        "H3027L",
+        "H3027T",
+        "H3027M",
+        "H3027Q",
+        "H3027U",
+        "H3027X",
+        "H3027P",
+        "H3027V",
+        "H3027O",
+        "H3027N"
+      ],
+      "lemma": "יָד",
+      "displayLemma": "יָד",
+      "translit": "ya.D",
+      "gloss": "hand",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcbsc",
+      "frequency": 1619,
+      "exampleRefs": [
+        "Genesis 3:22",
+        "Psalms 8:6",
+        "Psalms 10:12"
+      ]
+    },
+    {
+      "rank": 26,
+      "key": "הָלַךְ",
+      "strongs": "H1980G",
+      "strongsAll": [
+        "H1980G",
+        "H1980I",
+        "H1980N",
+        "H1980K",
+        "H1980H",
+        "H1980L",
+        "H1980J",
+        "H1980M",
+        "H1980O"
+      ],
+      "lemma": "הָלַךְ",
+      "displayLemma": "הָלַךְ",
+      "translit": "ha.Lakh",
+      "gloss": "to go",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqw3ms",
+      "frequency": 1549,
+      "exampleRefs": [
+        "Genesis 2:14",
+        "Genesis 3:8",
+        "Genesis 3:14"
+      ]
+    },
+    {
+      "rank": 27,
+      "key": "דָּבָר",
+      "strongs": "H1697G",
+      "strongsAll": [
+        "H1697G",
+        "H1697I",
+        "H1697K",
+        "H1697O",
+        "H1697H",
+        "H1697M",
+        "H1697L",
+        "H1697J",
+        "H1697N"
+      ],
+      "lemma": "דָּבָר",
+      "displayLemma": "דָּבָר",
+      "translit": "da.Var",
+      "gloss": "word",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 1442,
+      "exampleRefs": [
+        "Psalms 7:0",
+        "Psalms 17:4",
+        "Psalms 18:0"
+      ]
+    },
+    {
+      "rank": 28,
+      "key": "רָאָה",
+      "strongs": "H7200G",
+      "strongsAll": [
+        "H7200G",
+        "H7200I",
+        "H7200H",
+        "H7200J",
+        "H7200L",
+        "H7200K",
+        "H7200M",
+        "H7200N",
+        "H7201"
+      ],
+      "lemma": "רָאָה",
+      "displayLemma": "רָאָה",
+      "translit": "ra.'Ah",
+      "gloss": "to see",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqw3ms",
+      "frequency": 1301,
+      "exampleRefs": [
+        "Genesis 1:4",
+        "Genesis 1:9",
+        "Genesis 1:10"
+      ]
+    },
+    {
+      "rank": 29,
+      "key": "עַד",
+      "strongs": "H5704",
+      "strongsAll": [
+        "H5704"
+      ],
+      "lemma": "עַד",
+      "displayLemma": "עַד",
+      "translit": "'ad",
+      "gloss": "till",
+      "courseGloss": "until, as far as",
+      "partOfSpeech": "Preposition",
+      "category": "Preposition",
+      "properName": false,
+      "commonMorph": "HR",
+      "frequency": 1261,
+      "exampleRefs": [
+        "Genesis 3:19",
+        "Psalms 4:2",
+        "Psalms 6:3"
+      ]
+    },
+    {
+      "rank": 30,
+      "key": "אָב",
+      "strongs": "H0001G",
+      "strongsAll": [
+        "H0001G",
+        "H0001H",
+        "H0001I"
+      ],
+      "lemma": "אָב",
+      "displayLemma": "אָב",
+      "translit": "'Av",
+      "gloss": "father",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 1213,
+      "exampleRefs": [
+        "Genesis 2:24",
+        "Psalms 22:4",
+        "Psalms 27:10"
+      ]
+    },
+    {
+      "rank": 31,
+      "key": "מִן",
+      "strongs": "H4480A",
+      "strongsAll": [
+        "H4480A"
+      ],
+      "lemma": "מִן־",
+      "displayLemma": "מִן",
+      "translit": "min",
+      "gloss": "from",
+      "partOfSpeech": "Preposition",
+      "category": "Preposition",
+      "properName": false,
+      "commonMorph": "HR",
+      "frequency": 1187,
+      "exampleRefs": [
+        "Genesis 2:6",
+        "Genesis 2:7",
+        "Genesis 2:9"
+      ]
+    },
+    {
+      "rank": 32,
+      "key": "זֶה",
+      "strongs": "H2088",
+      "strongsAll": [
+        "H2088"
+      ],
+      "lemma": "זֶה",
+      "displayLemma": "זֶה",
+      "translit": "zeh",
+      "gloss": "this",
+      "partOfSpeech": "Particle",
+      "category": "Particle · demonstrative",
+      "properName": false,
+      "commonMorph": "HTm",
+      "frequency": 1179,
+      "exampleRefs": [
+        "Psalms 24:6",
+        "Psalms 24:8",
+        "Psalms 24:10"
+      ]
+    },
+    {
+      "rank": 33,
+      "key": "שָׁמַע",
+      "strongs": "H8085G",
+      "strongsAll": [
+        "H8085G",
+        "H8085H",
+        "H8085I",
+        "H8085J",
+        "H8085K",
+        "H8085L"
+      ],
+      "lemma": "שָׁמַע",
+      "displayLemma": "שָׁמַע",
+      "translit": "sha.Ma'",
+      "gloss": "to hear",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · infinitive",
+      "properName": false,
+      "commonMorph": "HVqcc",
+      "frequency": 1160,
+      "exampleRefs": [
+        "Genesis 3:8",
+        "Genesis 3:10",
+        "Genesis 3:17"
+      ]
+    },
+    {
+      "rank": 34,
+      "key": "דָבַר",
+      "strongs": "H1696G",
+      "strongsAll": [
+        "H1696G",
+        "H1696I",
+        "H1696H"
+      ],
+      "lemma": "דָבַר",
+      "displayLemma": "דִּבֶּר",
+      "displayNote": "used in the Piel stem",
+      "translit": "di.Ber",
+      "gloss": "to speak",
+      "courseGloss": "to speak",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Piel (intensive/resultive/transtive, active) · perfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVpp3ms",
+      "frequency": 1142,
+      "exampleRefs": [
+        "Psalms 2:5",
+        "Psalms 5:6",
+        "Psalms 12:2"
+      ]
+    },
+    {
+      "rank": 35,
+      "key": "עִיר",
+      "strongs": "H5892B",
+      "strongsAll": [
+        "H5892B",
+        "H5892A",
+        "H5892G",
+        "H5892H",
+        "H5892I",
+        "H5893G",
+        "H5893H"
+      ],
+      "lemma": "עִיר",
+      "displayLemma": "עִיר",
+      "translit": "'Ir",
+      "gloss": "city",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcfsa",
+      "frequency": 1092,
+      "exampleRefs": [
+        "Psalms 9:6",
+        "Psalms 31:21",
+        "Psalms 46:4"
+      ]
+    },
+    {
+      "rank": 36,
+      "key": "יָשַׁב",
+      "strongs": "H3427",
+      "strongsAll": [
+        "H3427"
+      ],
+      "lemma": "יָשַׁב",
+      "displayLemma": "יָשַׁב",
+      "translit": "ya.Shav",
+      "gloss": "to dwell",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · participle",
+      "properName": false,
+      "commonMorph": "HVqrmpc",
+      "frequency": 1079,
+      "exampleRefs": [
+        "Psalms 1:1",
+        "Psalms 2:4",
+        "Psalms 4:8"
+      ]
+    },
+    {
+      "rank": 37,
+      "key": "דָּוִד",
+      "strongs": "H1732",
+      "strongsAll": [
+        "H1732"
+      ],
+      "lemma": "דָּוִד",
+      "displayLemma": "דָּוִד",
+      "translit": "da.Vid",
+      "gloss": "David",
+      "partOfSpeech": "Noun",
+      "category": "Noun · proper name",
+      "properName": true,
+      "commonMorph": "HNpm",
+      "frequency": 1075,
+      "exampleRefs": [
+        "Psalms 3:0",
+        "Psalms 4:0",
+        "Psalms 5:0"
+      ]
+    },
+    {
+      "rank": 38,
+      "key": "יָצָא",
+      "strongs": "H3318G",
+      "strongsAll": [
+        "H3318G",
+        "H3318H",
+        "H3318L",
+        "H3318M",
+        "H3318I",
+        "H3318N",
+        "H3318O",
+        "H3318J",
+        "H3318P",
+        "H3318K"
+      ],
+      "lemma": "יָצָא",
+      "displayLemma": "יָצָא",
+      "translit": "ya.Tza'",
+      "gloss": "to come out",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqw3ms",
+      "frequency": 1067,
+      "exampleRefs": [
+        "Genesis 1:12",
+        "Genesis 1:24",
+        "Genesis 2:10"
+      ]
+    },
+    {
+      "rank": 39,
+      "key": "שׁוּב",
+      "strongs": "H7725G",
+      "strongsAll": [
+        "H7725G",
+        "H7725H",
+        "H7725I",
+        "H7725O",
+        "H7725J",
+        "H7725K",
+        "H7725M",
+        "H7725N",
+        "H7725L"
+      ],
+      "lemma": "שׁוּב",
+      "displayLemma": "שׁוּב",
+      "translit": "Shuv",
+      "gloss": "to return",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqw3ms",
+      "frequency": 1057,
+      "exampleRefs": [
+        "Genesis 3:19",
+        "Psalms 6:4",
+        "Psalms 6:10"
+      ]
+    },
+    {
+      "rank": 40,
+      "key": "עִם",
+      "strongs": "H5973A",
+      "strongsAll": [
+        "H5973A"
+      ],
+      "lemma": "עִם",
+      "displayLemma": "עִם",
+      "translit": "'im",
+      "gloss": "with",
+      "partOfSpeech": "Preposition",
+      "category": "Preposition",
+      "properName": false,
+      "commonMorph": "HR",
+      "frequency": 981,
+      "exampleRefs": [
+        "Genesis 3:6",
+        "Psalms 18:23",
+        "Psalms 18:25"
+      ]
+    },
+    {
+      "rank": 41,
+      "key": "אֶחָד",
+      "strongs": "H0259",
+      "strongsAll": [
+        "H0259"
+      ],
+      "lemma": "אֶחָד",
+      "displayLemma": "אֶחָד",
+      "translit": "'e.Chad",
+      "gloss": "one",
+      "partOfSpeech": "Adjective",
+      "category": "Adjective · numerical",
+      "properName": false,
+      "commonMorph": "HAcfsa",
+      "frequency": 971,
+      "exampleRefs": [
+        "Genesis 1:5",
+        "Genesis 1:9",
+        "Genesis 2:11"
+      ]
+    },
+    {
+      "rank": 42,
+      "key": "לָקַח",
+      "strongs": "H3947G",
+      "strongsAll": [
+        "H3947G",
+        "H3947H",
+        "H3947I",
+        "H3947J",
+        "H3947K",
+        "H3947L"
+      ],
+      "lemma": "לָקַח",
+      "displayLemma": "לָקַח",
+      "translit": "la.Kach",
+      "gloss": "to take",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqw3ms",
+      "frequency": 966,
+      "exampleRefs": [
+        "Genesis 2:15",
+        "Genesis 2:21",
+        "Genesis 2:22"
+      ]
+    },
+    {
+      "rank": 43,
+      "key": "יָדַע",
+      "strongs": "H3045",
+      "strongsAll": [
+        "H3045"
+      ],
+      "lemma": "יָדַע",
+      "displayLemma": "יָדַע",
+      "translit": "ya.Da'",
+      "gloss": "to know",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · perfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqp1cs",
+      "frequency": 945,
+      "exampleRefs": [
+        "Genesis 3:5",
+        "Genesis 3:7",
+        "Genesis 3:22"
+      ]
+    },
+    {
+      "rank": 44,
+      "key": "אֵת (H0854)",
+      "strongs": "H0854",
+      "strongsAll": [
+        "H0854"
+      ],
+      "lemma": "אֵת",
+      "displayLemma": "אֵת",
+      "displayNote": "a different word from the object marker",
+      "translit": "'Et",
+      "gloss": "with",
+      "courseGloss": "with",
+      "partOfSpeech": "Preposition",
+      "category": "Preposition",
+      "properName": false,
+      "commonMorph": "HR",
+      "frequency": 929,
+      "exampleRefs": [
+        "Psalms 12:2",
+        "Psalms 12:4",
+        "Psalms 16:11"
+      ]
+    },
+    {
+      "rank": 45,
+      "key": "אִם",
+      "strongs": "H0518A",
+      "strongsAll": [
+        "H0518A",
+        "H0518H",
+        "H0518I",
+        "H0518J"
+      ],
+      "lemma": "אִם",
+      "displayLemma": "אִם",
+      "translit": "'im",
+      "gloss": "if",
+      "partOfSpeech": "Particle",
+      "category": "Particle · conditional",
+      "properName": false,
+      "commonMorph": "HTc",
+      "frequency": 920,
+      "exampleRefs": [
+        "Psalms 7:3",
+        "Psalms 7:4",
+        "Psalms 7:12"
+      ]
+    },
+    {
+      "rank": 46,
+      "key": "עַיִן",
+      "strongs": "H5869A",
+      "strongsAll": [
+        "H5869A",
+        "H5869H",
+        "H5869I",
+        "H5869J",
+        "H5869M",
+        "H5871H",
+        "H5869B",
+        "H5869K",
+        "H5869G",
+        "H5871G"
+      ],
+      "lemma": "עַ֫יִן",
+      "displayLemma": "עַיִן",
+      "translit": "'A.yin",
+      "gloss": "eye",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcfdc",
+      "frequency": 892,
+      "exampleRefs": [
+        "Genesis 3:5",
+        "Genesis 3:6",
+        "Genesis 3:7"
+      ]
+    },
+    {
+      "rank": 47,
+      "key": "עָלָה",
+      "strongs": "H5927G",
+      "strongsAll": [
+        "H5927G",
+        "H5927H",
+        "H5927I",
+        "H5927J",
+        "H5927M",
+        "H5927L",
+        "H5927K"
+      ],
+      "lemma": "עָלָה",
+      "displayLemma": "עָלָה",
+      "translit": "'a.Lah",
+      "gloss": "to ascend",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqw3ms",
+      "frequency": 890,
+      "exampleRefs": [
+        "Genesis 2:6",
+        "Psalms 18:8",
+        "Psalms 24:3"
+      ]
+    },
+    {
+      "rank": 48,
+      "key": "שֵׁם",
+      "strongs": "H8034",
+      "strongsAll": [
+        "H8034",
+        "H8035"
+      ],
+      "lemma": "שֵׁם",
+      "displayLemma": "שֵׁם",
+      "translit": "Shem",
+      "gloss": "name",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 881,
+      "exampleRefs": [
+        "Genesis 2:11",
+        "Genesis 2:13",
+        "Genesis 2:14"
+      ]
+    },
+    {
+      "rank": 49,
+      "key": "שָׁנָה",
+      "strongs": "H8141",
+      "strongsAll": [
+        "H8141"
+      ],
+      "lemma": "שָׁנָה",
+      "displayLemma": "שָׁנָה",
+      "translit": "sha.Nah",
+      "gloss": "year",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcfsa",
+      "frequency": 877,
+      "exampleRefs": [
+        "Genesis 1:14",
+        "Psalms 31:10",
+        "Psalms 61:6"
+      ]
+    },
+    {
+      "rank": 50,
+      "key": "אֲנִי",
+      "strongs": "H0589",
+      "strongsAll": [
+        "H0589"
+      ],
+      "lemma": "אֲנִי, אָֽנֹכִ֫י",
+      "lexiconLemma": "אֲנִי",
+      "displayLemma": "אֲנִי",
+      "translit": "'a.Ni",
+      "gloss": "I",
+      "partOfSpeech": "Pronoun",
+      "category": "Pronoun · personal",
+      "properName": false,
+      "commonMorph": "HPp1bs",
+      "frequency": 874,
+      "exampleRefs": [
+        "Psalms 2:6",
+        "Psalms 2:7",
+        "Psalms 3:5"
+      ]
+    },
+    {
+      "rank": 51,
+      "key": "שָׁלַח",
+      "strongs": "H7971G",
+      "strongsAll": [
+        "H7971G",
+        "H7971H",
+        "H7971K",
+        "H7971I",
+        "H7971L",
+        "H7971J",
+        "H7971M"
+      ],
+      "lemma": "שָׁלַח",
+      "displayLemma": "שָׁלַח",
+      "translit": "sha.Lach",
+      "gloss": "to send",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqw3ms",
+      "frequency": 847,
+      "exampleRefs": [
+        "Genesis 3:22",
+        "Genesis 3:23",
+        "Psalms 18:14"
+      ]
+    },
+    {
+      "rank": 52,
+      "key": "הִנֵּה",
+      "strongs": "H2009",
+      "strongsAll": [
+        "H2009"
+      ],
+      "lemma": "הִנֵּה",
+      "displayLemma": "הִנֵּה",
+      "translit": "hi.Neh",
+      "gloss": "behold",
+      "courseGloss": "look!, here is",
+      "partOfSpeech": "Particle",
+      "category": "Particle · interjection",
+      "properName": false,
+      "commonMorph": "HTj",
+      "frequency": 843,
+      "exampleRefs": [
+        "Genesis 1:29",
+        "Genesis 1:31",
+        "Psalms 7:14"
+      ]
+    },
+    {
+      "rank": 53,
+      "key": "מוּת",
+      "strongs": "H4191",
+      "strongsAll": [
+        "H4191"
+      ],
+      "lemma": "מוּת",
+      "displayLemma": "מוּת",
+      "translit": "Mut",
+      "gloss": "to die",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqw3ms",
+      "frequency": 840,
+      "exampleRefs": [
+        "Genesis 2:17",
+        "Genesis 3:3",
+        "Genesis 3:4"
+      ]
+    },
+    {
+      "rank": 54,
+      "key": "שָׁם",
+      "strongs": "H8033G",
+      "strongsAll": [
+        "H8033G",
+        "H8033H"
+      ],
+      "lemma": "שָׁם",
+      "displayLemma": "שָׁם",
+      "translit": "sham",
+      "gloss": "there",
+      "partOfSpeech": "Adverb",
+      "category": "Adverb",
+      "properName": false,
+      "commonMorph": "HD",
+      "frequency": 834,
+      "exampleRefs": [
+        "Genesis 2:8",
+        "Genesis 2:10",
+        "Genesis 2:11"
+      ]
+    },
+    {
+      "rank": 55,
+      "key": "יְהוּדָה",
+      "strongs": "H3063G",
+      "strongsAll": [
+        "H3063G",
+        "H3063N",
+        "H3063H",
+        "H3063I",
+        "H3063J",
+        "H3063K",
+        "H3063L",
+        "H3063M",
+        "H3063O"
+      ],
+      "lemma": "יְהוּדָה",
+      "displayLemma": "יְהוּדָה",
+      "translit": "ye.hu.Dah",
+      "gloss": "Judah",
+      "partOfSpeech": "Noun",
+      "category": "Noun · proper name",
+      "properName": true,
+      "commonMorph": "HNpl",
+      "frequency": 820,
+      "exampleRefs": [
+        "Psalms 48:11",
+        "Psalms 60:7",
+        "Psalms 63:0"
+      ]
+    },
+    {
+      "rank": 56,
+      "key": "אָכַל",
+      "strongs": "H0398",
+      "strongsAll": [
+        "H0398"
+      ],
+      "lemma": "אָכַל",
+      "displayLemma": "אָכַל",
+      "translit": "'a.Khal",
+      "gloss": "to eat",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · infinitive",
+      "properName": false,
+      "commonMorph": "HVqcc",
+      "frequency": 810,
+      "exampleRefs": [
+        "Genesis 2:16",
+        "Genesis 2:17",
+        "Genesis 3:1"
+      ]
+    },
+    {
+      "rank": 57,
+      "key": "עֶבֶד",
+      "strongs": "H5650",
+      "strongsAll": [
+        "H5650",
+        "H5651G",
+        "H5651H"
+      ],
+      "lemma": "עֶ֫בֶד",
+      "displayLemma": "עֶבֶד",
+      "translit": "'E.ved",
+      "gloss": "servant/slave",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 807,
+      "exampleRefs": [
+        "Psalms 18:0",
+        "Psalms 19:11",
+        "Psalms 19:13"
+      ]
+    },
+    {
+      "rank": 58,
+      "key": "אַיִן",
+      "strongs": "H0369",
+      "strongsAll": [
+        "H0369"
+      ],
+      "lemma": "אַ֫יִן",
+      "displayLemma": "אַיִן",
+      "translit": "'A.yin",
+      "gloss": "nothing",
+      "courseGloss": "there is not; without",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 789,
+      "exampleRefs": [
+        "Genesis 2:5",
+        "Psalms 3:2",
+        "Psalms 5:9"
+      ]
+    },
+    {
+      "rank": 59,
+      "key": "אִשָּׁה",
+      "strongs": "H0802H",
+      "strongsAll": [
+        "H0802H",
+        "H0802G",
+        "H0802I"
+      ],
+      "lemma": "אִשָּׁה",
+      "displayLemma": "אִשָּׁה",
+      "translit": "'i.Shah",
+      "gloss": "woman",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcfsa",
+      "frequency": 781,
+      "exampleRefs": [
+        "Genesis 2:22",
+        "Genesis 2:23",
+        "Genesis 2:24"
+      ]
+    },
+    {
+      "rank": 60,
+      "key": "גַּם",
+      "strongs": "H1571",
+      "strongsAll": [
+        "H1571"
+      ],
+      "lemma": "גַּם",
+      "displayLemma": "גַּם",
+      "translit": "gam",
+      "gloss": "also",
+      "partOfSpeech": "Adverb",
+      "category": "Adverb",
+      "properName": false,
+      "commonMorph": "HD",
+      "frequency": 769,
+      "exampleRefs": [
+        "Genesis 3:6",
+        "Genesis 3:22",
+        "Psalms 8:7"
+      ]
+    },
+    {
+      "rank": 61,
+      "key": "שְׁנַיִם",
+      "strongs": "H8147",
+      "strongsAll": [
+        "H8147"
+      ],
+      "lemma": "שְׁנַ֫יִם",
+      "displayLemma": "שְׁנַיִם",
+      "translit": "she.Na.yim",
+      "gloss": "two",
+      "partOfSpeech": "Adjective",
+      "category": "Adjective · numerical",
+      "properName": false,
+      "commonMorph": "HAcbdc",
+      "frequency": 769,
+      "exampleRefs": [
+        "Genesis 1:16",
+        "Genesis 2:25",
+        "Genesis 3:7"
+      ]
+    },
+    {
+      "rank": 62,
+      "key": "מֹשֶׁה",
+      "strongs": "H4872",
+      "strongsAll": [
+        "H4872"
+      ],
+      "lemma": "מֹשֶׁה",
+      "displayLemma": "מֹשֶׁה",
+      "translit": "mo.Sheh",
+      "gloss": "Moses",
+      "partOfSpeech": "Noun",
+      "category": "Noun · proper name",
+      "properName": true,
+      "commonMorph": "HNpm",
+      "frequency": 766,
+      "exampleRefs": [
+        "Psalms 77:20",
+        "Psalms 90:0",
+        "Psalms 99:6"
+      ]
+    },
+    {
+      "rank": 63,
+      "key": "כֵּן",
+      "strongs": "H3651C",
+      "strongsAll": [
+        "H3651C",
+        "H3651A"
+      ],
+      "lemma": "כֵּן",
+      "displayLemma": "כֵּן",
+      "translit": "ken",
+      "gloss": "so",
+      "courseGloss": "so, thus",
+      "partOfSpeech": "Adverb",
+      "category": "Adverb",
+      "properName": false,
+      "commonMorph": "HD",
+      "frequency": 761,
+      "exampleRefs": [
+        "Genesis 1:7",
+        "Genesis 1:9",
+        "Genesis 1:11"
+      ]
+    },
+    {
+      "rank": 64,
+      "key": "נֶפֶשׁ",
+      "strongs": "H5315G",
+      "strongsAll": [
+        "H5315G",
+        "H5315H",
+        "H5315I",
+        "H5315J",
+        "H5315L",
+        "H5315K",
+        "H5315M",
+        "H5315N"
+      ],
+      "lemma": "נֶ֫פֶשׁ",
+      "displayLemma": "נֶפֶשׁ",
+      "translit": "Ne.fesh",
+      "gloss": "soul",
+      "courseGloss": "life, soul, self",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcfsc",
+      "frequency": 754,
+      "exampleRefs": [
+        "Genesis 1:20",
+        "Genesis 1:21",
+        "Genesis 1:24"
+      ]
+    },
+    {
+      "rank": 65,
+      "key": "מָה",
+      "strongs": "H4100",
+      "strongsAll": [
+        "H4100"
+      ],
+      "lemma": "מָה",
+      "displayLemma": "מָה",
+      "translit": "mah",
+      "gloss": "what?",
+      "partOfSpeech": "Pronoun",
+      "category": "Pronoun · interrogative",
+      "properName": false,
+      "commonMorph": "HPi",
+      "frequency": 753,
+      "exampleRefs": [
+        "Genesis 2:19",
+        "Genesis 3:13",
+        "Psalms 2:1"
+      ]
+    },
+    {
+      "rank": 66,
+      "key": "כֹּהֵן",
+      "strongs": "H3548",
+      "strongsAll": [
+        "H3548"
+      ],
+      "lemma": "כֹּהֵן",
+      "displayLemma": "כֹּהֵן",
+      "translit": "ko.Hen",
+      "gloss": "priest",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 750,
+      "exampleRefs": [
+        "Psalms 78:64",
+        "Psalms 99:6",
+        "Psalms 110:4"
+      ]
+    },
+    {
+      "rank": 67,
+      "key": "אֵלֶּה",
+      "strongs": "H0428",
+      "strongsAll": [
+        "H0428"
+      ],
+      "lemma": "אֵ֫לֶּה",
+      "displayLemma": "אֵלֶּה",
+      "translit": "'E.leh",
+      "gloss": "these",
+      "partOfSpeech": "Particle",
+      "category": "Particle · demonstrative",
+      "properName": false,
+      "commonMorph": "HTm",
+      "frequency": 746,
+      "exampleRefs": [
+        "Genesis 2:4",
+        "Psalms 15:5",
+        "Psalms 20:7"
+      ]
+    },
+    {
+      "rank": 68,
+      "key": "אַתָּה",
+      "strongs": "H0859A",
+      "strongsAll": [
+        "H0859A"
+      ],
+      "lemma": "אַתָּ֫ה",
+      "displayLemma": "אַתָּה",
+      "translit": "'a.Tah",
+      "gloss": "you(m.s.)",
+      "partOfSpeech": "Pronoun",
+      "category": "Pronoun · personal",
+      "properName": false,
+      "commonMorph": "HPp2ms",
+      "frequency": 745,
+      "exampleRefs": [
+        "Genesis 3:11",
+        "Genesis 3:14",
+        "Genesis 3:15"
+      ]
+    },
+    {
+      "rank": 69,
+      "key": "קָרָא",
+      "strongs": "H7121G",
+      "strongsAll": [
+        "H7121G",
+        "H7121H",
+        "H7121I",
+        "H7121J"
+      ],
+      "lemma": "קָרָא",
+      "displayLemma": "קָרָא",
+      "translit": "ka.Ra'",
+      "gloss": "to call",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqw3ms",
+      "frequency": 733,
+      "exampleRefs": [
+        "Genesis 1:5",
+        "Genesis 1:8",
+        "Genesis 1:10"
+      ]
+    },
+    {
+      "rank": 70,
+      "key": "אַל",
+      "strongs": "H0408",
+      "strongsAll": [
+        "H0408"
+      ],
+      "lemma": "אַל",
+      "displayLemma": "אַל",
+      "translit": "'al",
+      "gloss": "not",
+      "partOfSpeech": "Particle",
+      "category": "Particle · negative",
+      "properName": false,
+      "commonMorph": "HTn",
+      "frequency": 724,
+      "exampleRefs": [
+        "Psalms 4:4",
+        "Psalms 6:1",
+        "Psalms 9:19"
+      ]
+    },
+    {
+      "rank": 71,
+      "key": "אַחַר",
+      "strongs": "H0310A",
+      "strongsAll": [
+        "H0310A"
+      ],
+      "lemma": "אַחַר",
+      "displayLemma": "אַחַר",
+      "translit": "'a.Char",
+      "gloss": "after",
+      "partOfSpeech": "Adjective",
+      "category": "Adjective · numerical",
+      "properName": false,
+      "commonMorph": "HAcmpc",
+      "frequency": 715,
+      "exampleRefs": [
+        "Psalms 45:14",
+        "Psalms 49:13",
+        "Psalms 49:17"
+      ]
+    },
+    {
+      "rank": 72,
+      "key": "דֶּרֶךְ",
+      "strongs": "H1870G",
+      "strongsAll": [
+        "H1870G",
+        "H1870L",
+        "H1870K",
+        "H1870J",
+        "H1870I",
+        "H1870H"
+      ],
+      "lemma": "דֶּ֫רֶךְ",
+      "displayLemma": "דֶּרֶךְ",
+      "translit": "De.rekh",
+      "gloss": "way",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcbsc",
+      "frequency": 708,
+      "exampleRefs": [
+        "Genesis 3:24",
+        "Psalms 1:1",
+        "Psalms 1:6"
+      ]
+    },
+    {
+      "rank": 73,
+      "key": "נָשָׂא",
+      "strongs": "H5375H",
+      "strongsAll": [
+        "H5375H",
+        "H5375G",
+        "H5375M",
+        "H5375Q",
+        "H5375N",
+        "H5375J",
+        "H5375P",
+        "H5375I",
+        "H5375W",
+        "H5375L",
+        "H5375U",
+        "H5375V",
+        "H5375O",
+        "H5375K",
+        "H5375R",
+        "H5375S",
+        "H5375T",
+        "H5375X"
+      ],
+      "lemma": "נָשָׂא",
+      "displayLemma": "נָשָׂא",
+      "translit": "na.Sa'",
+      "gloss": "to lift",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqw3mp",
+      "frequency": 656,
+      "exampleRefs": [
+        "Psalms 4:6",
+        "Psalms 7:6",
+        "Psalms 10:12"
+      ]
+    },
+    {
+      "rank": 74,
+      "key": "יְרוּשָׁלִַם",
+      "strongs": "H3389",
+      "strongsAll": [
+        "H3389"
+      ],
+      "lemma": "יְרוּשָׁלִַ֫ם, יְרוּשְׁלֵם",
+      "displayLemma": "יְרוּשָׁלִַם",
+      "translit": "ye.ru.sha.Lim",
+      "gloss": "Jerusalem",
+      "partOfSpeech": "Noun",
+      "category": "Noun · proper name",
+      "properName": true,
+      "commonMorph": "HNpl",
+      "frequency": 643,
+      "exampleRefs": [
+        "Psalms 51:18",
+        "Psalms 68:29",
+        "Psalms 79:1"
+      ]
+    },
+    {
+      "rank": 75,
+      "key": "מִצְרַיִם",
+      "strongs": "H4714G",
+      "strongsAll": [
+        "H4714G",
+        "H4714J",
+        "H4714H",
+        "H4714I"
+      ],
+      "lemma": "מִצְרַ֫יִם",
+      "displayLemma": "מִצְרַיִם",
+      "translit": "mitz.Ra.yim",
+      "gloss": "Egypt",
+      "partOfSpeech": "Noun",
+      "category": "Noun · proper name",
+      "properName": true,
+      "commonMorph": "HNpl",
+      "frequency": 641,
+      "exampleRefs": [
+        "Psalms 68:31",
+        "Psalms 78:12",
+        "Psalms 78:43"
+      ]
+    },
+    {
+      "rank": 76,
+      "key": "אָח",
+      "strongs": "H0251G",
+      "strongsAll": [
+        "H0251G",
+        "H0251H",
+        "H0251I",
+        "H0253",
+        "H0254"
+      ],
+      "lemma": "אָח",
+      "displayLemma": "אָח",
+      "translit": "'Ach",
+      "gloss": "brother",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmpc",
+      "frequency": 636,
+      "exampleRefs": [
+        "Psalms 22:22",
+        "Psalms 35:14",
+        "Psalms 49:7"
+      ]
+    },
+    {
+      "rank": 77,
+      "key": "קוּם",
+      "strongs": "H6965B",
+      "strongsAll": [
+        "H6965B",
+        "H6965I",
+        "H6965H",
+        "H6965J",
+        "H6965K"
+      ],
+      "lemma": "קוּם",
+      "displayLemma": "קוּם",
+      "translit": "kum",
+      "gloss": "to arise",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqw3ms",
+      "frequency": 627,
+      "exampleRefs": [
+        "Psalms 1:5",
+        "Psalms 3:1",
+        "Psalms 3:7"
+      ]
+    },
+    {
+      "rank": 78,
+      "key": "רֹאשׁ",
+      "strongs": "H7218A",
+      "strongsAll": [
+        "H7218A",
+        "H7218H",
+        "H7218I",
+        "H7218J",
+        "H7218K",
+        "H7219",
+        "H7218L",
+        "H7218B",
+        "H7220"
+      ],
+      "lemma": "רֹאשׁ",
+      "displayLemma": "רֹאשׁ",
+      "translit": "rosh",
+      "gloss": "head",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 613,
+      "exampleRefs": [
+        "Genesis 2:10",
+        "Genesis 3:15",
+        "Psalms 3:3"
+      ]
+    },
+    {
+      "rank": 79,
+      "key": "זֹאת",
+      "strongs": "H2063",
+      "strongsAll": [
+        "H2063"
+      ],
+      "lemma": "זֹאת",
+      "displayLemma": "זֹאת",
+      "translit": "zot",
+      "gloss": "this",
+      "partOfSpeech": "Particle",
+      "category": "Particle · demonstrative",
+      "properName": false,
+      "commonMorph": "HTm",
+      "frequency": 604,
+      "exampleRefs": [
+        "Genesis 2:23",
+        "Genesis 3:13",
+        "Genesis 3:14"
+      ]
+    },
+    {
+      "rank": 80,
+      "key": "לֵב",
+      "strongs": "H3820A",
+      "strongsAll": [
+        "H3820A",
+        "H3820B"
+      ],
+      "lemma": "לֵב",
+      "displayLemma": "לֵב",
+      "translit": "lev",
+      "gloss": "heart",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 595,
+      "exampleRefs": [
+        "Psalms 4:7",
+        "Psalms 7:10",
+        "Psalms 9:1"
+      ]
+    },
+    {
+      "rank": 81,
+      "key": "בַּת",
+      "strongs": "H1323G",
+      "strongsAll": [
+        "H1323G",
+        "H1323H",
+        "H1323I"
+      ],
+      "lemma": "בַּת",
+      "displayLemma": "בַּת",
+      "translit": "bat",
+      "gloss": "daughter",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcfsc",
+      "frequency": 588,
+      "exampleRefs": [
+        "Psalms 9:14",
+        "Psalms 17:8",
+        "Psalms 45:9"
+      ]
+    },
+    {
+      "rank": 82,
+      "key": "שׂוּם",
+      "strongs": "H7760A",
+      "strongsAll": [
+        "H7760A",
+        "H7760H",
+        "H7760K",
+        "H7760L",
+        "H7760I",
+        "H7760M",
+        "H7760J"
+      ],
+      "lemma": "שׂוּם",
+      "displayLemma": "שׂוּם",
+      "translit": "Sum",
+      "gloss": "to set",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqw3ms",
+      "frequency": 584,
+      "exampleRefs": [
+        "Genesis 2:8",
+        "Psalms 18:43",
+        "Psalms 19:4"
+      ]
+    },
+    {
+      "rank": 83,
+      "key": "מֵאָה",
+      "strongs": "H3967",
+      "strongsAll": [
+        "H3967",
+        "H3968"
+      ],
+      "lemma": "מֵאָה",
+      "displayLemma": "מֵאָה",
+      "translit": "me.'Ah",
+      "gloss": "hundred",
+      "partOfSpeech": "Adjective",
+      "category": "Adjective · numerical",
+      "properName": false,
+      "commonMorph": "HAcfpa",
+      "frequency": 583,
+      "exampleRefs": [
+        "Genesis 5:3",
+        "Genesis 5:4",
+        "Genesis 5:5"
+      ]
+    },
+    {
+      "rank": 84,
+      "key": "מַי",
+      "strongs": "H4325G",
+      "strongsAll": [
+        "H4325G",
+        "H4325H"
+      ],
+      "lemma": "מַי",
+      "displayLemma": "מַיִם",
+      "displayNote": "always plural",
+      "translit": "Ma.yim",
+      "gloss": "water",
+      "courseGloss": "water, waters",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmpa",
+      "frequency": 581,
+      "exampleRefs": [
+        "Genesis 1:2",
+        "Genesis 1:6",
+        "Genesis 1:7"
+      ]
+    },
+    {
+      "rank": 85,
+      "key": "כֹּה",
+      "strongs": "H3541",
+      "strongsAll": [
+        "H3541"
+      ],
+      "lemma": "כֹּה",
+      "displayLemma": "כֹּה",
+      "translit": "koh",
+      "gloss": "thus",
+      "partOfSpeech": "Adverb",
+      "category": "Adverb",
+      "properName": false,
+      "commonMorph": "HD",
+      "frequency": 577,
+      "exampleRefs": [
+        "Genesis 15:5",
+        "Genesis 22:5",
+        "Genesis 24:30"
+      ]
+    },
+    {
+      "rank": 86,
+      "key": "אֱנוֹשׁ",
+      "strongs": "H0582",
+      "strongsAll": [
+        "H0582",
+        "H0583"
+      ],
+      "lemma": "אֱנוֹשׁ",
+      "displayLemma": "אֱנוֹשׁ",
+      "translit": "'e.No.osh",
+      "gloss": "human",
+      "courseGloss": "man, mankind",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmpa",
+      "frequency": 573,
+      "exampleRefs": [
+        "Psalms 8:4",
+        "Psalms 9:19",
+        "Psalms 9:20"
+      ]
+    },
+    {
+      "rank": 87,
+      "key": "גּוֹי",
+      "strongs": "H1471A",
+      "strongsAll": [
+        "H1471A",
+        "H1471H",
+        "H1471G"
+      ],
+      "lemma": "גּוֹי",
+      "displayLemma": "גּוֹי",
+      "translit": "Goy",
+      "gloss": "nation",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmpa",
+      "frequency": 558,
+      "exampleRefs": [
+        "Psalms 2:1",
+        "Psalms 2:8",
+        "Psalms 9:5"
+      ]
+    },
+    {
+      "rank": 88,
+      "key": "עָבַר",
+      "strongs": "H5674A",
+      "strongsAll": [
+        "H5674A",
+        "H5674C",
+        "H5674D",
+        "H5674B",
+        "H5674G",
+        "H5674H"
+      ],
+      "lemma": "עָבַר",
+      "displayLemma": "עָבַר",
+      "translit": "'a.Var",
+      "gloss": "to pass",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · participle",
+      "properName": false,
+      "commonMorph": "HVqrmsa",
+      "frequency": 556,
+      "exampleRefs": [
+        "Psalms 8:8",
+        "Psalms 17:3",
+        "Psalms 18:12"
+      ]
+    },
+    {
+      "rank": 89,
+      "key": "הֵמָּה",
+      "strongs": "H1992",
+      "strongsAll": [
+        "H1992"
+      ],
+      "lemma": "הֵ֫מָּה",
+      "displayLemma": "הֵמָּה",
+      "displayNote": "also written הֵם",
+      "translit": "He.mah",
+      "gloss": "they(masc.)",
+      "courseGloss": "they (masc.)",
+      "partOfSpeech": "Pronoun",
+      "category": "Pronoun · personal",
+      "properName": false,
+      "commonMorph": "HPp3mp",
+      "frequency": 553,
+      "exampleRefs": [
+        "Genesis 3:7",
+        "Psalms 9:6",
+        "Psalms 9:20"
+      ]
+    },
+    {
+      "rank": 90,
+      "key": "אָדָם",
+      "strongs": "H0120G",
+      "strongsAll": [
+        "H0120G",
+        "H0120H"
+      ],
+      "lemma": "אָדָם",
+      "displayLemma": "אָדָם",
+      "translit": "'a.Dam",
+      "gloss": "man",
+      "courseGloss": "man, mankind",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 551,
+      "exampleRefs": [
+        "Genesis 1:26",
+        "Genesis 1:27",
+        "Genesis 2:5"
+      ]
+    },
+    {
+      "rank": 91,
+      "key": "הַר",
+      "strongs": "H2022G",
+      "strongsAll": [
+        "H2022G",
+        "H2022H"
+      ],
+      "lemma": "הַר",
+      "displayLemma": "הַר",
+      "translit": "har",
+      "gloss": "mountain",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 546,
+      "exampleRefs": [
+        "Psalms 2:6",
+        "Psalms 3:4",
+        "Psalms 11:1"
+      ]
+    },
+    {
+      "rank": 92,
+      "key": "גָּדוֹל",
+      "strongs": "H1419A",
+      "strongsAll": [
+        "H1419A",
+        "H1419K",
+        "H1419J",
+        "H1419B"
+      ],
+      "lemma": "גַּל",
+      "lexiconLemma": "גָּדוֹל",
+      "displayLemma": "גָּדוֹל",
+      "translit": "ga.Dol",
+      "gloss": "great",
+      "partOfSpeech": "Adjective",
+      "category": "Adjective · common",
+      "properName": false,
+      "commonMorph": "HAamsa",
+      "frequency": 526,
+      "exampleRefs": [
+        "Genesis 1:16",
+        "Genesis 1:21",
+        "Psalms 12:3"
+      ]
+    },
+    {
+      "rank": 93,
+      "key": "עָמַד",
+      "strongs": "H5975G",
+      "strongsAll": [
+        "H5975G",
+        "H5975H",
+        "H5975I",
+        "H5975J",
+        "H5976"
+      ],
+      "lemma": "עָמַד",
+      "displayLemma": "עָמַד",
+      "translit": "'a.Mad",
+      "gloss": "to stand",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · participle",
+      "properName": false,
+      "commonMorph": "HVqrmsa",
+      "frequency": 522,
+      "exampleRefs": [
+        "Psalms 1:1",
+        "Psalms 10:1",
+        "Psalms 18:33"
+      ]
+    },
+    {
+      "rank": 94,
+      "key": "טוֹב",
+      "strongs": "H2896A",
+      "strongsAll": [
+        "H2896A",
+        "H2896B",
+        "H2895"
+      ],
+      "lemma": "טוֹב",
+      "displayLemma": "טוֹב",
+      "translit": "Tov",
+      "gloss": "pleasant; good",
+      "courseGloss": "good; to be good",
+      "partOfSpeech": "Adjective",
+      "category": "Adjective · common",
+      "properName": false,
+      "commonMorph": "HAamsa",
+      "frequency": 519,
+      "exampleRefs": [
+        "Genesis 1:4",
+        "Genesis 1:10",
+        "Genesis 1:12"
+      ]
+    },
+    {
+      "rank": 95,
+      "key": "אֶלֶף",
+      "strongs": "H0505G",
+      "strongsAll": [
+        "H0505G",
+        "H0505H",
+        "H0504"
+      ],
+      "lemma": "אֶ֫לֶף",
+      "displayLemma": "אֶלֶף",
+      "translit": "'E.lef",
+      "gloss": "thousand",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcbsa",
+      "frequency": 513,
+      "exampleRefs": [
+        "Psalms 8:7",
+        "Psalms 50:10",
+        "Psalms 60:0"
+      ]
+    },
+    {
+      "rank": 96,
+      "key": "כַּאֲשֶׁר",
+      "strongs": "H0834D",
+      "strongsAll": [
+        "H0834D"
+      ],
+      "lemma": "כַּאֲשֶׁר",
+      "displayLemma": "כַּאֲשֶׁר",
+      "translit": "ka.a.sher",
+      "gloss": "as which",
+      "courseGloss": "as, just as, when",
+      "partOfSpeech": "Particle",
+      "category": "Particle · relative",
+      "properName": false,
+      "commonMorph": "HTr",
+      "frequency": 511,
+      "exampleRefs": [
+        "Psalms 33:22",
+        "Psalms 48:8",
+        "Psalms 51:0"
+      ]
+    },
+    {
+      "rank": 97,
+      "key": "תַּחַת",
+      "strongs": "H8478G",
+      "strongsAll": [
+        "H8478G",
+        "H8478H",
+        "H8478I",
+        "H8478J",
+        "H8478K",
+        "H8478L",
+        "H8480G",
+        "H8480H",
+        "H8480I",
+        "H8480J"
+      ],
+      "lemma": "תַּחַת",
+      "displayLemma": "תַּחַת",
+      "translit": "Ta.chat",
+      "gloss": "underneath",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 511,
+      "exampleRefs": [
+        "Genesis 1:7",
+        "Genesis 1:9",
+        "Genesis 2:21"
+      ]
+    },
+    {
+      "rank": 98,
+      "key": "קוֹל",
+      "strongs": "H6963A",
+      "strongsAll": [
+        "H6963A",
+        "H6963H",
+        "H6963I",
+        "H6963J",
+        "H6963K",
+        "H6963L"
+      ],
+      "lemma": "קוֹל",
+      "displayLemma": "קוֹל",
+      "translit": "Kol",
+      "gloss": "voice",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 505,
+      "exampleRefs": [
+        "Genesis 3:8",
+        "Genesis 3:10",
+        "Genesis 3:17"
+      ]
+    },
+    {
+      "rank": 99,
+      "key": "נָכָה",
+      "strongs": "H5221",
+      "strongsAll": [
+        "H5221"
+      ],
+      "lemma": "נָכָה",
+      "displayLemma": "נָכָה",
+      "translit": "na.khah",
+      "gloss": "to smite",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Hiphil (causative/declarative, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVhw3ms",
+      "frequency": 500,
+      "exampleRefs": [
+        "Psalms 3:7",
+        "Psalms 60:0",
+        "Psalms 69:26"
+      ]
+    },
+    {
+      "rank": 100,
+      "key": "פֶּה",
+      "strongs": "H6310G",
+      "strongsAll": [
+        "H6310G",
+        "H6310I",
+        "H6310H",
+        "H6310K",
+        "H6310J",
+        "H6310L"
+      ],
+      "lemma": "פֶּה",
+      "displayLemma": "פֶּה",
+      "translit": "peh",
+      "gloss": "lip",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 498,
+      "exampleRefs": [
+        "Psalms 5:9",
+        "Psalms 8:2",
+        "Psalms 10:7"
+      ]
+    },
+    {
+      "rank": 101,
+      "key": "יָלַד",
+      "strongs": "H3205",
+      "strongsAll": [
+        "H3205"
+      ],
+      "lemma": "יָלַד",
+      "displayLemma": "יָלַד",
+      "translit": "ya.Lad",
+      "gloss": "to beget",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Hiphil (causative/declarative, active) · perfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVhp3ms",
+      "frequency": 496,
+      "exampleRefs": [
+        "Genesis 3:16",
+        "Psalms 2:7",
+        "Psalms 7:14"
+      ]
+    },
+    {
+      "rank": 102,
+      "key": "צָוָה",
+      "strongs": "H6680",
+      "strongsAll": [
+        "H6680"
+      ],
+      "lemma": "צָוָה",
+      "displayLemma": "צָוָה",
+      "translit": "tsa.vah",
+      "gloss": "to command",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Piel (intensive/resultive/transtive, active) · perfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVpp3ms",
+      "frequency": 494,
+      "exampleRefs": [
+        "Genesis 2:16",
+        "Genesis 3:11",
+        "Genesis 3:17"
+      ]
+    },
+    {
+      "rank": 103,
+      "key": "עוֹד",
+      "strongs": "H5750",
+      "strongsAll": [
+        "H5750"
+      ],
+      "lemma": "עוֹד",
+      "displayLemma": "עוֹד",
+      "translit": "od",
+      "gloss": "still",
+      "courseGloss": "still, again, yet",
+      "partOfSpeech": "Adjective",
+      "category": "Adjective · numerical",
+      "properName": false,
+      "commonMorph": "HAcmsa",
+      "frequency": 490,
+      "exampleRefs": [
+        "Psalms 10:18",
+        "Psalms 37:10",
+        "Psalms 39:1"
+      ]
+    },
+    {
+      "rank": 104,
+      "key": "צָבָא",
+      "strongs": "H6635B",
+      "strongsAll": [
+        "H6635B",
+        "H6635A",
+        "H6635H",
+        "H6635I"
+      ],
+      "lemma": "צָבָא",
+      "displayLemma": "צָבָא",
+      "translit": "tza.Va'",
+      "gloss": "Hosts; army",
+      "courseGloss": "army, host",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcfpa",
+      "frequency": 484,
+      "exampleRefs": [
+        "Genesis 2:1",
+        "Psalms 24:10",
+        "Psalms 33:6"
+      ]
+    },
+    {
+      "rank": 105,
+      "key": "קֹדֶשׁ",
+      "strongs": "H6944G",
+      "strongsAll": [
+        "H6944G",
+        "H6944J",
+        "H6944H",
+        "H6944I"
+      ],
+      "lemma": "קֹ֫דֶשׁ",
+      "displayLemma": "קֹדֶשׁ",
+      "translit": "Ko.desh",
+      "gloss": "holiness",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 469,
+      "exampleRefs": [
+        "Psalms 2:6",
+        "Psalms 3:4",
+        "Psalms 5:7"
+      ]
+    },
+    {
+      "rank": 106,
+      "key": "שָׁמַר",
+      "strongs": "H8104G",
+      "strongsAll": [
+        "H8104G",
+        "H8104H",
+        "H8104J",
+        "H8104I"
+      ],
+      "lemma": "שָׁמַר",
+      "displayLemma": "שָׁמַר",
+      "translit": "sha.Mar",
+      "gloss": "to keep",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · infinitive",
+      "properName": false,
+      "commonMorph": "HVqcc",
+      "frequency": 469,
+      "exampleRefs": [
+        "Genesis 2:15",
+        "Genesis 3:24",
+        "Psalms 12:7"
+      ]
+    },
+    {
+      "rank": 107,
+      "key": "רַב",
+      "strongs": "H7227A",
+      "strongsAll": [
+        "H7227A",
+        "H7227B",
+        "H7228",
+        "H7227G"
+      ],
+      "lemma": "רַב",
+      "displayLemma": "רַב",
+      "translit": "rav",
+      "gloss": "many",
+      "partOfSpeech": "Adjective",
+      "category": "Adjective · common",
+      "properName": false,
+      "commonMorph": "HAampa",
+      "frequency": 457,
+      "exampleRefs": [
+        "Psalms 3:1",
+        "Psalms 3:2",
+        "Psalms 4:6"
+      ]
+    },
+    {
+      "rank": 108,
+      "key": "מָצָא",
+      "strongs": "H4672",
+      "strongsAll": [
+        "H4672"
+      ],
+      "lemma": "מָצָא",
+      "displayLemma": "מָצָא",
+      "translit": "ma.Tza'",
+      "gloss": "to find",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · perfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqp1cs",
+      "frequency": 455,
+      "exampleRefs": [
+        "Genesis 2:20",
+        "Psalms 10:15",
+        "Psalms 17:3"
+      ]
+    },
+    {
+      "rank": 109,
+      "key": "אֲדֹנָי",
+      "strongs": "H0136",
+      "strongsAll": [
+        "H0136"
+      ],
+      "lemma": "אֲדֹנָי",
+      "displayLemma": "אֲדֹנָי",
+      "translit": "'a.do.Nai",
+      "gloss": "Lord",
+      "partOfSpeech": "Noun",
+      "category": "Noun · proper name",
+      "properName": true,
+      "commonMorph": "HNpt",
+      "frequency": 440,
+      "exampleRefs": [
+        "Psalms 2:4",
+        "Psalms 16:2",
+        "Psalms 22:30"
+      ]
+    },
+    {
+      "rank": 110,
+      "key": "עוֹלָם",
+      "strongs": "H5769G",
+      "strongsAll": [
+        "H5769G",
+        "H5769J",
+        "H5769I",
+        "H5769H"
+      ],
+      "lemma": "עוֹלָם",
+      "displayLemma": "עוֹלָם",
+      "translit": "o.Lam",
+      "gloss": "forever",
+      "courseGloss": "long ago, eternity, forever",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 438,
+      "exampleRefs": [
+        "Genesis 3:22",
+        "Psalms 5:11",
+        "Psalms 9:5"
+      ]
+    },
+    {
+      "rank": 111,
+      "key": "נָפַל",
+      "strongs": "H5307G",
+      "strongsAll": [
+        "H5307G",
+        "H5307J",
+        "H5307I",
+        "H5307H",
+        "H5307M",
+        "H5307L",
+        "H5307N",
+        "H5307K"
+      ],
+      "lemma": "נָפַל",
+      "displayLemma": "נָפַל",
+      "translit": "na.Fal",
+      "gloss": "to fall",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqw3ms",
+      "frequency": 435,
+      "exampleRefs": [
+        "Genesis 2:21",
+        "Psalms 5:10",
+        "Psalms 7:15"
+      ]
+    },
+    {
+      "rank": 112,
+      "key": "עַתָּה",
+      "strongs": "H6258",
+      "strongsAll": [
+        "H6258"
+      ],
+      "lemma": "עַתָּ֫ה",
+      "displayLemma": "עַתָּה",
+      "translit": "'a.Tah",
+      "gloss": "now",
+      "partOfSpeech": "Adverb",
+      "category": "Adverb",
+      "properName": false,
+      "commonMorph": "HD",
+      "frequency": 433,
+      "exampleRefs": [
+        "Genesis 3:22",
+        "Psalms 2:10",
+        "Psalms 12:5"
+      ]
+    },
+    {
+      "rank": 113,
+      "key": "שָׁלֹשׁ",
+      "strongs": "H7969",
+      "strongsAll": [
+        "H7969"
+      ],
+      "lemma": "שָׁלֹשׁ",
+      "displayLemma": "שָׁלֹשׁ",
+      "translit": "sha.Losh",
+      "gloss": "three",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcbsa",
+      "frequency": 432,
+      "exampleRefs": [
+        "Genesis 5:22",
+        "Genesis 5:23",
+        "Genesis 6:10"
+      ]
+    },
+    {
+      "rank": 114,
+      "key": "מִי",
+      "strongs": "H4310",
+      "strongsAll": [
+        "H4310"
+      ],
+      "lemma": "מִי",
+      "displayLemma": "מִי",
+      "translit": "mi",
+      "gloss": "who?",
+      "partOfSpeech": "Pronoun",
+      "category": "Pronoun · interrogative",
+      "properName": false,
+      "commonMorph": "HPi",
+      "frequency": 423,
+      "exampleRefs": [
+        "Genesis 3:11",
+        "Psalms 4:6",
+        "Psalms 6:5"
+      ]
+    },
+    {
+      "rank": 115,
+      "key": "מִשְׁפָּט",
+      "strongs": "H4941G",
+      "strongsAll": [
+        "H4941G",
+        "H4941H",
+        "H4941J",
+        "H4941I",
+        "H4941K"
+      ],
+      "lemma": "מִשְׁפָּט",
+      "displayLemma": "מִשְׁפָּט",
+      "translit": "mish.Pat",
+      "gloss": "justice",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 422,
+      "exampleRefs": [
+        "Psalms 1:5",
+        "Psalms 7:6",
+        "Psalms 9:4"
+      ]
+    },
+    {
+      "rank": 116,
+      "key": "שַׂר",
+      "strongs": "H8269",
+      "strongsAll": [
+        "H8269"
+      ],
+      "lemma": "שַׂר",
+      "displayLemma": "שַׂר",
+      "translit": "sar",
+      "gloss": "ruler",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmpc",
+      "frequency": 421,
+      "exampleRefs": [
+        "Psalms 45:16",
+        "Psalms 68:27",
+        "Psalms 82:7"
+      ]
+    },
+    {
+      "rank": 117,
+      "key": "שָׁמַיִם",
+      "strongs": "H8064",
+      "strongsAll": [
+        "H8064"
+      ],
+      "lemma": "שָׁמַיִם",
+      "displayLemma": "שָׁמַיִם",
+      "translit": "sha.Ma.yim",
+      "gloss": "heaven",
+      "courseGloss": "heaven, heavens, sky",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmpa",
+      "frequency": 421,
+      "exampleRefs": [
+        "Genesis 1:1",
+        "Genesis 1:8",
+        "Genesis 1:9"
+      ]
+    },
+    {
+      "rank": 118,
+      "key": "תָּוֶךְ",
+      "strongs": "H8432",
+      "strongsAll": [
+        "H8432"
+      ],
+      "lemma": "תָּ֫וֶךְ",
+      "displayLemma": "תָּוֶךְ",
+      "translit": "Ta.vekh",
+      "gloss": "midst",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 418,
+      "exampleRefs": [
+        "Genesis 1:6",
+        "Genesis 2:9",
+        "Genesis 3:3"
+      ]
+    },
+    {
+      "rank": 119,
+      "key": "חֶרֶב",
+      "strongs": "H2719",
+      "strongsAll": [
+        "H2719"
+      ],
+      "lemma": "חֶ֫רֶב",
+      "displayLemma": "חֶרֶב",
+      "translit": "Che.rev",
+      "gloss": "sword",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcfsa",
+      "frequency": 413,
+      "exampleRefs": [
+        "Genesis 3:24",
+        "Psalms 7:12",
+        "Psalms 17:13"
+      ]
+    },
+    {
+      "rank": 120,
+      "key": "בַּיִן",
+      "strongs": "H0996G",
+      "strongsAll": [
+        "H0996G",
+        "H0996H"
+      ],
+      "lemma": "בַּ֫יִן",
+      "displayLemma": "בֵּין",
+      "translit": "bein",
+      "gloss": "between",
+      "courseGloss": "between",
+      "partOfSpeech": "Adjective",
+      "category": "Adjective · numerical",
+      "properName": false,
+      "commonMorph": "HAcmsc",
+      "frequency": 407,
+      "exampleRefs": [
+        "Genesis 1:4",
+        "Genesis 1:6",
+        "Genesis 1:7"
+      ]
+    },
+    {
+      "rank": 121,
+      "key": "שָׁאוּל",
+      "strongs": "H7586G",
+      "strongsAll": [
+        "H7586G",
+        "H7586H",
+        "H7586I",
+        "H7586J"
+      ],
+      "lemma": "שָׁאוּל",
+      "displayLemma": "שָׁאוּל",
+      "translit": "sha.'Ul",
+      "gloss": "Saul",
+      "partOfSpeech": "Noun",
+      "category": "Noun · proper name",
+      "properName": true,
+      "commonMorph": "HNpm",
+      "frequency": 407,
+      "exampleRefs": [
+        "Psalms 18:0",
+        "Psalms 52:0",
+        "Psalms 54:0"
+      ]
+    },
+    {
+      "rank": 122,
+      "key": "נָא",
+      "strongs": "H4994",
+      "strongsAll": [
+        "H4994",
+        "H4995"
+      ],
+      "lemma": "נָא",
+      "displayLemma": "נָא",
+      "translit": "na'",
+      "gloss": "please",
+      "partOfSpeech": "Particle",
+      "category": "Particle · interjection",
+      "properName": false,
+      "commonMorph": "HTj",
+      "frequency": 405,
+      "exampleRefs": [
+        "Psalms 7:9",
+        "Psalms 50:22",
+        "Psalms 80:14"
+      ]
+    },
+    {
+      "rank": 123,
+      "key": "כֶּסֶף",
+      "strongs": "H3701G",
+      "strongsAll": [
+        "H3701G",
+        "H3701H"
+      ],
+      "lemma": "כֶּ֫סֶף",
+      "displayLemma": "כֶּסֶף",
+      "translit": "Ke.sef",
+      "gloss": "silver",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 403,
+      "exampleRefs": [
+        "Psalms 12:6",
+        "Psalms 15:5",
+        "Psalms 66:10"
+      ]
+    },
+    {
+      "rank": 124,
+      "key": "מִזְבֵּחַ",
+      "strongs": "H4196",
+      "strongsAll": [
+        "H4196"
+      ],
+      "lemma": "מִזְבֵּחַ",
+      "displayLemma": "מִזְבֵּחַ",
+      "translit": "miz.Be.ach",
+      "gloss": "altar",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 401,
+      "exampleRefs": [
+        "Psalms 26:6",
+        "Psalms 43:4",
+        "Psalms 51:19"
+      ]
+    },
+    {
+      "rank": 125,
+      "key": "מָקוֹם",
+      "strongs": "H4725",
+      "strongsAll": [
+        "H4725"
+      ],
+      "lemma": "מָקוֹם",
+      "displayLemma": "מָקוֹם",
+      "translit": "ma.Kom",
+      "gloss": "place",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 401,
+      "exampleRefs": [
+        "Genesis 1:9",
+        "Psalms 24:3",
+        "Psalms 26:8"
+      ]
+    },
+    {
+      "rank": 126,
+      "key": "יָם",
+      "strongs": "H3220G",
+      "strongsAll": [
+        "H3220G",
+        "H3220H"
+      ],
+      "lemma": "יָם",
+      "displayLemma": "יָם",
+      "translit": "Yam",
+      "gloss": "sea",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 396,
+      "exampleRefs": [
+        "Genesis 1:10",
+        "Genesis 1:22",
+        "Genesis 1:26"
+      ]
+    },
+    {
+      "rank": 127,
+      "key": "שֶׁבַע",
+      "strongs": "H7651",
+      "strongsAll": [
+        "H7651"
+      ],
+      "lemma": "שֶׁ֫בַע",
+      "displayLemma": "שֶׁבַע",
+      "translit": "She.va'",
+      "gloss": "seven",
+      "partOfSpeech": "Adjective",
+      "category": "Adjective · numerical",
+      "properName": false,
+      "commonMorph": "HAcbsa",
+      "frequency": 395,
+      "exampleRefs": [
+        "Psalms 119:164",
+        "Genesis 4:24",
+        "Genesis 5:7"
+      ]
+    },
+    {
+      "rank": 128,
+      "key": "זָהָב",
+      "strongs": "H2091",
+      "strongsAll": [
+        "H2091"
+      ],
+      "lemma": "זָהָב",
+      "displayLemma": "זָהָב",
+      "translit": "za.Hav",
+      "gloss": "gold",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 389,
+      "exampleRefs": [
+        "Genesis 2:11",
+        "Genesis 2:12",
+        "Psalms 19:10"
+      ]
+    },
+    {
+      "rank": 129,
+      "key": "יָרַד",
+      "strongs": "H3381",
+      "strongsAll": [
+        "H3381"
+      ],
+      "lemma": "יָרַד",
+      "displayLemma": "יָרַד",
+      "translit": "ya.Rad",
+      "gloss": "to go down",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqw3ms",
+      "frequency": 381,
+      "exampleRefs": [
+        "Psalms 7:16",
+        "Psalms 18:9",
+        "Psalms 22:29"
+      ]
+    },
+    {
+      "rank": 130,
+      "key": "יָרֵא",
+      "strongs": "H3372G",
+      "strongsAll": [
+        "H3372G",
+        "H3372H",
+        "H3373"
+      ],
+      "lemma": "יָרֵא",
+      "displayLemma": "יָרֵא",
+      "translit": "ya.Re'",
+      "gloss": "to fear; afraid",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · imperfect (future/present, jussive)",
+      "properName": false,
+      "commonMorph": "HVqj2ms",
+      "frequency": 379,
+      "exampleRefs": [
+        "Genesis 3:10",
+        "Psalms 3:6",
+        "Psalms 15:4"
+      ]
+    },
+    {
+      "rank": 131,
+      "key": "אֵשׁ",
+      "strongs": "H0784",
+      "strongsAll": [
+        "H0784"
+      ],
+      "lemma": "אֵשׁ",
+      "displayLemma": "אֵשׁ",
+      "translit": "'Esh",
+      "gloss": "fire",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcbsa",
+      "frequency": 378,
+      "exampleRefs": [
+        "Psalms 11:6",
+        "Psalms 18:8",
+        "Psalms 18:12"
+      ]
+    },
+    {
+      "rank": 132,
+      "key": "רוּחַ",
+      "strongs": "H7307G",
+      "strongsAll": [
+        "H7307G",
+        "H7307H",
+        "H7307J",
+        "H7307I"
+      ],
+      "lemma": "רוּחַ",
+      "displayLemma": "רוּחַ",
+      "translit": "Ru.ach",
+      "gloss": "spirit",
+      "courseGloss": "spirit, wind, breath",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcfsc",
+      "frequency": 378,
+      "exampleRefs": [
+        "Genesis 1:2",
+        "Genesis 3:8",
+        "Psalms 1:4"
+      ]
+    },
+    {
+      "rank": 133,
+      "key": "בָּנָה",
+      "strongs": "H1129",
+      "strongsAll": [
+        "H1129"
+      ],
+      "lemma": "בָּנָה",
+      "displayLemma": "בָּנָה",
+      "translit": "ba.Nah",
+      "gloss": "to build",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqw3ms",
+      "frequency": 376,
+      "exampleRefs": [
+        "Genesis 2:22",
+        "Psalms 28:5",
+        "Psalms 51:18"
+      ]
+    },
+    {
+      "rank": 134,
+      "key": "נְאֻם",
+      "strongs": "H5002",
+      "strongsAll": [
+        "H5002"
+      ],
+      "lemma": "נְאֻם",
+      "displayLemma": "נְאֻם",
+      "translit": "ne.'um",
+      "gloss": "utterance",
+      "courseGloss": "declaration (of the LORD)",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 376,
+      "exampleRefs": [
+        "Psalms 36:1",
+        "Psalms 110:1",
+        "Genesis 22:16"
+      ]
+    },
+    {
+      "rank": 135,
+      "key": "שַׁעַר",
+      "strongs": "H8179G",
+      "strongsAll": [
+        "H8179G",
+        "H8179H",
+        "H8180"
+      ],
+      "lemma": "שַׁ֫עַר",
+      "displayLemma": "שַׁעַר",
+      "translit": "Sha.'ar",
+      "gloss": "gate",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 375,
+      "exampleRefs": [
+        "Psalms 9:13",
+        "Psalms 9:14",
+        "Psalms 24:7"
+      ]
+    },
+    {
+      "rank": 136,
+      "key": "נָגַד",
+      "strongs": "H5046",
+      "strongsAll": [
+        "H5046"
+      ],
+      "lemma": "נָגַד",
+      "displayLemma": "נָגַד",
+      "translit": "na.gad",
+      "gloss": "to tell",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Hiphil (causative/declarative, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVhw3ms",
+      "frequency": 371,
+      "exampleRefs": [
+        "Genesis 3:11",
+        "Psalms 9:11",
+        "Psalms 19:1"
+      ]
+    },
+    {
+      "rank": 137,
+      "key": "דָּם",
+      "strongs": "H1818",
+      "strongsAll": [
+        "H1818"
+      ],
+      "lemma": "דָּם",
+      "displayLemma": "דָּם",
+      "translit": "Dam",
+      "gloss": "blood",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 360,
+      "exampleRefs": [
+        "Psalms 5:6",
+        "Psalms 9:12",
+        "Psalms 16:4"
+      ]
+    },
+    {
+      "rank": 138,
+      "key": "אָנֹכִי",
+      "strongs": "H0595",
+      "strongsAll": [
+        "H0595"
+      ],
+      "lemma": "אָֽנֹכִ֫י",
+      "displayLemma": "אָנֹכִי",
+      "translit": "'a.no.Khi",
+      "gloss": "I",
+      "partOfSpeech": "Pronoun",
+      "category": "Pronoun · personal",
+      "properName": false,
+      "commonMorph": "HPp1bs",
+      "frequency": 359,
+      "exampleRefs": [
+        "Genesis 3:10",
+        "Psalms 22:6",
+        "Psalms 39:12"
+      ]
+    },
+    {
+      "rank": 139,
+      "key": "רַע",
+      "strongs": "H7451H",
+      "strongsAll": [
+        "H7451H",
+        "H7451B",
+        "H7451A"
+      ],
+      "lemma": "רַע",
+      "displayLemma": "רַע",
+      "translit": "Ra'",
+      "gloss": "bad",
+      "partOfSpeech": "Adjective",
+      "category": "Adjective · common",
+      "properName": false,
+      "commonMorph": "HAamsa",
+      "frequency": 358,
+      "exampleRefs": [
+        "Genesis 2:9",
+        "Genesis 2:17",
+        "Genesis 3:5"
+      ]
+    },
+    {
+      "rank": 140,
+      "key": "יַעֲקֹב",
+      "strongs": "H3290",
+      "strongsAll": [
+        "H3290"
+      ],
+      "lemma": "יַעֲקֹב",
+      "displayLemma": "יַעֲקֹב",
+      "translit": "ya.'a.Ko",
+      "gloss": "Jacob",
+      "partOfSpeech": "Noun",
+      "category": "Noun · proper name",
+      "properName": true,
+      "commonMorph": "HNpm",
+      "frequency": 350,
+      "exampleRefs": [
+        "Psalms 14:7",
+        "Psalms 20:1",
+        "Psalms 22:23"
+      ]
+    },
+    {
+      "rank": 141,
+      "key": "לֵוִי",
+      "strongs": "H3881",
+      "strongsAll": [
+        "H3881",
+        "H3878"
+      ],
+      "lemma": "לֵוִי",
+      "displayLemma": "לֵוִי",
+      "translit": "le.Vi",
+      "gloss": "Levi",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNgmpa",
+      "frequency": 350,
+      "exampleRefs": [
+        "Psalms 135:20",
+        "Genesis 29:34",
+        "Genesis 34:25"
+      ]
+    },
+    {
+      "rank": 142,
+      "key": "מָלַךְ",
+      "strongs": "H4427A",
+      "strongsAll": [
+        "H4427A",
+        "H4427B"
+      ],
+      "lemma": "מָלַךְ",
+      "displayLemma": "מָלַךְ",
+      "translit": "ma.Lakh",
+      "gloss": "to reign",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · perfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqp3ms",
+      "frequency": 348,
+      "exampleRefs": [
+        "Psalms 47:8",
+        "Psalms 93:1",
+        "Psalms 96:10"
+      ]
+    },
+    {
+      "rank": 143,
+      "key": "אַהֲרֹן",
+      "strongs": "H0175",
+      "strongsAll": [
+        "H0175"
+      ],
+      "lemma": "אַהֲרֹן",
+      "displayLemma": "אַהֲרֹן",
+      "translit": "'a.ha.Ron",
+      "gloss": "Aaron",
+      "partOfSpeech": "Noun",
+      "category": "Noun · proper name",
+      "properName": true,
+      "commonMorph": "HNpm",
+      "frequency": 347,
+      "exampleRefs": [
+        "Psalms 77:20",
+        "Psalms 99:6",
+        "Psalms 105:26"
+      ]
+    },
+    {
+      "rank": 144,
+      "key": "אֹהֶל",
+      "strongs": "H0168G",
+      "strongsAll": [
+        "H0168G",
+        "H0168H",
+        "H0169"
+      ],
+      "lemma": "אֹ֫הֶל",
+      "displayLemma": "אֹהֶל",
+      "translit": "'O.hel",
+      "gloss": "tent",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 346,
+      "exampleRefs": [
+        "Psalms 15:1",
+        "Psalms 19:4",
+        "Psalms 27:5"
+      ]
+    },
+    {
+      "rank": 145,
+      "key": "חָמֵשׁ",
+      "strongs": "H2568",
+      "strongsAll": [
+        "H2568"
+      ],
+      "lemma": "חָמֵשׁ",
+      "displayLemma": "חָמֵשׁ",
+      "translit": "cha.Mesh",
+      "gloss": "five",
+      "partOfSpeech": "Adjective",
+      "category": "Adjective · numerical",
+      "properName": false,
+      "commonMorph": "HAcbsa",
+      "frequency": 343,
+      "exampleRefs": [
+        "Genesis 5:6",
+        "Genesis 5:10",
+        "Genesis 5:11"
+      ]
+    },
+    {
+      "rank": 146,
+      "key": "עָשָׂר",
+      "strongs": "H6240",
+      "strongsAll": [
+        "H6240"
+      ],
+      "lemma": "עָשָׂר",
+      "displayLemma": "עָשָׂר",
+      "translit": "'a.Sar",
+      "gloss": "ten",
+      "partOfSpeech": "Adjective",
+      "category": "Adjective · numerical",
+      "properName": false,
+      "commonMorph": "HAcbsa",
+      "frequency": 339,
+      "exampleRefs": [
+        "Psalms 60:0",
+        "Genesis 5:8",
+        "Genesis 5:10"
+      ]
+    },
+    {
+      "rank": 147,
+      "key": "סָבִיב",
+      "strongs": "H5439G",
+      "strongsAll": [
+        "H5439G",
+        "H5439H",
+        "H5439I",
+        "H5439J"
+      ],
+      "lemma": "סָבִיב",
+      "displayLemma": "סָבִיב",
+      "translit": "sa.Viv",
+      "gloss": "around",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcbsa",
+      "frequency": 336,
+      "exampleRefs": [
+        "Psalms 3:6",
+        "Psalms 12:8",
+        "Psalms 18:11"
+      ]
+    },
+    {
+      "rank": 148,
+      "key": "אָדוֹן",
+      "strongs": "H0113",
+      "strongsAll": [
+        "H0113"
+      ],
+      "lemma": "אָדוֹן",
+      "displayLemma": "אָדוֹן",
+      "translit": "'a.Don",
+      "gloss": "lord",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 333,
+      "exampleRefs": [
+        "Psalms 8:1",
+        "Psalms 8:9",
+        "Psalms 12:4"
+      ]
+    },
+    {
+      "rank": 149,
+      "key": "עָנָה",
+      "strongs": "H6030B",
+      "strongsAll": [
+        "H6030B",
+        "H6030C"
+      ],
+      "lemma": "עָנָה",
+      "displayLemma": "עָנָה",
+      "translit": "'a.Nah",
+      "gloss": "to answer",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqw3ms",
+      "frequency": 331,
+      "exampleRefs": [
+        "Psalms 3:4",
+        "Psalms 4:1",
+        "Psalms 13:3"
+      ]
+    },
+    {
+      "rank": 150,
+      "key": "בָּרַךְ",
+      "strongs": "H1288",
+      "strongsAll": [
+        "H1288"
+      ],
+      "lemma": "בָּרַךְ",
+      "displayLemma": "בָּרַךְ",
+      "translit": "ba.rakh",
+      "gloss": "to bless",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, passive) · participle passive",
+      "properName": false,
+      "commonMorph": "HVqsmsa",
+      "frequency": 330,
+      "exampleRefs": [
+        "Genesis 1:22",
+        "Genesis 1:28",
+        "Genesis 2:3"
+      ]
+    },
+    {
+      "rank": 151,
+      "key": "עֵץ",
+      "strongs": "H6086G",
+      "strongsAll": [
+        "H6086G",
+        "H6086H",
+        "H6086I",
+        "H6086J",
+        "H6086K"
+      ],
+      "lemma": "עֵץ",
+      "displayLemma": "עֵץ",
+      "translit": "'etz",
+      "gloss": "tree",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 330,
+      "exampleRefs": [
+        "Genesis 1:11",
+        "Genesis 1:12",
+        "Genesis 1:29"
+      ]
+    },
+    {
+      "rank": 152,
+      "key": "כְּלִי",
+      "strongs": "H3627",
+      "strongsAll": [
+        "H3627"
+      ],
+      "lemma": "כְּלִי",
+      "displayLemma": "כְּלִי",
+      "translit": "ke.Li",
+      "gloss": "article/utensil",
+      "courseGloss": "vessel, article, weapon",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmpc",
+      "frequency": 325,
+      "exampleRefs": [
+        "Psalms 2:9",
+        "Psalms 7:13",
+        "Psalms 31:12"
+      ]
+    },
+    {
+      "rank": 153,
+      "key": "אוֹ",
+      "strongs": "H0176A",
+      "strongsAll": [
+        "H0176A"
+      ],
+      "lemma": "אוֹ",
+      "displayLemma": "אוֹ",
+      "translit": "'o",
+      "gloss": "or",
+      "partOfSpeech": "Conjunction",
+      "category": "Conjunction",
+      "properName": false,
+      "commonMorph": "HC",
+      "frequency": 321,
+      "exampleRefs": [
+        "Genesis 24:49",
+        "Genesis 24:50",
+        "Genesis 24:55"
+      ]
+    },
+    {
+      "rank": 154,
+      "key": "שָׂדֶה",
+      "strongs": "H7704G",
+      "strongsAll": [
+        "H7704G",
+        "H7704I",
+        "H7704B",
+        "H7704H"
+      ],
+      "lemma": "שָׂדֶה",
+      "displayLemma": "שָׂדֶה",
+      "translit": "sa.Deh",
+      "gloss": "land",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 321,
+      "exampleRefs": [
+        "Genesis 2:5",
+        "Genesis 2:19",
+        "Genesis 2:20"
+      ]
+    },
+    {
+      "rank": 155,
+      "key": "מִלְחָמָה",
+      "strongs": "H4421",
+      "strongsAll": [
+        "H4421"
+      ],
+      "lemma": "מִלְחָמָה",
+      "displayLemma": "מִלְחָמָה",
+      "translit": "mil.cha.Mah",
+      "gloss": "battle",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcfsa",
+      "frequency": 320,
+      "exampleRefs": [
+        "Psalms 18:34",
+        "Psalms 18:39",
+        "Psalms 24:8"
+      ]
+    },
+    {
+      "rank": 156,
+      "key": "אַרְבַּע",
+      "strongs": "H0702",
+      "strongsAll": [
+        "H0702"
+      ],
+      "lemma": "אַרְבַּע",
+      "displayLemma": "אַרְבַּע",
+      "translit": "'ar.Ba'",
+      "gloss": "four",
+      "partOfSpeech": "Adjective",
+      "category": "Adjective · numerical",
+      "properName": false,
+      "commonMorph": "HAcbsa",
+      "frequency": 318,
+      "exampleRefs": [
+        "Genesis 2:10",
+        "Genesis 11:13",
+        "Genesis 11:15"
+      ]
+    },
+    {
+      "rank": 157,
+      "key": "הֵן",
+      "strongs": "H2005",
+      "strongsAll": [
+        "H2005"
+      ],
+      "lemma": "הֵן",
+      "displayLemma": "הֵן",
+      "translit": "hen",
+      "gloss": "look!",
+      "partOfSpeech": "Particle",
+      "category": "Particle · interjection",
+      "properName": false,
+      "commonMorph": "HTj",
+      "frequency": 316,
+      "exampleRefs": [
+        "Genesis 3:22",
+        "Psalms 51:5",
+        "Psalms 51:6"
+      ]
+    },
+    {
+      "rank": 158,
+      "key": "נָבִיא",
+      "strongs": "H5030",
+      "strongsAll": [
+        "H5030"
+      ],
+      "lemma": "נָבִיא",
+      "displayLemma": "נָבִיא",
+      "translit": "na.Vi'",
+      "gloss": "prophet",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 315,
+      "exampleRefs": [
+        "Psalms 51:0",
+        "Psalms 74:9",
+        "Psalms 105:15"
+      ]
+    },
+    {
+      "rank": 159,
+      "key": "עֶשְׂרִים",
+      "strongs": "H6242",
+      "strongsAll": [
+        "H6242"
+      ],
+      "lemma": "עֶשְׂרִים",
+      "displayLemma": "עֶשְׂרִים",
+      "translit": "'es.Rim",
+      "gloss": "twenty",
+      "partOfSpeech": "Adjective",
+      "category": "Adjective · numerical",
+      "properName": false,
+      "commonMorph": "HAcmpa",
+      "frequency": 315,
+      "exampleRefs": [
+        "Genesis 6:3",
+        "Genesis 8:14",
+        "Genesis 11:24"
+      ]
+    },
+    {
+      "rank": 160,
+      "key": "מָלֵא",
+      "strongs": "H4390",
+      "strongsAll": [
+        "H4390",
+        "H4392"
+      ],
+      "lemma": "מָלֵא",
+      "displayLemma": "מָלֵא",
+      "translit": "ma.Le'",
+      "gloss": "to fill; full",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · perfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqp3cp",
+      "frequency": 313,
+      "exampleRefs": [
+        "Genesis 1:22",
+        "Genesis 1:28",
+        "Psalms 10:7"
+      ]
+    },
+    {
+      "rank": 161,
+      "key": "יְהֹוִה",
+      "strongs": "H3069",
+      "strongsAll": [
+        "H3069"
+      ],
+      "lemma": "יְהֹוִה",
+      "displayLemma": "יְהֹוִה",
+      "displayNote": "the divine name, pointed to be read as Elohim (after אֲדֹנָי)",
+      "translit": "Yah.weh",
+      "gloss": "YHWH/God",
+      "courseGloss": "GOD (the divine name)",
+      "partOfSpeech": "Noun",
+      "category": "Noun · proper name",
+      "properName": true,
+      "commonMorph": "HNpt",
+      "frequency": 306,
+      "exampleRefs": [
+        "Psalms 68:20",
+        "Psalms 69:6",
+        "Psalms 71:5"
+      ]
+    },
+    {
+      "rank": 162,
+      "key": "רָעָה",
+      "strongs": "H7451C",
+      "strongsAll": [
+        "H7451C",
+        "H7451I"
+      ],
+      "lemma": "רָעָה",
+      "displayLemma": "רָעָה",
+      "translit": "ra.'Ah",
+      "gloss": "distress",
+      "courseGloss": "evil, trouble",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcfsa",
+      "frequency": 304,
+      "exampleRefs": [
+        "Psalms 15:3",
+        "Psalms 21:11",
+        "Psalms 27:5"
+      ]
+    },
+    {
+      "rank": 163,
+      "key": "מִשְׁפָּחָה",
+      "strongs": "H4940",
+      "strongsAll": [
+        "H4940"
+      ],
+      "lemma": "מִשְׁפָּחָה",
+      "displayLemma": "מִשְׁפָּחָה",
+      "translit": "mish.pa.Chah",
+      "gloss": "family",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcfpc",
+      "frequency": 303,
+      "exampleRefs": [
+        "Psalms 22:27",
+        "Psalms 96:7",
+        "Psalms 107:41"
+      ]
+    },
+    {
+      "rank": 164,
+      "key": "סוּר",
+      "strongs": "H5493G",
+      "strongsAll": [
+        "H5493G",
+        "H5493I",
+        "H5493H",
+        "H5494",
+        "H5495"
+      ],
+      "lemma": "סוּר",
+      "displayLemma": "סוּר",
+      "translit": "sur",
+      "gloss": "to turn aside",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · perfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqp3ms",
+      "frequency": 303,
+      "exampleRefs": [
+        "Psalms 6:8",
+        "Psalms 14:3",
+        "Psalms 18:22"
+      ]
+    },
+    {
+      "rank": 165,
+      "key": "פָּקַד",
+      "strongs": "H6485A",
+      "strongsAll": [
+        "H6485A",
+        "H6485J",
+        "H6485H",
+        "H6485I",
+        "H6485K",
+        "H6485L"
+      ],
+      "lemma": "פָּקַד",
+      "displayLemma": "פָּקַד",
+      "translit": "pa.Kad",
+      "gloss": "to reckon",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, passive) · participle passive",
+      "properName": false,
+      "commonMorph": "HVqsmpc",
+      "frequency": 302,
+      "exampleRefs": [
+        "Psalms 8:4",
+        "Psalms 17:3",
+        "Psalms 31:5"
+      ]
+    },
+    {
+      "rank": 166,
+      "key": "מְאֹד",
+      "strongs": "H3966",
+      "strongsAll": [
+        "H3966"
+      ],
+      "lemma": "מְאֹד",
+      "displayLemma": "מְאֹד",
+      "translit": "me.'Od",
+      "gloss": "much",
+      "courseGloss": "very, greatly",
+      "partOfSpeech": "Adjective",
+      "category": "Adjective · numerical",
+      "properName": false,
+      "commonMorph": "HAcmsa",
+      "frequency": 300,
+      "exampleRefs": [
+        "Genesis 1:31",
+        "Psalms 6:3",
+        "Psalms 6:10"
+      ]
+    },
+    {
+      "rank": 167,
+      "key": "לֶחֶם",
+      "strongs": "H3899H",
+      "strongsAll": [
+        "H3899H",
+        "H3899G",
+        "H3899I"
+      ],
+      "lemma": "לֶ֫חֶם",
+      "displayLemma": "לֶחֶם",
+      "translit": "Le.chem",
+      "gloss": "food",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 298,
+      "exampleRefs": [
+        "Genesis 3:19",
+        "Psalms 14:4",
+        "Psalms 37:25"
+      ]
+    },
+    {
+      "rank": 168,
+      "key": "עֵת",
+      "strongs": "H6256",
+      "strongsAll": [
+        "H6256"
+      ],
+      "lemma": "עֵת",
+      "displayLemma": "עֵת",
+      "translit": "'Et",
+      "gloss": "time",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcbsa",
+      "frequency": 296,
+      "exampleRefs": [
+        "Psalms 1:3",
+        "Psalms 4:7",
+        "Psalms 9:9"
+      ]
+    },
+    {
+      "rank": 169,
+      "key": "חַטָּאת",
+      "strongs": "H2403B",
+      "strongsAll": [
+        "H2403B",
+        "H2403H",
+        "H2403I"
+      ],
+      "lemma": "חַטָּאת",
+      "displayLemma": "חַטָּאת",
+      "translit": "cha.Tat",
+      "gloss": "sin",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcfsa",
+      "frequency": 293,
+      "exampleRefs": [
+        "Psalms 25:7",
+        "Psalms 25:18",
+        "Psalms 32:5"
+      ]
+    },
+    {
+      "rank": 170,
+      "key": "שְׁלֹמֹה",
+      "strongs": "H8010",
+      "strongsAll": [
+        "H8010"
+      ],
+      "lemma": "שְׁלֹמֹה",
+      "displayLemma": "שְׁלֹמֹה",
+      "translit": "she.lo.Moh",
+      "gloss": "Solomon",
+      "partOfSpeech": "Noun",
+      "category": "Noun · proper name",
+      "properName": true,
+      "commonMorph": "HNpm",
+      "frequency": 293,
+      "exampleRefs": [
+        "Psalms 72:0",
+        "Psalms 127:0",
+        "2 Samuel 5:14"
+      ]
+    },
+    {
+      "rank": 171,
+      "key": "חָזַק",
+      "strongs": "H2388G",
+      "strongsAll": [
+        "H2388G",
+        "H2388H",
+        "H2388J",
+        "H2388K",
+        "H2388I"
+      ],
+      "lemma": "חָזַק",
+      "displayLemma": "חָזַק",
+      "translit": "cha.Zak",
+      "gloss": "to strengthen",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Hiphil (causative/declarative, active) · perfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVhp3ms",
+      "frequency": 291,
+      "exampleRefs": [
+        "Psalms 27:14",
+        "Psalms 31:24",
+        "Psalms 35:2"
+      ]
+    },
+    {
+      "rank": 172,
+      "key": "כָּרַת",
+      "strongs": "H3772I",
+      "strongsAll": [
+        "H3772I",
+        "H3772H",
+        "H3772G",
+        "H3772J"
+      ],
+      "lemma": "כָּרַת",
+      "displayLemma": "כָּרַת",
+      "translit": "ka.Rat",
+      "gloss": "to cut",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Hiphil (causative/declarative, active) · consecutive perfect (future/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVhq1cs",
+      "frequency": 288,
+      "exampleRefs": [
+        "Psalms 12:3",
+        "Psalms 34:16",
+        "Psalms 37:9"
+      ]
+    },
+    {
+      "rank": 173,
+      "key": "עָבַד",
+      "strongs": "H5647H",
+      "strongsAll": [
+        "H5647H",
+        "H5647G",
+        "H5647I",
+        "H5647J"
+      ],
+      "lemma": "עָבַד",
+      "displayLemma": "עָבַד",
+      "translit": "'a.Vad",
+      "gloss": "to serve",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · infinitive",
+      "properName": false,
+      "commonMorph": "HVqcc",
+      "frequency": 288,
+      "exampleRefs": [
+        "Genesis 2:5",
+        "Genesis 2:15",
+        "Genesis 3:23"
+      ]
+    },
+    {
+      "rank": 174,
+      "key": "פְּלִשְׁתִּי",
+      "strongs": "H6430G",
+      "strongsAll": [
+        "H6430G",
+        "H6430H",
+        "H6430I"
+      ],
+      "lemma": "פְּלִשְׁתִּי",
+      "displayLemma": "פְּלִשְׁתִּי",
+      "translit": "pe.lish.Ti",
+      "gloss": "Philistine",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNgmpa",
+      "frequency": 288,
+      "exampleRefs": [
+        "Psalms 56:0",
+        "Genesis 10:14",
+        "Genesis 21:32"
+      ]
+    },
+    {
+      "rank": 175,
+      "key": "עֹלָה",
+      "strongs": "H5930A",
+      "strongsAll": [
+        "H5930A",
+        "H5930B"
+      ],
+      "lemma": "עֹלָה",
+      "displayLemma": "עֹלָה",
+      "translit": "'o.Lah",
+      "gloss": "burnt offering",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcfsa",
+      "frequency": 287,
+      "exampleRefs": [
+        "Psalms 20:3",
+        "Psalms 40:6",
+        "Psalms 50:8"
+      ]
+    },
+    {
+      "rank": 176,
+      "key": "חֹדֶשׁ",
+      "strongs": "H2320G",
+      "strongsAll": [
+        "H2320G",
+        "H2320H",
+        "H2321"
+      ],
+      "lemma": "חֹ֫דֶשׁ",
+      "displayLemma": "חֹדֶשׁ",
+      "translit": "Cho.desh",
+      "gloss": "month",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 286,
+      "exampleRefs": [
+        "Psalms 81:3",
+        "Genesis 7:11",
+        "Genesis 8:4"
+      ]
+    },
+    {
+      "rank": 177,
+      "key": "בְּרִית",
+      "strongs": "H1285",
+      "strongsAll": [
+        "H1285",
+        "H1286"
+      ],
+      "lemma": "בְּרִית",
+      "displayLemma": "בְּרִית",
+      "translit": "be.Rit",
+      "gloss": "covenant",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcfsc",
+      "frequency": 285,
+      "exampleRefs": [
+        "Psalms 25:10",
+        "Psalms 25:14",
+        "Psalms 44:17"
+      ]
+    },
+    {
+      "rank": 178,
+      "key": "אַתֶּם",
+      "strongs": "H0859D",
+      "strongsAll": [
+        "H0859D"
+      ],
+      "lemma": "אַתֶּם",
+      "displayLemma": "אַתֶּם",
+      "translit": "'a.Tem",
+      "gloss": "you(m.p.)",
+      "partOfSpeech": "Pronoun",
+      "category": "Pronoun · personal",
+      "properName": false,
+      "commonMorph": "HPp2mp",
+      "frequency": 283,
+      "exampleRefs": [
+        "Psalms 82:6",
+        "Psalms 115:15",
+        "Genesis 9:7"
+      ]
+    },
+    {
+      "rank": 179,
+      "key": "אֹיֵב",
+      "strongs": "H0341",
+      "strongsAll": [
+        "H0341"
+      ],
+      "lemma": "אֹיֵב",
+      "displayLemma": "אֹיֵב",
+      "translit": "'o.Yev",
+      "gloss": "enemy",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · participle",
+      "properName": false,
+      "commonMorph": "HVqrmpc",
+      "frequency": 283,
+      "exampleRefs": [
+        "Psalms 3:7",
+        "Psalms 6:10",
+        "Psalms 7:5"
+      ]
+    },
+    {
+      "rank": 180,
+      "key": "חָיָה",
+      "strongs": "H2421",
+      "strongsAll": [
+        "H2421"
+      ],
+      "lemma": "חָיָה",
+      "displayLemma": "חָיָה",
+      "translit": "cha.Yah",
+      "gloss": "to live",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqw3ms",
+      "frequency": 282,
+      "exampleRefs": [
+        "Genesis 3:22",
+        "Psalms 22:26",
+        "Psalms 22:29"
+      ]
+    },
+    {
+      "rank": 181,
+      "key": "קָרַב",
+      "strongs": "H7126H",
+      "strongsAll": [
+        "H7126H",
+        "H7126G"
+      ],
+      "lemma": "קָרַב",
+      "displayLemma": "קָרַב",
+      "translit": "ka.Rav",
+      "gloss": "to present",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Hiphil (causative/declarative, active) · consecutive perfect (future/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVhq3ms",
+      "frequency": 280,
+      "exampleRefs": [
+        "Psalms 27:2",
+        "Psalms 32:9",
+        "Psalms 65:4"
+      ]
+    },
+    {
+      "rank": 182,
+      "key": "אַף",
+      "strongs": "H0639G",
+      "strongsAll": [
+        "H0639G",
+        "H0639H",
+        "H0639I"
+      ],
+      "lemma": "אַף",
+      "displayLemma": "אַף",
+      "translit": "'af",
+      "gloss": "face",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 276,
+      "exampleRefs": [
+        "Genesis 2:7",
+        "Genesis 3:19",
+        "Psalms 2:5"
+      ]
+    },
+    {
+      "rank": 183,
+      "key": "פַּרְעֹה",
+      "strongs": "H6547J",
+      "strongsAll": [
+        "H6547J",
+        "H6547H",
+        "H6547R",
+        "H6547K",
+        "H6547I",
+        "H6547G",
+        "H6547L",
+        "H6547T",
+        "H6547Q",
+        "H6547M",
+        "H6547N",
+        "H6547S"
+      ],
+      "lemma": "פַּרְעֹה",
+      "displayLemma": "פַּרְעֹה",
+      "translit": "par.'Oh",
+      "gloss": "Pharaoh",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNtmsa",
+      "frequency": 274,
+      "exampleRefs": [
+        "Psalms 135:9",
+        "Psalms 136:15",
+        "Genesis 12:15"
+      ]
+    },
+    {
+      "rank": 184,
+      "key": "צֹאן",
+      "strongs": "H6629G",
+      "strongsAll": [
+        "H6629G",
+        "H6629H"
+      ],
+      "lemma": "צֹאן",
+      "displayLemma": "צֹאן",
+      "translit": "Tzon",
+      "gloss": "flock",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcbsa",
+      "frequency": 274,
+      "exampleRefs": [
+        "Psalms 44:11",
+        "Psalms 44:22",
+        "Psalms 49:14"
+      ]
+    },
+    {
+      "rank": 185,
+      "key": "אֶבֶן",
+      "strongs": "H0068G",
+      "strongsAll": [
+        "H0068G",
+        "H0068H",
+        "H0068I"
+      ],
+      "lemma": "אֶ֫בֶן",
+      "displayLemma": "אֶבֶן",
+      "translit": "'E.ven",
+      "gloss": "stone",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcfsa",
+      "frequency": 273,
+      "exampleRefs": [
+        "Genesis 2:12",
+        "Psalms 91:12",
+        "Psalms 102:14"
+      ]
+    },
+    {
+      "rank": 186,
+      "key": "מַעַן",
+      "strongs": "H4616",
+      "strongsAll": [
+        "H4616"
+      ],
+      "lemma": "מַ֫עַן",
+      "displayLemma": "לְמַעַן",
+      "displayNote": "with the prefix לְ",
+      "translit": "le.Ma.'an",
+      "gloss": "because",
+      "courseGloss": "in order that, for the sake of",
+      "partOfSpeech": "Particle",
+      "category": "Particle · conditional",
+      "properName": false,
+      "commonMorph": "HTc",
+      "frequency": 272,
+      "exampleRefs": [
+        "Psalms 5:8",
+        "Psalms 6:4",
+        "Psalms 8:2"
+      ]
+    },
+    {
+      "rank": 187,
+      "key": "מִדְבָּר",
+      "strongs": "H4057B",
+      "strongsAll": [
+        "H4057B",
+        "H4057A",
+        "H4057G"
+      ],
+      "lemma": "מִדְבָּר",
+      "displayLemma": "מִדְבָּר",
+      "translit": "mid.Bar",
+      "gloss": "wilderness",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 271,
+      "exampleRefs": [
+        "Psalms 29:8",
+        "Psalms 55:7",
+        "Psalms 63:0"
+      ]
+    },
+    {
+      "rank": 188,
+      "key": "בָּשָׂר",
+      "strongs": "H1320",
+      "strongsAll": [
+        "H1320"
+      ],
+      "lemma": "בָּשָׂר",
+      "displayLemma": "בָּשָׂר",
+      "translit": "ba.Sar",
+      "gloss": "flesh",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 270,
+      "exampleRefs": [
+        "Genesis 2:21",
+        "Genesis 2:23",
+        "Genesis 2:24"
+      ]
+    },
+    {
+      "rank": 189,
+      "key": "רָשָׁע",
+      "strongs": "H7563",
+      "strongsAll": [
+        "H7563"
+      ],
+      "lemma": "רָשָׁע",
+      "displayLemma": "רָשָׁע",
+      "translit": "ra.Sha'",
+      "gloss": "wicked",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmpa",
+      "frequency": 263,
+      "exampleRefs": [
+        "Psalms 1:1",
+        "Psalms 1:4",
+        "Psalms 1:5"
+      ]
+    },
+    {
+      "rank": 190,
+      "key": "בָּבֶל",
+      "strongs": "H0894",
+      "strongsAll": [
+        "H0894"
+      ],
+      "lemma": "בָּבֶ֫ל, בָּבֶל",
+      "displayLemma": "בָּבֶל",
+      "translit": "ba.Vel",
+      "gloss": "Babylon",
+      "partOfSpeech": "Noun",
+      "category": "Noun · proper name",
+      "properName": true,
+      "commonMorph": "HNpl",
+      "frequency": 262,
+      "exampleRefs": [
+        "Psalms 87:4",
+        "Psalms 137:1",
+        "Psalms 137:8"
+      ]
+    },
+    {
+      "rank": 191,
+      "key": "לֵבָב",
+      "strongs": "H3824",
+      "strongsAll": [
+        "H3824"
+      ],
+      "lemma": "לֵבָב",
+      "displayLemma": "לֵבָב",
+      "translit": "le.Vav",
+      "gloss": "heart",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 252,
+      "exampleRefs": [
+        "Psalms 4:4",
+        "Psalms 13:2",
+        "Psalms 15:2"
+      ]
+    },
+    {
+      "rank": 192,
+      "key": "מַטֶּה",
+      "strongs": "H4294H",
+      "strongsAll": [
+        "H4294H",
+        "H4294G",
+        "H4294J",
+        "H4294K",
+        "H4294I"
+      ],
+      "lemma": "מַטֶּה",
+      "displayLemma": "מַטֶּה",
+      "translit": "ma.Teh",
+      "gloss": "tribe",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 252,
+      "exampleRefs": [
+        "Psalms 105:16",
+        "Psalms 110:2",
+        "Genesis 38:18"
+      ]
+    },
+    {
+      "rank": 193,
+      "key": "טָמֵא",
+      "strongs": "H2930A",
+      "strongsAll": [
+        "H2930A",
+        "H2931"
+      ],
+      "lemma": "טָמֵא",
+      "displayLemma": "טָמֵא",
+      "translit": "ta.Me'",
+      "gloss": "to defile; unclean",
+      "courseGloss": "unclean; to be unclean",
+      "partOfSpeech": "Adjective",
+      "category": "Adjective · common",
+      "properName": false,
+      "commonMorph": "HAamsa",
+      "frequency": 250,
+      "exampleRefs": [
+        "Psalms 79:1",
+        "Psalms 106:39",
+        "Genesis 34:5"
+      ]
+    },
+    {
+      "rank": 194,
+      "key": "אַמָּה",
+      "strongs": "H0520A",
+      "strongsAll": [
+        "H0520A",
+        "H0520B",
+        "H0522"
+      ],
+      "lemma": "אַמָּה",
+      "displayLemma": "אַמָּה",
+      "translit": "'a.Mah",
+      "gloss": "cubit",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcfsa",
+      "frequency": 248,
+      "exampleRefs": [
+        "Genesis 6:15",
+        "Genesis 6:16",
+        "Genesis 7:20"
+      ]
+    },
+    {
+      "rank": 195,
+      "key": "חֶסֶד",
+      "strongs": "H2617A",
+      "strongsAll": [
+        "H2617A",
+        "H2617B",
+        "H2618"
+      ],
+      "lemma": "חֶ֫סֶד",
+      "displayLemma": "חֶסֶד",
+      "translit": "Che.sed",
+      "gloss": "kindness",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 248,
+      "exampleRefs": [
+        "Psalms 5:7",
+        "Psalms 6:4",
+        "Psalms 13:5"
+      ]
+    },
+    {
+      "rank": 196,
+      "key": "חַיִל",
+      "strongs": "H2428A",
+      "strongsAll": [
+        "H2428A",
+        "H2428G",
+        "H2428H",
+        "H2428I",
+        "H2428B"
+      ],
+      "lemma": "חַ֫יִל",
+      "displayLemma": "חַיִל",
+      "translit": "Cha.yil",
+      "gloss": "strength",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 246,
+      "exampleRefs": [
+        "Psalms 10:10",
+        "Psalms 18:32",
+        "Psalms 18:39"
+      ]
+    },
+    {
+      "rank": 197,
+      "key": "רֶגֶל",
+      "strongs": "H7272",
+      "strongsAll": [
+        "H7272"
+      ],
+      "lemma": "רֶ֫גֶל",
+      "displayLemma": "רֶגֶל",
+      "translit": "Re.gel",
+      "gloss": "foot",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcfdc",
+      "frequency": 245,
+      "exampleRefs": [
+        "Psalms 8:6",
+        "Psalms 9:15",
+        "Psalms 18:9"
+      ]
+    },
+    {
+      "rank": 198,
+      "key": "חַי",
+      "strongs": "H2416A",
+      "strongsAll": [
+        "H2416A",
+        "H2416B"
+      ],
+      "lemma": "חַי",
+      "displayLemma": "חַי",
+      "translit": "chai",
+      "gloss": "alive",
+      "partOfSpeech": "Adjective",
+      "category": "Adjective · common",
+      "properName": false,
+      "commonMorph": "HAamsa",
+      "frequency": 243,
+      "exampleRefs": [
+        "Genesis 1:20",
+        "Genesis 1:21",
+        "Genesis 1:24"
+      ]
+    },
+    {
+      "rank": 199,
+      "key": "אֵל",
+      "strongs": "H0410G",
+      "strongsAll": [
+        "H0410G",
+        "H0410K",
+        "H0410J",
+        "H0410L",
+        "H0410H",
+        "H0410I"
+      ],
+      "lemma": "אֵל",
+      "displayLemma": "אֵל",
+      "translit": "'El",
+      "gloss": "God",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 241,
+      "exampleRefs": [
+        "Psalms 5:4",
+        "Psalms 7:11",
+        "Psalms 10:11"
+      ]
+    },
+    {
+      "rank": 200,
+      "key": "גְּבוּל",
+      "strongs": "H1366G",
+      "strongsAll": [
+        "H1366G",
+        "H1366H"
+      ],
+      "lemma": "גְּבוּל",
+      "displayLemma": "גְּבוּל",
+      "translit": "ge.Vul",
+      "gloss": "border",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 240,
+      "exampleRefs": [
+        "Psalms 78:54",
+        "Psalms 104:9",
+        "Psalms 105:31"
+      ]
+    },
+    {
+      "rank": 201,
+      "key": "נַעַר",
+      "strongs": "H5288",
+      "strongsAll": [
+        "H5288",
+        "H5289"
+      ],
+      "lemma": "נַ֫עַר",
+      "displayLemma": "נַעַר",
+      "translit": "Na.'ar",
+      "gloss": "youth",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 240,
+      "exampleRefs": [
+        "Psalms 37:25",
+        "Psalms 119:9",
+        "Psalms 148:12"
+      ]
+    },
+    {
+      "rank": 202,
+      "key": "חָטָא",
+      "strongs": "H2398",
+      "strongsAll": [
+        "H2398"
+      ],
+      "lemma": "חָטָא",
+      "displayLemma": "חָטָא",
+      "translit": "cha.Ta'",
+      "gloss": "to sin",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · perfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqp3ms",
+      "frequency": 238,
+      "exampleRefs": [
+        "Psalms 4:4",
+        "Psalms 39:1",
+        "Psalms 41:4"
+      ]
+    },
+    {
+      "rank": 203,
+      "key": "שָׁלוֹם",
+      "strongs": "H7965G",
+      "strongsAll": [
+        "H7965G",
+        "H7965I",
+        "H7965K",
+        "H7965J",
+        "H7965H",
+        "H7965L"
+      ],
+      "lemma": "שָׁלוֹם",
+      "displayLemma": "שָׁלוֹם",
+      "translit": "sha.Lom",
+      "gloss": "peace",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 237,
+      "exampleRefs": [
+        "Psalms 4:8",
+        "Psalms 28:3",
+        "Psalms 29:11"
+      ]
+    },
+    {
+      "rank": 204,
+      "key": "מַעֲשֶׂה",
+      "strongs": "H4639G",
+      "strongsAll": [
+        "H4639G",
+        "H4639K"
+      ],
+      "lemma": "מַעֲשֶׂה",
+      "displayLemma": "מַעֲשֶׂה",
+      "translit": "ma.'a.Seh",
+      "gloss": "deed",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 236,
+      "exampleRefs": [
+        "Psalms 8:3",
+        "Psalms 8:6",
+        "Psalms 19:1"
+      ]
+    },
+    {
+      "rank": 205,
+      "key": "לַיְלָה",
+      "strongs": "H3915",
+      "strongsAll": [
+        "H3915"
+      ],
+      "lemma": "לַ֫יְלָה",
+      "displayLemma": "לַיְלָה",
+      "translit": "Lay.lah",
+      "gloss": "night",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 233,
+      "exampleRefs": [
+        "Genesis 1:5",
+        "Genesis 1:14",
+        "Genesis 1:16"
+      ]
+    },
+    {
+      "rank": 206,
+      "key": "עָוֺן",
+      "strongs": "H5771G",
+      "strongsAll": [
+        "H5771G",
+        "H5771H",
+        "H5771I"
+      ],
+      "lemma": "עָוֺן",
+      "displayLemma": "עָוֺן",
+      "translit": "a.van",
+      "gloss": "iniquity",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 233,
+      "exampleRefs": [
+        "Psalms 18:23",
+        "Psalms 25:11",
+        "Psalms 31:10"
+      ]
+    },
+    {
+      "rank": 207,
+      "key": "זָכַר",
+      "strongs": "H2142",
+      "strongsAll": [
+        "H2142"
+      ],
+      "lemma": "זָכַר",
+      "displayLemma": "זָכַר",
+      "translit": "za.Khar",
+      "gloss": "to remember",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · imperative (present/future, imperative)",
+      "properName": false,
+      "commonMorph": "HVqv2ms",
+      "frequency": 232,
+      "exampleRefs": [
+        "Psalms 8:4",
+        "Psalms 9:12",
+        "Psalms 20:3"
+      ]
+    },
+    {
+      "rank": 208,
+      "key": "יָרַשׁ",
+      "strongs": "H3423H",
+      "strongsAll": [
+        "H3423H",
+        "H3423G",
+        "H3423I"
+      ],
+      "lemma": "יָרַשׁ",
+      "displayLemma": "יָרַשׁ",
+      "translit": "ya.Rash",
+      "gloss": "to possess",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · infinitive",
+      "properName": false,
+      "commonMorph": "HVqcc",
+      "frequency": 231,
+      "exampleRefs": [
+        "Psalms 25:13",
+        "Psalms 37:9",
+        "Psalms 37:11"
+      ]
+    },
+    {
+      "rank": 209,
+      "key": "זֶרַע",
+      "strongs": "H2233H",
+      "strongsAll": [
+        "H2233H",
+        "H2233G",
+        "H2233I"
+      ],
+      "lemma": "זֶ֫רַע",
+      "displayLemma": "זֶרַע",
+      "translit": "Ze.ra'",
+      "gloss": "seed",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 229,
+      "exampleRefs": [
+        "Genesis 1:11",
+        "Genesis 1:12",
+        "Genesis 1:29"
+      ]
+    },
+    {
+      "rank": 210,
+      "key": "כָּלָה",
+      "strongs": "H3615G",
+      "strongsAll": [
+        "H3615G",
+        "H3615H",
+        "H3615J",
+        "H3617",
+        "H3615I"
+      ],
+      "lemma": "כָּלָה",
+      "displayLemma": "כָּלָה",
+      "translit": "ka.Lah",
+      "gloss": "to end",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Piel (intensive/resultive/transtive, active) · infinitive",
+      "properName": false,
+      "commonMorph": "HVpcc",
+      "frequency": 229,
+      "exampleRefs": [
+        "Genesis 2:1",
+        "Genesis 2:2",
+        "Psalms 18:37"
+      ]
+    },
+    {
+      "rank": 211,
+      "key": "קֶרֶב",
+      "strongs": "H7130G",
+      "strongsAll": [
+        "H7130G",
+        "H7130H"
+      ],
+      "lemma": "קֶ֫רֶב",
+      "displayLemma": "קֶרֶב",
+      "translit": "Ke.rev",
+      "gloss": "entrails",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 227,
+      "exampleRefs": [
+        "Psalms 5:9",
+        "Psalms 36:1",
+        "Psalms 39:3"
+      ]
+    },
+    {
+      "rank": 212,
+      "key": "רָבָה",
+      "strongs": "H7235A",
+      "strongsAll": [
+        "H7235A",
+        "H7235B"
+      ],
+      "lemma": "רָבָה",
+      "displayLemma": "רָבָה",
+      "translit": "ra.vah",
+      "gloss": "to multiply",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Hiphil (causative/declarative, active) · infinitive",
+      "properName": false,
+      "commonMorph": "HVhaa",
+      "frequency": 227,
+      "exampleRefs": [
+        "Genesis 1:22",
+        "Genesis 1:28",
+        "Genesis 3:16"
+      ]
+    },
+    {
+      "rank": 213,
+      "key": "אֲדָמָה",
+      "strongs": "H0127G",
+      "strongsAll": [
+        "H0127G",
+        "H0127I",
+        "H0127H",
+        "H0128"
+      ],
+      "lemma": "אֲדָמָה",
+      "displayLemma": "אֲדָמָה",
+      "translit": "'a.da.Mah",
+      "gloss": "land",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcfsa",
+      "frequency": 226,
+      "exampleRefs": [
+        "Genesis 1:25",
+        "Genesis 2:5",
+        "Genesis 2:6"
+      ]
+    },
+    {
+      "rank": 214,
+      "key": "בָּקַשׁ",
+      "strongs": "H1245",
+      "strongsAll": [
+        "H1245"
+      ],
+      "lemma": "בָּקַשׁ",
+      "displayLemma": "בָּקַשׁ",
+      "translit": "ba.qash",
+      "gloss": "to seek",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Piel (intensive/resultive/transtive, active) · infinitive",
+      "properName": false,
+      "commonMorph": "HVpcc",
+      "frequency": 225,
+      "exampleRefs": [
+        "Psalms 4:2",
+        "Psalms 24:6",
+        "Psalms 27:4"
+      ]
+    },
+    {
+      "rank": 215,
+      "key": "כָּתַב",
+      "strongs": "H3789",
+      "strongsAll": [
+        "H3789"
+      ],
+      "lemma": "כָּתַב",
+      "displayLemma": "כָּתַב",
+      "translit": "ka.Tav",
+      "gloss": "to write",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, passive) · participle passive",
+      "properName": false,
+      "commonMorph": "HVqsmpa",
+      "frequency": 224,
+      "exampleRefs": [
+        "Psalms 40:7",
+        "Psalms 69:28",
+        "Psalms 87:6"
+      ]
+    },
+    {
+      "rank": 216,
+      "key": "מוֹעֵד",
+      "strongs": "H4150I",
+      "strongsAll": [
+        "H4150I",
+        "H4150G",
+        "H4150H",
+        "H4150J"
+      ],
+      "lemma": "מוֹעֵד",
+      "displayLemma": "מוֹעֵד",
+      "translit": "mo.'Ed",
+      "gloss": "meeting",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 223,
+      "exampleRefs": [
+        "Genesis 1:14",
+        "Psalms 74:4",
+        "Psalms 74:8"
+      ]
+    },
+    {
+      "rank": 217,
+      "key": "נַחֲלָה",
+      "strongs": "H5159",
+      "strongsAll": [
+        "H5159"
+      ],
+      "lemma": "נַחֲלָה",
+      "displayLemma": "נַחֲלָה",
+      "translit": "na.cha.Lah",
+      "gloss": "inheritance",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcfsc",
+      "frequency": 222,
+      "exampleRefs": [
+        "Psalms 2:8",
+        "Psalms 16:6",
+        "Psalms 28:9"
+      ]
+    },
+    {
+      "rank": 218,
+      "key": "אֵם",
+      "strongs": "H0517",
+      "strongsAll": [
+        "H0517"
+      ],
+      "lemma": "אֵם",
+      "displayLemma": "אֵם",
+      "translit": "'em",
+      "gloss": "mother",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcfsc",
+      "frequency": 220,
+      "exampleRefs": [
+        "Genesis 2:24",
+        "Genesis 3:20",
+        "Psalms 22:9"
+      ]
+    },
+    {
+      "rank": 219,
+      "key": "תּוֹרָה",
+      "strongs": "H8451",
+      "strongsAll": [
+        "H8451",
+        "H8452"
+      ],
+      "lemma": "תּוֹרָה",
+      "displayLemma": "תּוֹרָה",
+      "translit": "to.Rah",
+      "gloss": "instruction",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcfsc",
+      "frequency": 220,
+      "exampleRefs": [
+        "Psalms 1:2",
+        "Psalms 19:7",
+        "Psalms 37:31"
+      ]
+    },
+    {
+      "rank": 220,
+      "key": "יְהוֹשׁוּעַ",
+      "strongs": "H3091G",
+      "strongsAll": [
+        "H3091G",
+        "H3091J",
+        "H3091H",
+        "H3091I"
+      ],
+      "lemma": "יְהוֹשׁוּעַ",
+      "displayLemma": "יְהוֹשׁוּעַ",
+      "translit": "ye.ho.Shu.a'",
+      "gloss": "Joshua",
+      "partOfSpeech": "Noun",
+      "category": "Noun · proper name",
+      "properName": true,
+      "commonMorph": "HNpm",
+      "frequency": 218,
+      "exampleRefs": [
+        "Exodus 17:9",
+        "Exodus 17:10",
+        "Exodus 17:13"
+      ]
+    },
+    {
+      "rank": 221,
+      "key": "בֶּגֶד",
+      "strongs": "H0899B",
+      "strongsAll": [
+        "H0899B",
+        "H0899A"
+      ],
+      "lemma": "בֶּ֫גֶד",
+      "displayLemma": "בֶּגֶד",
+      "translit": "Be.ged",
+      "gloss": "garment",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmpc",
+      "frequency": 217,
+      "exampleRefs": [
+        "Psalms 22:18",
+        "Psalms 45:8",
+        "Psalms 102:26"
+      ]
+    },
+    {
+      "rank": 222,
+      "key": "כּוּן",
+      "strongs": "H3559H",
+      "strongsAll": [
+        "H3559H",
+        "H3559A",
+        "H3559I",
+        "H3559K",
+        "H3559J",
+        "H3560"
+      ],
+      "lemma": "כּוּן",
+      "displayLemma": "כּוּן",
+      "translit": "Kun",
+      "gloss": "to establish",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Niphal (simple, passive) · participle",
+      "properName": false,
+      "commonMorph": "HVNrmsa",
+      "frequency": 217,
+      "exampleRefs": [
+        "Psalms 5:9",
+        "Psalms 7:9",
+        "Psalms 7:12"
+      ]
+    },
+    {
+      "rank": 223,
+      "key": "שָׁתָה",
+      "strongs": "H8354",
+      "strongsAll": [
+        "H8354"
+      ],
+      "lemma": "שָׁתָה",
+      "displayLemma": "שָׁתָה",
+      "translit": "sha.Tah",
+      "gloss": "to drink",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · infinitive",
+      "properName": false,
+      "commonMorph": "HVqcc",
+      "frequency": 217,
+      "exampleRefs": [
+        "Psalms 50:13",
+        "Psalms 69:12",
+        "Psalms 75:8"
+      ]
+    },
+    {
+      "rank": 224,
+      "key": "שֵׁשׁ",
+      "strongs": "H8337",
+      "strongsAll": [
+        "H8337"
+      ],
+      "lemma": "שֵׁשׁ",
+      "displayLemma": "שֵׁשׁ",
+      "translit": "shesh",
+      "gloss": "six",
+      "partOfSpeech": "Adjective",
+      "category": "Adjective · numerical",
+      "properName": false,
+      "commonMorph": "HAcbsc",
+      "frequency": 216,
+      "exampleRefs": [
+        "Genesis 7:6",
+        "Genesis 7:11",
+        "Genesis 8:13"
+      ]
+    },
+    {
+      "rank": 225,
+      "key": "מַחֲנֶה",
+      "strongs": "H4264",
+      "strongsAll": [
+        "H4264"
+      ],
+      "lemma": "מַחֲנֶה",
+      "displayLemma": "מַחֲנֶה",
+      "translit": "ma.cha.Neh",
+      "gloss": "camp",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcfsa",
+      "frequency": 215,
+      "exampleRefs": [
+        "Psalms 27:3",
+        "Psalms 78:28",
+        "Psalms 106:16"
+      ]
+    },
+    {
+      "rank": 226,
+      "key": "עָזַב",
+      "strongs": "H5800A",
+      "strongsAll": [
+        "H5800A",
+        "H5800C",
+        "H5800H",
+        "H5800B",
+        "H5800G"
+      ],
+      "lemma": "עָזַב",
+      "displayLemma": "עָזַב",
+      "translit": "'a.Zav",
+      "gloss": "to leave",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · perfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqp3cp",
+      "frequency": 215,
+      "exampleRefs": [
+        "Genesis 2:24",
+        "Psalms 9:10",
+        "Psalms 10:14"
+      ]
+    },
+    {
+      "rank": 227,
+      "key": "בֹּקֶר",
+      "strongs": "H1242",
+      "strongsAll": [
+        "H1242"
+      ],
+      "lemma": "בֹּ֫קֶר",
+      "displayLemma": "בֹּקֶר",
+      "translit": "Bo.ker",
+      "gloss": "morning",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 214,
+      "exampleRefs": [
+        "Genesis 1:5",
+        "Genesis 1:8",
+        "Genesis 1:13"
+      ]
+    },
+    {
+      "rank": 228,
+      "key": "מַלְאָךְ",
+      "strongs": "H4397H",
+      "strongsAll": [
+        "H4397H",
+        "H4397G",
+        "H4397"
+      ],
+      "lemma": "מַלְאָךְ",
+      "displayLemma": "מַלְאָךְ",
+      "translit": "mal.'Akh",
+      "gloss": "messenger",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 214,
+      "exampleRefs": [
+        "Psalms 34:7",
+        "Psalms 35:5",
+        "Psalms 35:6"
+      ]
+    },
+    {
+      "rank": 229,
+      "key": "נָטָה",
+      "strongs": "H5186",
+      "strongsAll": [
+        "H5186"
+      ],
+      "lemma": "נָטָה",
+      "displayLemma": "נָטָה",
+      "translit": "na.Tah",
+      "gloss": "to stretch",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, passive) · participle passive",
+      "properName": false,
+      "commonMorph": "HVqsfsa",
+      "frequency": 214,
+      "exampleRefs": [
+        "Psalms 17:6",
+        "Psalms 17:11",
+        "Psalms 18:9"
+      ]
+    },
+    {
+      "rank": 230,
+      "key": "יוֹסֵף",
+      "strongs": "H3130G",
+      "strongsAll": [
+        "H3130G",
+        "H3130I",
+        "H3130H",
+        "H3130J",
+        "H3130K"
+      ],
+      "lemma": "יוֹסֵף",
+      "displayLemma": "יוֹסֵף",
+      "translit": "yo.Sef",
+      "gloss": "Joseph",
+      "partOfSpeech": "Noun",
+      "category": "Noun · proper name",
+      "properName": true,
+      "commonMorph": "HNpm",
+      "frequency": 213,
+      "exampleRefs": [
+        "Psalms 77:15",
+        "Psalms 78:67",
+        "Psalms 80:1"
+      ]
+    },
+    {
+      "rank": 231,
+      "key": "נָצַל",
+      "strongs": "H5337",
+      "strongsAll": [
+        "H5337"
+      ],
+      "lemma": "נָצַל",
+      "displayLemma": "נָצַל",
+      "translit": "na.tsal",
+      "gloss": "to rescue",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Hiphil (causative/declarative, active) · imperfect (future/present, indicative/jussive)",
+      "properName": false,
+      "commonMorph": "HVhi3ms",
+      "frequency": 213,
+      "exampleRefs": [
+        "Psalms 7:1",
+        "Psalms 7:2",
+        "Psalms 18:0"
+      ]
+    },
+    {
+      "rank": 232,
+      "key": "יָסַף",
+      "strongs": "H3254G",
+      "strongsAll": [
+        "H3254G",
+        "H3254H"
+      ],
+      "lemma": "יָסַף",
+      "displayLemma": "יָסַף",
+      "translit": "ya.Saf",
+      "gloss": "to add",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Hiphil (causative/declarative, active) · imperfect (future/present, indicative/jussive)",
+      "properName": false,
+      "commonMorph": "HVhi3ms",
+      "frequency": 212,
+      "exampleRefs": [
+        "Psalms 10:18",
+        "Psalms 41:8",
+        "Psalms 61:6"
+      ]
+    },
+    {
+      "rank": 233,
+      "key": "שָׁכַב",
+      "strongs": "H7901G",
+      "strongsAll": [
+        "H7901G",
+        "H7901I",
+        "H7901J",
+        "H7901H"
+      ],
+      "lemma": "שָׁכַב",
+      "displayLemma": "שָׁכַב",
+      "translit": "sha.Khav",
+      "gloss": "to lie down",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqw3ms",
+      "frequency": 212,
+      "exampleRefs": [
+        "Psalms 3:5",
+        "Psalms 4:8",
+        "Psalms 41:8"
+      ]
+    },
+    {
+      "rank": 234,
+      "key": "אָהֵב",
+      "strongs": "H0157G",
+      "strongsAll": [
+        "H0157G",
+        "H0157H"
+      ],
+      "lemma": "אָהֵב",
+      "displayLemma": "אָהֵב",
+      "translit": "'a.Hev",
+      "gloss": "to love",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · participle",
+      "properName": false,
+      "commonMorph": "HVqrmpc",
+      "frequency": 211,
+      "exampleRefs": [
+        "Psalms 4:2",
+        "Psalms 5:11",
+        "Psalms 11:5"
+      ]
+    },
+    {
+      "rank": 235,
+      "key": "מִנְחָה",
+      "strongs": "H4503G",
+      "strongsAll": [
+        "H4503G",
+        "H4503H",
+        "H4503I"
+      ],
+      "lemma": "מִנְחָה",
+      "displayLemma": "מִנְחָה",
+      "translit": "min.Chah",
+      "gloss": "offering",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcfsa",
+      "frequency": 211,
+      "exampleRefs": [
+        "Psalms 20:3",
+        "Psalms 40:6",
+        "Psalms 45:12"
+      ]
+    },
+    {
+      "rank": 236,
+      "key": "יָשַׁע",
+      "strongs": "H3467",
+      "strongsAll": [
+        "H3467"
+      ],
+      "lemma": "יָשַׁע",
+      "displayLemma": "יָשַׁע",
+      "translit": "ya.sah",
+      "gloss": "to save",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Hiphil (causative/declarative, active) · imperative (present/future, imperative)",
+      "properName": false,
+      "commonMorph": "HVhv2ms",
+      "frequency": 206,
+      "exampleRefs": [
+        "Psalms 3:7",
+        "Psalms 6:4",
+        "Psalms 7:1"
+      ]
+    },
+    {
+      "rank": 237,
+      "key": "צַדִּיק",
+      "strongs": "H6662",
+      "strongsAll": [
+        "H6662"
+      ],
+      "lemma": "צַדִּיק",
+      "displayLemma": "צַדִּיק",
+      "translit": "tza.Dik",
+      "gloss": "righteous",
+      "partOfSpeech": "Adjective",
+      "category": "Adjective · common",
+      "properName": false,
+      "commonMorph": "HAamsa",
+      "frequency": 206,
+      "exampleRefs": [
+        "Psalms 1:5",
+        "Psalms 1:6",
+        "Psalms 5:12"
+      ]
+    },
+    {
+      "rank": 238,
+      "key": "זָקֵן",
+      "strongs": "H2205G",
+      "strongsAll": [
+        "H2205G",
+        "H2205H",
+        "H2204"
+      ],
+      "lemma": "זָקֵן",
+      "displayLemma": "זָקֵן",
+      "translit": "za.Ken",
+      "gloss": "old; be old",
+      "partOfSpeech": "Adjective",
+      "category": "Adjective · common",
+      "properName": false,
+      "commonMorph": "HAampc",
+      "frequency": 205,
+      "exampleRefs": [
+        "Psalms 37:25",
+        "Psalms 105:22",
+        "Psalms 107:32"
+      ]
+    },
+    {
+      "rank": 239,
+      "key": "אֲרוֹן",
+      "strongs": "H0727",
+      "strongsAll": [
+        "H0727"
+      ],
+      "lemma": "אֲרוֹן",
+      "displayLemma": "אֲרוֹן",
+      "translit": "'a.Ron",
+      "gloss": "ark",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 202,
+      "exampleRefs": [
+        "Psalms 132:8",
+        "Genesis 50:26",
+        "Exodus 25:10"
+      ]
+    },
+    {
+      "rank": 240,
+      "key": "כָּבוֹד",
+      "strongs": "H3519",
+      "strongsAll": [
+        "H3519",
+        "H3520A"
+      ],
+      "lemma": "כָּבוֹד",
+      "displayLemma": "כָּבוֹד",
+      "translit": "ka.Vod",
+      "gloss": "glory",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 202,
+      "exampleRefs": [
+        "Psalms 3:3",
+        "Psalms 4:2",
+        "Psalms 7:5"
+      ]
+    },
+    {
+      "rank": 241,
+      "key": "שָׁפַט",
+      "strongs": "H8199",
+      "strongsAll": [
+        "H8199"
+      ],
+      "lemma": "שָׁפַט",
+      "displayLemma": "שָׁפַט",
+      "translit": "sha.Fat",
+      "gloss": "to judge",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · participle",
+      "properName": false,
+      "commonMorph": "HVqrmpc",
+      "frequency": 202,
+      "exampleRefs": [
+        "Psalms 2:10",
+        "Psalms 7:8",
+        "Psalms 7:11"
+      ]
+    },
+    {
+      "rank": 242,
+      "key": "אָסַף",
+      "strongs": "H0622",
+      "strongsAll": [
+        "H0622"
+      ],
+      "lemma": "אָסַף",
+      "displayLemma": "אָסַף",
+      "translit": "'a.Saf",
+      "gloss": "to gather",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+      "properName": false,
+      "commonMorph": "HVqw3ms",
+      "frequency": 200,
+      "exampleRefs": [
+        "Psalms 26:9",
+        "Psalms 27:10",
+        "Psalms 35:15"
+      ]
+    },
+    {
+      "rank": 243,
+      "key": "בַּד",
+      "strongs": "H0905H",
+      "strongsAll": [
+        "H0905H",
+        "H0905G",
+        "H0905J",
+        "H0905I"
+      ],
+      "lemma": "בַּד",
+      "displayLemma": "בַּד",
+      "translit": "bad",
+      "gloss": "alone",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 200,
+      "exampleRefs": [
+        "Genesis 2:18",
+        "Psalms 51:4",
+        "Psalms 71:16"
+      ]
+    },
+    {
+      "rank": 244,
+      "key": "רוּם",
+      "strongs": "H7311A",
+      "strongsAll": [
+        "H7311A",
+        "H7312"
+      ],
+      "lemma": "רוּם",
+      "displayLemma": "רוּם",
+      "translit": "rum",
+      "gloss": "to exalt",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Hiphil (causative/declarative, active) · imperfect (future/present, indicative/jussive)",
+      "properName": false,
+      "commonMorph": "HVhi2mp",
+      "frequency": 195,
+      "exampleRefs": [
+        "Psalms 3:3",
+        "Psalms 9:13",
+        "Psalms 12:8"
+      ]
+    },
+    {
+      "rank": 245,
+      "key": "יָכֹל",
+      "strongs": "H3201",
+      "strongsAll": [
+        "H3201"
+      ],
+      "lemma": "יָכֹל",
+      "displayLemma": "יָכֹל",
+      "translit": "ya.Khol",
+      "gloss": "be able",
+      "partOfSpeech": "Verb",
+      "category": "Verb · Qal (simple, active) · imperfect (future/present, indicative/jussive)",
+      "properName": false,
+      "commonMorph": "HVqi3ms",
+      "frequency": 193,
+      "exampleRefs": [
+        "Psalms 13:4",
+        "Psalms 18:38",
+        "Psalms 21:11"
+      ]
+    },
+    {
+      "rank": 246,
+      "key": "כַּף",
+      "strongs": "H3709G",
+      "strongsAll": [
+        "H3709G",
+        "H3709I",
+        "H3709H"
+      ],
+      "lemma": "כַּף",
+      "displayLemma": "כַּף",
+      "translit": "kaf",
+      "gloss": "palm",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcfsc",
+      "frequency": 193,
+      "exampleRefs": [
+        "Psalms 7:3",
+        "Psalms 9:16",
+        "Psalms 18:0"
+      ]
+    },
+    {
+      "rank": 247,
+      "key": "רֵעַ",
+      "strongs": "H7453",
+      "strongsAll": [
+        "H7453",
+        "H7452",
+        "H7454"
+      ],
+      "lemma": "רֵעַ",
+      "displayLemma": "רֵעַ",
+      "translit": "Re.a'",
+      "gloss": "neighbor",
+      "partOfSpeech": "Noun",
+      "category": "Noun · construct",
+      "properName": false,
+      "commonMorph": "HNcmsc",
+      "frequency": 193,
+      "exampleRefs": [
+        "Psalms 12:2",
+        "Psalms 15:3",
+        "Psalms 28:3"
+      ]
+    },
+    {
+      "rank": 248,
+      "key": "שֶׁמֶן",
+      "strongs": "H8081",
+      "strongsAll": [
+        "H8081"
+      ],
+      "lemma": "שֶׁ֫מֶן",
+      "displayLemma": "שֶׁמֶן",
+      "translit": "She.men",
+      "gloss": "oil",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcmsa",
+      "frequency": 193,
+      "exampleRefs": [
+        "Psalms 23:5",
+        "Psalms 45:7",
+        "Psalms 55:21"
+      ]
+    },
+    {
+      "rank": 249,
+      "key": "חָצֵר",
+      "strongs": "H2691A",
+      "strongsAll": [
+        "H2691A",
+        "H2691B"
+      ],
+      "lemma": "חָצֵר",
+      "displayLemma": "חָצֵר",
+      "translit": "cha.Tzer",
+      "gloss": "court; village",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcbsa",
+      "frequency": 191,
+      "exampleRefs": [
+        "Psalms 10:8",
+        "Psalms 65:4",
+        "Psalms 84:2"
+      ]
+    },
+    {
+      "rank": 250,
+      "key": "בְּהֵמָה",
+      "strongs": "H0929",
+      "strongsAll": [
+        "H0929"
+      ],
+      "lemma": "בְּהֵמָה",
+      "displayLemma": "בְּהֵמָה",
+      "translit": "be.he.Mah",
+      "gloss": "animal",
+      "partOfSpeech": "Noun",
+      "category": "Noun · absolute",
+      "properName": false,
+      "commonMorph": "HNcfsa",
+      "frequency": 190,
+      "exampleRefs": [
+        "Genesis 1:24",
+        "Genesis 1:25",
+        "Genesis 1:26"
+      ]
+    }
+  ],
+  "morphemes": {
+    "note": "Bound morphemes, keyed by Strong's number (H9xxx): prefixes and pronoun suffixes. forms = the commonest spellings in the text.",
+    "count": 42,
+    "words": [
+      {
+        "rank": null,
+        "key": "H9002",
+        "strongs": "H9002",
+        "strongsAll": [
+          "H9002"
+        ],
+        "lemma": "H9002",
+        "displayLemma": "וְ",
+        "translit": "ve.",
+        "gloss": "and",
+        "partOfSpeech": "Conjunction",
+        "category": "Conjunction",
+        "properName": false,
+        "bound": "prefix",
+        "forms": [
+          {
+            "form": "וְ",
+            "n": 18945
+          },
+          {
+            "form": "וּ",
+            "n": 7503
+          },
+          {
+            "form": "וַ",
+            "n": 1391
+          },
+          {
+            "form": "וָ",
+            "n": 634
+          }
+        ],
+        "commonMorph": "HC",
+        "frequency": 28974,
+        "exampleRefs": [
+          "Genesis 1:1",
+          "Genesis 1:2",
+          "Genesis 1:4"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9009",
+        "strongs": "H9009",
+        "strongsAll": [
+          "H9009"
+        ],
+        "lemma": "H9009",
+        "displayLemma": "הַ",
+        "translit": "ha.",
+        "gloss": "the",
+        "partOfSpeech": "Particle",
+        "category": "Particle · definite article (hebrew)",
+        "properName": false,
+        "bound": "prefix",
+        "forms": [
+          {
+            "form": "הַ",
+            "n": 16895
+          },
+          {
+            "form": "הָ",
+            "n": 6657
+          },
+          {
+            "form": "הֶ",
+            "n": 392
+          },
+          {
+            "form": "הֳ",
+            "n": 1
+          }
+        ],
+        "commonMorph": "HTd",
+        "frequency": 23945,
+        "exampleRefs": [
+          "Genesis 1:1",
+          "Genesis 1:2",
+          "Genesis 1:4"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9001",
+        "strongs": "H9001",
+        "strongsAll": [
+          "H9001"
+        ],
+        "lemma": "H9001",
+        "displayLemma": "וַ",
+        "displayNote": "the vav consecutive",
+        "translit": "va",
+        "gloss": "&",
+        "courseGloss": "and (with the verb that follows: \"and then …\")",
+        "partOfSpeech": "Conjunction",
+        "category": "Conjunction · consecutive",
+        "properName": false,
+        "bound": "prefix",
+        "forms": [
+          {
+            "form": "וַ",
+            "n": 14663
+          },
+          {
+            "form": "וְ",
+            "n": 5132
+          },
+          {
+            "form": "וּ",
+            "n": 739
+          },
+          {
+            "form": "וָ",
+            "n": 682
+          }
+        ],
+        "commonMorph": "Hc",
+        "frequency": 21328,
+        "exampleRefs": [
+          "Genesis 1:3",
+          "Genesis 1:4",
+          "Genesis 1:5"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9005",
+        "strongs": "H9005",
+        "strongsAll": [
+          "H9005"
+        ],
+        "lemma": "H9005",
+        "lexiconLemma": "/ל",
+        "displayLemma": "לְ",
+        "translit": "le.",
+        "gloss": "to",
+        "partOfSpeech": "Preposition",
+        "category": "Preposition",
+        "properName": false,
+        "bound": "prefix",
+        "forms": [
+          {
+            "form": "לְ",
+            "n": 7912
+          },
+          {
+            "form": "לָ",
+            "n": 3568
+          },
+          {
+            "form": "לִ",
+            "n": 3206
+          },
+          {
+            "form": "לַ",
+            "n": 2911
+          }
+        ],
+        "commonMorph": "HR",
+        "frequency": 20437,
+        "exampleRefs": [
+          "Genesis 1:5",
+          "Genesis 1:6",
+          "Genesis 1:7"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9003",
+        "strongs": "H9003",
+        "strongsAll": [
+          "H9003"
+        ],
+        "lemma": "H9003",
+        "displayLemma": "בְּ",
+        "translit": "be.",
+        "gloss": "in",
+        "partOfSpeech": "Preposition",
+        "category": "Preposition",
+        "properName": false,
+        "bound": "prefix",
+        "forms": [
+          {
+            "form": "בְּ",
+            "n": 6584
+          },
+          {
+            "form": "בַּ",
+            "n": 2733
+          },
+          {
+            "form": "בְ",
+            "n": 1545
+          },
+          {
+            "form": "בִּ",
+            "n": 1271
+          }
+        ],
+        "commonMorph": "HR",
+        "frequency": 15554,
+        "exampleRefs": [
+          "Genesis 1:1",
+          "Genesis 1:6",
+          "Genesis 1:11"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9023",
+        "strongs": "H9023",
+        "strongsAll": [
+          "H9023"
+        ],
+        "lemma": "H9023",
+        "displayLemma": "וֹ",
+        "translit": "o",
+        "gloss": "his",
+        "courseGloss": "his, its",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "וֹ",
+            "n": 4499
+          },
+          {
+            "form": "ו",
+            "n": 2988
+          },
+          {
+            "form": "הוּ",
+            "n": 270
+          },
+          {
+            "form": "ה",
+            "n": 23
+          }
+        ],
+        "commonMorph": "HSp3ms",
+        "frequency": 7782,
+        "exampleRefs": [
+          "Genesis 1:11",
+          "Genesis 1:12",
+          "Genesis 1:21"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9006",
+        "strongs": "H9006",
+        "strongsAll": [
+          "H9006"
+        ],
+        "lemma": "H9006",
+        "displayLemma": "מִ",
+        "translit": "mi.",
+        "gloss": "from",
+        "partOfSpeech": "Preposition",
+        "category": "Preposition",
+        "properName": false,
+        "bound": "prefix",
+        "forms": [
+          {
+            "form": "מִ",
+            "n": 4175
+          },
+          {
+            "form": "מֵ",
+            "n": 2195
+          },
+          {
+            "form": "מֵּ",
+            "n": 3
+          },
+          {
+            "form": "מִּ",
+            "n": 2
+          }
+        ],
+        "commonMorph": "HR",
+        "frequency": 6377,
+        "exampleRefs": [
+          "Genesis 1:7",
+          "Genesis 1:9",
+          "Genesis 2:2"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9033",
+        "strongs": "H9033",
+        "strongsAll": [
+          "H9033"
+        ],
+        "lemma": "H9033",
+        "lexiconLemma": "וֹ",
+        "displayLemma": "וֹ",
+        "translit": "o",
+        "gloss": "him",
+        "courseGloss": "him, it",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "וֹ",
+            "n": 2847
+          },
+          {
+            "form": "ו",
+            "n": 1233
+          },
+          {
+            "form": "הוּ",
+            "n": 795
+          },
+          {
+            "form": "נּוּ",
+            "n": 451
+          }
+        ],
+        "commonMorph": "HSp3ms",
+        "frequency": 5356,
+        "exampleRefs": [
+          "Genesis 1:11",
+          "Genesis 1:12",
+          "Genesis 1:27"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9021",
+        "strongs": "H9021",
+        "strongsAll": [
+          "H9021"
+        ],
+        "lemma": "H9021",
+        "displayLemma": "ךָ",
+        "translit": "kha",
+        "gloss": "your",
+        "courseGloss": "your (masc. sg.)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "ךָ",
+            "n": 4282
+          },
+          {
+            "form": "כָה",
+            "n": 4
+          },
+          {
+            "form": "ךָּ",
+            "n": 1
+          }
+        ],
+        "commonMorph": "HSp2ms",
+        "frequency": 4287,
+        "exampleRefs": [
+          "Genesis 3:10",
+          "Genesis 3:14",
+          "Genesis 3:15"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9020",
+        "strongs": "H9020",
+        "strongsAll": [
+          "H9020"
+        ],
+        "lemma": "H9020",
+        "displayLemma": "י",
+        "translit": "i",
+        "gloss": "my",
+        "courseGloss": "my",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "י",
+            "n": 4211
+          },
+          {
+            "form": "יַ",
+            "n": 2
+          }
+        ],
+        "commonMorph": "HSp1bs",
+        "frequency": 4213,
+        "exampleRefs": [
+          "Genesis 2:23",
+          "Psalms 2:6",
+          "Psalms 2:7"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9038",
+        "strongs": "H9038",
+        "strongsAll": [
+          "H9038"
+        ],
+        "lemma": "H9038",
+        "lexiconLemma": "הֶם",
+        "displayLemma": "ם",
+        "translit": "m",
+        "gloss": "them",
+        "courseGloss": "them (masc.)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "ם",
+            "n": 1859
+          },
+          {
+            "form": "הֶם",
+            "n": 1595
+          },
+          {
+            "form": "מוֹ",
+            "n": 90
+          },
+          {
+            "form": "הֵמָּה",
+            "n": 7
+          }
+        ],
+        "commonMorph": "HSp3mp",
+        "frequency": 3558,
+        "exampleRefs": [
+          "Genesis 1:17",
+          "Genesis 1:22",
+          "Genesis 1:27"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9028",
+        "strongs": "H9028",
+        "strongsAll": [
+          "H9028"
+        ],
+        "lemma": "H9028",
+        "displayLemma": "ם",
+        "translit": "m",
+        "gloss": "their",
+        "courseGloss": "their (masc.)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "ם",
+            "n": 1865
+          },
+          {
+            "form": "הֶם",
+            "n": 1431
+          },
+          {
+            "form": "מוֹ",
+            "n": 24
+          },
+          {
+            "form": "הֵמָה",
+            "n": 1
+          }
+        ],
+        "commonMorph": "HSp3mp",
+        "frequency": 3323,
+        "exampleRefs": [
+          "Genesis 1:21",
+          "Genesis 2:1",
+          "Genesis 2:25"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9030",
+        "strongs": "H9030",
+        "strongsAll": [
+          "H9030"
+        ],
+        "lemma": "H9030",
+        "lexiconLemma": "נִי",
+        "displayLemma": "י",
+        "translit": "i",
+        "gloss": "me",
+        "courseGloss": "me",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "י",
+            "n": 2113
+          },
+          {
+            "form": "נִי",
+            "n": 1002
+          },
+          {
+            "form": "נִּי",
+            "n": 105
+          },
+          {
+            "form": "נְנִי",
+            "n": 6
+          }
+        ],
+        "commonMorph": "HSp1bs",
+        "frequency": 3230,
+        "exampleRefs": [
+          "Genesis 3:12",
+          "Genesis 3:13",
+          "Psalms 2:7"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9004",
+        "strongs": "H9004",
+        "strongsAll": [
+          "H9004"
+        ],
+        "lemma": "H9004",
+        "displayLemma": "כְּ",
+        "translit": "ke.",
+        "gloss": "like",
+        "partOfSpeech": "Preposition",
+        "category": "Preposition",
+        "properName": false,
+        "bound": "prefix",
+        "forms": [
+          {
+            "form": "כְּ",
+            "n": 1042
+          },
+          {
+            "form": "כַּ",
+            "n": 945
+          },
+          {
+            "form": "כִּ",
+            "n": 303
+          },
+          {
+            "form": "כְ",
+            "n": 207
+          }
+        ],
+        "commonMorph": "HR",
+        "frequency": 2900,
+        "exampleRefs": [
+          "Genesis 1:26",
+          "Genesis 2:18",
+          "Genesis 2:20"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9031",
+        "strongs": "H9031",
+        "strongsAll": [
+          "H9031"
+        ],
+        "lemma": "H9031",
+        "lexiconLemma": "ךָּ",
+        "displayLemma": "ךָ",
+        "translit": "Kha",
+        "gloss": "you",
+        "courseGloss": "you (masc. sg.)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "ךָ",
+            "n": 2011
+          },
+          {
+            "form": "ךְ",
+            "n": 233
+          },
+          {
+            "form": "ךָּ",
+            "n": 99
+          },
+          {
+            "form": "כָה",
+            "n": 21
+          }
+        ],
+        "commonMorph": "HSp2ms",
+        "frequency": 2373,
+        "exampleRefs": [
+          "Genesis 3:11",
+          "Genesis 3:15",
+          "Genesis 3:17"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9034",
+        "strongs": "H9034",
+        "strongsAll": [
+          "H9034"
+        ],
+        "lemma": "H9034",
+        "lexiconLemma": "הָ",
+        "displayLemma": "הּ",
+        "translit": "h",
+        "gloss": "her",
+        "courseGloss": "her, it",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "הּ",
+            "n": 920
+          },
+          {
+            "form": "הָ",
+            "n": 545
+          },
+          {
+            "form": "נָּה",
+            "n": 190
+          },
+          {
+            "form": "ה",
+            "n": 14
+          }
+        ],
+        "commonMorph": "HSp3fs",
+        "frequency": 1672,
+        "exampleRefs": [
+          "Genesis 1:28",
+          "Genesis 2:15",
+          "Genesis 2:21"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9024",
+        "strongs": "H9024",
+        "strongsAll": [
+          "H9024"
+        ],
+        "lemma": "H9024",
+        "displayLemma": "הּ",
+        "translit": "h",
+        "gloss": "her",
+        "courseGloss": "her, its",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "הּ",
+            "n": 823
+          },
+          {
+            "form": "הָ",
+            "n": 754
+          },
+          {
+            "form": "ה",
+            "n": 19
+          },
+          {
+            "form": "א",
+            "n": 1
+          }
+        ],
+        "commonMorph": "HSp3fs",
+        "frequency": 1599,
+        "exampleRefs": [
+          "Genesis 1:24",
+          "Genesis 1:25",
+          "Genesis 3:6"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9026",
+        "strongs": "H9026",
+        "strongsAll": [
+          "H9026"
+        ],
+        "lemma": "H9026",
+        "displayLemma": "כֶם",
+        "translit": "Khem",
+        "gloss": "your",
+        "courseGloss": "your (masc. pl.)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "כֶם",
+            "n": 1321
+          }
+        ],
+        "commonMorph": "HSp2mp",
+        "frequency": 1321,
+        "exampleRefs": [
+          "Genesis 3:5",
+          "Psalms 4:4",
+          "Psalms 11:1"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9036",
+        "strongs": "H9036",
+        "strongsAll": [
+          "H9036"
+        ],
+        "lemma": "H9036",
+        "lexiconLemma": "כֶם",
+        "displayLemma": "כֶם",
+        "translit": "Khem",
+        "gloss": "you",
+        "courseGloss": "you (masc. pl.)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "כֶם",
+            "n": 1215
+          },
+          {
+            "form": "כֶּם",
+            "n": 38
+          }
+        ],
+        "commonMorph": "HSp2mp",
+        "frequency": 1253,
+        "exampleRefs": [
+          "Genesis 1:29",
+          "Psalms 34:11",
+          "Psalms 115:14"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9011",
+        "strongs": "H9011",
+        "strongsAll": [
+          "H9011"
+        ],
+        "lemma": "H9011",
+        "displayLemma": "ה",
+        "displayNote": "the he of direction",
+        "translit": "h",
+        "gloss": "to",
+        "courseGloss": "toward (direction)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · directional",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "ה",
+            "n": 1077
+          },
+          {
+            "form": "הּ",
+            "n": 1
+          }
+        ],
+        "commonMorph": "HSd",
+        "frequency": 1078,
+        "exampleRefs": [
+          "Psalms 9:17",
+          "Psalms 68:6",
+          "Psalms 74:5"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9035",
+        "strongs": "H9035",
+        "strongsAll": [
+          "H9035"
+        ],
+        "lemma": "H9035",
+        "lexiconLemma": "נוּ",
+        "displayLemma": "נוּ",
+        "translit": "nu",
+        "gloss": "us",
+        "courseGloss": "us",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "נוּ",
+            "n": 784
+          },
+          {
+            "form": "נּוּ",
+            "n": 25
+          }
+        ],
+        "commonMorph": "HSp1bp",
+        "frequency": 809,
+        "exampleRefs": [
+          "Genesis 3:22",
+          "Psalms 2:3",
+          "Psalms 4:6"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9025",
+        "strongs": "H9025",
+        "strongsAll": [
+          "H9025"
+        ],
+        "lemma": "H9025",
+        "displayLemma": "נוּ",
+        "translit": "nu",
+        "gloss": "our",
+        "courseGloss": "our",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "נוּ",
+            "n": 801
+          }
+        ],
+        "commonMorph": "HSp1bp",
+        "frequency": 801,
+        "exampleRefs": [
+          "Genesis 1:26",
+          "Psalms 8:1",
+          "Psalms 8:9"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9022",
+        "strongs": "H9022",
+        "strongsAll": [
+          "H9022"
+        ],
+        "lemma": "H9022",
+        "displayLemma": "ךְ",
+        "translit": "kh",
+        "gloss": "your",
+        "courseGloss": "your (fem. sg.)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "ךְ",
+            "n": 743
+          },
+          {
+            "form": "כִי",
+            "n": 8
+          },
+          {
+            "form": "ך",
+            "n": 3
+          },
+          {
+            "form": "יךְ",
+            "n": 1
+          }
+        ],
+        "commonMorph": "HSp2fs",
+        "frequency": 756,
+        "exampleRefs": [
+          "Genesis 3:16",
+          "Psalms 35:3",
+          "Psalms 45:10"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9008",
+        "strongs": "H9008",
+        "strongsAll": [
+          "H9008"
+        ],
+        "lemma": "H9008",
+        "lexiconLemma": "/ה",
+        "displayLemma": "הֲ",
+        "displayNote": "the interrogative he",
+        "translit": "ha.",
+        "gloss": "¿",
+        "courseGloss": "(marks a question)",
+        "partOfSpeech": "Particle",
+        "category": "Particle · interrogative",
+        "properName": false,
+        "bound": "prefix",
+        "forms": [
+          {
+            "form": "הֲ",
+            "n": 543
+          },
+          {
+            "form": "הַ",
+            "n": 183
+          },
+          {
+            "form": "הֶ",
+            "n": 18
+          },
+          {
+            "form": "הְ",
+            "n": 3
+          }
+        ],
+        "commonMorph": "HTi",
+        "frequency": 751,
+        "exampleRefs": [
+          "Genesis 3:11",
+          "Psalms 14:2",
+          "Psalms 14:4"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9032",
+        "strongs": "H9032",
+        "strongsAll": [
+          "H9032"
+        ],
+        "lemma": "H9032",
+        "lexiconLemma": "ךְ",
+        "displayLemma": "ךְ",
+        "translit": "kh",
+        "gloss": "you",
+        "courseGloss": "you (fem. sg.)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "ךְ",
+            "n": 733
+          },
+          {
+            "form": "כִי",
+            "n": 3
+          },
+          {
+            "form": "נֶךְ",
+            "n": 2
+          }
+        ],
+        "commonMorph": "HSp2fs",
+        "frequency": 738,
+        "exampleRefs": [
+          "Genesis 3:16",
+          "Psalms 6:5",
+          "Psalms 33:22"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9012",
+        "strongs": "H9012",
+        "strongsAll": [
+          "H9012"
+        ],
+        "lemma": "H9012",
+        "displayLemma": "ה",
+        "translit": "h",
+        "gloss": "emph.",
+        "courseGloss": "(lengthening ending; no change in meaning)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · paragogic hé",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "ה",
+            "n": 407
+          }
+        ],
+        "commonMorph": "HSh",
+        "frequency": 407,
+        "exampleRefs": [
+          "Psalms 3:5",
+          "Psalms 3:7",
+          "Psalms 4:6"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9043",
+        "strongs": "H9043",
+        "strongsAll": [
+          "H9043"
+        ],
+        "lemma": "H9043",
+        "displayLemma": "וֹ",
+        "translit": "o",
+        "gloss": "he",
+        "courseGloss": "he (subject)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "וֹ",
+            "n": 313
+          },
+          {
+            "form": "נּוּ",
+            "n": 68
+          },
+          {
+            "form": "ו",
+            "n": 3
+          },
+          {
+            "form": "ה",
+            "n": 1
+          }
+        ],
+        "commonMorph": "HSp3ms",
+        "frequency": 387,
+        "exampleRefs": [
+          "Psalms 3:0",
+          "Psalms 10:9",
+          "Psalms 22:24"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9040",
+        "strongs": "H9040",
+        "strongsAll": [
+          "H9040"
+        ],
+        "lemma": "H9040",
+        "displayLemma": "נִי",
+        "translit": "Ni",
+        "gloss": "I",
+        "courseGloss": "I (as the subject of an infinitive or noun)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "נִי",
+            "n": 173
+          },
+          {
+            "form": "י",
+            "n": 171
+          },
+          {
+            "form": "נִּי",
+            "n": 15
+          }
+        ],
+        "commonMorph": "HSp1bs",
+        "frequency": 359,
+        "exampleRefs": [
+          "Psalms 4:1",
+          "Psalms 4:3",
+          "Psalms 27:4"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9013",
+        "strongs": "H9013",
+        "strongsAll": [
+          "H9013"
+        ],
+        "lemma": "H9013",
+        "displayLemma": "ן",
+        "translit": "n",
+        "gloss": "emph.",
+        "courseGloss": "(extra nun; no change in meaning)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · paragogic nun",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "ן",
+            "n": 308
+          },
+          {
+            "form": "ם",
+            "n": 1
+          }
+        ],
+        "commonMorph": "HSn",
+        "frequency": 309,
+        "exampleRefs": [
+          "Genesis 3:3",
+          "Genesis 3:4",
+          "Psalms 4:2"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9048",
+        "strongs": "H9048",
+        "strongsAll": [
+          "H9048"
+        ],
+        "lemma": "H9048",
+        "displayLemma": "ם",
+        "translit": "m",
+        "gloss": "they",
+        "courseGloss": "they (masc., subject)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "ם",
+            "n": 215
+          },
+          {
+            "form": "מוֹ",
+            "n": 2
+          }
+        ],
+        "commonMorph": "HSp3mp",
+        "frequency": 217,
+        "exampleRefs": [
+          "Genesis 2:4",
+          "Psalms 31:13",
+          "Psalms 35:13"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9041",
+        "strongs": "H9041",
+        "strongsAll": [
+          "H9041"
+        ],
+        "lemma": "H9041",
+        "displayLemma": "ךָ",
+        "translit": "Kha",
+        "gloss": "you",
+        "courseGloss": "you (masc. sg., subject)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "ךָ",
+            "n": 151
+          },
+          {
+            "form": "כָה",
+            "n": 7
+          },
+          {
+            "form": "ךְ",
+            "n": 5
+          },
+          {
+            "form": "ךָּ",
+            "n": 1
+          }
+        ],
+        "commonMorph": "HSp2ms",
+        "frequency": 165,
+        "exampleRefs": [
+          "Genesis 2:17",
+          "Genesis 3:9",
+          "Genesis 3:19"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9007",
+        "strongs": "H9007",
+        "strongsAll": [
+          "H9007"
+        ],
+        "lemma": "H9007",
+        "lexiconLemma": "/שׁ",
+        "displayLemma": "שֶׁ",
+        "translit": "she.",
+        "gloss": "which",
+        "partOfSpeech": "Particle",
+        "category": "Particle · relative",
+        "properName": false,
+        "bound": "prefix",
+        "forms": [
+          {
+            "form": "שֶׁ",
+            "n": 126
+          },
+          {
+            "form": "שֶּׁ",
+            "n": 6
+          },
+          {
+            "form": "שַׁ",
+            "n": 5
+          },
+          {
+            "form": "שְׁ",
+            "n": 1
+          }
+        ],
+        "commonMorph": "HTr",
+        "frequency": 139,
+        "exampleRefs": [
+          "Psalms 122:3",
+          "Psalms 122:4",
+          "Psalms 123:2"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9029",
+        "strongs": "H9029",
+        "strongsAll": [
+          "H9029"
+        ],
+        "lemma": "H9029",
+        "displayLemma": "הֶן",
+        "translit": "Hen",
+        "gloss": "their",
+        "courseGloss": "their (fem.)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "הֶן",
+            "n": 102
+          },
+          {
+            "form": "ן",
+            "n": 24
+          },
+          {
+            "form": "נָה",
+            "n": 4
+          },
+          {
+            "form": "הְנָה",
+            "n": 2
+          }
+        ],
+        "commonMorph": "HSp3fp",
+        "frequency": 134,
+        "exampleRefs": [
+          "Genesis 4:4",
+          "Genesis 19:33",
+          "Genesis 19:35"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9039",
+        "strongs": "H9039",
+        "strongsAll": [
+          "H9039"
+        ],
+        "lemma": "H9039",
+        "lexiconLemma": "הֶן",
+        "displayLemma": "הֶן",
+        "translit": "Hen",
+        "gloss": "them",
+        "courseGloss": "them (fem.)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "הֶן",
+            "n": 60
+          },
+          {
+            "form": "הֵן",
+            "n": 18
+          },
+          {
+            "form": "הֵנָּה",
+            "n": 18
+          },
+          {
+            "form": "ן",
+            "n": 7
+          }
+        ],
+        "commonMorph": "HSp3fp",
+        "frequency": 108,
+        "exampleRefs": [
+          "Psalms 34:20",
+          "Genesis 19:8",
+          "Genesis 19:29"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9046",
+        "strongs": "H9046",
+        "strongsAll": [
+          "H9046"
+        ],
+        "lemma": "H9046",
+        "displayLemma": "כֶם",
+        "translit": "Khem",
+        "gloss": "you",
+        "courseGloss": "you (masc. pl., subject)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "כֶם",
+            "n": 77
+          }
+        ],
+        "commonMorph": "HSp2mp",
+        "frequency": 77,
+        "exampleRefs": [
+          "Genesis 3:5",
+          "Genesis 24:49",
+          "Genesis 32:19"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9044",
+        "strongs": "H9044",
+        "strongsAll": [
+          "H9044"
+        ],
+        "lemma": "H9044",
+        "displayLemma": "הּ",
+        "translit": "h",
+        "gloss": "she",
+        "courseGloss": "she (subject)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "הּ",
+            "n": 33
+          },
+          {
+            "form": "נָּה",
+            "n": 7
+          },
+          {
+            "form": "ה",
+            "n": 4
+          }
+        ],
+        "commonMorph": "HSp3fs",
+        "frequency": 44,
+        "exampleRefs": [
+          "Genesis 7:8",
+          "Genesis 19:33",
+          "Genesis 19:35"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9042",
+        "strongs": "H9042",
+        "strongsAll": [
+          "H9042"
+        ],
+        "lemma": "H9042",
+        "displayLemma": "ךְ",
+        "translit": "kh",
+        "gloss": "you",
+        "courseGloss": "you (fem. sg., subject)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "ךְ",
+            "n": 29
+          }
+        ],
+        "commonMorph": "HSp2fs",
+        "frequency": 29,
+        "exampleRefs": [
+          "Genesis 16:11",
+          "Genesis 30:15",
+          "Judges 13:5"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9045",
+        "strongs": "H9045",
+        "strongsAll": [
+          "H9045"
+        ],
+        "lemma": "H9045",
+        "displayLemma": "נוּ",
+        "translit": "nu",
+        "gloss": "we",
+        "courseGloss": "we (subject)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "נוּ",
+            "n": 21
+          },
+          {
+            "form": "נּוּ",
+            "n": 4
+          }
+        ],
+        "commonMorph": "HSp1bp",
+        "frequency": 25,
+        "exampleRefs": [
+          "Psalms 20:9",
+          "Psalms 137:1",
+          "Genesis 44:16"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9027",
+        "strongs": "H9027",
+        "strongsAll": [
+          "H9027"
+        ],
+        "lemma": "H9027",
+        "displayLemma": "כֶן",
+        "translit": "Khen",
+        "gloss": "your",
+        "courseGloss": "your (fem. pl.)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "כֶן",
+            "n": 13
+          },
+          {
+            "form": "כֶנָה",
+            "n": 3
+          }
+        ],
+        "commonMorph": "HSp2fp",
+        "frequency": 16,
+        "exampleRefs": [
+          "Genesis 31:5",
+          "Genesis 31:6",
+          "Genesis 31:7"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9049",
+        "strongs": "H9049",
+        "strongsAll": [
+          "H9049"
+        ],
+        "lemma": "H9049",
+        "displayLemma": "ן",
+        "translit": "n",
+        "gloss": "they",
+        "courseGloss": "they (fem., subject)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "ן",
+            "n": 5
+          },
+          {
+            "form": "נָה",
+            "n": 4
+          }
+        ],
+        "commonMorph": "HSp3fp",
+        "frequency": 9,
+        "exampleRefs": [
+          "Genesis 30:38",
+          "Ruth 1:19",
+          "2 Samuel 20:3"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9037",
+        "strongs": "H9037",
+        "strongsAll": [
+          "H9037"
+        ],
+        "lemma": "H9037",
+        "lexiconLemma": "כֶן",
+        "displayLemma": "כֶן",
+        "translit": "Khen",
+        "gloss": "you",
+        "courseGloss": "you (fem. pl.)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "כֶן",
+            "n": 1
+          },
+          {
+            "form": "כֶנָה",
+            "n": 1
+          }
+        ],
+        "commonMorph": "HSp2fp",
+        "frequency": 2,
+        "exampleRefs": [
+          "Ezekiel 13:18",
+          "Ezekiel 23:49"
+        ]
+      },
+      {
+        "rank": null,
+        "key": "H9047",
+        "strongs": "H9047",
+        "strongsAll": [
+          "H9047"
+        ],
+        "lemma": "H9047",
+        "displayLemma": "כֶן",
+        "translit": "Khen",
+        "gloss": "you",
+        "courseGloss": "you (fem. pl., subject)",
+        "partOfSpeech": "Suffix",
+        "category": "Suffix · personal",
+        "properName": false,
+        "bound": "suffix",
+        "forms": [
+          {
+            "form": "כֶן",
+            "n": 1
+          }
+        ],
+        "commonMorph": "HSp2fp",
+        "frequency": 1,
+        "exampleRefs": [
+          "Exodus 1:16"
+        ]
+      }
+    ]
+  },
+  "passageSupplement": {
+    "note": "Words of Genesis 1:1–5 outside the top 250 that occur there at least 2 times, most frequent in the passage first. rank is null; otRank = place in the OT frequency list; passageCount = occurrences in the passage.",
+    "count": 2,
+    "words": [
+      {
+        "rank": null,
+        "key": "אוֹר",
+        "strongs": "H0216",
+        "strongsAll": [
+          "H0216",
+          "H0215"
+        ],
+        "lemma": "אוֹר",
+        "displayLemma": "אוֹר",
+        "translit": "'or",
+        "gloss": "light; to light",
+        "partOfSpeech": "Noun",
+        "category": "Noun · absolute",
+        "properName": false,
+        "commonMorph": "HNcfsa",
+        "frequency": 164,
+        "exampleRefs": [
+          "Genesis 1:3",
+          "Genesis 1:4",
+          "Genesis 1:5"
+        ],
+        "otRank": 282,
+        "passageCount": 5
+      },
+      {
+        "rank": null,
+        "key": "חֹשֶׁךְ",
+        "strongs": "H2822",
+        "strongsAll": [
+          "H2822"
+        ],
+        "lemma": "חֹ֫שֶׁךְ",
+        "displayLemma": "חֹשֶׁךְ",
+        "translit": "Cho.shekh",
+        "gloss": "darkness",
+        "partOfSpeech": "Noun",
+        "category": "Noun · absolute",
+        "properName": false,
+        "commonMorph": "HNcmsa",
+        "frequency": 80,
+        "exampleRefs": [
+          "Genesis 1:2",
+          "Genesis 1:4",
+          "Genesis 1:5"
+        ],
+        "otRank": 506,
+        "passageCount": 3
+      }
+    ]
+  }
+}

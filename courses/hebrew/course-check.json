@@ -1,0 +1,1349 @@
+{
+  "generatedBy": "scripts/build-hebrew-course.js",
+  "problems": [],
+  "vocabNotTaught": [],
+  "morphemesNotTaught": [],
+  "grammarCoverage": {
+    "passage": "Genesis 1:1–5",
+    "rule": "every morpheme of the passage by category (verbs by stem · conjugation; nouns by state; others by their first two description parts); lessons = the first lessons that cover it (paradigm cell, recognition note, or for particles/prepositions/conjunctions a taught word or morpheme of that category)",
+    "categories": [
+      {
+        "category": "Adjective · numerical",
+        "morphemes": 3,
+        "codes": [
+          "HAcfsa",
+          "HAcmsc"
+        ],
+        "refs": [
+          "1:4",
+          "1:5"
+        ],
+        "lessons": [
+          {
+            "id": "L12",
+            "number": 12,
+            "via": "paradigm one"
+          }
+        ]
+      },
+      {
+        "category": "Conjunction",
+        "morphemes": 7,
+        "codes": [
+          "HC"
+        ],
+        "refs": [
+          "1:1",
+          "1:2",
+          "1:4",
+          "1:5"
+        ],
+        "lessons": [
+          {
+            "id": "L08",
+            "number": 8,
+            "via": "paradigm vav"
+          },
+          {
+            "id": "L08",
+            "number": 8,
+            "via": "vocab וְ"
+          },
+          {
+            "id": "L13",
+            "number": 13,
+            "via": "vocab אוֹ"
+          }
+        ]
+      },
+      {
+        "category": "Conjunction · consecutive",
+        "morphemes": 7,
+        "codes": [
+          "Hc"
+        ],
+        "refs": [
+          "1:3",
+          "1:4",
+          "1:5"
+        ],
+        "lessons": [
+          {
+            "id": "L21",
+            "number": 21,
+            "via": "paradigm wayyiqtol"
+          },
+          {
+            "id": "L21",
+            "number": 21,
+            "via": "vocab וַ"
+          },
+          {
+            "id": "L22",
+            "number": 22,
+            "via": "paradigm hayah"
+          },
+          {
+            "id": "L24",
+            "number": 24,
+            "via": "paradigm hiphil-wayyiqtol"
+          }
+        ]
+      },
+      {
+        "category": "Noun · absolute",
+        "morphemes": 27,
+        "codes": [
+          "HNcfsa",
+          "HNcmpa",
+          "HNcmsa"
+        ],
+        "refs": [
+          "1:1",
+          "1:2",
+          "1:3",
+          "1:4",
+          "1:5"
+        ],
+        "lessons": [
+          {
+            "id": "L07",
+            "number": 7,
+            "via": "paradigm article"
+          },
+          {
+            "id": "L08",
+            "number": 8,
+            "via": "paradigm preps-article"
+          },
+          {
+            "id": "L09",
+            "number": 9,
+            "via": "paradigm noun-f"
+          },
+          {
+            "id": "L09",
+            "number": 9,
+            "via": "paradigm noun-m"
+          }
+        ]
+      },
+      {
+        "category": "Noun · construct",
+        "morphemes": 3,
+        "codes": [
+          "HNcfsc",
+          "HNcmpc"
+        ],
+        "refs": [
+          "1:2"
+        ],
+        "lessons": [
+          {
+            "id": "L10",
+            "number": 10,
+            "via": "paradigm construct"
+          },
+          {
+            "id": "L16",
+            "number": 16,
+            "via": "paradigm suffix-noun"
+          }
+        ]
+      },
+      {
+        "category": "Particle · conditional",
+        "morphemes": 1,
+        "codes": [
+          "HTc"
+        ],
+        "refs": [
+          "1:4"
+        ],
+        "lessons": [
+          {
+            "id": "L13",
+            "number": 13,
+            "via": "vocab אִם"
+          },
+          {
+            "id": "L13",
+            "number": 13,
+            "via": "vocab כִּי"
+          },
+          {
+            "id": "L22",
+            "number": 22,
+            "via": "vocab לְמַעַן"
+          }
+        ]
+      },
+      {
+        "category": "Particle · definite article (hebrew)",
+        "morphemes": 7,
+        "codes": [
+          "HTd"
+        ],
+        "refs": [
+          "1:1",
+          "1:2",
+          "1:4"
+        ],
+        "lessons": [
+          {
+            "id": "L07",
+            "number": 7,
+            "via": "paradigm article"
+          },
+          {
+            "id": "L07",
+            "number": 7,
+            "via": "vocab הַ"
+          }
+        ]
+      },
+      {
+        "category": "Particle · object indicator",
+        "morphemes": 3,
+        "codes": [
+          "HTo"
+        ],
+        "refs": [
+          "1:1",
+          "1:4"
+        ],
+        "lessons": [
+          {
+            "id": "L13",
+            "number": 13,
+            "via": "vocab אֵת"
+          },
+          {
+            "id": "L17",
+            "number": 17,
+            "via": "paradigm suffix-et"
+          }
+        ]
+      },
+      {
+        "category": "Preposition",
+        "morphemes": 3,
+        "codes": [
+          "HR"
+        ],
+        "refs": [
+          "1:1",
+          "1:2"
+        ],
+        "lessons": [
+          {
+            "id": "L08",
+            "number": 8,
+            "via": "paradigm preps"
+          },
+          {
+            "id": "L08",
+            "number": 8,
+            "via": "vocab אֵת"
+          },
+          {
+            "id": "L08",
+            "number": 8,
+            "via": "vocab אֶל"
+          },
+          {
+            "id": "L08",
+            "number": 8,
+            "via": "vocab בְּ"
+          }
+        ]
+      },
+      {
+        "category": "Preposition · definite",
+        "morphemes": 2,
+        "codes": [
+          "HRd"
+        ],
+        "refs": [
+          "1:5"
+        ],
+        "lessons": [
+          {
+            "id": "L08",
+            "number": 8,
+            "via": "paradigm preps-article"
+          }
+        ]
+      },
+      {
+        "category": "Verb · Hiphil (causative/declarative, active) · consecutive imperfect (past/present, indicative)",
+        "morphemes": 1,
+        "codes": [
+          "HVhw3ms"
+        ],
+        "refs": [
+          "1:4"
+        ],
+        "lessons": [
+          {
+            "id": "L24",
+            "number": 24,
+            "via": "paradigm hiphil-wayyiqtol"
+          }
+        ]
+      },
+      {
+        "category": "Verb · Piel (intensive/resultive/transtive, active) · participle",
+        "morphemes": 1,
+        "codes": [
+          "HVprfsa"
+        ],
+        "refs": [
+          "1:2"
+        ],
+        "lessons": [
+          {
+            "id": "L24",
+            "number": 24,
+            "via": "paradigm piel"
+          }
+        ]
+      },
+      {
+        "category": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+        "morphemes": 6,
+        "codes": [
+          "HVqw3ms"
+        ],
+        "refs": [
+          "1:3",
+          "1:4",
+          "1:5"
+        ],
+        "lessons": [
+          {
+            "id": "L21",
+            "number": 21,
+            "via": "paradigm wayyiqtol"
+          },
+          {
+            "id": "L22",
+            "number": 22,
+            "via": "paradigm hayah"
+          }
+        ]
+      },
+      {
+        "category": "Verb · Qal (simple, active) · imperfect (future/present, jussive)",
+        "morphemes": 1,
+        "codes": [
+          "HVqj3ms"
+        ],
+        "refs": [
+          "1:3"
+        ],
+        "lessons": [
+          {
+            "id": "L22",
+            "number": 22,
+            "via": "paradigm hayah"
+          }
+        ]
+      },
+      {
+        "category": "Verb · Qal (simple, active) · perfect (past/present, indicative)",
+        "morphemes": 4,
+        "codes": [
+          "HVqp3fs",
+          "HVqp3ms"
+        ],
+        "refs": [
+          "1:1",
+          "1:2",
+          "1:4",
+          "1:5"
+        ],
+        "lessons": [
+          {
+            "id": "L19",
+            "number": 19,
+            "via": "paradigm qal-perfect"
+          },
+          {
+            "id": "L22",
+            "number": 22,
+            "via": "paradigm hayah"
+          }
+        ]
+      }
+    ]
+  },
+  "lessons": [
+    {
+      "id": "L01",
+      "number": 1,
+      "type": "alphabet",
+      "vocabCount": 0,
+      "knownSoFar": 0,
+      "examples": [
+        {
+          "ref": "Genesis 1:1",
+          "words": 7,
+          "wordsKnown": 0,
+          "morphemes": 11,
+          "morphemesKnown": 0,
+          "pct": 0
+        },
+        {
+          "ref": "Genesis 1:5",
+          "words": 13,
+          "wordsKnown": 0,
+          "morphemes": 19,
+          "morphemesKnown": 0,
+          "pct": 0
+        }
+      ]
+    },
+    {
+      "id": "L02",
+      "number": 2,
+      "type": "alphabet",
+      "vocabCount": 0,
+      "knownSoFar": 0,
+      "examples": [
+        {
+          "ref": "Genesis 1:1",
+          "words": 7,
+          "wordsKnown": 0,
+          "morphemes": 11,
+          "morphemesKnown": 0,
+          "pct": 0
+        },
+        {
+          "ref": "Genesis 1:3",
+          "words": 6,
+          "wordsKnown": 0,
+          "morphemes": 8,
+          "morphemesKnown": 0,
+          "pct": 0
+        }
+      ]
+    },
+    {
+      "id": "L03",
+      "number": 3,
+      "type": "alphabet",
+      "vocabCount": 0,
+      "knownSoFar": 0,
+      "examples": [
+        {
+          "ref": "Genesis 1:1",
+          "words": 7,
+          "wordsKnown": 0,
+          "morphemes": 11,
+          "morphemesKnown": 0,
+          "pct": 0
+        },
+        {
+          "ref": "Genesis 1:4",
+          "words": 12,
+          "wordsKnown": 0,
+          "morphemes": 18,
+          "morphemesKnown": 0,
+          "pct": 0
+        }
+      ]
+    },
+    {
+      "id": "L04",
+      "number": 4,
+      "type": "alphabet",
+      "vocabCount": 0,
+      "knownSoFar": 0,
+      "examples": [
+        {
+          "ref": "Genesis 1:3",
+          "words": 6,
+          "wordsKnown": 0,
+          "morphemes": 8,
+          "morphemesKnown": 0,
+          "pct": 0
+        },
+        {
+          "ref": "Genesis 1:5",
+          "words": 13,
+          "wordsKnown": 0,
+          "morphemes": 19,
+          "morphemesKnown": 0,
+          "pct": 0
+        }
+      ]
+    },
+    {
+      "id": "L05",
+      "number": 5,
+      "type": "alphabet",
+      "vocabCount": 0,
+      "knownSoFar": 0,
+      "examples": [
+        {
+          "ref": "Genesis 1:1",
+          "words": 7,
+          "wordsKnown": 0,
+          "morphemes": 11,
+          "morphemesKnown": 0,
+          "pct": 0
+        },
+        {
+          "ref": "Genesis 1:2",
+          "words": 14,
+          "wordsKnown": 0,
+          "morphemes": 20,
+          "morphemesKnown": 0,
+          "pct": 0
+        }
+      ]
+    },
+    {
+      "id": "L06",
+      "number": 6,
+      "type": "vocab",
+      "vocabCount": 14,
+      "knownSoFar": 14,
+      "examples": [
+        {
+          "ref": "Genesis 1:1",
+          "words": 7,
+          "wordsKnown": 1,
+          "morphemes": 11,
+          "morphemesKnown": 3,
+          "pct": 27
+        },
+        {
+          "ref": "Exodus 15:3",
+          "words": 5,
+          "wordsKnown": 3,
+          "morphemes": 6,
+          "morphemesKnown": 3,
+          "pct": 50
+        },
+        {
+          "ref": "Proverbs 17:6",
+          "words": 7,
+          "wordsKnown": 3,
+          "morphemes": 9,
+          "morphemesKnown": 4,
+          "pct": 44
+        }
+      ]
+    },
+    {
+      "id": "L07",
+      "number": 7,
+      "type": "grammar",
+      "vocabCount": 11,
+      "knownSoFar": 25,
+      "examples": [
+        {
+          "ref": "Genesis 1:1",
+          "words": 7,
+          "wordsKnown": 3,
+          "morphemes": 11,
+          "morphemesKnown": 5,
+          "pct": 45
+        },
+        {
+          "ref": "Psalms 115:16",
+          "words": 7,
+          "wordsKnown": 3,
+          "morphemes": 12,
+          "morphemesKnown": 8,
+          "pct": 67
+        },
+        {
+          "ref": "Exodus 15:3",
+          "words": 5,
+          "wordsKnown": 3,
+          "morphemes": 6,
+          "morphemesKnown": 4,
+          "pct": 67
+        }
+      ]
+    },
+    {
+      "id": "L08",
+      "number": 8,
+      "type": "grammar",
+      "vocabCount": 14,
+      "knownSoFar": 39,
+      "examples": [
+        {
+          "ref": "Genesis 1:2",
+          "words": 14,
+          "wordsKnown": 5,
+          "morphemes": 20,
+          "morphemesKnown": 11,
+          "pct": 55
+        },
+        {
+          "ref": "Genesis 1:5",
+          "words": 13,
+          "wordsKnown": 5,
+          "morphemes": 19,
+          "morphemesKnown": 8,
+          "pct": 42
+        },
+        {
+          "ref": "Psalms 115:16",
+          "words": 7,
+          "wordsKnown": 6,
+          "morphemes": 12,
+          "morphemesKnown": 11,
+          "pct": 92
+        }
+      ]
+    },
+    {
+      "id": "L09",
+      "number": 9,
+      "type": "grammar",
+      "vocabCount": 14,
+      "knownSoFar": 53,
+      "examples": [
+        {
+          "ref": "Psalms 135:15",
+          "words": 7,
+          "wordsKnown": 5,
+          "morphemes": 9,
+          "morphemesKnown": 7,
+          "pct": 78
+        },
+        {
+          "ref": "Genesis 19:24",
+          "words": 12,
+          "wordsKnown": 8,
+          "morphemes": 17,
+          "morphemesKnown": 13,
+          "pct": 76
+        },
+        {
+          "ref": "Psalms 29:4",
+          "words": 6,
+          "wordsKnown": 4,
+          "morphemes": 8,
+          "morphemesKnown": 6,
+          "pct": 75
+        }
+      ]
+    },
+    {
+      "id": "L10",
+      "number": 10,
+      "type": "grammar",
+      "vocabCount": 12,
+      "knownSoFar": 65,
+      "examples": [
+        {
+          "ref": "Genesis 1:2",
+          "words": 14,
+          "wordsKnown": 8,
+          "morphemes": 20,
+          "morphemesKnown": 14,
+          "pct": 70
+        },
+        {
+          "ref": "Proverbs 27:19",
+          "words": 7,
+          "wordsKnown": 6,
+          "morphemes": 12,
+          "morphemesKnown": 11,
+          "pct": 92
+        },
+        {
+          "ref": "Psalms 97:5",
+          "words": 9,
+          "wordsKnown": 7,
+          "morphemes": 15,
+          "morphemesKnown": 13,
+          "pct": 87
+        }
+      ]
+    },
+    {
+      "id": "L11",
+      "number": 11,
+      "type": "grammar",
+      "vocabCount": 10,
+      "knownSoFar": 75,
+      "examples": [
+        {
+          "ref": "Proverbs 15:3",
+          "words": 7,
+          "wordsKnown": 6,
+          "morphemes": 9,
+          "morphemesKnown": 8,
+          "pct": 89
+        },
+        {
+          "ref": "Psalms 116:9",
+          "words": 5,
+          "wordsKnown": 4,
+          "morphemes": 8,
+          "morphemesKnown": 7,
+          "pct": 88
+        },
+        {
+          "ref": "Psalms 95:3",
+          "words": 9,
+          "wordsKnown": 7,
+          "morphemes": 10,
+          "morphemesKnown": 8,
+          "pct": 80
+        }
+      ]
+    },
+    {
+      "id": "L12",
+      "number": 12,
+      "type": "grammar",
+      "vocabCount": 11,
+      "knownSoFar": 86,
+      "examples": [
+        {
+          "ref": "Genesis 1:5",
+          "words": 13,
+          "wordsKnown": 6,
+          "morphemes": 19,
+          "morphemesKnown": 9,
+          "pct": 47
+        },
+        {
+          "ref": "Genesis 7:6",
+          "words": 10,
+          "wordsKnown": 7,
+          "morphemes": 14,
+          "morphemesKnown": 11,
+          "pct": 79
+        },
+        {
+          "ref": "Genesis 8:14",
+          "words": 8,
+          "wordsKnown": 4,
+          "morphemes": 15,
+          "morphemesKnown": 11,
+          "pct": 73
+        }
+      ]
+    },
+    {
+      "id": "L13",
+      "number": 13,
+      "type": "grammar",
+      "vocabCount": 14,
+      "knownSoFar": 100,
+      "examples": [
+        {
+          "ref": "Genesis 1:1",
+          "words": 7,
+          "wordsKnown": 5,
+          "morphemes": 11,
+          "morphemesKnown": 9,
+          "pct": 82
+        },
+        {
+          "ref": "Genesis 1:4",
+          "words": 12,
+          "wordsKnown": 7,
+          "morphemes": 18,
+          "morphemesKnown": 11,
+          "pct": 61
+        },
+        {
+          "ref": "Proverbs 27:19",
+          "words": 7,
+          "wordsKnown": 7,
+          "morphemes": 12,
+          "morphemesKnown": 12,
+          "pct": 100
+        }
+      ]
+    },
+    {
+      "id": "L14",
+      "number": 14,
+      "type": "grammar",
+      "vocabCount": 13,
+      "knownSoFar": 113,
+      "examples": [
+        {
+          "ref": "Psalms 97:9",
+          "words": 12,
+          "wordsKnown": 10,
+          "morphemes": 13,
+          "morphemesKnown": 11,
+          "pct": 85
+        },
+        {
+          "ref": "Isaiah 14:26",
+          "words": 12,
+          "wordsKnown": 9,
+          "morphemes": 19,
+          "morphemesKnown": 16,
+          "pct": 84
+        },
+        {
+          "ref": "Psalms 135:5",
+          "words": 9,
+          "wordsKnown": 7,
+          "morphemes": 12,
+          "morphemesKnown": 10,
+          "pct": 83
+        }
+      ]
+    },
+    {
+      "id": "L15",
+      "number": 15,
+      "type": "vocab",
+      "vocabCount": 12,
+      "knownSoFar": 125,
+      "examples": [
+        {
+          "ref": "Psalms 135:15",
+          "words": 7,
+          "wordsKnown": 6,
+          "morphemes": 9,
+          "morphemesKnown": 8,
+          "pct": 89
+        },
+        {
+          "ref": "Exodus 21:24",
+          "words": 12,
+          "wordsKnown": 10,
+          "morphemes": 12,
+          "morphemesKnown": 10,
+          "pct": 83
+        },
+        {
+          "ref": "Genesis 24:13",
+          "words": 12,
+          "wordsKnown": 9,
+          "morphemes": 16,
+          "morphemesKnown": 13,
+          "pct": 81
+        }
+      ]
+    },
+    {
+      "id": "L16",
+      "number": 16,
+      "type": "grammar",
+      "vocabCount": 10,
+      "knownSoFar": 135,
+      "examples": [
+        {
+          "ref": "Psalms 105:7",
+          "words": 6,
+          "wordsKnown": 6,
+          "morphemes": 10,
+          "morphemesKnown": 10,
+          "pct": 100
+        },
+        {
+          "ref": "Deuteronomy 10:14",
+          "words": 10,
+          "wordsKnown": 9,
+          "morphemes": 18,
+          "morphemesKnown": 17,
+          "pct": 94
+        },
+        {
+          "ref": "Genesis 10:31",
+          "words": 7,
+          "wordsKnown": 6,
+          "morphemes": 15,
+          "morphemesKnown": 14,
+          "pct": 93
+        }
+      ]
+    },
+    {
+      "id": "L17",
+      "number": 17,
+      "type": "grammar",
+      "vocabCount": 10,
+      "knownSoFar": 145,
+      "examples": [
+        {
+          "ref": "Deuteronomy 10:14",
+          "words": 10,
+          "wordsKnown": 10,
+          "morphemes": 18,
+          "morphemesKnown": 18,
+          "pct": 100
+        },
+        {
+          "ref": "Psalms 148:4",
+          "words": 7,
+          "wordsKnown": 6,
+          "morphemes": 13,
+          "morphemesKnown": 12,
+          "pct": 92
+        },
+        {
+          "ref": "Deuteronomy 5:4",
+          "words": 8,
+          "wordsKnown": 7,
+          "morphemes": 13,
+          "morphemesKnown": 12,
+          "pct": 92
+        }
+      ]
+    },
+    {
+      "id": "L18",
+      "number": 18,
+      "type": "vocab",
+      "vocabCount": 13,
+      "knownSoFar": 158,
+      "examples": [
+        {
+          "ref": "Psalms 135:2",
+          "words": 6,
+          "wordsKnown": 5,
+          "morphemes": 10,
+          "morphemesKnown": 9,
+          "pct": 90
+        },
+        {
+          "ref": "Psalms 34:19",
+          "words": 6,
+          "wordsKnown": 5,
+          "morphemes": 10,
+          "morphemesKnown": 9,
+          "pct": 90
+        },
+        {
+          "ref": "Deuteronomy 29:14",
+          "words": 11,
+          "wordsKnown": 9,
+          "morphemes": 20,
+          "morphemesKnown": 18,
+          "pct": 90
+        }
+      ]
+    },
+    {
+      "id": "L19",
+      "number": 19,
+      "type": "grammar",
+      "vocabCount": 14,
+      "knownSoFar": 172,
+      "examples": [
+        {
+          "ref": "Genesis 1:1",
+          "words": 7,
+          "wordsKnown": 5,
+          "morphemes": 11,
+          "morphemesKnown": 9,
+          "pct": 82
+        },
+        {
+          "ref": "Psalms 109:27",
+          "words": 7,
+          "wordsKnown": 7,
+          "morphemes": 10,
+          "morphemesKnown": 10,
+          "pct": 100
+        },
+        {
+          "ref": "Psalms 121:7",
+          "words": 7,
+          "wordsKnown": 7,
+          "morphemes": 10,
+          "morphemesKnown": 10,
+          "pct": 100
+        }
+      ]
+    },
+    {
+      "id": "L20",
+      "number": 20,
+      "type": "grammar",
+      "vocabCount": 12,
+      "knownSoFar": 184,
+      "examples": [
+        {
+          "ref": "Genesis 1:3",
+          "words": 6,
+          "wordsKnown": 1,
+          "morphemes": 8,
+          "morphemesKnown": 2,
+          "pct": 25
+        },
+        {
+          "ref": "Psalms 123:1",
+          "words": 6,
+          "wordsKnown": 6,
+          "morphemes": 10,
+          "morphemesKnown": 10,
+          "pct": 100
+        },
+        {
+          "ref": "Psalms 25:1",
+          "words": 4,
+          "wordsKnown": 4,
+          "morphemes": 6,
+          "morphemesKnown": 6,
+          "pct": 100
+        }
+      ]
+    },
+    {
+      "id": "L21",
+      "number": 21,
+      "type": "grammar",
+      "vocabCount": 12,
+      "knownSoFar": 196,
+      "examples": [
+        {
+          "ref": "Genesis 1:3",
+          "words": 6,
+          "wordsKnown": 2,
+          "morphemes": 8,
+          "morphemesKnown": 4,
+          "pct": 50
+        },
+        {
+          "ref": "Genesis 1:4",
+          "words": 12,
+          "wordsKnown": 8,
+          "morphemes": 18,
+          "morphemesKnown": 14,
+          "pct": 78
+        },
+        {
+          "ref": "Genesis 1:5",
+          "words": 13,
+          "wordsKnown": 8,
+          "morphemes": 19,
+          "morphemesKnown": 14,
+          "pct": 74
+        }
+      ]
+    },
+    {
+      "id": "L22",
+      "number": 22,
+      "type": "grammar",
+      "vocabCount": 9,
+      "knownSoFar": 205,
+      "examples": [
+        {
+          "ref": "Genesis 1:2",
+          "words": 14,
+          "wordsKnown": 9,
+          "morphemes": 20,
+          "morphemesKnown": 15,
+          "pct": 75
+        },
+        {
+          "ref": "Genesis 1:3",
+          "words": 6,
+          "wordsKnown": 4,
+          "morphemes": 8,
+          "morphemesKnown": 6,
+          "pct": 75
+        },
+        {
+          "ref": "Deuteronomy 32:40",
+          "words": 9,
+          "wordsKnown": 9,
+          "morphemes": 12,
+          "morphemesKnown": 12,
+          "pct": 100
+        }
+      ]
+    },
+    {
+      "id": "L23",
+      "number": 23,
+      "type": "vocab",
+      "vocabCount": 18,
+      "knownSoFar": 223,
+      "examples": [
+        {
+          "ref": "Psalms 76:1",
+          "words": 6,
+          "wordsKnown": 6,
+          "morphemes": 9,
+          "morphemesKnown": 9,
+          "pct": 100
+        },
+        {
+          "ref": "Psalms 130:6",
+          "words": 6,
+          "wordsKnown": 6,
+          "morphemes": 11,
+          "morphemesKnown": 11,
+          "pct": 100
+        },
+        {
+          "ref": "Psalms 135:12",
+          "words": 6,
+          "wordsKnown": 6,
+          "morphemes": 10,
+          "morphemesKnown": 10,
+          "pct": 100
+        }
+      ]
+    },
+    {
+      "id": "L24",
+      "number": 24,
+      "type": "grammar",
+      "vocabCount": 15,
+      "knownSoFar": 238,
+      "examples": [
+        {
+          "ref": "Genesis 1:2",
+          "words": 14,
+          "wordsKnown": 9,
+          "morphemes": 20,
+          "morphemesKnown": 15,
+          "pct": 75
+        },
+        {
+          "ref": "Genesis 1:4",
+          "words": 12,
+          "wordsKnown": 8,
+          "morphemes": 18,
+          "morphemesKnown": 14,
+          "pct": 78
+        },
+        {
+          "ref": "Psalms 115:12",
+          "words": 11,
+          "wordsKnown": 11,
+          "morphemes": 12,
+          "morphemesKnown": 12,
+          "pct": 100
+        }
+      ]
+    },
+    {
+      "id": "L25",
+      "number": 25,
+      "type": "grammar",
+      "vocabCount": 13,
+      "knownSoFar": 251,
+      "examples": [
+        {
+          "ref": "Psalms 119:91",
+          "words": 6,
+          "wordsKnown": 6,
+          "morphemes": 11,
+          "morphemesKnown": 11,
+          "pct": 100
+        },
+        {
+          "ref": "Psalms 135:2",
+          "words": 6,
+          "wordsKnown": 6,
+          "morphemes": 10,
+          "morphemesKnown": 10,
+          "pct": 100
+        },
+        {
+          "ref": "Psalms 33:9",
+          "words": 7,
+          "wordsKnown": 7,
+          "morphemes": 9,
+          "morphemesKnown": 9,
+          "pct": 100
+        }
+      ]
+    },
+    {
+      "id": "L26",
+      "number": 26,
+      "type": "grammar",
+      "vocabCount": 13,
+      "knownSoFar": 264,
+      "examples": [
+        {
+          "ref": "Genesis 9:9",
+          "words": 9,
+          "wordsKnown": 9,
+          "morphemes": 16,
+          "morphemesKnown": 16,
+          "pct": 100
+        },
+        {
+          "ref": "Psalms 20:9",
+          "words": 6,
+          "wordsKnown": 6,
+          "morphemes": 11,
+          "morphemesKnown": 11,
+          "pct": 100
+        },
+        {
+          "ref": "Psalms 121:8",
+          "words": 7,
+          "wordsKnown": 7,
+          "morphemes": 12,
+          "morphemesKnown": 12,
+          "pct": 100
+        }
+      ]
+    },
+    {
+      "id": "L27",
+      "number": 27,
+      "type": "vocab",
+      "vocabCount": 16,
+      "knownSoFar": 280,
+      "examples": [
+        {
+          "ref": "Genesis 2:1",
+          "words": 5,
+          "wordsKnown": 5,
+          "morphemes": 11,
+          "morphemesKnown": 11,
+          "pct": 100
+        },
+        {
+          "ref": "Psalms 118:2",
+          "words": 6,
+          "wordsKnown": 6,
+          "morphemes": 8,
+          "morphemesKnown": 8,
+          "pct": 100
+        },
+        {
+          "ref": "Psalms 119:149",
+          "words": 6,
+          "wordsKnown": 6,
+          "morphemes": 13,
+          "morphemesKnown": 13,
+          "pct": 100
+        }
+      ]
+    },
+    {
+      "id": "L28",
+      "number": 28,
+      "type": "vocab",
+      "vocabCount": 12,
+      "knownSoFar": 292,
+      "examples": [
+        {
+          "ref": "Psalms 125:2",
+          "words": 10,
+          "wordsKnown": 10,
+          "morphemes": 16,
+          "morphemesKnown": 16,
+          "pct": 100
+        },
+        {
+          "ref": "Psalms 122:2",
+          "words": 5,
+          "wordsKnown": 5,
+          "morphemes": 8,
+          "morphemesKnown": 8,
+          "pct": 100
+        },
+        {
+          "ref": "Psalms 118:20",
+          "words": 6,
+          "wordsKnown": 6,
+          "morphemes": 9,
+          "morphemesKnown": 9,
+          "pct": 100
+        }
+      ]
+    },
+    {
+      "id": "L29",
+      "number": 29,
+      "type": "vocab",
+      "vocabCount": 2,
+      "knownSoFar": 294,
+      "examples": [
+        {
+          "ref": "Genesis 1:4",
+          "words": 12,
+          "wordsKnown": 11,
+          "morphemes": 18,
+          "morphemesKnown": 17,
+          "pct": 94
+        },
+        {
+          "ref": "Genesis 1:5",
+          "words": 13,
+          "wordsKnown": 12,
+          "morphemes": 19,
+          "morphemesKnown": 18,
+          "pct": 95
+        },
+        {
+          "ref": "Genesis 1:3",
+          "words": 6,
+          "wordsKnown": 6,
+          "morphemes": 8,
+          "morphemesKnown": 8,
+          "pct": 100
+        }
+      ]
+    },
+    {
+      "id": "L30",
+      "number": 30,
+      "type": "reading",
+      "vocabCount": 0,
+      "knownSoFar": 294,
+      "examples": [
+        {
+          "ref": "Genesis 1:1",
+          "words": 7,
+          "wordsKnown": 5,
+          "morphemes": 11,
+          "morphemesKnown": 9,
+          "pct": 82
+        },
+        {
+          "ref": "Genesis 1:2",
+          "words": 14,
+          "wordsKnown": 10,
+          "morphemes": 20,
+          "morphemesKnown": 16,
+          "pct": 80
+        },
+        {
+          "ref": "Genesis 1:3",
+          "words": 6,
+          "wordsKnown": 6,
+          "morphemes": 8,
+          "morphemesKnown": 8,
+          "pct": 100
+        },
+        {
+          "ref": "Genesis 1:4",
+          "words": 12,
+          "wordsKnown": 11,
+          "morphemes": 18,
+          "morphemesKnown": 17,
+          "pct": 94
+        },
+        {
+          "ref": "Genesis 1:5",
+          "words": 13,
+          "wordsKnown": 12,
+          "morphemes": 19,
+          "morphemesKnown": 18,
+          "pct": 95
+        }
+      ]
+    }
+  ]
+}

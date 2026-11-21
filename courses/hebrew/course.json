@@ -1,0 +1,1095 @@
+{
+  "language": "hebrew",
+  "title": "Biblical Hebrew: from the alphabet to Genesis 1",
+  "pronunciation": "Standard academic (modern Israeli-based)",
+  "text": "Leningrad codex as built in orig/ot (STEPBible TAHOT), split into its morphemes",
+  "note": "Hand-written lesson plan. vocab lists Strong's numbers from vocab.json: words (the 250), the passage supplement, and morphemes (prefixes and suffixes, H9xxx), each taught once, in frequency order within a lesson. exampleRefs are references only: verse text is read from orig/ot at display time. No Hebrew is typed here except in notes; paradigm tables live in paradigms.json, the alphabet in alphabet.json. alphabetSections (alphabet lessons) = which parts of alphabet.json the lesson shows: consonants [from, to] by order and named parts. recognition = grammar a lesson covers by a note rather than a table (used by the grammar coverage check).",
+  "files": {
+    "vocab": "vocab.json",
+    "alphabet": "alphabet.json",
+    "paradigms": "paradigms.json",
+    "paradigmCheck": "paradigm-check.json",
+    "reading": "reading-gen1.json",
+    "check": "course-check.json",
+    "display": "display.json"
+  },
+  "lessons": [
+    {
+      "id": "L01",
+      "number": 1,
+      "title": "The consonants, part 1: alef to kaf",
+      "type": "alphabet",
+      "goals": [
+        "Recognize the first eleven letters of the Hebrew alphabet and their names.",
+        "Say each one with its sound, using the English sound-alikes.",
+        "See that Hebrew is read from right to left."
+      ],
+      "vocab": [],
+      "grammarTopic": null,
+      "paradigmIds": [],
+      "alphabetSections": {
+        "consonants": [
+          1,
+          11
+        ],
+        "parts": [
+          "readingDirection"
+        ]
+      },
+      "exampleRefs": [
+        "Genesis 1:1",
+        "Genesis 1:5"
+      ],
+      "prereqs": []
+    },
+    {
+      "id": "L02",
+      "number": 2,
+      "title": "The consonants, part 2: lamed to tav",
+      "type": "alphabet",
+      "goals": [
+        "Recognize the last eleven letters, including shin and sin.",
+        "Recognize the five final forms used at the end of a word.",
+        "Find every letter in a short verse."
+      ],
+      "vocab": [],
+      "grammarTopic": null,
+      "paradigmIds": [],
+      "alphabetSections": {
+        "consonants": [
+          12,
+          22
+        ],
+        "parts": [
+          "finalForms"
+        ]
+      },
+      "exampleRefs": [
+        "Genesis 1:1",
+        "Genesis 1:3"
+      ],
+      "prereqs": [
+        "L01"
+      ]
+    },
+    {
+      "id": "L03",
+      "number": 3,
+      "title": "The dot in the letter: begadkephat, dagesh and mappiq",
+      "type": "alphabet",
+      "goals": [
+        "Learn the six begadkephat letters and how a dot changes b/v, k/kh and p/f.",
+        "Tell the dagesh lene (hard sound) from the dagesh forte (a doubled letter).",
+        "Recognize mappiq in a final he."
+      ],
+      "vocab": [],
+      "grammarTopic": null,
+      "paradigmIds": [],
+      "alphabetSections": {
+        "parts": [
+          "begadkephat",
+          "dagesh",
+          "mappiq"
+        ]
+      },
+      "exampleRefs": [
+        "Genesis 1:1",
+        "Genesis 1:4"
+      ],
+      "prereqs": [
+        "L02"
+      ]
+    },
+    {
+      "id": "L04",
+      "number": 4,
+      "title": "The vowels",
+      "type": "alphabet",
+      "goals": [
+        "Learn the vowel signs and their sounds: a, e, i, o, u.",
+        "Know which vowels are counted long and which short, and the vowel letters vav and yod.",
+        "Read the furtive patach in the word for spirit (ruach)."
+      ],
+      "vocab": [],
+      "grammarTopic": null,
+      "paradigmIds": [],
+      "alphabetSections": {
+        "parts": [
+          "vowels",
+          "furtivePatach"
+        ]
+      },
+      "exampleRefs": [
+        "Genesis 1:3",
+        "Genesis 1:5"
+      ],
+      "prereqs": [
+        "L03"
+      ]
+    },
+    {
+      "id": "L05",
+      "number": 5,
+      "title": "Shewa, syllables and reading aloud",
+      "type": "alphabet",
+      "goals": [
+        "Tell a vocal shewa from a silent one, and read the three hateph vowels.",
+        "Divide a word into syllables and find the stressed one.",
+        "Recognize maqqef and sof pasuq, leave the cantillation marks aside for now, and read Genesis 1:1 aloud."
+      ],
+      "vocab": [],
+      "grammarTopic": null,
+      "paradigmIds": [],
+      "alphabetSections": {
+        "parts": [
+          "shewa",
+          "hatephVowels",
+          "syllables",
+          "marks"
+        ]
+      },
+      "exampleRefs": [
+        "Genesis 1:1",
+        "Genesis 1:2"
+      ],
+      "prereqs": [
+        "L04"
+      ]
+    },
+    {
+      "id": "L06",
+      "number": 6,
+      "title": "First words: God, heaven, earth, day",
+      "type": "vocab",
+      "goals": [
+        "Learn fourteen common nouns, most of them in Genesis 1.",
+        "Read the divine names Elohim and YHWH (read aloud as Adonai, \"the LORD\").",
+        "Find these words in Genesis 1."
+      ],
+      "vocab": [
+        "H3068G",
+        "H1121A",
+        "H0430G",
+        "H0776G",
+        "H3117G",
+        "H0376G",
+        "H0001G",
+        "H0802H",
+        "H0251G",
+        "H1323G",
+        "H4325G",
+        "H8064",
+        "H3915",
+        "H1242"
+      ],
+      "grammarTopic": null,
+      "paradigmIds": [],
+      "exampleRefs": [
+        "Genesis 1:1",
+        "Exodus 15:3",
+        "Proverbs 17:6"
+      ],
+      "prereqs": [
+        "L05"
+      ]
+    },
+    {
+      "id": "L07",
+      "number": 7,
+      "title": "The article: the",
+      "type": "grammar",
+      "goals": [
+        "See that \"the\" is a prefix, ha, joined to its noun, and that Hebrew has no word for \"a\".",
+        "Learn its three forms and why the letter after it is doubled.",
+        "Read \"the heavens\" and \"the earth\" in Genesis 1:1."
+      ],
+      "vocab": [
+        "H9009",
+        "H4428G",
+        "H1004B",
+        "H5971A",
+        "H3027G",
+        "H1697G",
+        "H5892B",
+        "H8034",
+        "H0120G",
+        "H2022G",
+        "H6086G"
+      ],
+      "grammarTopic": "The definite article",
+      "paradigmIds": [
+        "article"
+      ],
+      "exampleRefs": [
+        "Genesis 1:1",
+        "Psalms 115:16",
+        "Exodus 15:3"
+      ],
+      "prereqs": [
+        "L06"
+      ]
+    },
+    {
+      "id": "L08",
+      "number": 8,
+      "title": "And, in, to, like, from: the little prefixes",
+      "type": "grammar",
+      "goals": [
+        "Learn the conjunction ve (\"and\") and its other spellings.",
+        "Learn the prepositions joined to the next word (be, le, ke) and mi(n), and how they merge with the article.",
+        "Learn the common prepositions written as words: on, to, until, with, between."
+      ],
+      "vocab": [
+        "H9002",
+        "H9005",
+        "H9003",
+        "H9006",
+        "H5921A",
+        "H0413",
+        "H9004",
+        "H5704",
+        "H4480A",
+        "H5973A",
+        "H0854",
+        "H0310A",
+        "H8478G",
+        "H0996G"
+      ],
+      "grammarTopic": "The conjunction vav; inseparable prepositions; preposition + article",
+      "paradigmIds": [
+        "vav",
+        "preps",
+        "preps-article"
+      ],
+      "exampleRefs": [
+        "Genesis 1:2",
+        "Genesis 1:5",
+        "Psalms 115:16"
+      ],
+      "prereqs": [
+        "L07"
+      ]
+    },
+    {
+      "id": "L09",
+      "number": 9,
+      "title": "Nouns: masculine and feminine, singular and plural",
+      "type": "grammar",
+      "goals": [
+        "See that every noun is masculine or feminine.",
+        "Learn the plural endings: -im (masculine) and -ot (feminine).",
+        "Learn fourteen more nouns."
+      ],
+      "vocab": [
+        "H5869A",
+        "H8141",
+        "H5650",
+        "H5315G",
+        "H3548",
+        "H1870G",
+        "H7218A",
+        "H3820A",
+        "H1471A",
+        "H6963A",
+        "H3701G",
+        "H4725",
+        "H2091",
+        "H0784"
+      ],
+      "grammarTopic": "Gender and number",
+      "paradigmIds": [
+        "noun-m",
+        "noun-f"
+      ],
+      "exampleRefs": [
+        "Psalms 135:15",
+        "Genesis 19:24",
+        "Psalms 29:4"
+      ],
+      "prereqs": [
+        "L08"
+      ]
+    },
+    {
+      "id": "L10",
+      "number": 10,
+      "title": "The construct state: the word of the LORD",
+      "type": "grammar",
+      "goals": [
+        "Understand the construct chain: a noun joined to the next one with \"of\".",
+        "Recognize the shortened construct forms, singular and plural.",
+        "Read \"the face of the deep\" and \"the Spirit of God\" in Genesis 1:2."
+      ],
+      "vocab": [
+        "H3605",
+        "H6440G",
+        "H6310G",
+        "H6944G",
+        "H4941G",
+        "H8269",
+        "H8432",
+        "H7307G",
+        "H0113",
+        "H4940",
+        "H1285",
+        "H7130G"
+      ],
+      "grammarTopic": "Absolute and construct state",
+      "paradigmIds": [
+        "construct"
+      ],
+      "exampleRefs": [
+        "Genesis 1:2",
+        "Proverbs 27:19",
+        "Psalms 97:5"
+      ],
+      "prereqs": [
+        "L09"
+      ]
+    },
+    {
+      "id": "L11",
+      "number": 11,
+      "title": "Adjectives: great and good",
+      "type": "grammar",
+      "goals": [
+        "See that an adjective agrees with its noun in gender and number.",
+        "Tell an adjective that describes (\"a good land\") from one that states (\"the land is good\").",
+        "Learn ten common adjectives."
+      ],
+      "vocab": [
+        "H1419A",
+        "H2896A",
+        "H7227A",
+        "H7451H",
+        "H3966",
+        "H7563",
+        "H2930A",
+        "H2416A",
+        "H6662",
+        "H2205G"
+      ],
+      "grammarTopic": "Adjectives: agreement, attributive and predicate",
+      "paradigmIds": [
+        "adjective",
+        "adjective-tov"
+      ],
+      "exampleRefs": [
+        "Proverbs 15:3",
+        "Psalms 116:9",
+        "Psalms 95:3"
+      ],
+      "prereqs": [
+        "L10"
+      ]
+    },
+    {
+      "id": "L12",
+      "number": 12,
+      "title": "Numbers: one to a thousand",
+      "type": "grammar",
+      "goals": [
+        "Learn the numbers one to ten, twenty, a hundred and a thousand.",
+        "See that \"one\" has a masculine and a feminine form.",
+        "Read \"day one\" at the end of Genesis 1:5."
+      ],
+      "vocab": [
+        "H0259",
+        "H8147",
+        "H3967",
+        "H0505G",
+        "H7969",
+        "H7651",
+        "H2568",
+        "H6240",
+        "H0702",
+        "H6242",
+        "H8337"
+      ],
+      "grammarTopic": "Cardinal numbers",
+      "paradigmIds": [
+        "one"
+      ],
+      "exampleRefs": [
+        "Genesis 1:5",
+        "Genesis 7:6",
+        "Genesis 8:14"
+      ],
+      "prereqs": [
+        "L11"
+      ]
+    },
+    {
+      "id": "L13",
+      "number": 13,
+      "title": "The object marker and small words: et, asher, ki, lo",
+      "type": "grammar",
+      "goals": [
+        "Learn et, which marks the definite direct object and is not translated.",
+        "Learn the small words for which, for/that, not, if, also, behold.",
+        "Find et twice in Genesis 1:1 and ki in Genesis 1:4."
+      ],
+      "vocab": [
+        "H0853",
+        "H3808",
+        "H0834A",
+        "H3588A",
+        "H0518A",
+        "H2009",
+        "H8033G",
+        "H1571",
+        "H3651C",
+        "H0408",
+        "H5750",
+        "H4994",
+        "H0176A",
+        "H2005"
+      ],
+      "grammarTopic": "The object marker; relative, conjunctions and negatives",
+      "paradigmIds": [],
+      "exampleRefs": [
+        "Genesis 1:1",
+        "Genesis 1:4",
+        "Proverbs 27:19"
+      ],
+      "prereqs": [
+        "L12"
+      ]
+    },
+    {
+      "id": "L14",
+      "number": 14,
+      "title": "Pronouns: I, you, he, this",
+      "type": "grammar",
+      "goals": [
+        "Learn the independent personal pronouns.",
+        "Learn this, these, who? and what?, and the he that asks a question.",
+        "See why Hebrew uses a pronoun when the verb already shows the subject."
+      ],
+      "vocab": [
+        "H1931",
+        "H2088",
+        "H0589",
+        "H4100",
+        "H9008",
+        "H0428",
+        "H0859A",
+        "H2063",
+        "H1992",
+        "H4310",
+        "H0595",
+        "H0859D",
+        "H9007"
+      ],
+      "grammarTopic": "Personal, demonstrative and interrogative pronouns",
+      "paradigmIds": [
+        "pronouns",
+        "demonstratives"
+      ],
+      "exampleRefs": [
+        "Psalms 97:9",
+        "Isaiah 14:26",
+        "Psalms 135:5"
+      ],
+      "prereqs": [
+        "L13"
+      ]
+    },
+    {
+      "id": "L15",
+      "number": 15,
+      "title": "People and the body",
+      "type": "vocab",
+      "goals": [
+        "Learn twelve nouns for people and the body.",
+        "Notice the ones that are feminine without an -ah ending.",
+        "Read short verses with the words learned so far."
+      ],
+      "vocab": [
+        "H0582",
+        "H1818",
+        "H0639G",
+        "H1320",
+        "H3824",
+        "H7272",
+        "H5288",
+        "H4639G",
+        "H2233H",
+        "H0517",
+        "H3709G",
+        "H7453"
+      ],
+      "grammarTopic": null,
+      "paradigmIds": [],
+      "exampleRefs": [
+        "Psalms 135:15",
+        "Exodus 21:24",
+        "Genesis 24:13"
+      ],
+      "prereqs": [
+        "L14"
+      ]
+    },
+    {
+      "id": "L16",
+      "number": 16,
+      "title": "Possessive suffixes: my, your, his (recognition)",
+      "type": "grammar",
+      "goals": [
+        "See that \"my\", \"your\", \"his\" are endings joined to the noun.",
+        "Recognize the ten possessive suffixes on the word for God.",
+        "Read \"our God\" and \"your God\" in a verse."
+      ],
+      "vocab": [
+        "H9023",
+        "H9021",
+        "H9020",
+        "H9028",
+        "H9024",
+        "H9026",
+        "H9025",
+        "H9022",
+        "H9029",
+        "H9027"
+      ],
+      "grammarTopic": "Pronominal suffixes on nouns (recognition)",
+      "paradigmIds": [
+        "suffix-noun"
+      ],
+      "exampleRefs": [
+        "Psalms 105:7",
+        "Deuteronomy 10:14",
+        "Genesis 10:31"
+      ],
+      "prereqs": [
+        "L15"
+      ]
+    },
+    {
+      "id": "L17",
+      "number": 17,
+      "title": "Object suffixes: me, you, him (recognition)",
+      "type": "grammar",
+      "goals": [
+        "Recognize the pronoun suffixes on prepositions (\"to me\", \"to him\").",
+        "Recognize them on the object marker (\"him\", \"them\").",
+        "See that the same endings are joined to verbs."
+      ],
+      "vocab": [
+        "H9033",
+        "H9038",
+        "H9030",
+        "H9031",
+        "H9034",
+        "H9036",
+        "H9035",
+        "H9032",
+        "H9039",
+        "H9037"
+      ],
+      "grammarTopic": "Pronominal suffixes on prepositions and the object marker (recognition)",
+      "paradigmIds": [
+        "suffix-lamed",
+        "suffix-et"
+      ],
+      "exampleRefs": [
+        "Deuteronomy 10:14",
+        "Psalms 148:4",
+        "Deuteronomy 5:4"
+      ],
+      "prereqs": [
+        "L16"
+      ]
+    },
+    {
+      "id": "L18",
+      "number": 18,
+      "title": "Land and living things",
+      "type": "vocab",
+      "goals": [
+        "Learn thirteen nouns for land, animals and food.",
+        "Notice the words that turn up in the creation account (sea, field, ground, animal).",
+        "Read short verses with the words learned so far."
+      ],
+      "vocab": [
+        "H3220G",
+        "H7704G",
+        "H7451C",
+        "H3899H",
+        "H6629G",
+        "H4057B",
+        "H1366G",
+        "H0127G",
+        "H5159",
+        "H0905H",
+        "H8081",
+        "H2691A",
+        "H0929"
+      ],
+      "grammarTopic": null,
+      "paradigmIds": [],
+      "exampleRefs": [
+        "Psalms 135:2",
+        "Psalms 34:19",
+        "Deuteronomy 29:14"
+      ],
+      "prereqs": [
+        "L17"
+      ]
+    },
+    {
+      "id": "L19",
+      "number": 19,
+      "title": "The verb: the Qal perfect",
+      "type": "grammar",
+      "goals": [
+        "Learn what a root is: three letters that carry the meaning.",
+        "Learn the Qal perfect of a strong verb, shamar (\"to keep\"): completed action, endings after the root.",
+        "Read the perfects in Genesis 1:1 (bara, \"he created\") and 1:2."
+      ],
+      "vocab": [
+        "H0559",
+        "H6213A",
+        "H5414G",
+        "H3045",
+        "H8104G",
+        "H4672",
+        "H4427A",
+        "H4390",
+        "H5647H",
+        "H2398",
+        "H2142",
+        "H3789",
+        "H5800A",
+        "H8199"
+      ],
+      "grammarTopic": "Roots; the Qal perfect",
+      "paradigmIds": [
+        "qal-perfect"
+      ],
+      "exampleRefs": [
+        "Genesis 1:1",
+        "Psalms 109:27",
+        "Psalms 121:7"
+      ],
+      "prereqs": [
+        "L18"
+      ]
+    },
+    {
+      "id": "L20",
+      "number": 20,
+      "title": "The Qal imperfect and the jussive",
+      "type": "grammar",
+      "goals": [
+        "Learn the Qal imperfect: prefixes before the root, for action not yet complete.",
+        "Recognize the jussive, a short imperfect meaning \"let …\".",
+        "Read \"let there be light\" in Genesis 1:3."
+      ],
+      "vocab": [
+        "H1980G",
+        "H8085G",
+        "H3427",
+        "H3318G",
+        "H3947G",
+        "H0398",
+        "H5375H",
+        "H3381",
+        "H3372G",
+        "H3423H",
+        "H8354",
+        "H3201"
+      ],
+      "grammarTopic": "The Qal imperfect; the jussive",
+      "paradigmIds": [
+        "qal-imperfect"
+      ],
+      "exampleRefs": [
+        "Genesis 1:3",
+        "Psalms 123:1",
+        "Psalms 25:1"
+      ],
+      "prereqs": [
+        "L19"
+      ]
+    },
+    {
+      "id": "L21",
+      "number": 21,
+      "title": "And God said: the wayyiqtol",
+      "type": "grammar",
+      "goals": [
+        "Learn the vav consecutive with the imperfect, the tense that tells a story in the past.",
+        "Recognize it by va- and the doubled letter after it.",
+        "Read the chain of wayyiqtols in Genesis 1:3–5."
+      ],
+      "vocab": [
+        "H9001",
+        "H0935G",
+        "H7200G",
+        "H7725G",
+        "H5927G",
+        "H7971G",
+        "H7121G",
+        "H5307G",
+        "H1129",
+        "H6030B",
+        "H7901G",
+        "H0622"
+      ],
+      "grammarTopic": "The wayyiqtol (vav consecutive + imperfect)",
+      "paradigmIds": [
+        "wayyiqtol"
+      ],
+      "exampleRefs": [
+        "Genesis 1:3",
+        "Genesis 1:4",
+        "Genesis 1:5"
+      ],
+      "prereqs": [
+        "L20"
+      ]
+    },
+    {
+      "id": "L22",
+      "number": 22,
+      "title": "The verb \"to be\": hayah",
+      "type": "grammar",
+      "goals": [
+        "Learn the forms of hayah that Genesis 1 uses: was, let there be, and there was.",
+        "See that a sentence often has no verb for \"is\".",
+        "Learn words of time and existence: there is not, now, forever."
+      ],
+      "vocab": [
+        "H1961",
+        "H0369",
+        "H3541",
+        "H0834D",
+        "H5769G",
+        "H6258",
+        "H6256",
+        "H2320G",
+        "H4616"
+      ],
+      "grammarTopic": "hayah; verbless sentences",
+      "paradigmIds": [
+        "hayah"
+      ],
+      "exampleRefs": [
+        "Genesis 1:2",
+        "Genesis 1:3",
+        "Deuteronomy 32:40"
+      ],
+      "prereqs": [
+        "L21"
+      ]
+    },
+    {
+      "id": "L23",
+      "number": 23,
+      "title": "Names: Israel, David, Moses",
+      "type": "vocab",
+      "goals": [
+        "Learn the eighteen names among the most frequent words.",
+        "Read the divine names with their pointing.",
+        "Notice the names that end in -ah or -el."
+      ],
+      "vocab": [
+        "H3478",
+        "H1732",
+        "H3063G",
+        "H4872",
+        "H3389",
+        "H4714G",
+        "H0136",
+        "H7586G",
+        "H3290",
+        "H3881",
+        "H0175",
+        "H3069",
+        "H8010",
+        "H6430G",
+        "H6547J",
+        "H0894",
+        "H3091G",
+        "H3130G"
+      ],
+      "grammarTopic": null,
+      "paradigmIds": [],
+      "exampleRefs": [
+        "Psalms 76:1",
+        "Psalms 130:6",
+        "Psalms 135:12"
+      ],
+      "prereqs": [
+        "L22"
+      ]
+    },
+    {
+      "id": "L24",
+      "number": 24,
+      "title": "Other stems: Piel and Hiphil (recognition)",
+      "type": "grammar",
+      "goals": [
+        "See that a root can be used in different stems that change its meaning (simple, intensive, causative).",
+        "Recognize the Piel by its doubled middle letter and the Hiphil by its a-vowel prefix.",
+        "Read \"hovering\" (Piel, 1:2) and \"and he separated\" (Hiphil, 1:4)."
+      ],
+      "vocab": [
+        "H1696G",
+        "H5221",
+        "H3205",
+        "H6680",
+        "H5046",
+        "H1288",
+        "H2388G",
+        "H3772I",
+        "H7126H",
+        "H3615G",
+        "H7235A",
+        "H1245",
+        "H5337",
+        "H3254G",
+        "H3467"
+      ],
+      "grammarTopic": "The derived stems (recognition)",
+      "paradigmIds": [
+        "hiphil-wayyiqtol",
+        "piel"
+      ],
+      "exampleRefs": [
+        "Genesis 1:2",
+        "Genesis 1:4",
+        "Psalms 115:12"
+      ],
+      "prereqs": [
+        "L23"
+      ]
+    },
+    {
+      "id": "L25",
+      "number": 25,
+      "title": "Participles and weak verbs (recognition)",
+      "type": "grammar",
+      "goals": [
+        "Learn the participle: a verb used like an adjective (\"dwelling, one who dwells\").",
+        "Recognize verbs whose roots have a weak letter, such as those with a middle vav (mut, qum).",
+        "Learn thirteen more verbs."
+      ],
+      "vocab": [
+        "H4191",
+        "H6965B",
+        "H7760A",
+        "H5674A",
+        "H5975G",
+        "H5493G",
+        "H6485A",
+        "H0341",
+        "H2421",
+        "H3559H",
+        "H5186",
+        "H0157G",
+        "H7311A"
+      ],
+      "grammarTopic": "The participle; weak verbs (recognition)",
+      "paradigmIds": [
+        "qal-participle"
+      ],
+      "exampleRefs": [
+        "Psalms 119:91",
+        "Psalms 135:2",
+        "Psalms 33:9"
+      ],
+      "prereqs": [
+        "L24"
+      ]
+    },
+    {
+      "id": "L26",
+      "number": 26,
+      "title": "Small endings (recognition)",
+      "type": "grammar",
+      "goals": [
+        "Recognize the he of direction (\"toward\"), as in \"toward the land\".",
+        "Recognize the pronoun endings that act as a subject on an infinitive or on hinneh (\"here I am\").",
+        "Know the extra he and nun endings that do not change the meaning."
+      ],
+      "vocab": [
+        "H9011",
+        "H9012",
+        "H9043",
+        "H9040",
+        "H9013",
+        "H9048",
+        "H9041",
+        "H9046",
+        "H9044",
+        "H9042",
+        "H9045",
+        "H9049",
+        "H9047"
+      ],
+      "grammarTopic": "Directional he; subject suffixes; paragogic endings (recognition)",
+      "paradigmIds": [],
+      "exampleRefs": [
+        "Genesis 9:9",
+        "Psalms 20:9",
+        "Psalms 121:8"
+      ],
+      "prereqs": [
+        "L25"
+      ]
+    },
+    {
+      "id": "L27",
+      "number": 27,
+      "title": "Worship and covenant",
+      "type": "vocab",
+      "goals": [
+        "Learn sixteen words of worship, sin and covenant.",
+        "Notice the ones that come in Leviticus and the Psalms.",
+        "Read short verses with the words learned so far."
+      ],
+      "vocab": [
+        "H6635B",
+        "H4196",
+        "H5002",
+        "H5030",
+        "H2403B",
+        "H5930A",
+        "H2617A",
+        "H0410G",
+        "H7965G",
+        "H5771G",
+        "H4150I",
+        "H8451",
+        "H4397H",
+        "H4503G",
+        "H0727",
+        "H3519"
+      ],
+      "grammarTopic": null,
+      "paradigmIds": [],
+      "exampleRefs": [
+        "Genesis 2:1",
+        "Psalms 118:2",
+        "Psalms 119:149"
+      ],
+      "prereqs": [
+        "L26"
+      ]
+    },
+    {
+      "id": "L28",
+      "number": 28,
+      "title": "Camp, war and everyday things",
+      "type": "vocab",
+      "goals": [
+        "Learn twelve more common nouns.",
+        "Read short verses with the words learned so far."
+      ],
+      "vocab": [
+        "H2719",
+        "H8179G",
+        "H0168G",
+        "H5439G",
+        "H3627",
+        "H4421",
+        "H0068G",
+        "H4294H",
+        "H0520A",
+        "H2428A",
+        "H0899B",
+        "H4264"
+      ],
+      "grammarTopic": null,
+      "paradigmIds": [],
+      "exampleRefs": [
+        "Psalms 125:2",
+        "Psalms 122:2",
+        "Psalms 118:20"
+      ],
+      "prereqs": [
+        "L27"
+      ]
+    },
+    {
+      "id": "L29",
+      "number": 29,
+      "title": "Words for Genesis 1",
+      "type": "vocab",
+      "goals": [
+        "Learn the two words outside the 250 that come more than once in Genesis 1:1–5: light and darkness.",
+        "See each one in the verses where it appears.",
+        "Leave the one-time words of the passage to the help shown in the reading lesson."
+      ],
+      "vocab": [
+        "H0216",
+        "H2822"
+      ],
+      "grammarTopic": null,
+      "paradigmIds": [],
+      "exampleRefs": [
+        "Genesis 1:4",
+        "Genesis 1:5",
+        "Genesis 1:3"
+      ],
+      "prereqs": [
+        "L28"
+      ]
+    },
+    {
+      "id": "L30",
+      "number": 30,
+      "title": "Reading Genesis 1:1–5",
+      "type": "reading",
+      "goals": [
+        "Read Genesis 1:1–5 in Hebrew, word by word, with help for the words and parts not yet learned.",
+        "Take each word apart into its prefixes, word and suffix.",
+        "Follow the story from \"in the beginning\" to \"day one\"."
+      ],
+      "vocab": [],
+      "grammarTopic": "Review",
+      "paradigmIds": [],
+      "exampleRefs": [
+        "Genesis 1:1",
+        "Genesis 1:2",
+        "Genesis 1:3",
+        "Genesis 1:4",
+        "Genesis 1:5"
+      ],
+      "prereqs": [
+        "L01",
+        "L02",
+        "L03",
+        "L04",
+        "L05",
+        "L06",
+        "L07",
+        "L08",
+        "L09",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14",
+        "L15",
+        "L16",
+        "L17",
+        "L18",
+        "L19",
+        "L20",
+        "L21",
+        "L22",
+        "L23",
+        "L24",
+        "L25",
+        "L26",
+        "L27",
+        "L28",
+        "L29"
+      ],
+      "reading": "reading-gen1.json"
+    }
+  ]
+}

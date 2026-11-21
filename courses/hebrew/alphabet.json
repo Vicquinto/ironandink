@@ -1,0 +1,76 @@
+{
+  "pronunciation": "Standard academic (modern Israeli-based), as most seminaries teach",
+  "direction": "rtl",
+  "note": "Hand-written. Example words are vocab.json entries (strongs + key, checked by scripts/build-hebrew-course.js); an optional form is a spelling that occurs in orig/ot as that word. exampleRefs are verse references whose text comes from orig/ot at display time. Sound-alikes are American English. Vowel signs are shown on the letter ב so they can be seen.",
+  "transliteration": {
+    "scheme": "STEPBible TAHOT (the t field of orig/ot)",
+    "summary": "One Latin letter or pair per consonant: א and ע ' (an apostrophe), ב b with a dot (dagesh) and v without, ג g, ד d, ה h, ו v, ז z, ח ch, ט t, י y, כ k with a dot and kh without, ל l, מ m, נ n, ס s, פ p with a dot and f without, צ tz, ק k, ר r, שׁ sh, שׂ s, ת t. Vowels a, e, i, o, u, with no marks for long or short; a vocal shewa is written e; a silent shewa is not written. Syllables are separated by dots, and in running text the stressed syllable begins with a capital letter (be.re.Shit). A doubled consonant (dagesh forte) is written once.",
+    "dataQuirk": "Dictionary forms in the lexicon are written in lower case with no stress (e.lo.him), and some leave out the initial apostrophe of א or ע. vocab.json gives the text's own spelling of the dictionary form where it occurs as it stands, else the lexicon's."
+  },
+  "consonants": [
+    { "order": 1, "name": "alef", "form": "א", "translit": "'", "sound": "silent: it carries a vowel (a glottal stop at most)", "soundAlike": "א = the catch in uh-oh", "examples": [ { "strongs": "H0430G", "key": "אֱלֹהִים" } ] },
+    { "order": 2, "name": "bet", "form": "ב", "translit": "b / v", "sound": "b with a dot (בּ), v without (ב)", "soundAlike": "בּ = b as in boy; ב = v as in vine", "examples": [ { "strongs": "H1004B", "key": "בַּיִת" }, { "strongs": "H5650", "key": "עֶבֶד" } ] },
+    { "order": 3, "name": "gimel", "form": "ג", "translit": "g", "sound": "hard g", "soundAlike": "ג = g as in go", "examples": [ { "strongs": "H1471A", "key": "גּוֹי" } ] },
+    { "order": 4, "name": "dalet", "form": "ד", "translit": "d", "sound": "d", "soundAlike": "ד = d as in door", "examples": [ { "strongs": "H1697G", "key": "דָּבָר" } ] },
+    { "order": 5, "name": "he", "form": "ה", "translit": "h", "sound": "h; silent at the end of a word unless it has a dot (mappiq)", "soundAlike": "ה = h as in house", "examples": [ { "strongs": "H2022G", "key": "הַר" } ] },
+    { "order": 6, "name": "vav", "form": "ו", "translit": "v", "sound": "v; also a vowel letter for o (וֹ) and u (וּ)", "soundAlike": "ו = v as in vine", "examples": [ { "strongs": "H9002", "key": "H9002" } ] },
+    { "order": 7, "name": "zayin", "form": "ז", "translit": "z", "sound": "z", "soundAlike": "ז = z as in zoo", "examples": [ { "strongs": "H2091", "key": "זָהָב" } ] },
+    { "order": 8, "name": "chet", "form": "ח", "translit": "ch", "sound": "a throaty h", "soundAlike": "ח = ch as in Scottish loch or German Bach", "examples": [ { "strongs": "H2719", "key": "חֶרֶב" } ] },
+    { "order": 9, "name": "tet", "form": "ט", "translit": "t", "sound": "t", "soundAlike": "ט = t as in top", "examples": [ { "strongs": "H2896A", "key": "טוֹב" } ] },
+    { "order": 10, "name": "yod", "form": "י", "translit": "y", "sound": "y; also a vowel letter for i and e", "soundAlike": "י = y as in yes", "examples": [ { "strongs": "H3117G", "key": "יוֹם" } ] },
+    { "order": 11, "name": "kaf", "form": "כ", "finalForm": "ך", "translit": "k / kh", "sound": "k with a dot (כּ), a throaty kh without (כ)", "soundAlike": "כּ = k as in king; כ = ch as in Bach", "examples": [ { "strongs": "H3588A", "key": "כִּי" }, { "strongs": "H4428G", "key": "מֶלֶךְ" } ] },
+    { "order": 12, "name": "lamed", "form": "ל", "translit": "l", "sound": "l", "soundAlike": "ל = l as in look", "examples": [ { "strongs": "H3808", "key": "לֹא" } ] },
+    { "order": 13, "name": "mem", "form": "מ", "finalForm": "ם", "translit": "m", "sound": "m", "soundAlike": "מ = m as in mother", "examples": [ { "strongs": "H4428G", "key": "מֶלֶךְ" }, { "strongs": "H3117G", "key": "יוֹם" } ] },
+    { "order": 14, "name": "nun", "form": "נ", "finalForm": "ן", "translit": "n", "sound": "n", "soundAlike": "נ = n as in no", "examples": [ { "strongs": "H5414G", "key": "נָתַן" }, { "strongs": "H1121A", "key": "בֵּן" } ] },
+    { "order": 15, "name": "samekh", "form": "ס", "translit": "s", "sound": "s", "soundAlike": "ס = s as in sun", "examples": [ { "strongs": "H5439G", "key": "סָבִיב" } ] },
+    { "order": 16, "name": "ayin", "form": "ע", "translit": "'", "sound": "silent in this pronunciation: it carries a vowel", "soundAlike": "ע = like א, the catch in uh-oh", "examples": [ { "strongs": "H5892B", "key": "עִיר" } ] },
+    { "order": 17, "name": "pe", "form": "פ", "finalForm": "ף", "translit": "p / f", "sound": "p with a dot (פּ), f without (פ)", "soundAlike": "פּ = p as in pen; פ = f as in fun", "examples": [ { "strongs": "H6440G", "key": "פָּנֶה" }, { "strongs": "H3709G", "key": "כַּף" } ] },
+    { "order": 18, "name": "tsade", "form": "צ", "finalForm": "ץ", "translit": "tz", "sound": "ts", "soundAlike": "צ = ts as in cats", "examples": [ { "strongs": "H6662", "key": "צַדִּיק" }, { "strongs": "H0776G", "key": "אֶרֶץ" } ] },
+    { "order": 19, "name": "qof", "form": "ק", "translit": "k", "sound": "k", "soundAlike": "ק = k as in king", "examples": [ { "strongs": "H6963A", "key": "קוֹל" } ] },
+    { "order": 20, "name": "resh", "form": "ר", "translit": "r", "sound": "r (a throaty r is usual today)", "soundAlike": "ר = r as in run", "examples": [ { "strongs": "H7218A", "key": "רֹאשׁ" } ] },
+    { "order": 21, "name": "shin / sin", "form": "ש", "variants": [ { "form": "שׁ", "name": "shin", "translit": "sh", "sound": "sh (dot on the right)" }, { "form": "שׂ", "name": "sin", "translit": "s", "sound": "s (dot on the left)" } ], "translit": "sh / s", "sound": "sh with the dot on the right (שׁ), s with the dot on the left (שׂ)", "soundAlike": "שׁ = sh as in shoe; שׂ = s as in sun", "examples": [ { "strongs": "H8034", "key": "שֵׁם" }, { "strongs": "H7704G", "key": "שָׂדֶה" } ] },
+    { "order": 22, "name": "tav", "form": "ת", "translit": "t", "sound": "t", "soundAlike": "ת = t as in top", "examples": [ { "strongs": "H8451", "key": "תּוֹרָה" } ] }
+  ],
+  "finalForms": { "description": "Five letters have a different shape at the end of a word: ך ם ן ף ץ (kaf, mem, nun, pe, tsade). They sound the same.", "examples": [ { "strongs": "H4428G", "key": "מֶלֶךְ" }, { "strongs": "H8064", "key": "שָׁמַיִם" }, { "strongs": "H1121A", "key": "בֵּן" }, { "strongs": "H3709G", "key": "כַּף" }, { "strongs": "H0776G", "key": "אֶרֶץ" } ] },
+  "readingDirection": { "description": "Hebrew is read from right to left. The vowels are dots and dashes written under, over or after the letters; a word is read letter, then its vowel, then the next letter.", "exampleRefs": [ "Genesis 1:1" ] },
+  "begadkephat": {
+    "letters": "ב ג ד כ פ ת",
+    "description": "Six letters (remember them as b-g-d-k-p-t) can take a dot called dagesh lene at the start of a word or after a closed syllable. In this pronunciation it changes the sound of three of them: בּ b / ב v, כּ k / כ kh, פּ p / פ f. In ג, ד and ת it makes no difference to the sound.",
+    "examples": [ { "strongs": "H1004B", "key": "בַּיִת" }, { "strongs": "H5650", "key": "עֶבֶד" }, { "strongs": "H3588A", "key": "כִּי" }, { "strongs": "H4428G", "key": "מֶלֶךְ" }, { "strongs": "H6440G", "key": "פָּנֶה" }, { "strongs": "H5315G", "key": "נֶפֶשׁ" } ]
+  },
+  "dagesh": [
+    { "name": "dagesh lene", "description": "The dot in one of the six begadkephat letters at the start of a syllable: it gives the hard sound (בּ b, כּ k, פּ p).", "examples": [ { "strongs": "H1004B", "key": "בַּיִת" } ] },
+    { "name": "dagesh forte", "description": "The same dot in almost any letter after a vowel: the letter is doubled (said twice, or held a little longer). The article הַ doubles the next letter this way.", "examples": [ { "strongs": "H8064", "key": "שָׁמַיִם", "form": "הַשָּׁמַיִם" } ], "exampleRefs": [ "Genesis 1:1" ] }
+  ],
+  "mappiq": { "description": "A dot in a final ה (הּ) shows it is a real consonant h, not a silent vowel letter. It usually means \"her\" or \"its\".", "examples": [ { "strongs": "H9024", "key": "H9024", "form": "הּ" } ] },
+  "vowels": [
+    { "sign": "בָ", "name": "qamets", "class": "long", "translit": "a", "sound": "a as in father", "examples": [ { "strongs": "H1697G", "key": "דָּבָר" } ], "note": "In a few closed, unstressed syllables the same sign is qamets hatuf, a short o." },
+    { "sign": "בַ", "name": "patach", "class": "short", "translit": "a", "sound": "a as in father", "examples": [ { "strongs": "H1004B", "key": "בַּיִת" } ] },
+    { "sign": "בֵ", "name": "tsere", "class": "long", "translit": "e", "sound": "e as in they", "examples": [ { "strongs": "H8034", "key": "שֵׁם" } ] },
+    { "sign": "בֶ", "name": "segol", "class": "short", "translit": "e", "sound": "e as in bed", "examples": [ { "strongs": "H4428G", "key": "מֶלֶךְ" } ] },
+    { "sign": "בִ", "name": "hireq", "class": "short (long when followed by yod: בִי)", "translit": "i", "sound": "i as in machine", "examples": [ { "strongs": "H5892B", "key": "עִיר" } ] },
+    { "sign": "בֹ", "name": "holem", "class": "long (also written with vav: בוֹ)", "translit": "o", "sound": "o as in go", "examples": [ { "strongs": "H6963A", "key": "קוֹל" }, { "strongs": "H3605", "key": "כֹּל" } ] },
+    { "sign": "בֻ", "name": "qibbuts", "class": "short", "translit": "u", "sound": "u as in rule", "examples": [ { "strongs": "H5002", "key": "נְאֻם" } ] },
+    { "sign": "בוּ", "name": "shureq", "class": "long (vav with a dot inside)", "translit": "u", "sound": "u as in rule", "examples": [ { "strongs": "H1931", "key": "הוּא" } ] }
+  ],
+  "shewa": {
+    "sign": "בְ",
+    "description": "Two dots, one above the other, under a letter: either a very short e (vocal shewa) or no vowel at all (silent shewa).",
+    "vocal": { "translit": "e", "rule": "Vocal at the start of a word, under a doubled letter, and after a long vowel or another shewa: said as a quick e, as in the a of about.", "examples": [ { "strongs": "H1285", "key": "בְּרִית" } ] },
+    "silent": { "translit": "(nothing)", "rule": "Silent when it closes a syllable after a short vowel, and at the end of a word under ך.", "examples": [ { "strongs": "H4057B", "key": "מִדְבָּר" } ] }
+  },
+  "hatephVowels": [
+    { "sign": "בֲ", "name": "hateph patach", "translit": "a", "sound": "a quick a", "examples": [ { "strongs": "H0834A", "key": "אֲשֶׁר" } ] },
+    { "sign": "בֱ", "name": "hateph segol", "translit": "e", "sound": "a quick e", "examples": [ { "strongs": "H0430G", "key": "אֱלֹהִים" } ] },
+    { "sign": "בֳ", "name": "hateph qamets", "translit": "o", "sound": "a quick o", "examples": [], "noExampleNote": "None of the vocabulary words starts with one; it is common under ח and א (for example in אֳנִי, a ship)." }
+  ],
+  "hatephNote": "The guttural letters א ה ח ע cannot take a vocal shewa, so they take one of these short vowels instead.",
+  "furtivePatach": { "description": "A patach under a final ח, ע or הּ is said BEFORE the letter: רוּחַ is ru-ach, not ru-cha.", "examples": [ { "strongs": "H7307G", "key": "רוּחַ" }, { "strongs": "H4196", "key": "מִזְבֵּחַ" } ], "exampleRefs": [ "Genesis 1:2" ] },
+  "syllables": { "description": "Every syllable begins with a consonant and has one vowel. An open syllable ends in its vowel (דָּ in דָּבָר); a closed one ends in a consonant (בָר). Most words are stressed on the last syllable; some are stressed on the one before it (מֶלֶךְ is ME-lekh). The transliteration in the course marks the stress with a capital letter.", "examples": [ { "strongs": "H1697G", "key": "דָּבָר" }, { "strongs": "H4428G", "key": "מֶלֶךְ" } ] },
+  "marks": [
+    { "name": "maqqef", "mark": "־", "description": "A short raised hyphen joining two words into one unit for stress; read the first word lightly. The words are still separate words.", "exampleRefs": [ "Genesis 1:2", "Genesis 1:4" ] },
+    { "name": "sof pasuq", "mark": "׃", "description": "Two diamonds at the end of every verse: the full stop.", "exampleRefs": [ "Genesis 1:1" ] },
+    { "name": "cantillation marks", "description": "The small marks above and below the words (accents for chanting and for phrasing) are on almost every word. Ignore them for now: they are not vowels. One of them often marks the stressed syllable.", "exampleRefs": [ "Genesis 1:1" ] },
+    { "name": "paragraph letters", "mark": "פ / ס", "description": "A פ or ס standing alone after a verse marks the end of a paragraph. It is not a word.", "exampleRefs": [ "Genesis 1:5" ] }
+  ]
+}

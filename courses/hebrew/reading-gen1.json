@@ -1,0 +1,1240 @@
+{
+  "generatedBy": "scripts/build-hebrew-course.js",
+  "lessonId": "L30",
+  "passage": "Genesis 1:1–5",
+  "grammarHelpShown": [],
+  "note": "Word text, transliteration and gloss are read from orig/ot at display time (index = position in the verse's word list). parts = TAHOT's morphemes in order (form copied from the data by the script, not typed); a word is taught when all its parts are. grammar = the part's category; grammarLesson = the first lesson that covers it.",
+  "coverage": {
+    "words": 52,
+    "wordsTaught": 44,
+    "morphemes": 76,
+    "morphemesTaught": 68,
+    "items": 34,
+    "itemsTaught": 26,
+    "itemsNotTaught": [
+      {
+        "key": "רֵאשִׁית",
+        "strongs": "H7225G",
+        "bound": false,
+        "inTop250": false
+      },
+      {
+        "key": "בָּרָא",
+        "strongs": "H1254A",
+        "bound": false,
+        "inTop250": false
+      },
+      {
+        "key": "תֹּהוּ",
+        "strongs": "H8414",
+        "bound": false,
+        "inTop250": false
+      },
+      {
+        "key": "בֹּהוּ",
+        "strongs": "H0922",
+        "bound": false,
+        "inTop250": false
+      },
+      {
+        "key": "תְּהוֹם",
+        "strongs": "H8415",
+        "bound": false,
+        "inTop250": false
+      },
+      {
+        "key": "רָחַף",
+        "strongs": "H7363B",
+        "bound": false,
+        "inTop250": false
+      },
+      {
+        "key": "בָּדַל",
+        "strongs": "H0914",
+        "bound": false,
+        "inTop250": false
+      },
+      {
+        "key": "עֶרֶב",
+        "strongs": "H6153",
+        "bound": false,
+        "inTop250": false
+      }
+    ]
+  },
+  "verses": [
+    {
+      "ref": "Genesis 1:1",
+      "words": [
+        {
+          "index": 0,
+          "taught": false,
+          "note": "help shown",
+          "parts": [
+            {
+              "form": "בְּ",
+              "strongs": "H9003",
+              "key": "H9003",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Preposition",
+              "lessonId": "L08",
+              "lessonNumber": 8,
+              "grammarLesson": "L08"
+            },
+            {
+              "form": "רֵאשִׁ֖ית",
+              "strongs": "H7225G",
+              "key": "רֵאשִׁית",
+              "role": "main",
+              "taught": false,
+              "grammar": "Noun · absolute",
+              "note": "help shown",
+              "grammarLesson": "L07"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "taught": false,
+          "note": "help shown",
+          "parts": [
+            {
+              "form": "בָּרָ֣א",
+              "strongs": "H1254A",
+              "key": "בָּרָא",
+              "role": "main",
+              "taught": false,
+              "grammar": "Verb · Qal (simple, active) · perfect (past/present, indicative)",
+              "note": "help shown",
+              "grammarLesson": "L19"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "taught": true,
+          "parts": [
+            {
+              "form": "אֱלֹהִ֑ים",
+              "strongs": "H0430G",
+              "key": "אֱלֹהִים",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · absolute",
+              "lessonId": "L06",
+              "lessonNumber": 6,
+              "grammarLesson": "L07"
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "taught": true,
+          "parts": [
+            {
+              "form": "אֵ֥ת",
+              "strongs": "H0853",
+              "key": "אֵת",
+              "role": "main",
+              "taught": true,
+              "grammar": "Particle · object indicator",
+              "lessonId": "L13",
+              "lessonNumber": 13,
+              "grammarLesson": "L13"
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "taught": true,
+          "parts": [
+            {
+              "form": "הַ",
+              "strongs": "H9009",
+              "key": "H9009",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Particle · definite article (hebrew)",
+              "lessonId": "L07",
+              "lessonNumber": 7,
+              "grammarLesson": "L07"
+            },
+            {
+              "form": "שָּׁמַ֖יִם",
+              "strongs": "H8064",
+              "key": "שָׁמַיִם",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · absolute",
+              "lessonId": "L06",
+              "lessonNumber": 6,
+              "grammarLesson": "L07"
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "taught": true,
+          "parts": [
+            {
+              "form": "וְ",
+              "strongs": "H9002",
+              "key": "H9002",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Conjunction",
+              "lessonId": "L08",
+              "lessonNumber": 8,
+              "grammarLesson": "L08"
+            },
+            {
+              "form": "אֵ֥ת",
+              "strongs": "H0853",
+              "key": "אֵת",
+              "role": "main",
+              "taught": true,
+              "grammar": "Particle · object indicator",
+              "lessonId": "L13",
+              "lessonNumber": 13,
+              "grammarLesson": "L13"
+            }
+          ]
+        },
+        {
+          "index": 6,
+          "taught": true,
+          "parts": [
+            {
+              "form": "הָ",
+              "strongs": "H9009",
+              "key": "H9009",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Particle · definite article (hebrew)",
+              "lessonId": "L07",
+              "lessonNumber": 7,
+              "grammarLesson": "L07"
+            },
+            {
+              "form": "אָֽרֶץ",
+              "strongs": "H0776G",
+              "key": "אֶרֶץ",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · absolute",
+              "lessonId": "L06",
+              "lessonNumber": 6,
+              "grammarLesson": "L07"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ref": "Genesis 1:2",
+      "words": [
+        {
+          "index": 0,
+          "taught": true,
+          "parts": [
+            {
+              "form": "וְ",
+              "strongs": "H9002",
+              "key": "H9002",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Conjunction",
+              "lessonId": "L08",
+              "lessonNumber": 8,
+              "grammarLesson": "L08"
+            },
+            {
+              "form": "הָ",
+              "strongs": "H9009",
+              "key": "H9009",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Particle · definite article (hebrew)",
+              "lessonId": "L07",
+              "lessonNumber": 7,
+              "grammarLesson": "L07"
+            },
+            {
+              "form": "אָ֗רֶץ",
+              "strongs": "H0776G",
+              "key": "אֶרֶץ",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · absolute",
+              "lessonId": "L06",
+              "lessonNumber": 6,
+              "grammarLesson": "L07"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "taught": true,
+          "parts": [
+            {
+              "form": "הָיְתָ֥ה",
+              "strongs": "H1961",
+              "key": "הָיָה",
+              "role": "main",
+              "taught": true,
+              "grammar": "Verb · Qal (simple, active) · perfect (past/present, indicative)",
+              "lessonId": "L22",
+              "lessonNumber": 22,
+              "grammarLesson": "L19"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "taught": false,
+          "note": "help shown",
+          "parts": [
+            {
+              "form": "תֹ֙הוּ֙",
+              "strongs": "H8414",
+              "key": "תֹּהוּ",
+              "role": "main",
+              "taught": false,
+              "grammar": "Noun · absolute",
+              "note": "help shown",
+              "grammarLesson": "L07"
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "taught": false,
+          "note": "help shown",
+          "parts": [
+            {
+              "form": "וָ",
+              "strongs": "H9002",
+              "key": "H9002",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Conjunction",
+              "lessonId": "L08",
+              "lessonNumber": 8,
+              "grammarLesson": "L08"
+            },
+            {
+              "form": "בֹ֔הוּ",
+              "strongs": "H0922",
+              "key": "בֹּהוּ",
+              "role": "main",
+              "taught": false,
+              "grammar": "Noun · absolute",
+              "note": "help shown",
+              "grammarLesson": "L07"
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "taught": true,
+          "parts": [
+            {
+              "form": "וְ",
+              "strongs": "H9002",
+              "key": "H9002",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Conjunction",
+              "lessonId": "L08",
+              "lessonNumber": 8,
+              "grammarLesson": "L08"
+            },
+            {
+              "form": "חֹ֖שֶׁךְ",
+              "strongs": "H2822",
+              "key": "חֹשֶׁךְ",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · absolute",
+              "lessonId": "L29",
+              "lessonNumber": 29,
+              "grammarLesson": "L07"
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "taught": true,
+          "parts": [
+            {
+              "form": "עַל",
+              "strongs": "H5921A",
+              "key": "עַל",
+              "role": "main",
+              "taught": true,
+              "grammar": "Preposition",
+              "lessonId": "L08",
+              "lessonNumber": 8,
+              "grammarLesson": "L08"
+            }
+          ]
+        },
+        {
+          "index": 6,
+          "taught": true,
+          "parts": [
+            {
+              "form": "פְּנֵ֣י",
+              "strongs": "H6440J",
+              "key": "פָּנֶה",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · construct",
+              "lessonId": "L10",
+              "lessonNumber": 10,
+              "grammarLesson": "L10"
+            }
+          ]
+        },
+        {
+          "index": 7,
+          "taught": false,
+          "note": "help shown",
+          "parts": [
+            {
+              "form": "תְה֑וֹם",
+              "strongs": "H8415",
+              "key": "תְּהוֹם",
+              "role": "main",
+              "taught": false,
+              "grammar": "Noun · absolute",
+              "note": "help shown",
+              "grammarLesson": "L07"
+            }
+          ]
+        },
+        {
+          "index": 8,
+          "taught": true,
+          "parts": [
+            {
+              "form": "וְ",
+              "strongs": "H9002",
+              "key": "H9002",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Conjunction",
+              "lessonId": "L08",
+              "lessonNumber": 8,
+              "grammarLesson": "L08"
+            },
+            {
+              "form": "ר֣וּחַ",
+              "strongs": "H7307G",
+              "key": "רוּחַ",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · construct",
+              "lessonId": "L10",
+              "lessonNumber": 10,
+              "grammarLesson": "L10"
+            }
+          ]
+        },
+        {
+          "index": 9,
+          "taught": true,
+          "parts": [
+            {
+              "form": "אֱלֹהִ֔ים",
+              "strongs": "H0430G",
+              "key": "אֱלֹהִים",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · absolute",
+              "lessonId": "L06",
+              "lessonNumber": 6,
+              "grammarLesson": "L07"
+            }
+          ]
+        },
+        {
+          "index": 10,
+          "taught": false,
+          "note": "help shown",
+          "parts": [
+            {
+              "form": "מְרַחֶ֖פֶת",
+              "strongs": "H7363B",
+              "key": "רָחַף",
+              "role": "main",
+              "taught": false,
+              "grammar": "Verb · Piel (intensive/resultive/transtive, active) · participle",
+              "note": "help shown",
+              "grammarLesson": "L24"
+            }
+          ]
+        },
+        {
+          "index": 11,
+          "taught": true,
+          "parts": [
+            {
+              "form": "עַל",
+              "strongs": "H5921A",
+              "key": "עַל",
+              "role": "main",
+              "taught": true,
+              "grammar": "Preposition",
+              "lessonId": "L08",
+              "lessonNumber": 8,
+              "grammarLesson": "L08"
+            }
+          ]
+        },
+        {
+          "index": 12,
+          "taught": true,
+          "parts": [
+            {
+              "form": "פְּנֵ֥י",
+              "strongs": "H6440J",
+              "key": "פָּנֶה",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · construct",
+              "lessonId": "L10",
+              "lessonNumber": 10,
+              "grammarLesson": "L10"
+            }
+          ]
+        },
+        {
+          "index": 13,
+          "taught": true,
+          "parts": [
+            {
+              "form": "הַ",
+              "strongs": "H9009",
+              "key": "H9009",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Particle · definite article (hebrew)",
+              "lessonId": "L07",
+              "lessonNumber": 7,
+              "grammarLesson": "L07"
+            },
+            {
+              "form": "מָּֽיִם",
+              "strongs": "H4325G",
+              "key": "מַי",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · absolute",
+              "lessonId": "L06",
+              "lessonNumber": 6,
+              "grammarLesson": "L07"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ref": "Genesis 1:3",
+      "words": [
+        {
+          "index": 0,
+          "taught": true,
+          "parts": [
+            {
+              "form": "וַ",
+              "strongs": "H9001",
+              "key": "H9001",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Conjunction · consecutive",
+              "lessonId": "L21",
+              "lessonNumber": 21,
+              "grammarLesson": "L21"
+            },
+            {
+              "form": "יֹּ֥אמֶר",
+              "strongs": "H0559",
+              "key": "אָמַר",
+              "role": "main",
+              "taught": true,
+              "grammar": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+              "lessonId": "L19",
+              "lessonNumber": 19,
+              "grammarLesson": "L21"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "taught": true,
+          "parts": [
+            {
+              "form": "אֱלֹהִ֖ים",
+              "strongs": "H0430G",
+              "key": "אֱלֹהִים",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · absolute",
+              "lessonId": "L06",
+              "lessonNumber": 6,
+              "grammarLesson": "L07"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "taught": true,
+          "parts": [
+            {
+              "form": "יְהִ֣י",
+              "strongs": "H1961",
+              "key": "הָיָה",
+              "role": "main",
+              "taught": true,
+              "grammar": "Verb · Qal (simple, active) · imperfect (future/present, jussive)",
+              "lessonId": "L22",
+              "lessonNumber": 22,
+              "grammarLesson": "L22"
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "taught": true,
+          "parts": [
+            {
+              "form": "א֑וֹר",
+              "strongs": "H0216",
+              "key": "אוֹר",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · absolute",
+              "lessonId": "L29",
+              "lessonNumber": 29,
+              "grammarLesson": "L07"
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "taught": true,
+          "parts": [
+            {
+              "form": "וַֽ",
+              "strongs": "H9001",
+              "key": "H9001",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Conjunction · consecutive",
+              "lessonId": "L21",
+              "lessonNumber": 21,
+              "grammarLesson": "L21"
+            },
+            {
+              "form": "יְהִי",
+              "strongs": "H1961",
+              "key": "הָיָה",
+              "role": "main",
+              "taught": true,
+              "grammar": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+              "lessonId": "L22",
+              "lessonNumber": 22,
+              "grammarLesson": "L21"
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "taught": true,
+          "parts": [
+            {
+              "form": "אֽוֹר",
+              "strongs": "H0216",
+              "key": "אוֹר",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · absolute",
+              "lessonId": "L29",
+              "lessonNumber": 29,
+              "grammarLesson": "L07"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ref": "Genesis 1:4",
+      "words": [
+        {
+          "index": 0,
+          "taught": true,
+          "parts": [
+            {
+              "form": "וַ",
+              "strongs": "H9001",
+              "key": "H9001",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Conjunction · consecutive",
+              "lessonId": "L21",
+              "lessonNumber": 21,
+              "grammarLesson": "L21"
+            },
+            {
+              "form": "יַּ֧רְא",
+              "strongs": "H7200G",
+              "key": "רָאָה",
+              "role": "main",
+              "taught": true,
+              "grammar": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+              "lessonId": "L21",
+              "lessonNumber": 21,
+              "grammarLesson": "L21"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "taught": true,
+          "parts": [
+            {
+              "form": "אֱלֹהִ֛ים",
+              "strongs": "H0430G",
+              "key": "אֱלֹהִים",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · absolute",
+              "lessonId": "L06",
+              "lessonNumber": 6,
+              "grammarLesson": "L07"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "taught": true,
+          "parts": [
+            {
+              "form": "אֶת",
+              "strongs": "H0853",
+              "key": "אֵת",
+              "role": "main",
+              "taught": true,
+              "grammar": "Particle · object indicator",
+              "lessonId": "L13",
+              "lessonNumber": 13,
+              "grammarLesson": "L13"
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "taught": true,
+          "parts": [
+            {
+              "form": "הָ",
+              "strongs": "H9009",
+              "key": "H9009",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Particle · definite article (hebrew)",
+              "lessonId": "L07",
+              "lessonNumber": 7,
+              "grammarLesson": "L07"
+            },
+            {
+              "form": "א֖וֹר",
+              "strongs": "H0216",
+              "key": "אוֹר",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · absolute",
+              "lessonId": "L29",
+              "lessonNumber": 29,
+              "grammarLesson": "L07"
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "taught": true,
+          "parts": [
+            {
+              "form": "כִּי",
+              "strongs": "H3588A",
+              "key": "כִּי",
+              "role": "main",
+              "taught": true,
+              "grammar": "Particle · conditional",
+              "lessonId": "L13",
+              "lessonNumber": 13,
+              "grammarLesson": "L13"
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "taught": true,
+          "parts": [
+            {
+              "form": "ט֑וֹב",
+              "strongs": "H2895",
+              "key": "טוֹב",
+              "role": "main",
+              "taught": true,
+              "grammar": "Verb · Qal (simple, active) · perfect (past/present, indicative)",
+              "lessonId": "L11",
+              "lessonNumber": 11,
+              "grammarLesson": "L19"
+            }
+          ]
+        },
+        {
+          "index": 6,
+          "taught": false,
+          "note": "help shown",
+          "parts": [
+            {
+              "form": "וַ",
+              "strongs": "H9001",
+              "key": "H9001",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Conjunction · consecutive",
+              "lessonId": "L21",
+              "lessonNumber": 21,
+              "grammarLesson": "L21"
+            },
+            {
+              "form": "יַּבְדֵּ֣ל",
+              "strongs": "H0914",
+              "key": "בָּדַל",
+              "role": "main",
+              "taught": false,
+              "grammar": "Verb · Hiphil (causative/declarative, active) · consecutive imperfect (past/present, indicative)",
+              "note": "help shown",
+              "grammarLesson": "L24"
+            }
+          ]
+        },
+        {
+          "index": 7,
+          "taught": true,
+          "parts": [
+            {
+              "form": "אֱלֹהִ֔ים",
+              "strongs": "H0430G",
+              "key": "אֱלֹהִים",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · absolute",
+              "lessonId": "L06",
+              "lessonNumber": 6,
+              "grammarLesson": "L07"
+            }
+          ]
+        },
+        {
+          "index": 8,
+          "taught": true,
+          "parts": [
+            {
+              "form": "בֵּ֥ין",
+              "strongs": "H0996G",
+              "key": "בַּיִן",
+              "role": "main",
+              "taught": true,
+              "grammar": "Adjective · numerical",
+              "lessonId": "L08",
+              "lessonNumber": 8,
+              "grammarLesson": "L12"
+            }
+          ]
+        },
+        {
+          "index": 9,
+          "taught": true,
+          "parts": [
+            {
+              "form": "הָ",
+              "strongs": "H9009",
+              "key": "H9009",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Particle · definite article (hebrew)",
+              "lessonId": "L07",
+              "lessonNumber": 7,
+              "grammarLesson": "L07"
+            },
+            {
+              "form": "א֖וֹר",
+              "strongs": "H0216",
+              "key": "אוֹר",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · absolute",
+              "lessonId": "L29",
+              "lessonNumber": 29,
+              "grammarLesson": "L07"
+            }
+          ]
+        },
+        {
+          "index": 10,
+          "taught": true,
+          "parts": [
+            {
+              "form": "וּ",
+              "strongs": "H9002",
+              "key": "H9002",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Conjunction",
+              "lessonId": "L08",
+              "lessonNumber": 8,
+              "grammarLesson": "L08"
+            },
+            {
+              "form": "בֵ֥ין",
+              "strongs": "H0996G",
+              "key": "בַּיִן",
+              "role": "main",
+              "taught": true,
+              "grammar": "Adjective · numerical",
+              "lessonId": "L08",
+              "lessonNumber": 8,
+              "grammarLesson": "L12"
+            }
+          ]
+        },
+        {
+          "index": 11,
+          "taught": true,
+          "parts": [
+            {
+              "form": "הַ",
+              "strongs": "H9009",
+              "key": "H9009",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Particle · definite article (hebrew)",
+              "lessonId": "L07",
+              "lessonNumber": 7,
+              "grammarLesson": "L07"
+            },
+            {
+              "form": "חֹֽשֶׁךְ",
+              "strongs": "H2822",
+              "key": "חֹשֶׁךְ",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · absolute",
+              "lessonId": "L29",
+              "lessonNumber": 29,
+              "grammarLesson": "L07"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ref": "Genesis 1:5",
+      "words": [
+        {
+          "index": 0,
+          "taught": true,
+          "parts": [
+            {
+              "form": "וַ",
+              "strongs": "H9001",
+              "key": "H9001",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Conjunction · consecutive",
+              "lessonId": "L21",
+              "lessonNumber": 21,
+              "grammarLesson": "L21"
+            },
+            {
+              "form": "יִּקְרָ֨א",
+              "strongs": "H7121H",
+              "key": "קָרָא",
+              "role": "main",
+              "taught": true,
+              "grammar": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+              "lessonId": "L21",
+              "lessonNumber": 21,
+              "grammarLesson": "L21"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "taught": true,
+          "parts": [
+            {
+              "form": "אֱלֹהִ֤ים",
+              "strongs": "H0430G",
+              "key": "אֱלֹהִים",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · absolute",
+              "lessonId": "L06",
+              "lessonNumber": 6,
+              "grammarLesson": "L07"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "taught": true,
+          "parts": [
+            {
+              "form": "לָ",
+              "strongs": "H9005",
+              "key": "H9005",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Preposition · definite",
+              "lessonId": "L08",
+              "lessonNumber": 8,
+              "grammarLesson": "L08"
+            },
+            {
+              "form": "אוֹר֙",
+              "strongs": "H0216",
+              "key": "אוֹר",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · absolute",
+              "lessonId": "L29",
+              "lessonNumber": 29,
+              "grammarLesson": "L07"
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "taught": true,
+          "parts": [
+            {
+              "form": "י֔וֹם",
+              "strongs": "H3117G",
+              "key": "יוֹם",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · absolute",
+              "lessonId": "L06",
+              "lessonNumber": 6,
+              "grammarLesson": "L07"
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "taught": true,
+          "parts": [
+            {
+              "form": "וְ",
+              "strongs": "H9002",
+              "key": "H9002",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Conjunction",
+              "lessonId": "L08",
+              "lessonNumber": 8,
+              "grammarLesson": "L08"
+            },
+            {
+              "form": "לַ",
+              "strongs": "H9005",
+              "key": "H9005",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Preposition · definite",
+              "lessonId": "L08",
+              "lessonNumber": 8,
+              "grammarLesson": "L08"
+            },
+            {
+              "form": "חֹ֖שֶׁךְ",
+              "strongs": "H2822",
+              "key": "חֹשֶׁךְ",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · absolute",
+              "lessonId": "L29",
+              "lessonNumber": 29,
+              "grammarLesson": "L07"
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "taught": true,
+          "parts": [
+            {
+              "form": "קָ֣רָא",
+              "strongs": "H7121H",
+              "key": "קָרָא",
+              "role": "main",
+              "taught": true,
+              "grammar": "Verb · Qal (simple, active) · perfect (past/present, indicative)",
+              "lessonId": "L21",
+              "lessonNumber": 21,
+              "grammarLesson": "L19"
+            }
+          ]
+        },
+        {
+          "index": 6,
+          "taught": true,
+          "parts": [
+            {
+              "form": "לָ֑יְלָה",
+              "strongs": "H3915",
+              "key": "לַיְלָה",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · absolute",
+              "lessonId": "L06",
+              "lessonNumber": 6,
+              "grammarLesson": "L07"
+            }
+          ]
+        },
+        {
+          "index": 7,
+          "taught": true,
+          "parts": [
+            {
+              "form": "וַֽ",
+              "strongs": "H9001",
+              "key": "H9001",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Conjunction · consecutive",
+              "lessonId": "L21",
+              "lessonNumber": 21,
+              "grammarLesson": "L21"
+            },
+            {
+              "form": "יְהִי",
+              "strongs": "H1961",
+              "key": "הָיָה",
+              "role": "main",
+              "taught": true,
+              "grammar": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+              "lessonId": "L22",
+              "lessonNumber": 22,
+              "grammarLesson": "L21"
+            }
+          ]
+        },
+        {
+          "index": 8,
+          "taught": false,
+          "note": "help shown",
+          "parts": [
+            {
+              "form": "עֶ֥רֶב",
+              "strongs": "H6153",
+              "key": "עֶרֶב",
+              "role": "main",
+              "taught": false,
+              "grammar": "Noun · absolute",
+              "note": "help shown",
+              "grammarLesson": "L07"
+            }
+          ]
+        },
+        {
+          "index": 9,
+          "taught": true,
+          "parts": [
+            {
+              "form": "וַֽ",
+              "strongs": "H9001",
+              "key": "H9001",
+              "role": "prefix",
+              "taught": true,
+              "grammar": "Conjunction · consecutive",
+              "lessonId": "L21",
+              "lessonNumber": 21,
+              "grammarLesson": "L21"
+            },
+            {
+              "form": "יְהִי",
+              "strongs": "H1961",
+              "key": "הָיָה",
+              "role": "main",
+              "taught": true,
+              "grammar": "Verb · Qal (simple, active) · consecutive imperfect (past/present, indicative)",
+              "lessonId": "L22",
+              "lessonNumber": 22,
+              "grammarLesson": "L21"
+            }
+          ]
+        },
+        {
+          "index": 10,
+          "taught": true,
+          "parts": [
+            {
+              "form": "בֹ֖קֶר",
+              "strongs": "H1242",
+              "key": "בֹּקֶר",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · absolute",
+              "lessonId": "L06",
+              "lessonNumber": 6,
+              "grammarLesson": "L07"
+            }
+          ]
+        },
+        {
+          "index": 11,
+          "taught": true,
+          "parts": [
+            {
+              "form": "י֥וֹם",
+              "strongs": "H3117G",
+              "key": "יוֹם",
+              "role": "main",
+              "taught": true,
+              "grammar": "Noun · absolute",
+              "lessonId": "L06",
+              "lessonNumber": 6,
+              "grammarLesson": "L07"
+            }
+          ]
+        },
+        {
+          "index": 12,
+          "taught": true,
+          "parts": [
+            {
+              "form": "אֶחָֽד",
+              "strongs": "H0259",
+              "key": "אֶחָד",
+              "role": "main",
+              "taught": true,
+              "grammar": "Adjective · numerical",
+              "lessonId": "L12",
+              "lessonNumber": 12,
+              "grammarLesson": "L12"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
