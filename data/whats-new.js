@@ -18,6 +18,32 @@
 
 const WHATS_NEW = [
   {
+    date:  'November 21, 2026',
+    title: 'Learn to Read Biblical Greek and Hebrew',
+    body:  `Iron & Ink now has two courses that teach you to read the Bible in the languages it was written in. Open Languages in the sidebar and choose Greek or Hebrew.
+
+The Greek course takes you from the alphabet to reading 1 John 1 in Greek, in 25 short lessons. The Hebrew course takes you from the alphabet to reading Genesis 1:1-5 in Hebrew, in 30 lessons. In each lesson a teacher walks you through the material beside real verses from Scripture, and you can ask questions or tap Quiz me at any point. The words you learn come back in a short vocabulary review, a little more spaced out each time you know them.
+
+Every Greek and Hebrew word in the courses comes from scholarly data prepared by Tyndale House, Cambridge, never from the AI's memory.`
+  },
+  {
+    date:  'November 21, 2026',
+    title: 'See the Hebrew and Greek Behind Any Verse',
+    body:  `The panel that opens when you highlight a verse has a new Original tab. It shows the verse in Hebrew or Greek, word by word, with each word's transliteration and meaning. Click a word to see its dictionary form, its grammar in plain English, and a short definition, then choose Explain this word to have Explore tell you more about it.
+
+You can open it from the Scripture page or from any verse quoted in a study. The data comes from STEP Bible, based on work at Tyndale House, Cambridge.`
+  },
+  {
+    date:  'November 21, 2026',
+    title: 'A Better Check My Understanding',
+    body:  `Check my understanding now asks questions you answer in your own words: explain an idea, connect it to another part of the study, or defend it. The questions match the level the study was written at, from Apprentice to Scholar. If you're stuck, Give me a hint points you to the right part of the study without giving the answer away. At the end you get an honest summary of what you understand well and what's worth another look.`
+  },
+  {
+    date:  'November 21, 2026',
+    title: 'Teacher Sessions Are Easier to Find',
+    body:  `Study with a Teacher and Check my understanding are now clearly labeled, so you always know which one you're in. If you open one while the other is saved for that study, Iron & Ink tells you and offers to take you there.`
+  },
+  {
     date:  'November 15, 2026',
     title: 'Listen to Your Studies',
     body:  `Any study can now be read aloud. Choose Listen at the top of a study, pick a voice and a speed, and Iron & Ink reads it to you section by section, highlighting each paragraph as it goes. When it reaches a Bible passage, it tells you the reference first. Tap any paragraph while it's playing to jump there.
