@@ -175,7 +175,7 @@ function exampleRefs(refs) {
 }
 
 const ranked = [...lemmas.values()].sort((a, b) => b.n - a.n || (a.lemma < b.lemma ? -1 : 1));
-const vocab = ranked.slice(0, VOCAB_SIZE).map((e, idx) => {
+function makeEntry(e, rank) {
   const strongs = primaryStrongs(e);
   const { pos, name, code } = posOf(e);
   // translit: the STEP scheme applied to the dictionary form; translitInText is
@@ -183,7 +183,7 @@ const vocab = ranked.slice(0, VOCAB_SIZE).map((e, idx) => {
   const tl = byCount(e.translit)[0];
   const mine = e.lemma.split(',').map(x => translit(x.trim())).join(', ');
   const entry = {
-    rank: idx + 1,
+    rank,
     strongs,
     strongsAll: byCount(e.strongs).map(([s]) => s),
     lemma: e.lemma,
@@ -198,15 +198,36 @@ const vocab = ranked.slice(0, VOCAB_SIZE).map((e, idx) => {
   };
   if (tl && tl[0] !== mine.split(', ')[0]) entry.translitInText = tl[0];
   return entry;
-});
-const vocabByStrongs = new Map(vocab.map(v => [v.strongs, v]));
-const vocabByLemma = new Map(vocab.map(v => [v.lemma, v]));
+}
+const vocab = ranked.slice(0, VOCAB_SIZE).map((e, idx) => makeEntry(e, idx + 1));
+// Passage supplement: words of the reading passage outside the top 150 that occur
+// there at least PASSAGE_MIN times — taught in the "Words for 1 John 1" lesson.
+// rank is null for these; ntRank is their place in the whole-NT frequency list.
+const PASSAGE_MIN = 2;
+const top150 = new Set(vocab.map(v => v.lemma));
+const passageCount = new Map();
+for (let v = READING.from; v <= READING.to; v++)
+  for (const w of verseTokens.get(refOf(READING.book, READING.chapter, v)) || [])
+    passageCount.set(w.l, (passageCount.get(w.l) || 0) + 1);
+const ntRank = new Map(ranked.map((e, i) => [e.lemma, i + 1]));
+const supplement = [...passageCount.entries()]
+  .filter(([l, n]) => n >= PASSAGE_MIN && !top150.has(l))
+  .sort((a, b) => b[1] - a[1] || ntRank.get(a[0]) - ntRank.get(b[0]))
+  .map(([l, n]) => Object.assign(makeEntry(lemmas.get(l), null), { ntRank: ntRank.get(l), passageCount: n }));
+const allWords = vocab.concat(supplement);
+const vocabByStrongs = new Map(allWords.map(v => [v.strongs, v]));
+const vocabByLemma = new Map(allWords.map(v => [v.lemma, v]));
 writeJson('vocab.json', {
   source: 'orig/nt (STEPBible TAGNT, NA27 words) · glosses orig/lexicon-grk.json (TBESG) · parts of speech orig/morph-grk.json (TEGMC). CC BY 4.0, STEP Bible (STEPBible.org), based on work at Tyndale House, Cambridge.',
   generatedBy: 'scripts/build-greek-course.js',
   note: 'Counted by dictionary form (lemma). strongs = the lexicon entry for that lemma; strongsAll = every disambiguated Strong\'s number the data files under it. Lemmas are Unicode NFC. Total NT words counted: ' + tokens.length + '.',
   count: vocab.length,
   words: vocab,
+  passageSupplement: {
+    note: `Words of ${READING.book} ${READING.chapter}:${READING.from}–${READING.to} outside the top ${VOCAB_SIZE} that occur there at least ${PASSAGE_MIN} times, most frequent in the passage first. rank is null; ntRank = place in the whole-NT frequency list; passageCount = occurrences in the passage.`,
+    count: supplement.length,
+    words: supplement,
+  },
 });
 
 // ── 2. lesson plan validation ───────────────────────────────────────────────
@@ -227,7 +248,7 @@ course.lessons.forEach((L, i) => {
   }
   for (const r of L.exampleRefs || []) if (!verseTokens.has(r)) problems.push(`${L.id}: exampleRef ${r} not found in orig/nt`);
 });
-const notTaught = vocab.filter(v => !taughtIn.has(v.lemma));
+const notTaught = allWords.filter(v => !taughtIn.has(v.lemma));
 // Example-verse coverage: share of each verse's words whose lemma is taught by
 // the end of that lesson (the lesson's own words count).
 function knownAt(lessonPos) {
@@ -372,7 +393,7 @@ for (let v = READING.from; v <= READING.to; v++) {
   verses.push({
     ref,
     words: ws.map(w => {
-      const voc = vocabByLemma.get(w.l);
+      const voc = top150.has(w.l) ? vocabByLemma.get(w.l) : null;
       const lid = taughtIn.get(w.l) || null;
       tokTotal++; if (lid) tokTaught++; if (voc) tokTop++;
       lemmaSeen.set(w.l, { strongs: w.s, inVocab: !!voc, lesson: lid });
@@ -404,7 +425,7 @@ writeJson('reading-1john1.json', {
 
 // ── console summary ─────────────────────────────────────────────────────────
 console.log(`NT words: ${tokens.length} · lemmas: ${lemmas.size} · vocab: ${vocab.length} (top lemma ${vocab[0].lemma} ${vocab[0].frequency}, #150 ${vocab[vocab.length - 1].lemma} ${vocab[vocab.length - 1].frequency})`);
-console.log(`Lessons: ${course.lessons.length} · vocab taught: ${taughtIn.size}/${vocab.length}`);
+console.log(`Lessons: ${course.lessons.length} · vocab taught: ${taughtIn.size}/${allWords.length} (${vocab.length} + ${supplement.length} passage words)`);
 console.log(`Paradigm cells: ${cellResults.length} · ${JSON.stringify(tally)}`);
 console.log(`1 John 1:1–10: tokens ${tokTaught}/${tokTotal} taught, ${tokTop} in top 150 · lemmas ${lemList.filter(([, x]) => x.lesson).length}/${lemList.length} taught`);
 if (problems.length) { console.error('PROBLEMS:\n  ' + problems.join('\n  ')); process.exitCode = 1; }

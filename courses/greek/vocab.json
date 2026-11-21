@@ -3061,5 +3061,165 @@
         "1 John 1:3"
       ]
     }
-  ]
+  ],
+  "passageSupplement": {
+    "note": "Words of 1 John 1:1–10 outside the top 150 that occur there at least 2 times, most frequent in the passage first. rank is null; ntRank = place in the whole-NT frequency list; passageCount = occurrences in the passage.",
+    "count": 7,
+    "words": [
+      {
+        "rank": null,
+        "strongs": "G2842",
+        "strongsAll": [
+          "G2842"
+        ],
+        "lemma": "κοινωνία",
+        "translit": "koinōnia",
+        "gloss": "participation",
+        "partOfSpeech": "Noun",
+        "properName": false,
+        "nameType": null,
+        "commonMorph": "N-ASF",
+        "frequency": 19,
+        "exampleRefs": [
+          "1 John 1:3",
+          "1 John 1:6",
+          "1 John 1:7"
+        ],
+        "ntRank": 643,
+        "passageCount": 4
+      },
+      {
+        "rank": null,
+        "strongs": "G5457",
+        "strongsAll": [
+          "G5457"
+        ],
+        "lemma": "φῶς",
+        "translit": "phōs",
+        "gloss": "light",
+        "partOfSpeech": "Noun",
+        "properName": false,
+        "nameType": null,
+        "commonMorph": "N-ASN",
+        "frequency": 73,
+        "exampleRefs": [
+          "1 John 1:5",
+          "1 John 1:7",
+          "1 John 2:8"
+        ],
+        "ntRank": 235,
+        "passageCount": 3
+      },
+      {
+        "rank": null,
+        "strongs": "G0225",
+        "strongsAll": [
+          "G0225"
+        ],
+        "lemma": "ἀλήθεια",
+        "translit": "alētheia",
+        "gloss": "truth",
+        "partOfSpeech": "Noun",
+        "properName": false,
+        "nameType": null,
+        "commonMorph": "N-GSF",
+        "frequency": 109,
+        "exampleRefs": [
+          "1 John 1:6",
+          "1 John 1:8",
+          "1 John 2:4"
+        ],
+        "ntRank": 156,
+        "passageCount": 2
+      },
+      {
+        "rank": null,
+        "strongs": "G4043",
+        "strongsAll": [
+          "G4043"
+        ],
+        "lemma": "περιπατέω",
+        "translit": "peripateō",
+        "gloss": "to walk",
+        "partOfSpeech": "Verb",
+        "properName": false,
+        "nameType": null,
+        "commonMorph": "V-PAN",
+        "frequency": 95,
+        "exampleRefs": [
+          "1 John 1:6",
+          "1 John 1:7",
+          "1 John 2:6"
+        ],
+        "ntRank": 179,
+        "passageCount": 2
+      },
+      {
+        "rank": null,
+        "strongs": "G5319",
+        "strongsAll": [
+          "G5319"
+        ],
+        "lemma": "φανερόω",
+        "translit": "phaneroō",
+        "gloss": "to reveal",
+        "partOfSpeech": "Verb",
+        "properName": false,
+        "nameType": null,
+        "commonMorph": "V-API-3S",
+        "frequency": 49,
+        "exampleRefs": [
+          "1 John 1:2",
+          "1 John 2:19",
+          "1 John 2:28"
+        ],
+        "ntRank": 314,
+        "passageCount": 2
+      },
+      {
+        "rank": null,
+        "strongs": "G0518",
+        "strongsAll": [
+          "G0518"
+        ],
+        "lemma": "ἀπαγγέλλω",
+        "translit": "apangellō",
+        "gloss": "to announce",
+        "partOfSpeech": "Verb",
+        "properName": false,
+        "nameType": null,
+        "commonMorph": "V-AAI-3P",
+        "frequency": 45,
+        "exampleRefs": [
+          "1 John 1:2",
+          "1 John 1:3",
+          "John 16:25"
+        ],
+        "ntRank": 340,
+        "passageCount": 2
+      },
+      {
+        "rank": null,
+        "strongs": "G2511",
+        "strongsAll": [
+          "G2511"
+        ],
+        "lemma": "καθαρίζω",
+        "translit": "katharizō",
+        "gloss": "to clean",
+        "partOfSpeech": "Verb",
+        "properName": false,
+        "nameType": null,
+        "commonMorph": "V-AAN",
+        "frequency": 31,
+        "exampleRefs": [
+          "1 John 1:7",
+          "1 John 1:9",
+          "Matthew 8:2"
+        ],
+        "ntRank": 444,
+        "passageCount": 2
+      }
+    ]
+  }
 }

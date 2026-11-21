@@ -1,14 +1,14 @@
 {
   "generatedBy": "scripts/build-greek-course.js",
-  "lessonId": "L24",
+  "lessonId": "L25",
   "passage": "1 John 1:1–10",
   "note": "Word text, transliteration and gloss are read from orig/ at display time (index = position in the verse's word list). lemma here is copied from orig/ by the script, not typed.",
   "coverage": {
     "tokens": 207,
-    "tokensTaught": 167,
+    "tokensTaught": 184,
     "tokensInTop150": 167,
     "lemmas": 69,
-    "lemmasTaught": 39,
+    "lemmasTaught": 46,
     "lemmasInTop150": 39,
     "lemmasNotTaught": [
       {
@@ -32,28 +32,13 @@
         "inVocab": false
       },
       {
-        "lemma": "φανερόω",
-        "strongs": "G5319",
-        "inVocab": false
-      },
-      {
         "lemma": "μαρτυρέω",
         "strongs": "G3140",
         "inVocab": false
       },
       {
-        "lemma": "ἀπαγγέλλω",
-        "strongs": "G0518",
-        "inVocab": false
-      },
-      {
         "lemma": "αἰώνιος",
         "strongs": "G0166",
-        "inVocab": false
-      },
-      {
-        "lemma": "κοινωνία",
-        "strongs": "G2842",
         "inVocab": false
       },
       {
@@ -82,11 +67,6 @@
         "inVocab": false
       },
       {
-        "lemma": "φῶς",
-        "strongs": "G5457",
-        "inVocab": false
-      },
-      {
         "lemma": "σκοτία",
         "strongs": "G4653",
         "inVocab": false
@@ -97,18 +77,8 @@
         "inVocab": false
       },
       {
-        "lemma": "περιπατέω",
-        "strongs": "G4043",
-        "inVocab": false
-      },
-      {
         "lemma": "ψεύδομαι",
         "strongs": "G5574",
-        "inVocab": false
-      },
-      {
-        "lemma": "ἀλήθεια",
-        "strongs": "G0225",
         "inVocab": false
       },
       {
@@ -119,11 +89,6 @@
       {
         "lemma": "αἷμα",
         "strongs": "G0129G",
-        "inVocab": false
-      },
-      {
-        "lemma": "καθαρίζω",
-        "strongs": "G2511",
         "inVocab": false
       },
       {
@@ -402,8 +367,9 @@
           "index": 3,
           "strongs": "G5319",
           "lemma": "φανερόω",
-          "taught": false,
-          "note": "help shown"
+          "taught": true,
+          "lessonId": "L24",
+          "lessonNumber": 24
         },
         {
           "index": 4,
@@ -452,8 +418,9 @@
           "index": 9,
           "strongs": "G0518",
           "lemma": "ἀπαγγέλλω",
-          "taught": false,
-          "note": "help shown"
+          "taught": true,
+          "lessonId": "L24",
+          "lessonNumber": 24
         },
         {
           "index": 10,
@@ -556,8 +523,9 @@
           "index": 21,
           "strongs": "G5319",
           "lemma": "φανερόω",
-          "taught": false,
-          "note": "help shown"
+          "taught": true,
+          "lessonId": "L24",
+          "lessonNumber": 24
         },
         {
           "index": 22,
@@ -613,8 +581,9 @@
           "index": 4,
           "strongs": "G0518",
           "lemma": "ἀπαγγέλλω",
-          "taught": false,
-          "note": "help shown"
+          "taught": true,
+          "lessonId": "L24",
+          "lessonNumber": 24
         },
         {
           "index": 5,
@@ -665,8 +634,9 @@
           "index": 10,
           "strongs": "G2842",
           "lemma": "κοινωνία",
-          "taught": false,
-          "note": "help shown"
+          "taught": true,
+          "lessonId": "L24",
+          "lessonNumber": 24
         },
         {
           "index": 11,
@@ -717,8 +687,9 @@
           "index": 16,
           "strongs": "G2842",
           "lemma": "κοινωνία",
-          "taught": false,
-          "note": "help shown"
+          "taught": true,
+          "lessonId": "L24",
+          "lessonNumber": 24
         },
         {
           "index": 17,
@@ -1066,8 +1037,9 @@
           "index": 15,
           "strongs": "G5457",
           "lemma": "φῶς",
-          "taught": false,
-          "note": "help shown"
+          "taught": true,
+          "lessonId": "L24",
+          "lessonNumber": 24
         },
         {
           "index": 16,
@@ -1175,8 +1147,9 @@
           "index": 3,
           "strongs": "G2842",
           "lemma": "κοινωνία",
-          "taught": false,
-          "note": "help shown"
+          "taught": true,
+          "lessonId": "L24",
+          "lessonNumber": 24
         },
         {
           "index": 4,
@@ -1243,8 +1216,9 @@
           "index": 11,
           "strongs": "G4043",
           "lemma": "περιπατέω",
-          "taught": false,
-          "note": "help shown"
+          "taught": true,
+          "lessonId": "L24",
+          "lessonNumber": 24
         },
         {
           "index": 12,
@@ -1293,8 +1267,9 @@
           "index": 17,
           "strongs": "G0225",
           "lemma": "ἀλήθεια",
-          "taught": false,
-          "note": "help shown"
+          "taught": true,
+          "lessonId": "L24",
+          "lessonNumber": 24
         }
       ]
     },
@@ -1341,15 +1316,17 @@
           "index": 4,
           "strongs": "G5457",
           "lemma": "φῶς",
-          "taught": false,
-          "note": "help shown"
+          "taught": true,
+          "lessonId": "L24",
+          "lessonNumber": 24
         },
         {
           "index": 5,
           "strongs": "G4043",
           "lemma": "περιπατέω",
-          "taught": false,
-          "note": "help shown"
+          "taught": true,
+          "lessonId": "L24",
+          "lessonNumber": 24
         },
         {
           "index": 6,
@@ -1400,15 +1377,17 @@
           "index": 11,
           "strongs": "G5457",
           "lemma": "φῶς",
-          "taught": false,
-          "note": "help shown"
+          "taught": true,
+          "lessonId": "L24",
+          "lessonNumber": 24
         },
         {
           "index": 12,
           "strongs": "G2842",
           "lemma": "κοινωνία",
-          "taught": false,
-          "note": "help shown"
+          "taught": true,
+          "lessonId": "L24",
+          "lessonNumber": 24
         },
         {
           "index": 13,
@@ -1500,8 +1479,9 @@
           "index": 23,
           "strongs": "G2511",
           "lemma": "καθαρίζω",
-          "taught": false,
-          "note": "help shown"
+          "taught": true,
+          "lessonId": "L24",
+          "lessonNumber": 24
         },
         {
           "index": 24,
@@ -1636,8 +1616,9 @@
           "index": 10,
           "strongs": "G0225",
           "lemma": "ἀλήθεια",
-          "taught": false,
-          "note": "help shown"
+          "taught": true,
+          "lessonId": "L24",
+          "lessonNumber": 24
         },
         {
           "index": 11,
@@ -1813,8 +1794,9 @@
           "index": 15,
           "strongs": "G2511",
           "lemma": "καθαρίζω",
-          "taught": false,
-          "note": "help shown"
+          "taught": true,
+          "lessonId": "L24",
+          "lessonNumber": 24
         },
         {
           "index": 16,

@@ -736,6 +736,36 @@
     {
       "id": "L24",
       "number": 24,
+      "title": "Words for 1 John 1",
+      "type": "vocab",
+      "goals": [
+        "Learn the seven words outside the 150 that occur at least twice in 1 John 1:1–10: fellowship, light, truth, walk, reveal, announce, cleanse.",
+        "See each one in the verses where it appears, using the grammar already learned.",
+        "Leave the one-time words of the passage to the help shown in the reading lesson."
+      ],
+      "vocab": [
+        "G2842",
+        "G5457",
+        "G0225",
+        "G4043",
+        "G5319",
+        "G0518",
+        "G2511"
+      ],
+      "grammarTopic": null,
+      "paradigmIds": [],
+      "exampleRefs": [
+        "1 John 1:6",
+        "1 John 1:7",
+        "1 John 1:2"
+      ],
+      "prereqs": [
+        "L23"
+      ]
+    },
+    {
+      "id": "L25",
+      "number": 25,
       "title": "Reading 1 John 1:1–10",
       "type": "reading",
       "goals": [
@@ -781,7 +811,8 @@
         "L20",
         "L21",
         "L22",
-        "L23"
+        "L23",
+        "L24"
       ],
       "reading": "reading-1john1.json"
     }
