@@ -48,7 +48,12 @@ const GENERIC_ERROR = "The teacher couldn't respond. Please try again.";
 const VERSE_NUMBERS = { verseNumbers: true };
 
 // ─── Hidden turns (verbatim) ─────────────────────────────────────────────────
-function openingTurn(L) {
+// Reading-lesson openings, per course (verbatim).
+const READING_OPENINGS = {
+  hebrew: '(The learner opened the reading lesson, Genesis 1:1–5. In two or three sentences explain how it works: they will read the passage verse by verse, right to left; each word is shown split into its parts, and parts not yet learned show their meaning beside them; they can click any word for details. Then begin with verse 1: take the first word, and ask the learner to find its parts and say what each means. In this lesson, let the learner do the reading and help them only as much as they need.)',
+};
+function openingTurn(L, courseId) {
+  if (L.type === 'reading' && READING_OPENINGS[courseId]) return READING_OPENINGS[courseId];
   if (L.type === 'reading') {
     return '(The learner opened the reading lesson, 1 John 1:1–10. In two or three sentences explain how it works: they will read the passage verse by verse; words not yet learned show their meaning in the passage beside them; they can click any word for details. Then begin with verse 1: take the first short phrase, and ask the learner to try the words they know, one at a time. In this lesson, let the learner do the reading and help them only as much as they need.)';
   }
@@ -177,7 +182,7 @@ router.get('/languages/:course/review', requireAuth, (req, res) => {
   const courseId = openCourse(req);
   if (!courseId) return notFound(req, res, 'That course isn’t available.');
   const C = lang.COURSES[courseId];
-  const boot = { course: courseId, lang: C.lang, cards: lang.dueCards(req.session.userId, courseId) };
+  const boot = { course: courseId, lang: C.lang, direction: C.direction || 'ltr', cards: lang.dueCards(req.session.userId, courseId) };
   res.send(renderLayout({
     req, activeSection: 'languages', title: 'Vocabulary review',
     content: `
@@ -189,7 +194,7 @@ router.get('/languages/:course/review', requireAuth, (req, res) => {
       <p class="lang-credit">${escapeHtml(C.credit)}</p>
       <a class="lang-back" href="/languages/${escapeHtml(courseId)}">&#8592; Back to the course</a>`,
     scripts: `<script>window.LANG_REVIEW_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/lang-review.js?v=1"></script>`,
+<script src="/js/lang-review.js?v=2"></script>`,
   }));
 });
 
@@ -282,10 +287,10 @@ router.get('/languages/:course/:lessonId', requireAuth, (req, res) => {
     req, activeSection: 'languages', title: L.title,
     content,
     scripts: `<script src="/js/render-markdown.js?v=2"></script>
-<script src="/js/orig-words.js?v=1"></script>
+<script src="/js/orig-words.js?v=2"></script>
 <script src="/js/geo-map.js?v=3"></script><script src="/js/library.js?v=84"></script>
 <script>window.LANG_LESSON_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/lang-lesson.js?v=2"></script>`,
+<script src="/js/lang-lesson.js?v=3"></script>`,
   }));
 });
 
@@ -387,7 +392,7 @@ router.post('/api/languages/exchange', requireAuth, aiLimiter, async (req, res) 
   if (start) {
     const now = new Date().toISOString();
     session = { id: randomUUID(), userId, course: courseId, lessonId: L.id, messages: [], createdAt: now, updatedAt: now };
-    newTurn = { role: 'user', content: openingTurn(L), hidden: true };
+    newTurn = { role: 'user', content: openingTurn(L, courseId), hidden: true };
     const du = req.session.user || {};
     logEvent(du.id || userId, du.fullName, 'language_lesson_started', { course: courseId, lesson: L.id });
   } else {
@@ -480,8 +485,9 @@ router.post('/api/languages/exchange', requireAuth, aiLimiter, async (req, res) 
 
     // Monitoring only (the reply is never altered): Greek the teacher wrote that
     // is not in the materials or learned-words blocks, compared NFC-normalized.
-    const stray = original.unverifiedRuns(reply, { text: contextText });
-    if (stray.length) console.warn(`[Languages/${courseId}/${L.id}] WARNING Greek not in materials: ${stray.slice(0, 12).join(' ')}`);
+    // Hebrew is compared with the shared normalization (lib/hebrew-text.js).
+    const stray = lang.strayScript(courseId, reply, contextText);
+    if (stray.length) console.warn(`[Languages/${courseId}/${L.id}] WARNING ${lang.COURSES[courseId].languageName} not in materials: ${stray.slice(0, 12).join(' ')}`);
 
     // Persist the completed exchange (an aborted turn is never saved). Inside the
     // store's queue: re-read, so a delete or another tab isn't lost or undone.

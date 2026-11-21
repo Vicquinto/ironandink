@@ -71,11 +71,8 @@ const nfc = s => String(s == null ? '' : s).normalize('NFC');
 // Comparable Hebrew: NFC, no cantillation (U+0591–U+05AF, incl. the ole of
 // dictionary forms), no meteg (U+05BD), paseq, sof pasuq, upper/lower dots,
 // maqqef, separators, spaces or paragraph letters after a space.
-function formKey(s) {
-  return nfc(String(s || '').normalize('NFD')
-    .replace(/\s+[פס]$/, '')
-    .replace(/[֑-ֽ֯׀׃ׅׄ־\/\\\s]/g, ''));
-}
+// The shared helper (lib/hebrew-text.js), also used by the Languages pages.
+const formKey = require('../lib/hebrew-text').hebrewKey;
 const refOf = (book, ch, v) => `${book} ${ch}:${v}`;
 function readJson(p) { return JSON.parse(fs.readFileSync(p, 'utf8')); }
 function writeJson(name, obj) { fs.writeFileSync(path.join(OUT, name), JSON.stringify(obj, null, 2) + '\n', 'utf8'); }

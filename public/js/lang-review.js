@@ -22,7 +22,7 @@
   else {
     var link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600&display=swap';
+    link.href = 'https://fonts.googleapis.com/css2?family=Noto+Serif+Hebrew:wght@400;600&family=Noto+Serif:wght@400;600&display=swap';
     document.head.appendChild(link);
   }
 
@@ -51,14 +51,17 @@
     var card = el('div', 'lang-review-card');
     var front = el('div', 'lang-review-front ucp-orig-script', String(c.display || '').normalize('NFC'));
     front.lang = LANG;
+    front.dir = BOOT.direction === 'rtl' ? 'rtl' : 'ltr';
+    if (LANG === 'he') front.classList.add('lang-review-front-he');
     card.appendChild(front);
 
     var back = el('div', 'lang-review-back');
     back.hidden = true;
+    if (c.bound) back.appendChild(el('div', 'lang-review-bound', c.bound));   // Hebrew prefix / suffix
     back.appendChild(el('div', 'lang-review-translit', c.translit));
     back.appendChild(el('div', 'lang-review-gloss', c.gloss));
     if (c.note) back.appendChild(el('div', 'lang-review-note', c.note));
-    back.appendChild(el('div', 'lang-review-freq', c.freqText + ' in the New Testament'));
+    back.appendChild(el('div', 'lang-review-freq', c.freqText + (LANG === 'he' ? ' in the Old Testament' : ' in the New Testament')));
     if (c.exampleRef) back.appendChild(el('div', 'lang-review-ref', 'For example: ' + c.exampleRef));
     card.appendChild(back);
 

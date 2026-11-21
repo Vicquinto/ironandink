@@ -9838,3 +9838,39 @@ a.lang-course-card:hover { border-color: var(--accent); background: rgba(160,132
   .lang-table th, .lang-table td { padding: 0.3em 0.35em; }
   .lang-dl { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* ─── LANGUAGES: Hebrew (lang-lesson.js, lang-review.js, orig-words.js) ──────
+   Hebrew text is 1.25× the size Greek would have in the same place (vowel
+   points are small), em-based so A−/A/A+ scales it. Rows that carry dir="rtl"
+   flow right to left; the page and English stay left to right. */
+.lang-he-scale { font-size: 1.25em; line-height: 1.5; }
+.lang-materials .ucp-orig-w[lang="he"] { font-size: 1.69em; }   /* 1.35em × 1.25, whole-word cards */
+.lang-vocab-bound {
+  display: inline-block;
+  font-size: 0.7em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--warm-brown);
+  border: 1px solid rgba(160,132,92,0.45);
+  border-radius: 3px;
+  padding: 0 0.4em;
+  margin-bottom: 0.2em;
+}
+
+/* A word split into its parts: prefix · word · suffix, each part's gloss under it. */
+.orig-parts { display: inline-flex; flex-wrap: wrap; align-items: flex-start; justify-content: center; gap: 0.15em 0.3em; max-width: 100%; }
+.orig-part { display: inline-flex; flex-direction: column; align-items: center; min-width: 0; }
+.orig-part-w { font-size: 1.69em; line-height: 1.35; color: var(--text); overflow-wrap: anywhere; }
+.orig-part-g { font-size: 0.72em; color: var(--warm-brown); overflow-wrap: anywhere; }
+.orig-part-sep { color: var(--warm-brown); opacity: 0.6; font-size: 1.1em; align-self: center; }
+.orig-part.is-known .orig-part-g { display: none; }
+.orig-part.is-new { opacity: 0.62; }
+.ucp-orig-word.ucp-orig-active .orig-part.is-new { opacity: 1; }
+
+.lang-review-front-he { font-size: 3.2rem; line-height: 1.5; }
+.lang-review-bound {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--warm-brown);
+}

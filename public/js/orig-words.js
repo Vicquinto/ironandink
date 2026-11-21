@@ -71,6 +71,24 @@
     var dl = document.createElement('dl');
     dl.className = 'ucp-orig-dl';
     detailRow(dl, 'Transliteration', w.t);
+    // Split words: each part in order with its grammar and gloss.
+    if (Array.isArray(w.parts) && w.parts.length) {
+      var ROLE = { prefix: 'Prefix', word: 'Word', suffix: 'Suffix' };
+      w.parts.forEach(function (pt) {
+        var dt = document.createElement('dt');
+        dt.textContent = ROLE[pt.role] || 'Part';
+        var dd = document.createElement('dd');
+        var f = document.createElement('span');
+        f.className = 'ucp-orig-script';
+        f.lang = lang; f.dir = dir;
+        f.textContent = pt.form;
+        dd.appendChild(f);
+        dd.appendChild(document.createTextNode(' — ' + [pt.gloss, pt.grammar].filter(Boolean).join(' — ') +
+          (pt.learned === false ? ' (not learned yet)' : '')));
+        dl.appendChild(dt);
+        dl.appendChild(dd);
+      });
+    }
     detailRow(dl, 'Dictionary form', w.l, lang, dir);
     if (w.lt) detailRow(dl, 'Pronounced', w.lt);
     detailRow(dl, 'Strong’s', w.s);
@@ -146,9 +164,43 @@
         gl.className = 'ucp-orig-g';
         gl.dir = 'ltr';
         gl.textContent = w.g || '';
-        card.appendChild(ow); card.appendChild(tr); card.appendChild(gl);
+        if (Array.isArray(w.parts) && w.parts.length) {
+          // A word split into its parts (Hebrew lesson pages): prefix · word ·
+          // suffix, in reading order (right to left for Hebrew), each part with
+          // its gloss under it, then the whole word's transliteration.
+          card.classList.add('orig-split');
+          var row2 = document.createElement('span');
+          row2.className = 'orig-parts';
+          row2.dir = dir;
+          w.parts.forEach(function (pt, k) {
+            if (k) {
+              var sep = document.createElement('span');
+              sep.className = 'orig-part-sep';
+              sep.setAttribute('aria-hidden', 'true');
+              sep.textContent = '·';
+              row2.appendChild(sep);
+            }
+            var ps = document.createElement('span');
+            ps.className = 'orig-part' + (pt.learned === true ? ' is-known' : pt.learned === false ? ' is-new' : '');
+            var pf = document.createElement('span');
+            pf.className = 'orig-part-w ucp-orig-script';
+            pf.lang = lang; pf.dir = dir;
+            pf.textContent = pt.form;
+            var pg = document.createElement('span');
+            pg.className = 'orig-part-g';
+            pg.dir = 'ltr';
+            pg.textContent = pt.gloss || '';
+            ps.appendChild(pf); ps.appendChild(pg);
+            row2.appendChild(ps);
+          });
+          card.appendChild(row2); card.appendChild(tr);
+        } else {
+          card.appendChild(ow); card.appendChild(tr); card.appendChild(gl);
+        }
         if (opts.tint && opts.tint(w)) { card.classList.add('ucp-orig-match'); card.title = 'possible match'; }
-        card.setAttribute('aria-label', (w.t || '') + ' — ' + (w.g || '') + (card.title ? ' (possible match)' : ''));
+        card.setAttribute('aria-label', (w.t || '') + ' — ' +
+          (Array.isArray(w.parts) && w.parts.length ? w.parts.map(function (pt) { return pt.gloss; }).join(' · ') : (w.g || '')) +
+          (card.title ? ' (possible match)' : ''));
         if (opts.decorate) opts.decorate(card, w, v, idx);
         card.addEventListener('click', function () {
           var open = card.classList.contains('ucp-orig-active');

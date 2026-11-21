@@ -23,9 +23,14 @@
     if (text !== undefined && text !== null) e.textContent = text;
     return e;
   }
+  // Original-language text. Hebrew sits in an inner span at 1.25× the size the
+  // element would have for Greek (vowel points are small); it scales with A−/A/A+.
+  var HEB = LANG === 'he';
   function greek(tag, text, cls) {
-    var e = el(tag, 'ucp-orig-script' + (cls ? ' ' + cls : ''), String(text || '').normalize('NFC'));
+    var t = String(text || '').normalize('NFC');
+    var e = el(tag, 'ucp-orig-script' + (cls ? ' ' + cls : ''), HEB ? null : t);
     e.lang = LANG; e.dir = DIR;
+    if (HEB) e.appendChild(el('span', 'lang-he-scale', t));
     return e;
   }
   function section(title) {
@@ -58,7 +63,109 @@
     return d;
   }
 
+  // ── Hebrew alphabet.json sections (consonants, vowels, shewa, dagesh, …) ──
+  var HE_TITLES = {
+    finalForms: 'Final forms', readingDirection: 'Reading right to left', begadkephat: 'Begadkephat: six letters with a dot',
+    dagesh: 'Dagesh', mappiq: 'Mappiq', vowels: 'Vowel points', furtivePatach: 'Furtive patach', shewa: 'Shewa',
+    hatephVowels: 'Hateph vowels', syllables: 'Syllables and stress', marks: 'Maqqef, sof pasuq and other marks',
+  };
+  function refsLine(parent, refs) { if (refs && refs.length) parent.appendChild(el('p', 'lang-ex-gloss', 'See ' + refs.join(', ') + ' below.')); }
+  function heVowelTable(list) {
+    var table = el('table', 'lang-table lang-alpha-table');
+    var hr = el('tr');
+    ['Sign', 'Name', 'Sound', 'Length', 'Written', 'Example'].forEach(function (h) { hr.appendChild(el('th', null, h)); });
+    var th = el('thead'); th.appendChild(hr); table.appendChild(th);
+    var tb = el('tbody');
+    list.forEach(function (x) {
+      var tr = el('tr');
+      var c1 = el('td', 'lang-alpha-big'); c1.setAttribute('data-label', 'Sign'); c1.appendChild(greek('span', x.sign));
+      var cells = [c1, ['Name', x.name], ['Sound', x.sound], ['Length', x['class'] || ''], ['Written', x.translit]];
+      cells.forEach(function (c, i) {
+        if (i === 0) { tr.appendChild(c); return; }
+        var td = el('td', c[0] === 'Written' ? 'lang-translit' : null, c[1]); td.setAttribute('data-label', c[0]); tr.appendChild(td);
+      });
+      var ex = el('td'); ex.setAttribute('data-label', 'Example'); ex.appendChild(examplesCell(x.examples, x.note || x.noExampleNote));
+      if (x.note && x.examples && x.examples.length) ex.appendChild(el('div', 'lang-ex-gloss', x.note));
+      tr.appendChild(ex);
+      tb.appendChild(tr);
+    });
+    table.appendChild(tb);
+    return table;
+  }
+  // One alphabet part of any shape: text, a list of items, or an object with
+  // a description, examples, verse refs and sub-items (shewa: vocal / silent).
+  function heNode(node, parent) {
+    if (typeof node === 'string') { parent.appendChild(el('p', null, node)); return; }
+    if (Array.isArray(node)) {
+      var dl = el('dl', 'lang-dl');
+      node.forEach(function (x) {
+        var dt = el('dt', null, x.name || '');
+        var mark = x.sign || x.form || x.mark;
+        if (mark) dt.appendChild(greek('span', ' ' + mark, 'lang-mark'));
+        var dd = el('dd', null, [x.description, x.sound, x.rule].filter(Boolean).join(' '));
+        if (x.examples && x.examples.length) dd.appendChild(examplesCell(x.examples));
+        if (x.noExampleNote) dd.appendChild(el('div', 'lang-ex-gloss', x.noExampleNote));
+        refsLine(dd, x.exampleRefs);
+        dl.appendChild(dt); dl.appendChild(dd);
+      });
+      parent.appendChild(dl);
+      return;
+    }
+    if (!node || typeof node !== 'object') return;
+    if (node.letters || node.sign || node.mark) parent.appendChild(el('p')).appendChild(greek('span', [].concat(node.letters || node.sign || node.mark).join(' '), 'lang-mark'));
+    if (node.description) parent.appendChild(el('p', null, node.description));
+    if (node.examples && node.examples.length) parent.appendChild(examplesCell(node.examples));
+    refsLine(parent, node.exampleRefs);
+    ['vocal', 'silent'].forEach(function (k) {
+      var sub = node[k];
+      if (!sub) return;
+      var dl = el('dl', 'lang-dl');
+      var dt = el('dt', null, k === 'vocal' ? 'Vocal shewa' : 'Silent shewa');
+      var dd = el('dd', null, (sub.rule || '') + (sub.translit ? ' Written: ' + sub.translit + '.' : ''));
+      if (sub.examples && sub.examples.length) dd.appendChild(examplesCell(sub.examples));
+      dl.appendChild(dt); dl.appendChild(dd);
+      parent.appendChild(dl);
+    });
+  }
+  function renderHebrewAlphabet(A) {
+    if (A.consonants) {
+      var s = section('The consonants');
+      if (A.direction === 'rtl') note(s, 'Hebrew is read from right to left.');
+      if (A.pronunciation) note(s, 'Pronunciation: ' + A.pronunciation + '.');
+      var table = el('table', 'lang-table lang-alpha-table');
+      var hr = el('tr');
+      ['Letter', 'Final form', 'Name', 'Sound', 'Sounds like', 'Written', 'Example'].forEach(function (h) { hr.appendChild(el('th', null, h)); });
+      var th = el('thead'); th.appendChild(hr); table.appendChild(th);
+      var tb = el('tbody');
+      A.consonants.forEach(function (x) {
+        var tr = el('tr');
+        var c1 = el('td', 'lang-alpha-big'); c1.setAttribute('data-label', 'Letter');
+        c1.appendChild(greek('span', x.variants ? x.variants.map(function (v) { return v.form; }).join(' ') : x.form));
+        var c2 = el('td', 'lang-alpha-big'); c2.setAttribute('data-label', 'Final form'); if (x.finalForm) c2.appendChild(greek('span', x.finalForm));
+        tr.appendChild(c1); tr.appendChild(c2);
+        [['Name', x.name], ['Sound', x.sound], ['Sounds like', x.soundAlike], ['Written', x.translit]].forEach(function (c) {
+          var td = el('td', c[0] === 'Written' ? 'lang-translit' : null, c[1]); td.setAttribute('data-label', c[0]); tr.appendChild(td);
+        });
+        var ex = el('td'); ex.setAttribute('data-label', 'Example'); ex.appendChild(examplesCell(x.examples, x.noExampleNote));
+        tr.appendChild(ex);
+        tb.appendChild(tr);
+      });
+      table.appendChild(tb);
+      s.appendChild(table);
+      pane.appendChild(s);
+    }
+    (A.parts || []).forEach(function (pt) {
+      if (pt.name === 'hatephNote') { var last = pane.lastChild; if (last) note(last, pt.content); return; }
+      var sec = section(HE_TITLES[pt.name] || pt.name);
+      if (pt.name === 'vowels' || pt.name === 'hatephVowels') sec.appendChild(heVowelTable(pt.content));
+      else heNode(pt.content, sec);
+      pane.appendChild(sec);
+    });
+    if (A.transliteration) { var tsec = pane.lastChild || pane; note(tsec, 'Transliteration: ' + A.transliteration); }
+  }
+
   function renderAlphabet(A) {
+    if (A.consonants || A.parts) { renderHebrewAlphabet(A); return; }
     if (A.letters) {
       var s = section('The letters');
       if (A.pronunciation) note(s, 'Pronunciation: ' + A.pronunciation + '.');
@@ -151,6 +258,7 @@
     var grid = el('div', 'lang-vocab');
     words.forEach(function (w) {
       var card = el('div', 'lang-vocab-card');
+      if (w.bound) card.appendChild(el('div', 'lang-vocab-bound', w.bound));   // Hebrew prefix / suffix
       card.appendChild(greek('div', w.display, 'lang-vocab-greek'));
       card.appendChild(el('div', 'lang-vocab-translit', w.translit));
       card.appendChild(el('div', 'lang-vocab-gloss', w.gloss));
@@ -169,6 +277,7 @@
     var cols = P.columns || [];
     var even = P.rows.every(function (r) { return r.cells.length === cols.length; });
     var table = el('table', 'lang-table lang-paradigm');
+    if (HEB) table.dir = 'rtl';   // Hebrew forms right to left; labels stay English
     if (even && cols.length) {
       var thead = el('thead'); var hr = el('tr');
       hr.appendChild(el('th', null, ''));
@@ -195,7 +304,9 @@
 
   // Verses word by word with the Original tab's word cards. Words not learned
   // yet are muted and keep their gloss; learned words show the Greek alone.
+  // Hebrew: ask the server to add the word's parts to the verified data block.
   function explain(pos, ref, w) {
+    if (HEB && Array.isArray(w.parts) && w.parts.length) pos = Object.assign({}, pos, { withParts: true });
     if (window.IronInkPanel && window.IronInkPanel.explainWord) window.IronInkPanel.explainWord(pos, ref, w);
   }
   function renderVerse(entry, heading) {
@@ -203,6 +314,8 @@
     return window.IronInkOrigWords.render(entry.data, {
       heading: heading || function (v) { return v.ref; },
       decorate: function (card, w) {
+        // A split word marks each part instead (orig-words.js is-known / is-new).
+        if (Array.isArray(w.parts) && w.parts.length) { card.classList.add('lang-w-split'); return; }
         card.classList.add(w.learned ? 'lang-w-known' : 'lang-w-new');
         if (!w.learned) card.title = 'Not learned yet';
       },
@@ -235,13 +348,17 @@
 
     if (M.examples && M.examples.length) {
       var ex = section('Example verses');
-      note(ex, 'Words you haven’t learned yet are shown lighter, with their meaning under them. Click any word for details.');
+      note(ex, HEB
+        ? 'Each word is shown split into its parts, right to left. Parts you haven’t learned yet are lighter, with their meaning under them. Click any word for details.'
+        : 'Words you haven’t learned yet are shown lighter, with their meaning under them. Click any word for details.');
       M.examples.forEach(function (e) { var w = renderVerse(e); if (w) ex.appendChild(w); });
       pane.appendChild(ex);
     }
     if (M.reading) {
       var rd = section(M.reading.passage || 'The passage');
-      note(rd, 'Words you have learned are plain. Words not yet learned show their meaning in the passage under them. Click any word for details.');
+      note(rd, HEB
+        ? 'Read right to left. Each word is split into its parts: parts you have learned are plain; parts not yet learned show their meaning in the passage under them. Click any word for details.'
+        : 'Words you have learned are plain. Words not yet learned show their meaning in the passage under them. Click any word for details.');
       M.reading.verses.forEach(function (e) {
         var w = renderVerse(e, function (v) { return 'Verse ' + v.verse; });
         if (w) rd.appendChild(w);
