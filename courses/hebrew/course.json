@@ -187,7 +187,7 @@
       "exampleRefs": [
         "Genesis 1:1",
         "Exodus 15:3",
-        "Proverbs 17:6"
+        "Exodus 2:25"
       ],
       "prereqs": [
         "L05"
@@ -268,6 +268,10 @@
       ],
       "prereqs": [
         "L07"
+      ],
+      "notes": [
+        "The word card may label בֵּין a 'numerical adjective', and some plain לְ as 'Preposition · definite'; treat בֵּין as the preposition 'between' and check the vowel under the prefix for the article.",
+        "The word card also labels אַחַר (after) a 'numerical adjective'; it is the preposition 'after'."
       ]
     },
     {
@@ -381,6 +385,10 @@
       ],
       "prereqs": [
         "L10"
+      ],
+      "notes": [
+        "The word card labels מְאֹד (very) a 'numerical adjective'; it is an adverb, 'very'.",
+        "In Genesis 1:4 the word card labels טוֹב a verb ('it was good'); this course teaches the adjective 'good'. Both are the same word here."
       ]
     },
     {
@@ -417,6 +425,9 @@
       ],
       "prereqs": [
         "L11"
+      ],
+      "notes": [
+        "The word card labels אֶחָד as feminine; it is the masculine 'one' (as in יוֹם אֶחָד, Genesis 1:5). The feminine is אַחַת."
       ]
     },
     {
@@ -454,6 +465,10 @@
       ],
       "prereqs": [
         "L12"
+      ],
+      "notes": [
+        "The word card labels כִּי a 'conditional particle'; read it as that, because, for, or when.",
+        "The word card labels עוֹד (still, again) a 'numerical adjective'; it is an adverb."
       ]
     },
     {
@@ -559,7 +574,7 @@
       "exampleRefs": [
         "Psalms 105:7",
         "Deuteronomy 10:14",
-        "Genesis 10:31"
+        "2 Samuel 15:15"
       ],
       "prereqs": [
         "L15"
@@ -670,7 +685,7 @@
       "exampleRefs": [
         "Genesis 1:1",
         "Psalms 109:27",
-        "Psalms 121:7"
+        "2 Samuel 22:22"
       ],
       "prereqs": [
         "L18"
@@ -706,7 +721,7 @@
       ],
       "exampleRefs": [
         "Genesis 1:3",
-        "Psalms 123:1",
+        "Genesis 9:4",
         "Psalms 25:1"
       ],
       "prereqs": [
@@ -748,6 +763,9 @@
       ],
       "prereqs": [
         "L20"
+      ],
+      "notes": [
+        "The 'consecutive' prefix label also appears on the consecutive perfect (weqatal), which you meet in lesson 22; in Genesis 1:3–5 it marks the wayyiqtol."
       ]
     },
     {
@@ -782,6 +800,9 @@
       ],
       "prereqs": [
         "L21"
+      ],
+      "notes": [
+        "Deuteronomy 32:40 has a consecutive perfect (weqatal): וְאָמַרְתִּי, 'and I will say'. It is a perfect with the prefix ve-, but it looks ahead, like an imperfect. The word card labels its prefix 'consecutive', the same label as the wayyiqtol's."
       ]
     },
     {
@@ -818,11 +839,14 @@
       "paradigmIds": [],
       "exampleRefs": [
         "Psalms 76:1",
-        "Psalms 130:6",
-        "Psalms 135:12"
+        "Exodus 4:29",
+        "Genesis 41:41"
       ],
       "prereqs": [
         "L22"
+      ],
+      "notes": [
+        "Levi, Philistine and Pharaoh are labelled common nouns in the data; they are names."
       ]
     },
     {

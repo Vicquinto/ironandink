@@ -14,6 +14,7 @@ Same files and checks as `courses/greek/`.
 | `paradigm-check.json` | generated | every paradigm cell checked against the OT |
 | `reading-gen1.json` | generated | Genesis 1:1–5 word by word and morpheme by morpheme: taught yet, and in which lesson |
 | `course-check.json` | generated | lesson-plan validation, example-verse coverage, grammar coverage of the passage |
+| `examples.json` | generated | every exampleRef and Genesis 1:1–5, word by word with each word's parts in order (prefix / word / suffix): form, strongs, code, grammar, gloss, taughtIn |
 
 Regenerate:
 
@@ -21,7 +22,17 @@ Regenerate:
 
 The script needs STEPBible's TAHOT files (`tahot1.txt`–`tahot4.txt`) for the morpheme split.
 `scripts/build-original-data.js` leaves them in `<os tmpdir>/iron-ink-orig-build/`; pass
-`--tahot <dir>` to point elsewhere. Every word is checked against `orig/ot`. The script uses Node
+`--tahot <dir>` to point elsewhere. Every word is checked against `orig/ot`.
+
+If that cache is gone (a cleared temp folder, or a new machine), download the files again, then
+re-run the Hebrew script. This rebuilds every generated file, `examples.json` included:
+
+    node scripts/build-original-data.js
+    node scripts/build-hebrew-course.js
+
+The first command downloads STEPBible-Data afresh and also rebuilds `orig/`. If STEPBible has
+changed since the snapshot in `orig/SOURCES.md`, the Hebrew script will stop on any word that no
+longer matches, rather than build from mismatched data. The script uses Node
 built-ins only, gives the same output on every run, and exits non-zero on any problem.
 
 Prefixes (and, the, in, to, like, from) and pronoun suffixes are counted and taught as their own

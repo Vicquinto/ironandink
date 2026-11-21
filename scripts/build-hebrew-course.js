@@ -133,7 +133,7 @@ for (let i = 1; i <= 4; i++) {
     const f = line.split('\t');
     if (!(f[1] || '').replace(/[\/\\]/g, '').trim()) return;   // as build-original-data.js
     const ref = refOf(book, m[2], m[3]);
-    (raw.get(ref) || raw.set(ref, []).get(ref)).push({ heb: f[1].trim(), tr: (f[2] || '').trim(), ds: (f[4] || '').trim(), code: (f[5] || '').trim(), exp: (f[11] || '').trim() });
+    (raw.get(ref) || raw.set(ref, []).get(ref)).push({ heb: f[1].trim(), tr: (f[2] || '').trim(), gl: (f[3] || '').trim(), ds: (f[4] || '').trim(), code: (f[5] || '').trim(), exp: (f[11] || '').trim() });
   });
 }
 
@@ -145,6 +145,7 @@ function splitWord(r) {
   const codes    = segCodes(r.code);
   const expParts = r.exp.split('/').map(p => p.split('\\')[0]);
   const trParts  = r.tr.split('/');
+  const glParts  = r.gl.split('/');
   if (hebParts.length !== dsParts.length || dsParts.length !== codes.length) return null;
   const mainIdx = dsParts.findIndex(d => /^\{/.test(d));
   return hebParts.map((h, i) => {
@@ -153,6 +154,7 @@ function splitWord(r) {
     return {
       form: nfc(h), key: formKey(h), strongs, code: codes[i],
       tr: trParts.length === hebParts.length ? trParts[i].replace(/\\.*$/, '').replace(/[-\s]+$/, '').trim() : '',
+      gl: glParts.length === hebParts.length ? glParts[i].trim() : '',
       role: i === mainIdx ? 'main' : (mainIdx === -1 || i < mainIdx ? 'prefix' : 'suffix'),
       expLemma: nfc(e[1] || ''), expGloss: (e[2] || '').trim(),
     };
@@ -582,6 +584,39 @@ writeJson('reading-gen1.json', {
     itemsNotTaught: items.filter(([, x]) => !x.lesson).map(([k, x]) => ({ key: k, strongs: x.strongs, bound: x.bound, inTop250: x.inTop })),
   },
   verses,
+});
+
+// ── 7. example verses, morpheme by morpheme (for Phase B) ─────────────────
+// Every exampleRef in course.json, then Genesis 1:1–5, each word with its parts
+// in order. gloss = the course gloss when the part is a course item, else the
+// TAHOT translation of that part in this verse (or of the whole word when
+// TAHOT's columns don't line up).
+const exampleRefList = [];
+course.lessons.forEach(L => (L.exampleRefs || []).forEach(r => { if (!exampleRefList.includes(r)) exampleRefList.push(r); }));
+passageRefs.forEach(r => { if (!exampleRefList.includes(r)) exampleRefList.push(r); });
+const exampleVerses = {};
+for (const ref of exampleRefList) {
+  exampleVerses[ref] = (verseTokens.get(ref) || []).map(tk => ({
+    index: tk.i,
+    form: tk.w,
+    parts: tk.parts.map(p => {
+      const item = byKey.get(p.ck);
+      const dataGloss = p.gl || (tk.parts.length === 1 ? tk.g : headGloss(p.expGloss));
+      return {
+        form: p.form, strongs: p.strongs, key: p.ck, code: p.code,
+        grammar: describeSeg(p.code),
+        gloss: item ? (item.courseGloss || item.gloss) : dataGloss,
+        taughtIn: taughtIn.get(p.ck) || null,
+      };
+    }),
+  }));
+}
+writeJson('examples.json', {
+  generatedBy: 'scripts/build-hebrew-course.js',
+  source: 'STEPBible TAHOT (morpheme split, Leningrad codex), checked word by word against orig/ot; grammar orig/morph-heb.json; glosses vocab.json (course items) or TAHOT. CC BY 4.0, STEP Bible (STEPBible.org), based on work at Tyndale House, Cambridge.',
+  note: 'For each verse: its words in order (index = position in orig/ot\'s word list), each with its parts in order: prefix(es), word, suffix(es). form and strongs as in the data; key = the course key; code = the STEP morphology code; grammar = its plain-English description; gloss = courseGloss/gloss for a course item, else the data\'s translation of that part; taughtIn = the lesson that teaches the part, or null. All Hebrew NFC.',
+  refs: exampleRefList,
+  verses: exampleVerses,
 });
 
 writeJson('course-check.json', {

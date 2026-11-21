@@ -528,12 +528,12 @@
           "pct": 50
         },
         {
-          "ref": "Proverbs 17:6",
+          "ref": "Exodus 2:25",
           "words": 7,
           "wordsKnown": 3,
           "morphemes": 9,
-          "morphemesKnown": 4,
-          "pct": 44
+          "morphemesKnown": 3,
+          "pct": 33
         }
       ]
     },
@@ -858,12 +858,12 @@
           "pct": 94
         },
         {
-          "ref": "Genesis 10:31",
-          "words": 7,
-          "wordsKnown": 6,
-          "morphemes": 15,
-          "morphemesKnown": 14,
-          "pct": 93
+          "ref": "2 Samuel 15:15",
+          "words": 12,
+          "wordsKnown": 10,
+          "morphemes": 19,
+          "morphemesKnown": 16,
+          "pct": 84
         }
       ]
     },
@@ -957,12 +957,12 @@
           "pct": 100
         },
         {
-          "ref": "Psalms 121:7",
+          "ref": "2 Samuel 22:22",
           "words": 7,
-          "wordsKnown": 7,
+          "wordsKnown": 6,
           "morphemes": 10,
-          "morphemesKnown": 10,
-          "pct": 100
+          "morphemesKnown": 9,
+          "pct": 90
         }
       ]
     },
@@ -982,12 +982,12 @@
           "pct": 25
         },
         {
-          "ref": "Psalms 123:1",
+          "ref": "Genesis 9:4",
           "words": 6,
-          "wordsKnown": 6,
-          "morphemes": 10,
-          "morphemesKnown": 10,
-          "pct": 100
+          "wordsKnown": 5,
+          "morphemes": 9,
+          "morphemesKnown": 8,
+          "pct": 89
         },
         {
           "ref": "Psalms 25:1",
@@ -1081,19 +1081,19 @@
           "pct": 100
         },
         {
-          "ref": "Psalms 130:6",
-          "words": 6,
-          "wordsKnown": 6,
-          "morphemes": 11,
-          "morphemesKnown": 11,
+          "ref": "Exodus 4:29",
+          "words": 9,
+          "wordsKnown": 9,
+          "morphemes": 12,
+          "morphemesKnown": 12,
           "pct": 100
         },
         {
-          "ref": "Psalms 135:12",
-          "words": 6,
-          "wordsKnown": 6,
-          "morphemes": 10,
-          "morphemesKnown": 10,
+          "ref": "Genesis 41:41",
+          "words": 11,
+          "wordsKnown": 11,
+          "morphemes": 13,
+          "morphemesKnown": 13,
           "pct": 100
         }
       ]
