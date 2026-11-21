@@ -493,9 +493,9 @@
   }
 
   function hideResume() { resumePanel.style.display = 'none'; }
-  function showPanel(text, begin) {
+  function showPanel(text, begin, beginLabel) {
     resumeText.textContent = text;
-    resumeBtn.textContent = begin ? 'Begin' : 'Pick up where you left off';
+    resumeBtn.textContent = begin ? (beginLabel || 'Begin') : 'Pick up where you left off';
     startOverBtn.style.display = begin ? 'none' : '';
     deleteBtn.style.display = begin ? 'none' : '';
     resumeBtn.onclick = begin ? startNew : resumeSaved;
@@ -544,6 +544,9 @@
     var when = fmtDate(BOOT.saved.updatedAt);
     showPanel('You have a saved conversation for this lesson' + (when ? ' (last worked on ' + when + ')' : '') + '.', false);
   } else {
-    startNew();
+    // No saved session: nothing starts (and no AI call) until the learner asks.
+    // The lesson becomes "in progress" only once the teacher's first reply is
+    // saved (routes/languages.js), so browsing lessons never marks them.
+    showPanel('Your teacher will walk you through this lesson.', true, 'Start the lesson');
   }
 })();
