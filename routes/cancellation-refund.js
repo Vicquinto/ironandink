@@ -18,7 +18,7 @@ router.get('/cancellation-refund', (req, res) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cancellation &amp; Refund Policy — Iron &amp; Ink</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/styles.css?v=110">
+  <link rel="stylesheet" href="/css/styles.css?v=111">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <style>
     body { font-family: 'EB Garamond', Georgia, serif; }

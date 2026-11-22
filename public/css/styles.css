@@ -8526,38 +8526,53 @@ a.teacher-review-outside { font-style: italic; text-decoration: underline; }
    font-size is the A-/A/A+ zoom (PFONT_*), everything readable inside is
    em-based so it scales together, and the header stays rem-sized. */
 /* Two separate tools side by side, each a .plan-bar-group: the button with
-   its own caption left-aligned beneath it. Stacked on narrow screens. */
+   its own caption centered beneath it. Each column is about a button wide
+   (captions wrap inside it), the pair sits left-aligned with a modest gap, and
+   the columns wrap to a stack (button, caption, button, caption) when the row
+   can't hold both. */
 .study-plan-bar {
   display: flex;
   align-items: flex-start;
   flex-wrap: wrap;
-  gap: 14px 44px;
+  gap: 16px 24px;
   margin-bottom: 14px;
 }
 .plan-bar-group {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  text-align: center;
   gap: 6px;
+  flex: 0 1 240px;
+  max-width: 100%;
   min-width: 0;
 }
-@media (max-width: 600px) {
-  .study-plan-bar { flex-direction: column; gap: 16px; }
+/* Both buttons share one size: the lighter .btn-warm look (1px border, 4px
+   radius, 0.9rem), equal padding and icon spacing, and one min-width so the
+   pair is equal width. Only the colour differs. */
+.plan-study-btn,
+.ideas-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: min(200px, 100%);
+  padding: 11px 20px;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  line-height: 1.2;
+  letter-spacing: 0.03em;
 }
 /* "Plan a Study": an outlined secondary button (the .btn-warm shape) in oxblood,
-   a step up from a plain .btn-warm so it doesn't read as minor, but never
+   the same size as Study Ideas beside it (shared rule above), but never
    filled — Generate Study stays the one filled oxblood primary. Hover and the
    open state get a light gold tint on the parchment, no dark fill. */
 .plan-study-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
   color: var(--accent);
-  border: 1.5px solid var(--accent);
+  border-color: var(--accent);
   background: transparent;
-  font-size: 0.97rem;
-  padding: 11px 24px;
-  letter-spacing: 0.04em;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 .plan-study-btn:hover,
@@ -9053,14 +9068,9 @@ a.sm-book-tile.is-studied.is-filtered-out {
 
 /* ─── STUDY IDEAS (study page + Library) ──────────────────────────────────────
    The member's private list of studies to do later (study-ideas.js), opened
-   from the button beside Plan a Study. A quiet .btn-warm toggle — Plan a Study
-   stays the stronger secondary and Generate Study the one filled primary. */
-.ideas-toggle-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 11px 20px;
-}
+   from the button beside Plan a Study. A quiet .btn-warm toggle, the same size
+   as Plan a Study (shared rule above); Generate Study stays the one filled
+   primary. */
 .ideas-toggle-btn:hover,
 .ideas-toggle-btn.is-active {
   color: var(--accent);
