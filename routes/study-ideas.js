@@ -3,7 +3,7 @@ const fs             = require('fs');
 const path           = require('path');
 const { randomUUID } = require('crypto');
 const { requireAuth } = require('./layout');
-const { STUDY_TYPES, STUDY_LEVELS, findType, findLevel } = require('../lib/study-types');
+const { OFFERED_TYPES, STUDY_LEVELS, findType, findLevel, offeredTypeKey } = require('../lib/study-types');
 const { getMap } = require('../lib/study-map');
 
 // ─── Study Ideas ──────────────────────────────────────────────────────────────
@@ -60,9 +60,11 @@ function cleanNotes(s) {
 }
 
 // Type/level as the planner validates them: real keys only; a type with no
-// depth dial (Explore) takes no level unless it is a story-mode level.
+// depth dial (Explore) takes no level unless it is a story-mode level. A
+// retired type (Open — e.g. an idea saved from an Open study) is stored as its
+// fallback (Doctrinal), since an idea is always for a NEW study.
 function cleanTypeLevel(rawType, rawLevel) {
-  const type  = (typeof rawType === 'string' && findType(rawType)) || null;
+  const type  = (typeof rawType === 'string' && findType(offeredTypeKey(rawType))) || null;
   let level   = (typeof rawLevel === 'string' && findLevel(rawLevel)) || null;
   if (type && type.noLevel && level && !level.storyMode) level = null;
   return { type: type ? type.key : null, level: level ? level.key : null };
@@ -74,7 +76,9 @@ function publicIdea(i) {
     id:        i.id,
     title:     i.title,
     notes:     i.notes || '',
-    type:      i.type || null,
+    // An idea saved before Open was retired loads as Doctrinal (offeredTypeKey),
+    // so the creator shows a type the picker actually has.
+    type:      (i.type && offeredTypeKey(i.type)) || null,
     level:     i.level || null,
     subject:   i.subject || null,
     source:    i.source === 'library' ? 'library' : 'member',
@@ -239,7 +243,7 @@ router.post('/api/study-ideas/from-study/:studyId', requireAuth, (req, res) => {
 // The type/level options for the Study page's idea form (labels as members see them).
 function ideaOptions() {
   return {
-    types:  STUDY_TYPES.map(t => ({ key: t.key, label: t.label, noLevel: !!t.noLevel })),
+    types:  OFFERED_TYPES.map(t => ({ key: t.key, label: t.label, noLevel: !!t.noLevel })),
     levels: STUDY_LEVELS.map(l => ({ key: l.key, label: l.label, storyMode: !!l.storyMode })),
   };
 }

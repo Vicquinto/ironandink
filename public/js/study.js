@@ -709,6 +709,9 @@
   // whatever is selected at Generate wins.
   function applyBranchDefaultType(type) {
     var target = type || 'pathway';
+    // A type with no card here (a retired type such as Open, from an old idea
+    // or a stale page) shows Doctrinal — the same fallback the server applies.
+    if (studyTypePicker && !studyTypePicker.querySelector('.study-type-option[data-type="' + target + '"]')) target = 'doctrinal';
     selectedType = target;
     if (studyTypePicker) {
       studyTypePicker.querySelectorAll('.study-type-option').forEach(function (o) {
@@ -732,8 +735,9 @@
       if (!plan || !plan.subject || !topicInput) return false;
       clearPendingLineage();
       clearSuggestNote();
-      if (studyTypePicker && plan.type &&
-          studyTypePicker.querySelector('.study-type-option[data-type="' + plan.type + '"]')) {
+      // A type with no card (retired, e.g. Open) becomes Doctrinal inside
+      // applyBranchDefaultType, so an old idea never leaves a stale selection.
+      if (studyTypePicker && plan.type) {
         applyBranchDefaultType(plan.type);
       }
       if (studyLevelSelect && plan.level &&

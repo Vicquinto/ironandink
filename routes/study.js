@@ -10,7 +10,7 @@ const { logEvent } = require('../lib/usageLog');
 const { getEntitlements, recordStudy } = require('../lib/entitlements');
 const { aiLimiter } = require('../middleware/rateLimit');
 const STORY_GROUPS = require('../data/childrens-stories');
-const { STUDY_TYPES, STUDY_LEVELS, DEFAULT_STUDY_TYPE, findType, DEFAULT_WAIT_NOTE } = require('../lib/study-types');
+const { OFFERED_TYPES, STUDY_LEVELS, DEFAULT_STUDY_TYPE, findType, offeredTypeKey, DEFAULT_WAIT_NOTE } = require('../lib/study-types');
 const { tagStudy, rememberGeneratedMap } = require('../lib/study-map');
 const { ideaOptions } = require('./study-ideas');
 
@@ -149,8 +149,9 @@ function buildTopicBrowser() {
 
 // Type cards and level options come from the shared list (lib/study-types.js),
 // so the picker, Suggest a study type and the Study Planner never drift apart.
+// Only OFFERED types get a card; retired ones (Open) are never offered anew.
 function buildTypePicker() {
-  return STUDY_TYPES.map(t => {
+  return OFFERED_TYPES.map(t => {
     const active = t.key === DEFAULT_STUDY_TYPE;
     return `
       <button class="study-type-option${active ? ' study-type-option--active' : ''}" data-type="${escapeHtml(t.key)}"${t.noStoryMode ? ' data-no-story="true"' : ''}${t.waitNote ? ' data-wait-note="' + escapeHtml(t.waitNote) + '"' : ''} role="radio" aria-checked="${active}">
@@ -383,7 +384,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study-badges.js?v=5"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=3"></script><script src="/js/study-bookmark.js?v=2"></script><script src="/js/opposing-views.js?v=1"></script><script src="/js/teacher-entry.js?v=8"></script><script src="/js/study.js?v=32"></script><script src="/js/study-planner.js?v=6"></script><script src="/js/study-ideas.js?v=3"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/orig-words.js?v=2"></script><script src="/js/library.js?v=85"></script>
+    scripts: `<script src="/js/study-badges.js?v=5"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=3"></script><script src="/js/study-bookmark.js?v=2"></script><script src="/js/opposing-views.js?v=1"></script><script src="/js/teacher-entry.js?v=8"></script><script src="/js/study.js?v=33"></script><script src="/js/study-planner.js?v=6"></script><script src="/js/study-ideas.js?v=3"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/orig-words.js?v=2"></script><script src="/js/library.js?v=85"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${inlineJson((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};
@@ -714,7 +715,11 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
     book:       IRON_INK_BOOK_PROMPT,
     opposing:   IRON_INK_OPPOSING_PROMPT,
   };
-  const resolvedStudyType = STUDY_TYPE_PROMPTS[studyType] ? studyType : 'doctrinal';
+  // A retired type (Open) asked for anew — an old Study Idea, a branch from an
+  // Open study, a stale page — is generated as Doctrinal (offeredTypeKey), with
+  // no error. Its prompt entry above stays, but nothing new reaches it.
+  const offeredKey        = offeredTypeKey(studyType);
+  const resolvedStudyType = (offeredKey && STUDY_TYPE_PROMPTS[offeredKey]) ? offeredKey : 'doctrinal';
   const studyPrompt       = STUDY_TYPE_PROMPTS[resolvedStudyType];
 
   let resolvedStudyLevel = (studyLevel && STUDY_LEVEL_INSTRUCTIONS[studyLevel])
@@ -920,7 +925,11 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
 // The keys the picker uses, with the exact card descriptions members read —
 // the same shared list GET /study renders the cards from (lib/study-types.js),
 // so the model always classifies against what the member actually sees.
-const SUGGEST_TYPE_OPTIONS = STUDY_TYPES;
+// OFFERED types only: a retired type (Open) is never suggested.
+const SUGGEST_TYPE_OPTIONS = OFFERED_TYPES;
+// What an unclear topic or an unusable reply falls back to, now that Open is
+// retired: Pathway lets the subject set its own shape, as Open did.
+const SUGGEST_FALLBACK = 'pathway';
 
 const SUGGEST_VALID_KEYS = SUGGEST_TYPE_OPTIONS.map(o => o.key);
 
@@ -950,7 +959,7 @@ router.post('/api/study/suggest-type', requireAuth, aiLimiter, async (req, res) 
 
   // Note the label/key split: `people` is shown to members as "Subject". The model
   // is told to return the KEY, and the key is validated below — otherwise a
-  // sensible-looking "subject" would silently fall back to Open.
+  // sensible-looking "subject" would silently fall back to Pathway.
   const typeList = SUGGEST_TYPE_OPTIONS
     .map(o => `- ${o.key} (shown as "${o.label}"): ${o.desc}`)
     .join('\n');
@@ -961,8 +970,8 @@ router.post('/api/study/suggest-type', requireAuth, aiLimiter, async (req, res) 
     'Choose the ONE type that best fits the shape of the subject itself — what kind of thing ' +
     'it is and how it is best studied. Do not consider the reader\'s experience level, and do ' +
     'not comment on difficulty or depth.\n\n' +
-    'If the topic does not clearly fit a named type, answer "open" — that is a legitimate ' +
-    'answer, not a failure, and Open adapts the study to the subject.\n\n' +
+    'If the topic does not clearly fit a more specific type, answer "' + SUGGEST_FALLBACK + '" — that is a legitimate ' +
+    'answer, not a failure, and Pathway lets the subject set the shape of the study.\n\n' +
     'Respond with JSON only, in exactly this form:\n' +
     '{"type": "<key>", "reason": "<one short sentence>"}\n\n' +
     'Use one of these exact keys: ' + SUGGEST_VALID_KEYS.join(', ') + '. ' +
@@ -982,22 +991,22 @@ router.post('/api/study/suggest-type', requireAuth, aiLimiter, async (req, res) 
 
     // Read text blocks only rather than content[0] — harmless on Haiku (no
     // thinking requested), and an empty reply parses to null and degrades to
-    // Open below.
+    // Pathway below.
     const parsed = parseSuggestion(message.content.filter(b => b.type === 'text').map(b => b.text).join(''));
 
-    // Any unusable answer degrades to Open rather than failing the request — Open
-    // is a real option that fits the study to the subject, so it is a safe default.
+    // Any unusable answer degrades to Pathway rather than failing the request —
+    // Pathway lets the subject set its own shape, so it is a safe default.
     if (!parsed) {
       return res.json({
         success: true,
-        type:    'open',
-        reason:  'No single type stood out for this topic — Open adapts the study to the subject.',
+        type:    SUGGEST_FALLBACK,
+        reason:  'No single type stood out for this topic — Pathway follows the subject wherever it leads.',
       });
     }
 
     const type = SUGGEST_VALID_KEYS.includes(parsed.type)
       ? parsed.type
-      : 'open';
+      : SUGGEST_FALLBACK;
 
     let reason = typeof parsed.reason === 'string' ? parsed.reason.trim() : '';
     if (!reason) reason = 'Suggested based on the shape of this topic.';

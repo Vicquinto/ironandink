@@ -7,7 +7,7 @@ const { injectVersesTracked, NASB_ATTRIBUTION_MD } = require('../lib/asv');
 const { logEvent } = require('../lib/usageLog');
 const { getEntitlements } = require('../lib/entitlements');
 const { aiLimiter } = require('../middleware/rateLimit');
-const { STUDY_TYPES, STUDY_LEVELS, findType, findLevel } = require('../lib/study-types');
+const { OFFERED_TYPES, STUDY_LEVELS, findType, findLevel, offeredTypeKey } = require('../lib/study-types');
 const { getMap, displayPassage, isCompleted } = require('../lib/study-map');
 const { ideasForMember } = require('./study-ideas');
 
@@ -94,8 +94,9 @@ function stripTags(text) {
 }
 
 // ── Validation against the real options ───────────────────────────────────────
-// Accept a key or the name members see ("Subject" → people). An unknown type
-// becomes Open — the type that fits the study to the subject. An unknown level
+// Accept a key or the name members see ("Subject" → people), from the OFFERED
+// types only. A retired type (Open) becomes Doctrinal; an unknown type becomes
+// Pathway — the type that lets the subject set its shape. An unknown level
 // becomes null, which leaves the member's current level alone. A type with no
 // depth dial (Explore) takes no level, unless it's a story-mode level
 // (Children's), which overrides the type anyway.
@@ -120,7 +121,12 @@ function validatePlan(p) {
   if (!p || typeof p !== 'object') return null;
   const subject = cleanSubject(p.subject);
   if (subject.length < 3) return null;
-  const type  = matchOption(STUDY_TYPES, p.type) || findType('open');
+  // Offered types only. A retired type the model names anyway (Open) becomes its
+  // fallback (Doctrinal); anything unrecognised becomes Pathway, which lets the
+  // subject set its own shape (the role Open used to play here).
+  const named = matchOption(OFFERED_TYPES, p.type);
+  const retired = named ? null : findType(String(p.type == null ? '' : p.type).trim().toLowerCase());
+  const type  = named || (retired && findType(offeredTypeKey(retired.key))) || findType('pathway');
   let level   = matchOption(STUDY_LEVELS, p.level);
   if (type.noLevel && level && !level.storyMode) level = null;
   return {
@@ -147,10 +153,10 @@ function validatePlans(list) {
 }
 
 // ── Context blocks ────────────────────────────────────────────────────────────
-// The live type/level catalog — the same list the picker is rendered from.
+// The live type/level catalog — the same OFFERED list the picker is rendered from.
 function catalogText() {
   return 'STUDY TYPES (key — the name members see on the card: what it is):\n' +
-    STUDY_TYPES.map(t => '- ' + t.key + ' — "' + t.label + '": ' + t.desc +
+    OFFERED_TYPES.map(t => '- ' + t.key + ' — "' + t.label + '": ' + t.desc +
       (t.noLevel ? ' (Takes no depth level: this type has no depth dial.)' : '')).join('\n') +
     '\n\nDEPTH LEVELS (key — the name members see in the Study Level menu: who it is for):\n' +
     STUDY_LEVELS.map(l => '- ' + l.key + ' — "' + l.label + '": ' + l.desc).join('\n');
@@ -188,7 +194,7 @@ function ideasContextText(userId) {
     const parts = [clean(i.title).slice(0, 200)];
     const notes = clean(i.notes);
     if (notes) parts.push('notes: ' + (notes.length > MAX_IDEA_NOTES_CHARS ? notes.slice(0, MAX_IDEA_NOTES_CHARS) + '…' : notes));
-    const t = findType(i.type), l = findLevel(i.level);
+    const t = findType(offeredTypeKey(i.type)), l = findLevel(i.level);   // an old Open idea reads as Doctrinal
     if (t) parts.push('type: ' + t.label);
     if (l) parts.push('level: ' + l.label);
     if (i.source === 'library') parts.push('saved from a study they removed from their Library');
