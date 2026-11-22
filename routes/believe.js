@@ -100,7 +100,17 @@ function buildContent() {
 
       <div class="believe-article">
         <div class="believe-article-heading">
-          <span class="believe-article-num">III.</span>Man and Sin
+          <span class="believe-article-num">III.</span>Creation
+        </div>
+        <p class="copy-body">We believe God created all things out of nothing, by the word of His power and
+        for His own glory. We believe Adam was a real, historical man, created directly by God and not
+        descended from earlier creatures, and that his fall was a real event in history, through which sin,
+        and death through sin, entered the world.</p>
+      </div>
+
+      <div class="believe-article">
+        <div class="believe-article-heading">
+          <span class="believe-article-num">IV.</span>Man and Sin
         </div>
         <p class="copy-body">We believe mankind was created in God&rsquo;s image but fell into sin in
         Adam, and that every person is by nature spiritually dead and unable to come to God apart from
@@ -109,7 +119,7 @@ function buildContent() {
 
       <div class="believe-article">
         <div class="believe-article-heading">
-          <span class="believe-article-num">IV.</span>Salvation &mdash; The Doctrines of Grace
+          <span class="believe-article-num">V.</span>Salvation &mdash; The Doctrines of Grace
         </div>
         <p class="copy-body">We believe salvation is by grace alone, through faith alone, in Christ
         alone &mdash; rooted in God&rsquo;s sovereign, unconditional election, accomplished through
@@ -119,7 +129,7 @@ function buildContent() {
 
       <div class="believe-article">
         <div class="believe-article-heading">
-          <span class="believe-article-num">V.</span>Christ
+          <span class="believe-article-num">VI.</span>Christ
         </div>
         <p class="copy-body">We believe Jesus Christ is fully God and fully man, who lived a sinless
         life, died as a substitutionary sacrifice for sin, rose bodily from the dead, and now reigns
@@ -128,7 +138,7 @@ function buildContent() {
 
       <div class="believe-article">
         <div class="believe-article-heading">
-          <span class="believe-article-num">VI.</span>The Church
+          <span class="believe-article-num">VII.</span>The Church
         </div>
         <p class="copy-body">We believe the Church is the body of Christ, called to worship Him, build
         up one another, and proclaim the gospel to the world.</p>
@@ -136,7 +146,7 @@ function buildContent() {
 
       <div class="believe-article">
         <div class="believe-article-heading">
-          <span class="believe-article-num">VII.</span>Last Things
+          <span class="believe-article-num">VIII.</span>Last Things
         </div>
         <p class="copy-body">We believe in the personal, visible return of Jesus Christ, the
         resurrection of the dead, and the final judgment, after which the redeemed will dwell with
@@ -146,9 +156,15 @@ function buildContent() {
       <div class="believe-article believe-article-last">
         <div class="believe-article-heading">On secondary matters</div>
         <p class="copy-body">Faithful Reformed believers differ on questions such as baptism, church government,
-        and the order of end-time events. On these, Iron &amp; Ink&rsquo;s studies follow the teaching of the
-        MacArthur Study Bible tradition, while presenting other Reformed views fairly and charitably. Members
-        of every Reformed tradition are welcome here.</p>
+        the order of end-time events, and the days of creation. On these, Iron &amp; Ink&rsquo;s studies follow
+        the teaching of the MacArthur Study Bible tradition, while presenting other Reformed views fairly and
+        charitably. Members of every Reformed tradition are welcome here.</p>
+        <p class="copy-body">On creation, Iron &amp; Ink teaches that God made the world in six ordinary days and
+        that the earth is young, following John MacArthur&rsquo;s <em>The Battle for the Beginning</em>.
+        Respected Reformed theologians, among them Charles Hodge, held that the earth is old, and faithful
+        believers today hold the framework view, the analogical-day view, or the day-age view. Our studies
+        present these views fairly. That God created all things, that Adam was a real man, and that the Fall
+        really happened are not secondary matters; they belong to our Confession.</p>
       </div>
     </div>
 
