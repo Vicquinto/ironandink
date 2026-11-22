@@ -57,7 +57,7 @@
   // brackets.
   function cleanText(el) {
     var c = el.cloneNode(true);
-    c.querySelectorAll('.teacher-entry, .guide-vnum, .notepad-marker, .scripture-note-marker, .verse-num, sup, button, script, style')
+    c.querySelectorAll('.teacher-entry, [data-anchor-skip], .guide-vnum, .notepad-marker, .scripture-note-marker, .verse-num, sup, button, script, style')
       .forEach(function (n) { n.remove(); });
     if (el.tagName === 'LI') c.querySelectorAll('ul, ol').forEach(function (n) { n.remove(); });
     var t = c.textContent || '';
@@ -91,7 +91,9 @@
   function collectBlocks(container) {
     var out = [], skipLevel = 0;
     container.querySelectorAll(BLOCK_SEL).forEach(function (el) {
-      if (el.closest('.teacher-entry')) return;
+      // Injected UI: .teacher-entry, and [data-anchor-skip] (the Opposing Views
+      // Part 1 note and Part 2 toggle, opposing-views.js) — never read aloud.
+      if (el.closest('.teacher-entry, [data-anchor-skip]')) return;
       var parent = el.parentElement && el.parentElement.closest('li, blockquote');
       if (parent && container.contains(parent)) {
         // a nested list item stays its own block; anything else in a li/quote is part of it
@@ -211,6 +213,8 @@
     // view below the sticky bar.
     function tint(el) {
       if (el === current) return;
+      // A collapsed Opposing Views Part 2 opens when reading reaches it.
+      if (global.IronInkOpposingViews) global.IronInkOpposingViews.reveal(el);
       clearTint();
       current = el;
       el.classList.add(READING_CLASS);

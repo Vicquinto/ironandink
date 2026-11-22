@@ -474,6 +474,11 @@
     communityReadTitle.textContent = s.topic;
     communityReadMeta.textContent  = (s.authorName || '') + ' · ' + fmtDate(s.sharedAt);
     communityReadBody.innerHTML    = renderReadingText(s.content || '');
+    // Opposing Views: Part 1 note and Part 2 Hide/Show (no Writing link here —
+    // own Library studies only). Before the Teacher attach — see opposing-views.js.
+    if (s.studyType === 'opposing' && window.IronInkOpposingViews) {
+      window.IronInkOpposingViews.enhance(communityReadBody, {});
+    }
     // Mark complete only on the reader's OWN shared study (the server checks too).
     if (window.IronInkTeacher) {
       window.IronInkTeacher.attach(communityReadBody, {

@@ -485,7 +485,30 @@
     loadArticleList();
     var params    = new URLSearchParams(window.location.search);
     var articleId = params.get('article');
-    if (articleId) openArticleById(articleId);
+    if (articleId) { openArticleById(articleId); return; }
+    var studyId = params.get('study');
+    if (studyId) openWithStudy(studyId);
+  }
+
+  // ── ?study=<id> — "Start an article from this study" ──────────────────────
+  // (opposing-views.js). Fetches the member's own Library (/api/library returns
+  // only their studies, so an id that isn't theirs is simply not found), then
+  // opens the New Article modal at Step 0 with that study as the source; once a
+  // door is chosen, the Step 2 source picker is skipped. Any failure falls back
+  // quietly to the normal Writing page: no error is shown.
+  var linkedStudy = null;   // the ?study= pick, waiting for a door to be chosen
+  function openWithStudy(studyId) {
+    if (window.history.replaceState) window.history.replaceState({}, '', '/writing');
+    fetch('/api/library')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        var items = (data && data.success && Array.isArray(data.studies)) ? data.studies : [];
+        var s = items.find(function (x) { return x && x.id === studyId; });
+        if (!s || !s.content) return;
+        beginArticleBtn.click();   // a clean Step 0, exactly as Begin New Article
+        linkedStudy = { topic: s.topic || '', content: s.content };
+      })
+      .catch(function () {});
   }
 
   // ── Begin New Article ─────────────────────────────────────────────────────
@@ -493,6 +516,7 @@
     selectedTier = 0;
     selectedForm = '';
     sourceStudy  = null;   // new session — never inherit a prior study pick
+    linkedStudy  = null;   // nor a ?study= pick (openWithStudy sets it after this)
     document.querySelectorAll('input[name="writingForm"]').forEach(function (r) { r.checked = false; });
     document.querySelectorAll('input[name="writingTier"]').forEach(function (r) { r.checked = false; });
     if (formContinueBtn) formContinueBtn.disabled = true;
@@ -504,7 +528,7 @@
   });
 
   // ── Close / cancel modal ──────────────────────────────────────────────────
-  function closeModal() { showState('main'); }
+  function closeModal() { linkedStudy = null; showState('main'); }
   if (cancelFormModalBtn) cancelFormModalBtn.addEventListener('click', closeModal);
   closeWritingModalBtn.addEventListener('click', closeModal);
 
@@ -548,6 +572,13 @@
     if (!selectedTier) return;
     resetSourcePicker();
     wModalStep1.style.display = 'none';
+    // Arrived with ?study=: that study is the source — skip the picker.
+    if (linkedStudy) {
+      sourceStudy = linkedStudy;
+      linkedStudy = null;
+      proceedToWorkspace();
+      return;
+    }
     if (wModalStep2) wModalStep2.style.display = 'block';
   });
 

@@ -37,7 +37,7 @@
   function plainText(el) {
     if (!el) return '';
     var c = el.cloneNode(true);
-    c.querySelectorAll('.teacher-entry, .guide-vnum, .notepad-marker, .scripture-note-marker, .verse-num, sup, button, script, style')
+    c.querySelectorAll('.teacher-entry, [data-anchor-skip], .guide-vnum, .notepad-marker, .scripture-note-marker, .verse-num, sup, button, script, style')
       .forEach(function (n) { n.remove(); });
     if (el.tagName === 'LI') c.querySelectorAll('ul, ol').forEach(function (n) { n.remove(); });
     return (c.textContent || '')
@@ -226,6 +226,9 @@
       var isBlock = !!target;
       if (!target) target = findSectionHeading(mark.sectionTitle);
       if (!target) return;               // nothing to find — just don't scroll
+      // A place inside a collapsed Opposing Views Part 2: open it first, or
+      // there is nothing to scroll to.
+      if (global.IronInkOpposingViews) global.IronInkOpposingViews.reveal(target);
       if (isBlock) drawRibbon(target); else placeRibbon();
       var listenBar = container.querySelector('.study-listen-bar');
       var offset = 16 + ((listenBar && !listenBar.hidden) ? listenBar.getBoundingClientRect().height : 0);

@@ -636,6 +636,11 @@
       );
       window.enhanceFurtherStudies(libGuideBody, exploredSet);
     }
+    // Opposing Views: Part 1 note, Part 2 Hide/Show, Writing link (every Library
+    // study is the member's own). Before the Teacher attach — see opposing-views.js.
+    if (study.studyType === 'opposing' && window.IronInkOpposingViews) {
+      window.IronInkOpposingViews.enhance(libGuideBody, { writeLink: { studyId: study.id } });
+    }
     // Study with a Tutor / Teacher entry points (top / per-section / end-of-study).
     // Plus Mark complete / Completed · <date> with Undo (every Library study is the member's own).
     if (window.IronInkTeacher) {
@@ -702,6 +707,9 @@
     var body = document.getElementById('modalBody');
     body.className = 'guide-modal-body';
     body.innerHTML = renderMarkdown(study.content);
+    if (study.studyType === 'opposing' && window.IronInkOpposingViews) {
+      window.IronInkOpposingViews.enhance(body, study.id ? { writeLink: { studyId: study.id } } : {});
+    }
     var modal = document.getElementById('guideModal');
     modal.style.display          = 'flex';
     document.body.style.overflow = 'hidden';

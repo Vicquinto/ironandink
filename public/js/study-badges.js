@@ -9,11 +9,12 @@
   // Mirrors the render-markdown.js / enhance-further-studies.js consolidation pattern.
 
   // Type pill. Complete, current label map — `people` displays as SUBJECT (the type
-  // was broadened from persons to persons/places/things) and `pathway` as PATHWAY.
+  // was broadened from persons to persons/places/things), `pathway` as PATHWAY and
+  // `opposing` as OPPOSING VIEWS.
   global.studyTypeBadge = function studyTypeBadge(type) {
     var t = type || 'doctrinal';
     if (t === 'deepdive') t = 'explore'; // legacy records saved under the old Deep Dive key
-    var labels = { doctrinal: 'DOCTRINAL', explore: 'EXPLORE', historical: 'HISTORICAL', scripture: 'SCRIPTURE', open: 'OPEN', people: 'SUBJECT', pathway: 'PATHWAY', book: 'BOOK' };
+    var labels = { doctrinal: 'DOCTRINAL', explore: 'EXPLORE', historical: 'HISTORICAL', scripture: 'SCRIPTURE', open: 'OPEN', people: 'SUBJECT', pathway: 'PATHWAY', book: 'BOOK', opposing: 'OPPOSING VIEWS' };
     // studyType is stored as the client sent it (and shared studies render on
     // other members' screens), so only a KNOWN key ever reaches the class
     // attribute; anything else renders as the default.

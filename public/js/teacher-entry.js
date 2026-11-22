@@ -38,9 +38,11 @@
     return Array.prototype.slice.call(container.querySelectorAll('h2:not(.guide-h2)'));
   }
 
-  // "Further Studies" is a jumping-off list, not something to be taught.
+  // "Further Studies" is a jumping-off list, not something to be taught; nor is
+  // Opposing Views' "Where to Read More" source list. Keep in step with
+  // NOT_TEACHABLE_RE in routes/teacher.js.
   function isTeachable(heading) {
-    return !/further\s+stud/i.test(heading.textContent || '');
+    return !/further\s+stud|where\s+to\s+read\s+more/i.test(heading.textContent || '');
   }
 
   // The lesson's sections: teachable headings, numbered 1..N in that order.

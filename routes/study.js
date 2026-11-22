@@ -10,7 +10,7 @@ const { logEvent } = require('../lib/usageLog');
 const { getEntitlements, recordStudy } = require('../lib/entitlements');
 const { aiLimiter } = require('../middleware/rateLimit');
 const STORY_GROUPS = require('../data/childrens-stories');
-const { STUDY_TYPES, STUDY_LEVELS, DEFAULT_STUDY_TYPE } = require('../lib/study-types');
+const { STUDY_TYPES, STUDY_LEVELS, DEFAULT_STUDY_TYPE, findType } = require('../lib/study-types');
 const { tagStudy, rememberGeneratedMap } = require('../lib/study-map');
 const { ideaOptions } = require('./study-ideas');
 
@@ -153,7 +153,7 @@ function buildTypePicker() {
   return STUDY_TYPES.map(t => {
     const active = t.key === DEFAULT_STUDY_TYPE;
     return `
-      <button class="study-type-option${active ? ' study-type-option--active' : ''}" data-type="${escapeHtml(t.key)}" role="radio" aria-checked="${active}">
+      <button class="study-type-option${active ? ' study-type-option--active' : ''}" data-type="${escapeHtml(t.key)}"${t.noStoryMode ? ' data-no-story="true"' : ''} role="radio" aria-checked="${active}">
         <span class="study-type-name">${escapeHtml(t.label)}</span>
         <span class="study-type-sub">${escapeHtml(t.desc)}</span>
       </button>`;
@@ -381,7 +381,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=2"></script><script src="/js/study-bookmark.js?v=1"></script><script src="/js/teacher-entry.js?v=7"></script><script src="/js/study.js?v=30"></script><script src="/js/study-planner.js?v=6"></script><script src="/js/study-ideas.js?v=3"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/orig-words.js?v=2"></script><script src="/js/library.js?v=84"></script>
+    scripts: `<script src="/js/study-badges.js?v=5"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=3"></script><script src="/js/study-bookmark.js?v=2"></script><script src="/js/opposing-views.js?v=1"></script><script src="/js/teacher-entry.js?v=8"></script><script src="/js/study.js?v=31"></script><script src="/js/study-planner.js?v=6"></script><script src="/js/study-ideas.js?v=3"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/orig-words.js?v=2"></script><script src="/js/library.js?v=85"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${inlineJson((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};
@@ -696,6 +696,7 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
     IRON_INK_PEOPLE_PROMPT,
     IRON_INK_PATHWAY_PROMPT,
     IRON_INK_BOOK_PROMPT,
+    IRON_INK_OPPOSING_PROMPT,
     children: IRON_INK_CHILDREN_STORY_PROMPT,
   } = req.app.locals.prompts;
 
@@ -709,13 +710,20 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
     people:     IRON_INK_PEOPLE_PROMPT,
     pathway:    IRON_INK_PATHWAY_PROMPT,
     book:       IRON_INK_BOOK_PROMPT,
+    opposing:   IRON_INK_OPPOSING_PROMPT,
   };
   const resolvedStudyType = STUDY_TYPE_PROMPTS[studyType] ? studyType : 'doctrinal';
   const studyPrompt       = STUDY_TYPE_PROMPTS[resolvedStudyType];
 
-  const resolvedStudyLevel = (studyLevel && STUDY_LEVEL_INSTRUCTIONS[studyLevel])
+  let resolvedStudyLevel = (studyLevel && STUDY_LEVEL_INSTRUCTIONS[studyLevel])
     ? studyLevel
     : ((userSettings && userSettings.studyLevel) || 'journeyman');
+  // A type marked noStoryMode (Opposing Views) never becomes a children's story:
+  // Children's is coerced to Apprentice, whether it was sent or came from the
+  // member's default setting. The page disables the option too; this is the
+  // server-side guarantee.
+  const typeDef = findType(resolvedStudyType);
+  if (resolvedStudyLevel === 'children' && typeDef && typeDef.noStoryMode) resolvedStudyLevel = 'foundations';
   const studyLevelInstruction = STUDY_LEVEL_INSTRUCTIONS[resolvedStudyLevel] || STUDY_LEVEL_INSTRUCTIONS.journeyman;
 
   // Children's is a STORY MODE, not a writing register. When selected it OVERRIDES the
@@ -757,7 +765,15 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
   console.log(`[study-gen] START topic="${topic.trim()}" type="${resolvedStudyType}" level="${resolvedStudyLevel}" time=${new Date().toISOString()}`);
 
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-  const userMessage = `Generate a Reformed theological study guide on the following topic from a biblical and confessional perspective: ${topic.trim()}\n\nRemember: do not write any Bible verse text yourself. Quote Scripture only by emitting {{verse:Book Chapter:Verse}} markers; the system inserts the verified verse text.`;
+  const scriptureReminder = 'Remember: do not write any Bible verse text yourself. Quote Scripture only by emitting {{verse:Book Chapter:Verse}} markers; the system inserts the verified verse text.';
+  // Opposing Views gets its own framing: Part 1 is the view in its defenders'
+  // terms, so "a Reformed study guide on this topic" would be the wrong ask.
+  const userMessage = resolvedStudyType === 'opposing'
+    ? `The member has named a view they disagree with and wants an Opposing Views study of it: ${topic.trim()}\n\n${scriptureReminder}`
+    : `Generate a Reformed theological study guide on the following topic from a biblical and confessional perspective: ${topic.trim()}\n\n${scriptureReminder}`;
+  // Two full parts run longer than any other type, so Opposing Views alone gets a
+  // higher ceiling (thinking counts toward it). Every other type stays at 16000.
+  const maxTokens = resolvedStudyType === 'opposing' ? 24000 : 16000;
 
   // The content filter blocks the specific generated OUTPUT, which differs on
   // every call — so a fresh regeneration usually passes. Retry up to 3 times
@@ -772,7 +788,7 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
       // old 8000-token output ceiling gets 8000 tokens of headroom.
       const message = await client.messages.create({
         model:         'claude-opus-5-5',
-        max_tokens:    16000,
+        max_tokens:    maxTokens,
         output_config: { effort: 'medium' },
         system:        systemPrompt,
         messages: [{ role: 'user', content: userMessage }],

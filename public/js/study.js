@@ -104,8 +104,34 @@
            (!savePanel    || savePanel.style.display    === 'none');
   }
 
+  // ── Types that refuse Children's (noStoryMode in lib/study-types.js; the card
+  // carries data-no-story) ───────────────────────────────────────────────────
+  // Opposing Views can't become a Bible story, so Children's is disabled while
+  // it is selected, and a Children's choice already made (or filled in by the
+  // planner) becomes Apprentice. Not saved as the member's default level — only
+  // a change they make themselves is. The server coerces it too.
+  function selectedTypeRefusesStory() {
+    var opt = studyTypePicker && studyTypePicker.querySelector('.study-type-option[data-type="' + selectedType + '"]');
+    return !!(opt && opt.getAttribute('data-no-story') === 'true');
+  }
+  function enforceNoStoryMode() {
+    if (!studyLevelSelect) return;
+    var refuse = selectedTypeRefusesStory();
+    var childOpt = studyLevelSelect.querySelector('option[value="children"]');
+    if (childOpt) childOpt.disabled = refuse;
+    if (refuse && studyLevelSelect.value === 'children') studyLevelSelect.value = 'foundations';
+  }
+
+  // Topic-box hint for the selected type (only Opposing Views has its own).
+  var DEFAULT_TOPIC_PLACEHOLDER = topicInput ? topicInput.placeholder : '';
+  var TYPE_PLACEHOLDERS = { opposing: 'Name a view you disagree with, e.g. evolution or open theism…' };
+  function updateTopicPlaceholder() {
+    if (topicInput) topicInput.placeholder = TYPE_PLACEHOLDERS[selectedType] || DEFAULT_TOPIC_PLACEHOLDER;
+  }
+
   function updateStoryModeUI() {
     if (!studyLevelSelect) return;
+    enforceNoStoryMode();
     var isChildren = studyLevelSelect.value === 'children';
     if (studyTypePicker) {
       studyTypePicker.style.opacity       = isChildren ? '0.45' : '';
@@ -129,8 +155,12 @@
   // Explore (which has no depth dial by design), so the level field is hidden only
   // while Explore is selected and shown for all other types, including Scripture & Verse.
   function updateLevelVisibility() {
+    updateTopicPlaceholder();
     if (!studyLevelField) return;
     studyLevelField.style.display = (selectedType === 'explore') ? 'none' : '';
+    // Switching to (or from) a type that refuses Children's re-runs the story
+    // mode UI, so the dimmed picker and the story shelf follow the new level.
+    updateStoryModeUI();
   }
   if (studyTypePicker) {
     studyTypePicker.querySelectorAll('.study-type-option').forEach(function (opt) {
@@ -933,6 +963,18 @@
       guideBadge.textContent   = data.translation || 'ASV';
       guideBody.innerHTML      = renderMarkdown(data.content);
       window.enhanceFurtherStudies(guideBody);
+      // Opposing Views: Part 1 note, Part 2 Hide/Show, and the Writing link
+      // (a fresh draft is saved first, like Teacher). Before the Teacher attach,
+      // so its end block stays outside Part 2 (see opposing-views.js).
+      if (currentGuide.studyType === 'opposing' && window.IronInkOpposingViews) {
+        window.IronInkOpposingViews.enhance(guideBody, {
+          writeLink: {
+            resolveId: function (cb) {
+              window.__ironStudyDraft.save(function (err, saved) { cb(err, saved && saved.id); });
+            },
+          },
+        });
+      }
       // Study with a Tutor / Teacher needs a saved study; a fresh draft is saved to the
       // Library first (same notepad bridge save), then the page opens. Mark complete
       // works the same way: the draft is saved first, then marked.

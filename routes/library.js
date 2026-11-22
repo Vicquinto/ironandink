@@ -11,6 +11,7 @@ const { injectWithAttribution, resolve, NASB_ATTRIBUTION } = require('../lib/asv
 const { takeGeneratedMap, deriveMap } = require('../lib/study-map');
 const geo = require('../lib/geo');
 const original = require('../lib/original');
+const { TYPE_KEYS } = require('../lib/study-types');
 
 const router      = express.Router();
 const STUDIES_PATH = path.join(__dirname, '../data/studies.json');
@@ -168,7 +169,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/study-badges.js?v=4"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=2"></script><script src="/js/study-bookmark.js?v=1"></script><script src="/js/teacher-entry.js?v=7"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/orig-words.js?v=2"></script><script src="/js/library.js?v=84"></script>',
+    scripts: '<script src="/js/study-badges.js?v=5"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=3"></script><script src="/js/study-bookmark.js?v=2"></script><script src="/js/opposing-views.js?v=1"></script><script src="/js/teacher-entry.js?v=8"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/orig-words.js?v=2"></script><script src="/js/library.js?v=85"></script>',
   }));
 });
 
@@ -192,7 +193,9 @@ router.post('/api/library/save', requireAuth, (req, res) => {
 
   const userSettings = req.session.user && req.session.user.settings;
   const validLevels  = ['children', 'foundations', 'journeyman', 'scholar'];
-  const validTypes   = ['doctrinal', 'explore', 'historical', 'scripture', 'open', 'people', 'pathway', 'book'];
+  // The shared type list (lib/study-types.js), so a new type can never be
+  // silently saved as 'doctrinal' again.
+  const validTypes   = TYPE_KEYS;
   const now          = new Date().toISOString();
   const isShared     = shared === true;
 

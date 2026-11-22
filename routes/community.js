@@ -153,13 +153,13 @@ router.get('/community', requireAuth, (req, res) => {
         window.IS_ADMIN = ${isAdmin};
         window.CURRENT_USER_ID = ${inlineJson(req.session.userId)};
       </script>
-      <script src="/js/study-badges.js?v=4"></script>
+      <script src="/js/study-badges.js?v=5"></script>
       <script src="/js/article-html.js?v=2"></script>
-      <script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=2"></script><script src="/js/study-bookmark.js?v=1"></script><script src="/js/teacher-entry.js?v=7"></script>
-      <script src="/js/community.js?v=23"></script>
+      <script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=3"></script><script src="/js/study-bookmark.js?v=2"></script><script src="/js/opposing-views.js?v=1"></script><script src="/js/teacher-entry.js?v=8"></script>
+      <script src="/js/community.js?v=24"></script>
       <script src="/js/render-markdown.js?v=2"></script>
       <script src="/js/enhance-further-studies.js?v=2"></script>
-      <script src="/js/geo-map.js?v=3"></script><script src="/js/orig-words.js?v=2"></script><script src="/js/library.js?v=84"></script>`,
+      <script src="/js/geo-map.js?v=3"></script><script src="/js/orig-words.js?v=2"></script><script src="/js/library.js?v=85"></script>`,
   }));
 });
 

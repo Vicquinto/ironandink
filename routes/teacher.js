@@ -91,7 +91,9 @@ function findReadableStudy(req, id) {
 function cleanHeading(s) {
   return String(s).replace(/\r$/, '').replace(/[*_`]/g, '').trim();
 }
-const NOT_TEACHABLE_RE = /further\s+stud/i;
+// Opposing Views' "Where to Read More" is a source list, so it is skipped too.
+// Keep in step with isTeachable() in public/js/teacher-entry.js.
+const NOT_TEACHABLE_RE = /further\s+stud|where\s+to\s+read\s+more/i;
 function parseLessonSections(content) {
   const out = [];
   String(content || '').split('\n').forEach(line => {
@@ -167,6 +169,16 @@ const CHECK_QUESTIONS_GUIDANCE = "CHECK QUESTIONS:\n" +
   "- Stay within what this study actually taught. Never ask about anything the study didn't cover.\n" +
   "- If an answer is mostly copied or closely paraphrased from the study, acknowledge it kindly and ask once for it in their own words, or why it is true. If they still can't, accept it, move on, and cover it in the teaching at the end.\n" +
   "- Never grade, score, or say pass or fail.";
+// Opposing Views studies (studyType 'opposing'): Part 1 presents the view in its
+// defenders' terms, Part 2 answers it. The Teacher note goes on every session
+// for such a study (a check also teaches at the end); the Check note on checks.
+const OPPOSING_TEACHER_NOTE = "THIS IS AN OPPOSING VIEWS STUDY. Part 1 presents a view Iron & Ink disagrees with, in its defenders' own terms; Part 2 answers it from Scripture. While teaching a section in Part 1, teach it as a faithful explanation of what the view's defenders believe and why: do not rebut it, correct it, or hint at weaknesses there, and if the reader asks for the answer, tell them briefly that Part 2 takes it up and offer to go there. The rule about handling hard questions head-on applies to Part 2. In Part 2, connect each answer back to the Part 1 argument it answers.";
+const OPPOSING_CHECK_NOTE = "In this Opposing Views study, among your four questions ask at least one that has the reader state one of the view's arguments fairly, in a way its defenders would accept, and at least one about the biblical response in Part 2. Never ask the reader to argue that the opposing view is true.";
+function opposingNotesFor(kind, study) {
+  if (!study || study.studyType !== 'opposing') return '';
+  return '\n\n' + OPPOSING_TEACHER_NOTE + (kind === 'check' ? '\n\n' + OPPOSING_CHECK_NOTE : '');
+}
+
 // The level line(s) at the top of the system prompt for this session.
 function levelInstructionFor(kind, study, settings) {
   if (kind !== 'check') return getTeachingLevelInstruction(settings);
@@ -545,7 +557,7 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
     title: 'Study with a Teacher',
     content,
     scripts: `<script src="/js/render-markdown.js?v=2"></script>
-<script src="/js/teacher-entry.js?v=7"></script>
+<script src="/js/teacher-entry.js?v=8"></script>
 <script>window.TEACHER_BOOT = ${inlineJson(boot)};</script>
 <script src="/js/teacher.js?v=11"></script>`,
   }));
@@ -712,7 +724,7 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
   // after the first; the small LESSON STATE block comes after it, so a change in
   // the lesson's position never invalidates the study cache.
   const systemBlocks = [
-    { type: 'text', text: levelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_TEACHER_PROMPT },
+    { type: 'text', text: levelInstruction + '\n\n' + IRON_INK_CORE_PROMPT + '\n\n' + IRON_INK_TEACHER_PROMPT + opposingNotesFor(kind, study) },
     {
       type: 'text',
       text: 'THE STUDY YOU ARE TEACHING\nTitle: ' + study.topic + '\n\n' +

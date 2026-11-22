@@ -11,7 +11,7 @@ const { sanitizeArticleHtml } = require('../lib/articleHtml');
 
 // Cache-busters for the Writing page's own assets (bump when they change).
 const QUILL_ASSET_VER   = '2.0.3';
-const WRITING_ASSET_VER = '42';
+const WRITING_ASSET_VER = '43';
 
 const router       = express.Router();
 

@@ -18,6 +18,15 @@
 
 const WHATS_NEW = [
   {
+    date:  'November 22, 2026',
+    title: 'A New Study Type: Opposing Views',
+    body:  `Opposing Views is a new study type on the Study page. Name a view you disagree with, such as evolution, open theism, or Roman Catholicism, and choose your level as usual.
+
+Every Opposing Views study has two parts. Part 1 presents the view the way its own best defenders would: their terms, their arguments, their evidence, and a list of their own sources to read. Part 2 answers it from Scripture first, then with supporting arguments. You can hide Part 2 while you read Part 1.
+
+Our Confession now has an article on Creation, and the note on secondary matters now explains how our studies handle the days of creation.`
+  },
+  {
     date:  'November 21, 2026',
     title: 'Learn to Read Biblical Greek and Hebrew',
     body:  `Iron & Ink now has two courses that teach you to read the Bible in the languages it was written in. Open Languages in the sidebar and choose Greek or Hebrew.

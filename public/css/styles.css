@@ -2564,6 +2564,11 @@ body {
   color: #9E4A2E;
   border: 1px solid rgba(158,74,46,0.34);
 }
+.study-type-badge-opposing {
+  background: rgba(84,82,36,0.12);
+  color: #545224;
+  border: 1px solid rgba(84,82,36,0.36);
+}
 
 .tier-badge-main {
   font-size: 0.78rem;
@@ -9873,4 +9878,46 @@ a.lang-course-card:hover { border-color: var(--accent); background: rgba(160,132
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--warm-brown);
+}
+
+/* ── Opposing Views (public/js/opposing-views.js) ─────────────────────────────
+   The Part 1 note under its heading, the Hide/Show button on the Part 2
+   heading (styled like the Teacher's section buttons), and the Writing link. */
+.ov-part1-note {
+  font-size: 0.86rem;
+  font-style: italic;
+  color: var(--warm-brown);
+  margin: -4px 0 14px;
+}
+.ov-part2-toggle {
+  margin-left: 12px;
+  vertical-align: middle;
+  background: transparent;
+  border: 1px solid rgba(160,132,92,0.45);
+  border-radius: 999px;
+  color: var(--warm-brown);
+  font-family: Georgia, serif;
+  font-size: 0.72rem;
+  font-weight: normal;
+  font-style: normal;
+  letter-spacing: 0.03em;
+  text-transform: none;
+  padding: 2px 10px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.ov-part2-toggle:hover,
+.ov-part2-toggle:focus-visible {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: rgba(160,132,92,0.08);
+}
+.ov-part2-body[hidden] { display: none; }
+.ov-write {
+  margin-top: 24px;
+  text-align: center;
+}
+@media print {
+  .ov-part2-toggle, .ov-write { display: none !important; }
+  .ov-part2-body[hidden] { display: block !important; }
 }
