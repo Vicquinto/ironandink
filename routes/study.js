@@ -10,7 +10,7 @@ const { logEvent } = require('../lib/usageLog');
 const { getEntitlements, recordStudy } = require('../lib/entitlements');
 const { aiLimiter } = require('../middleware/rateLimit');
 const STORY_GROUPS = require('../data/childrens-stories');
-const { STUDY_TYPES, STUDY_LEVELS, DEFAULT_STUDY_TYPE, findType } = require('../lib/study-types');
+const { STUDY_TYPES, STUDY_LEVELS, DEFAULT_STUDY_TYPE, findType, DEFAULT_WAIT_NOTE } = require('../lib/study-types');
 const { tagStudy, rememberGeneratedMap } = require('../lib/study-map');
 const { ideaOptions } = require('./study-ideas');
 
@@ -153,7 +153,7 @@ function buildTypePicker() {
   return STUDY_TYPES.map(t => {
     const active = t.key === DEFAULT_STUDY_TYPE;
     return `
-      <button class="study-type-option${active ? ' study-type-option--active' : ''}" data-type="${escapeHtml(t.key)}"${t.noStoryMode ? ' data-no-story="true"' : ''} role="radio" aria-checked="${active}">
+      <button class="study-type-option${active ? ' study-type-option--active' : ''}" data-type="${escapeHtml(t.key)}"${t.noStoryMode ? ' data-no-story="true"' : ''}${t.waitNote ? ' data-wait-note="' + escapeHtml(t.waitNote) + '"' : ''} role="radio" aria-checked="${active}">
         <span class="study-type-name">${escapeHtml(t.label)}</span>
         <span class="study-type-sub">${escapeHtml(t.desc)}</span>
       </button>`;
@@ -310,7 +310,9 @@ router.get('/study', requireAuth, (req, res) => {
 
     <div id="studyLoading" class="study-loading" style="display:none;">
       <p class="loading-text">Preparing your study on <strong id="loadingTopicName"></strong>&#8230;</p>
-      <p class="study-patience-msg">Please be patient &#8212; deep theological study takes time. Generation can take up to 2 minutes.</p>
+      <!-- The wait line: DEFAULT_WAIT_NOTE, or the selected type's own waitNote
+           (lib/study-types.js), swapped in by study.js when a study starts. -->
+      <p class="study-patience-msg" id="studyPatienceMsg" data-default="${escapeHtml(DEFAULT_WAIT_NOTE)}">${escapeHtml(DEFAULT_WAIT_NOTE)}</p>
       <div class="study-verse-rotator" id="studyVerseRotator">
         <blockquote class="study-verse-text" id="studyVerseText"></blockquote>
         <cite class="study-verse-ref" id="studyVerseRef"></cite>
@@ -381,7 +383,7 @@ router.get('/study', requireAuth, (req, res) => {
     activeSection: 'study',
     title: 'Study',
     content,
-    scripts: `<script src="/js/study-badges.js?v=5"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=3"></script><script src="/js/study-bookmark.js?v=2"></script><script src="/js/opposing-views.js?v=1"></script><script src="/js/teacher-entry.js?v=8"></script><script src="/js/study.js?v=31"></script><script src="/js/study-planner.js?v=6"></script><script src="/js/study-ideas.js?v=3"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/orig-words.js?v=2"></script><script src="/js/library.js?v=85"></script>
+    scripts: `<script src="/js/study-badges.js?v=5"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=3"></script><script src="/js/study-bookmark.js?v=2"></script><script src="/js/opposing-views.js?v=1"></script><script src="/js/teacher-entry.js?v=8"></script><script src="/js/study.js?v=32"></script><script src="/js/study-planner.js?v=6"></script><script src="/js/study-ideas.js?v=3"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/orig-words.js?v=2"></script><script src="/js/library.js?v=85"></script>
 <script>
 window.IS_ADMIN        = ${isAdmin};
 window.USER_STUDY_LEVEL = ${inlineJson((req.session.user && req.session.user.settings && req.session.user.settings.studyLevel) || 'journeyman')};

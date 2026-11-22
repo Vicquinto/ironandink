@@ -906,6 +906,17 @@
     if (window.__notepad) window.__notepad.clearStudy();
     showState('loading');
     loadingTopicName.textContent = topic;
+    // The wait line for the type being generated: its own waitNote (the card's
+    // data-wait-note, from lib/study-types.js) or the default. Every way into a
+    // study — typed, curated, Appointed, Planner Build, Study Ideas, a branch —
+    // generates here, so this is the one place it is set. Children's is told as
+    // a story whatever the type, so it keeps the default line.
+    var patienceMsg = document.getElementById('studyPatienceMsg');
+    if (patienceMsg) {
+      var typeCard = studyTypePicker && studyTypePicker.querySelector('.study-type-option[data-type="' + selectedType + '"]');
+      var typeNote = (studyLevelSelect && studyLevelSelect.value === 'children') ? '' : (typeCard && typeCard.getAttribute('data-wait-note'));
+      patienceMsg.textContent = typeNote || patienceMsg.getAttribute('data-default') || patienceMsg.textContent;
+    }
 
     abortController = new AbortController();
 
