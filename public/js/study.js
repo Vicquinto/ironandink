@@ -124,9 +124,20 @@
 
   // Topic-box hint for the selected type (only Opposing Views has its own).
   var DEFAULT_TOPIC_PLACEHOLDER = topicInput ? topicInput.placeholder : '';
-  var TYPE_PLACEHOLDERS = { opposing: 'Name a view you disagree with, e.g. evolution or open theism…' };
+  var TYPE_PLACEHOLDERS = { opposing: 'e.g. Islam, evolution, Roman Catholicism, or R. C. Sproul on infant baptism' };
   function updateTopicPlaceholder() {
     if (topicInput) topicInput.placeholder = TYPE_PLACEHOLDERS[selectedType] || DEFAULT_TOPIC_PLACEHOLDER;
+  }
+
+  // The selected type's hint line under the topic row (the card's data-hint,
+  // from lib/study-types.js). textContent only; hidden for types without one.
+  var typeHintEl = document.getElementById('studyTypeHint');
+  function updateTypeHint() {
+    if (!typeHintEl) return;
+    var opt  = studyTypePicker && studyTypePicker.querySelector('.study-type-option[data-type="' + selectedType + '"]');
+    var hint = (opt && opt.getAttribute('data-hint')) || '';
+    typeHintEl.textContent = hint;
+    typeHintEl.hidden = !hint;
   }
 
   function updateStoryModeUI() {
@@ -156,6 +167,7 @@
   // while Explore is selected and shown for all other types, including Scripture & Verse.
   function updateLevelVisibility() {
     updateTopicPlaceholder();
+    updateTypeHint();
     if (!studyLevelField) return;
     studyLevelField.style.display = (selectedType === 'explore') ? 'none' : '';
     // Switching to (or from) a type that refuses Children's re-runs the story

@@ -654,6 +654,17 @@ body {
 }
 .study-level-field .form-label { margin-bottom: 4px; text-align: center; }
 
+/* The selected type's hint line, directly under the topic row (study.js
+   updateTypeHint). Pulled up into the row's bottom margin; wraps normally. */
+.study-type-hint {
+  margin: -20px 0 24px;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--warm-brown);
+  overflow-wrap: break-word;
+}
+.study-type-hint[hidden] { display: none; }
+
 .study-topic-input {
   flex: 1;
   font-size: 1rem;
