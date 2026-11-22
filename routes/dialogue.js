@@ -59,25 +59,69 @@ function fmtDate(iso) {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+function readStudies() {
+  try {
+    if (!fs.existsSync(STUDIES_PATH)) return [];
+    return JSON.parse(fs.readFileSync(STUDIES_PATH, 'utf8'));
+  } catch { return []; }
+}
+
+// One line, at most 100 characters: the same trim the position always gets.
+function oneLine(str) {
+  return String(str || '').replace(/\s+/g, ' ').trim().slice(0, 100);
+}
+
+// ── "Defender of" opponent (Debate this view, from an Opposing Views study) ──
+// The opponent is a defender of the view the member's own Opposing Views study
+// sets out. The view always comes from the SAVED study's topic, looked up by id
+// and owner, never from position text the browser sends. defenderTopicFor
+// returns the trimmed topic, or null when the study is missing or not an
+// Opposing Views study (callers pass only a study already matched to the member).
+const DEFENDER_OPPONENT = 'defender';
+function defenderTopicFor(study) {
+  if (!study || study.studyType !== 'opposing') return null;
+  return oneLine(study.topic) || null;
+}
+function defenderLabel(topic) { return 'Defender of: ' + topic; }
+function defenderBlock(topic) {
+  return `OPPONENT FROM AN OPPOSING VIEWS STUDY. You are arguing as a skilled, well-informed defender of this view: ${topic}. The member's Opposing Views study of this view is linked above. Part 1 of that study sets out the view's case as its own defenders make it; argue that case at full strength, in the view's own terms. Part 2 is the member's side, not yours.
+Rules:
+- Argue as a real, informed defender of the view would, never as a caricature. Use the view's own vocabulary and its strongest arguments and evidence.
+- Never invent a source, author, book, quotation, statistic, study, date or URL. If you are not certain a source exists and says what you would claim, make the argument without citing it.
+- Do not quote the Qur'an, the Hadith, the Book of Mormon, the Doctrine and Covenants, the Pearl of Great Price, the Catechism of the Catholic Church, or any comparable text from memory. Paraphrase it, and give its reference only if you are confident of it.
+- When you appeal to the Bible, give the reference and explain how the view reads it. Do not write out Bible verse text from memory.
+- Be serious and respectful. No mockery, contempt or insults toward the member, Christians, or the Bible.
+- Stay in role as the defender for the whole drill. Do not concede points to make the member comfortable, and do not rebut your own view.`;
+}
+
 // ─── GET /dialogue ────────────────────────────────────────────────────────────
 router.get('/dialogue', requireAuth, (req, res) => {
   if (memberGated(req)) return res.redirect('/pricing?from=dialogue');
-  const studiesRaw = (() => {
-    try {
-      if (!fs.existsSync(STUDIES_PATH)) return [];
-      return JSON.parse(fs.readFileSync(STUDIES_PATH, 'utf8'));
-    } catch { return []; }
-  })();
+  const studiesRaw = readStudies();
 
   const userStudies = studiesRaw
     .filter(s => s.userId === req.session.userId)
     .sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
 
+  // ?fromStudy=<id> ("Debate this view" on an Opposing Views study): only the
+  // member's own Opposing Views study counts. Anything else (missing id, not
+  // theirs, not found, another type) opens the page as usual, no error shown.
+  const fromId    = typeof req.query.fromStudy === 'string' ? req.query.fromStudy : '';
+  const fromStudy = fromId ? userStudies.find(s => s.id === fromId) : null;
+  const fromTopic = defenderTopicFor(fromStudy);
+  const defender  = fromTopic ? { id: fromStudy.id, topic: fromTopic } : null;
+
   const studyOptions = userStudies.length
     ? userStudies.map(s =>
-        `<option value="${esc(s.id)}">${esc(s.topic)} &#8212; ${esc(fmtDate(s.savedAt))}</option>`
+        `<option value="${esc(s.id)}"${defender && s.id === defender.id ? ' selected' : ''}>${esc(s.topic)} &#8212; ${esc(fmtDate(s.savedAt))}</option>`
       ).join('')
     : '<option value="">No saved studies yet</option>';
+  // The six fixed opponents stay as they are; a "Defender of" option is added,
+  // selected, for this page load only. Its value is a marker, not a position:
+  // the server builds the position from the saved study on every turn.
+  const defenderOption = defender
+    ? `<option value="__defender__" data-study-id="${esc(defender.id)}" data-topic="${esc(defender.topic)}" selected>${esc(defenderLabel(defender.topic))}</option>`
+    : '';
 
   const content = `
     <div id="dialogueSetup" class="dialogue-setup">
@@ -91,14 +135,14 @@ router.get('/dialogue', requireAuth, (req, res) => {
           <h4 class="setup-section-label">Entry Point</h4>
           <div class="entry-options">
             <label class="entry-option">
-              <input type="radio" name="entryType" value="fresh" checked>
+              <input type="radio" name="entryType" value="fresh"${defender ? '' : ' checked'}>
               <div class="entry-option-content">
                 <span class="entry-option-title">Fresh Topic</span>
                 <span class="entry-option-desc">Begin a cold adversarial dialogue on any theological topic</span>
               </div>
             </label>
             <label class="entry-option">
-              <input type="radio" name="entryType" value="study">
+              <input type="radio" name="entryType" value="study"${defender ? ' checked' : ''}>
               <div class="entry-option-content">
                 <span class="entry-option-title">Linked to a Saved Study</span>
                 <span class="entry-option-desc">The engine challenges you on doctrine drawn from your prior study</span>
@@ -107,13 +151,13 @@ router.get('/dialogue', requireAuth, (req, res) => {
           </div>
         </div>
 
-        <div id="freshTopicSection" class="setup-section">
+        <div id="freshTopicSection" class="setup-section"${defender ? ' style="display:none;"' : ''}>
           <label class="form-label" for="freshTopicInput">Topic</label>
           <input type="text" id="freshTopicInput" class="form-input"
-                 placeholder="e.g. Unconditional Election, Total Depravity&#8230;" autocomplete="off">
+                 placeholder="e.g. Unconditional Election, Total Depravity&#8230;" autocomplete="off"${defender ? ` value="${esc(defender.topic)}"` : ''}>
         </div>
 
-        <div id="studyLinkSection" class="setup-section" style="display:none;">
+        <div id="studyLinkSection" class="setup-section"${defender ? '' : ' style="display:none;"'}>
           <label class="form-label" for="savedStudySelect">Select a Saved Study</label>
           <select id="savedStudySelect" class="form-select">
             ${studyOptions}
@@ -129,6 +173,7 @@ router.get('/dialogue', requireAuth, (req, res) => {
             <option value="Lutheran">Lutheran</option>
             <option value="Socinian / Anti-Trinitarian">Socinian / Anti-Trinitarian</option>
             <option value="General Skeptic">General Skeptic</option>
+            ${defenderOption}
           </select>
         </div>
 
@@ -191,14 +236,14 @@ router.get('/dialogue', requireAuth, (req, res) => {
     activeSection: 'dialogue',
     title: 'Dialogue',
     content,
-    scripts: '<script src="/js/dialogue.js?v=2"></script>',
+    scripts: '<script src="/js/dialogue.js?v=3"></script>',
   }));
 });
 
 // ─── POST /api/dialogue/exchange (streaming SSE) ──────────────────────────────
 router.post('/api/dialogue/exchange', requireAuth, async (req, res) => {
   if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
-  const { messages, topic, adversarialPosition, linkedStudyId, isOpening } = req.body;
+  const { messages, topic, adversarialPosition, linkedStudyId, isOpening, opponent } = req.body;
 
   if (!topic || !topic.trim()) {
     return res.status(400).json({ error: 'Topic is required.' });
@@ -213,13 +258,16 @@ router.post('/api/dialogue/exchange', requireAuth, async (req, res) => {
 
   // Fetch linked study content when requested
   let linkedStudyContent = null;
+  let linkedStudy = null;
   if (linkedStudyId) {
-    try {
-      const studies = JSON.parse(fs.readFileSync(STUDIES_PATH, 'utf8'));
-      const study   = studies.find(s => s.id === linkedStudyId && s.userId === req.session.userId);
-      if (study) linkedStudyContent = study.content;
-    } catch {}
+    linkedStudy = readStudies().find(s => s.id === linkedStudyId && s.userId === req.session.userId) || null;
+    if (linkedStudy) linkedStudyContent = linkedStudy.content;
   }
+  // "Defender of": the view comes only from the linked study, owned by this
+  // member (matched above) and of type 'opposing'. A defender request without
+  // one gets the General Skeptic, never the browser's position text.
+  const isDefender    = opponent === DEFENDER_OPPONENT;
+  const defenderTopic = isDefender ? defenderTopicFor(linkedStudy) : null;
 
   // Build system prompt — Core Identity prompt is deliberately excluded here.
   // The Reformed guardrails in IRON_INK_CORE_PROMPT prevent the model from
@@ -231,12 +279,16 @@ router.post('/api/dialogue/exchange', requireAuth, async (req, res) => {
   // every turn, the opening turn included (the opening user turn names only the
   // topic). The value comes from the setup <select>, but it is client-sent, so
   // keep it to one short line.
-  const position = String(adversarialPosition || '').replace(/\s+/g, ' ').trim().slice(0, 100) || 'General Skeptic';
+  const position = defenderTopic
+    ? 'a skilled, well-informed defender of ' + defenderTopic
+    : (isDefender ? 'General Skeptic' : (oneLine(adversarialPosition) || 'General Skeptic'));
   let systemPrompt = studyLevelInstruction + '\n\n' + IRON_INK_DIALOGUE_PROMPT +
     '\n\nYou are arguing from the position of: ' + position + '. Every objection you raise is stated as a skilled proponent of that position would state it.';
   if (linkedStudyContent) {
     systemPrompt += `\n\nThe student has completed a prior study on this topic. Study guide content for your reference:\n\n${linkedStudyContent}`;
   }
+  // After the linked study, which the block refers to ("linked above").
+  if (defenderTopic) systemPrompt += '\n\n' + defenderBlock(defenderTopic);
 
   // Build API messages — must always start with 'user'
   let apiMessages;
@@ -249,7 +301,7 @@ router.post('/api/dialogue/exchange', requireAuth, async (req, res) => {
     apiMessages = [
       {
         role: 'user',
-        content: `[Adversarial dialogue session on "${topic.trim()}". Your position: ${adversarialPosition}. The exchange history follows.]`
+        content: `[Adversarial dialogue session on "${topic.trim()}". Your position: ${position}. The exchange history follows.]`
       },
       ...messages
     ];
@@ -336,21 +388,35 @@ router.post('/api/dialogue/exchange', requireAuth, async (req, res) => {
 // ─── POST /api/dialogue/save ──────────────────────────────────────────────────
 router.post('/api/dialogue/save', requireAuth, (req, res) => {
   if (memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
-  const { topic, adversarialPosition, linkedStudyId, transcript } = req.body;
+  const { topic, adversarialPosition, linkedStudyId, transcript, opponent } = req.body;
 
   if (!topic || !transcript || !transcript.length) {
     return res.status(400).json({ success: false, error: 'Topic and transcript are required.' });
+  }
+
+  // A "Defender of" session saves the label built from the owned Opposing Views
+  // study (as the drill's position was), never the browser's text.
+  let positionLabel = adversarialPosition || 'Unknown';
+  let savedOpponent = null;
+  if (opponent === DEFENDER_OPPONENT) {
+    const study = linkedStudyId
+      ? readStudies().find(s => s.id === linkedStudyId && s.userId === req.session.userId)
+      : null;
+    const dTopic = defenderTopicFor(study);
+    positionLabel = dTopic ? defenderLabel(dTopic) : 'General Skeptic';
+    if (dTopic) savedOpponent = DEFENDER_OPPONENT;
   }
 
   const dialogue = {
     id:                 randomUUID(),
     userId:             req.session.userId,
     topic:              topic.trim(),
-    adversarialPosition: adversarialPosition || 'Unknown',
+    adversarialPosition: positionLabel,
     linkedStudyId:      linkedStudyId || null,
     transcript,
     savedAt:            new Date().toISOString(),
   };
+  if (savedOpponent) dialogue.opponent = savedOpponent;
 
   const dialogues = readDialogues();
   dialogues.push(dialogue);

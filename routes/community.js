@@ -155,7 +155,7 @@ router.get('/community', requireAuth, (req, res) => {
       </script>
       <script src="/js/study-badges.js?v=5"></script>
       <script src="/js/article-html.js?v=2"></script>
-      <script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=3"></script><script src="/js/study-bookmark.js?v=2"></script><script src="/js/opposing-views.js?v=1"></script><script src="/js/teacher-entry.js?v=8"></script>
+      <script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=3"></script><script src="/js/study-bookmark.js?v=2"></script><script src="/js/opposing-views.js?v=2"></script><script src="/js/teacher-entry.js?v=8"></script>
       <script src="/js/community.js?v=24"></script>
       <script src="/js/render-markdown.js?v=2"></script>
       <script src="/js/enhance-further-studies.js?v=2"></script>

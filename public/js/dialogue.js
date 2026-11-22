@@ -5,7 +5,8 @@
   var sessionTopic    = '';
   var sessionPosition = '';
   var sessionStudyId  = null;
-  var history         = [];
+  var sessionOpponent = null;   // 'defender' for a "Defender of" drill, else null
+  var history        = [];
   var abortController = null;
   var isGenerating    = false;
   var gapStudyNextValue = '';
@@ -36,6 +37,31 @@
   var gapSummaryText      = document.getElementById('gapSummaryText');
   var gapStudyNextText    = document.getElementById('gapStudyNextText');
 
+  // ── "Defender of" opponent (Debate this view) ─────────────────────────────
+  // The server adds this option, selected, only when the page was opened with
+  // ?fromStudy=<id> for the member's own Opposing Views study, and pre-selects
+  // that study. It belongs to that one linked study: while the member is on a
+  // fresh topic or another study it is disabled (and the first fixed opponent
+  // takes its place); it comes back when that study is linked again.
+  var positionSelect  = document.getElementById('adversarialPosition');
+  var savedStudySel   = document.getElementById('savedStudySelect');
+  var defenderOption  = positionSelect ? positionSelect.querySelector('option[value="__defender__"]') : null;
+  var defenderStudyId = defenderOption ? defenderOption.getAttribute('data-study-id') : null;
+  var defenderTopic   = defenderOption ? defenderOption.getAttribute('data-topic') : '';
+
+  function defenderLinked() {
+    var entry = document.querySelector('input[name="entryType"]:checked');
+    return !!(defenderOption && entry && entry.value === 'study' &&
+              savedStudySel && savedStudySel.value === defenderStudyId);
+  }
+  function syncDefender() {
+    if (!defenderOption) return;
+    var ok = defenderLinked();
+    defenderOption.disabled = !ok;
+    if (!ok && positionSelect.value === '__defender__') positionSelect.selectedIndex = 0;
+  }
+  if (savedStudySel) savedStudySel.addEventListener('change', syncDefender);
+
   // ── Entry point radio toggle ──────────────────────────────────────────────
   document.querySelectorAll('input[name="entryType"]').forEach(function (radio) {
     radio.addEventListener('change', function () {
@@ -46,6 +72,7 @@
         freshTopicSection.style.display = 'none';
         studyLinkSection.style.display  = 'block';
       }
+      syncDefender();
     });
   });
 
@@ -64,7 +91,17 @@
       sessionStudyId = sel.value;
     }
 
-    sessionPosition = document.getElementById('adversarialPosition').value;
+    sessionPosition = positionSelect.value;
+    sessionOpponent = null;
+    if (sessionPosition === '__defender__') {
+      if (!defenderLinked()) { syncDefender(); return; }
+      // The topic is the study's own (the option text split above could cut a
+      // topic that itself contains " — "). The label is for the badge, save
+      // and wrap-up; the server builds the drill's position from the study.
+      sessionTopic    = defenderTopic;
+      sessionPosition = 'Defender of: ' + defenderTopic;
+      sessionOpponent = 'defender';
+    }
     history = [];
 
     setupScreen.style.display   = 'none';
@@ -149,6 +186,7 @@
           topic:               sessionTopic,
           adversarialPosition: sessionPosition,
           linkedStudyId:       sessionStudyId,
+          opponent:            sessionOpponent,
           isOpening:           isOpening,
         }),
         signal: abortController.signal,
@@ -348,6 +386,7 @@
         topic:               sessionTopic,
         adversarialPosition: sessionPosition,
         linkedStudyId:       sessionStudyId,
+        opponent:            sessionOpponent,
         transcript:          history,
       }),
     });
@@ -394,6 +433,7 @@
     sessionTopic      = '';
     sessionPosition   = '';
     sessionStudyId    = null;
+    sessionOpponent   = null;
     gapStudyNextValue = '';
 
     chatMessages.innerHTML          = '';

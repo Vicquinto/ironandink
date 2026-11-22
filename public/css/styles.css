@@ -9892,7 +9892,8 @@ a.lang-course-card:hover { border-color: var(--accent); background: rgba(160,132
 
 /* ── Opposing Views (public/js/opposing-views.js) ─────────────────────────────
    The Part 1 note under its heading, the Hide/Show button on the Part 2
-   heading (styled like the Teacher's section buttons), and the Writing link. */
+   heading (styled like the Teacher's section buttons), and the end links
+   (Writing and Dialogue), side by side and wrapping on narrow screens. */
 .ov-part1-note {
   font-size: 0.86rem;
   font-style: italic;
@@ -9925,7 +9926,10 @@ a.lang-course-card:hover { border-color: var(--accent); background: rgba(160,132
 .ov-part2-body[hidden] { display: none; }
 .ov-write {
   margin-top: 24px;
-  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
 }
 @media print {
   .ov-part2-toggle, .ov-write { display: none !important; }

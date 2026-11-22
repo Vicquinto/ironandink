@@ -12,8 +12,8 @@
   //   - a Hide / Show button on the Part 2 heading, with everything after that
   //     heading moved into one container the button hides. Part 2 is OPEN on
   //     every render; the state is never remembered.
-  //   - optionally, "Start an article from this study" at the end
-  //     (opts.writeLink: { studyId } or { resolveId }).
+  //   - optionally, "Start an article from this study" and "Debate this view"
+  //     at the end (opts.writeLink: { studyId } or { resolveId }).
   //
   // Both renderers: render-markdown.js turns "# Part 2 — …" into h2.guide-h2;
   // marked (Community) turns it into a plain <h1>. Either is found here.
@@ -37,6 +37,7 @@
   var HIDE_LABEL  = 'Hide Part 2 for now';
   var SHOW_LABEL  = 'Show Part 2';
   var WRITE_LABEL = 'Start an article from this study';
+  var DEBATE_LABEL = 'Debate this view';
 
   var PART1_RE = /^\s*part\s*(?:1|one)\b/i;
   var PART2_RE = /^\s*part\s*(?:2|two)\b/i;
@@ -122,29 +123,35 @@
     if (opts.writeLink) addWriteLink(container, opts.writeLink);
   }
 
-  // "Start an article from this study" — own saved studies only. A fresh draft
-  // on the study page is saved first (resolveId, the same save Teacher uses).
+  // The study's end links, own saved studies only: "Start an article from this
+  // study" (Writing) and "Debate this view" (Dialogue, opponent a defender of
+  // the view). Both carry only the study id. A fresh draft on the study page is
+  // saved first (resolveId, the same save Teacher uses), once for both.
   function addWriteLink(container, cfg) {
     var wrap = el('div', 'ov-write');
-    var btn = el('button', 'btn-warm ov-write-btn', WRITE_LABEL);
-    btn.type = 'button';
-    btn.title = 'Open Writing with this study as your source';
-    btn.addEventListener('click', function () {
-      function go(id) { global.location.href = '/writing?study=' + encodeURIComponent(id); }
-      if (cfg.studyId) { go(cfg.studyId); return; }
-      if (typeof cfg.resolveId !== 'function') return;
-      btn.disabled = true;
-      cfg.resolveId(function (err, id) {
-        btn.disabled = false;
-        if (err || !id) {
-          if (typeof global.showAlert === 'function') global.showAlert('The study needs to be saved to your Library first. Please try again.');
-          return;
-        }
-        cfg.studyId = id;
-        go(id);
+    function linkButton(label, title, dest) {
+      var btn = el('button', 'btn-warm ov-write-btn', label);
+      btn.type = 'button';
+      btn.title = title;
+      btn.addEventListener('click', function () {
+        function go(id) { global.location.href = dest + encodeURIComponent(id); }
+        if (cfg.studyId) { go(cfg.studyId); return; }
+        if (typeof cfg.resolveId !== 'function') return;
+        btn.disabled = true;
+        cfg.resolveId(function (err, id) {
+          btn.disabled = false;
+          if (err || !id) {
+            if (typeof global.showAlert === 'function') global.showAlert('The study needs to be saved to your Library first. Please try again.');
+            return;
+          }
+          cfg.studyId = id;
+          go(id);
+        });
       });
-    });
-    wrap.appendChild(btn);
+      wrap.appendChild(btn);
+    }
+    linkButton(WRITE_LABEL, 'Open Writing with this study as your source', '/writing?study=');
+    linkButton(DEBATE_LABEL, 'Open Dialogue with a skilled defender of this view', '/dialogue?fromStudy=');
     // After the study text (and after Part 2's body), before any Teacher end
     // block that may already be there.
     var end = null;

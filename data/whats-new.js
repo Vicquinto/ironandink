@@ -19,6 +19,11 @@
 const WHATS_NEW = [
   {
     date:  'November 22, 2026',
+    title: 'Debate This View',
+    body:  `Every Opposing Views study now ends with a "Debate this view" button. It opens Dialogue with a skilled defender of the view you just studied, arguing the same case Part 1 laid out, so you can practice answering it. At the end, Dialogue tells you where you answered well and what to study next.`
+  },
+  {
+    date:  'November 22, 2026',
     title: 'A New Study Type: Opposing Views',
     body:  `Opposing Views is a new study type on the Study page. Name a view you disagree with, such as evolution, open theism, or Roman Catholicism, and choose your level as usual.
 
