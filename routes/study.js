@@ -786,13 +786,19 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
       console.log(`[study-gen] Calling Anthropic API — attempt ${attempt} time=${new Date().toISOString()}`);
       // Opus 5.5 always thinks, and thinking counts toward max_tokens — so the
       // old 8000-token output ceiling gets 8000 tokens of headroom.
-      const message = await client.messages.create({
+      // Streamed for every study type: the SDK refuses a non-streaming create()
+      // whose max_tokens could run past 10 minutes (Opposing Views' 24000), and
+      // throws before sending anything. finalMessage() resolves to the same
+      // Message a create() returns (content, stop_reason, stop_details, usage),
+      // and rejects with the same SDK errors, so everything below is unchanged.
+      const stream = client.messages.stream({
         model:         'claude-opus-5-5',
         max_tokens:    maxTokens,
         output_config: { effort: 'medium' },
         system:        systemPrompt,
         messages: [{ role: 'user', content: userMessage }],
       });
+      const message = await stream.finalMessage();
       console.log(`[study-gen] API call ${attempt} finished in ${Date.now() - attemptStart}ms — success`);
       console.log(`[study-gen] stop_reason: ${message.stop_reason}`);
 
@@ -802,8 +808,15 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
       if (message.stop_reason === 'refusal') {
         const refusal = new Error('refusal: ' + ((message.stop_details && message.stop_details.category) || 'uncategorized'));
         refusal.isRefusal = true;
-        refusal.request_id = message._request_id;
+        // A streamed Message carries no _request_id; the stream holds it.
+        refusal.request_id = stream.request_id || message._request_id;
         throw refusal;
+      }
+
+      // Hit the ceiling: the study is cut off. The member still gets what was
+      // written (unchanged behavior); this warning is for us.
+      if (message.stop_reason === 'max_tokens') {
+        console.warn(`[study-gen] WARNING: study cut off at max_tokens (${maxTokens}) — type="${resolvedStudyType}" level="${resolvedStudyLevel}" topic="${topic.trim()}" output_tokens=${message.usage && message.usage.output_tokens}`);
       }
       // The response can open with (empty) thinking blocks — read text blocks only.
       const studyText = message.content.filter(b => b.type === 'text').map(b => b.text).join('');
@@ -882,6 +895,9 @@ router.post('/api/study/generate', requireAuth, async (req, res) => {
 
       // Any other error — preserve existing behavior (generic 500), no retry.
       console.log(`[study-gen] API call ${attempt} finished in ${Date.now() - attemptStart}ms — failure`);
+      // One line with the real SDK error, so it is never hidden behind the
+      // member's generic "Generation failed." message.
+      console.error(`[study-gen] FAILED type="${resolvedStudyType}" level="${resolvedStudyLevel}" topic="${topic.trim()}" status=${err && err.status !== undefined ? err.status : 'none'} message=${err && err.message}`);
       console.error('Study generation error — status:', err.status);
       console.error('Study generation error — message:', err.message);
       console.error('Study generation error — full:', err);
