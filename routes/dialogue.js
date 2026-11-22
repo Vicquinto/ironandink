@@ -227,7 +227,13 @@ router.post('/api/dialogue/exchange', requireAuth, async (req, res) => {
   const { IRON_INK_DIALOGUE_PROMPT } = req.app.locals.prompts;
   const userSettings = req.session.user && req.session.user.settings;
   const studyLevelInstruction = getStudyLevelInstruction(userSettings);
-  let systemPrompt = studyLevelInstruction + '\n\n' + IRON_INK_DIALOGUE_PROMPT.replace('[adversarialPosition]', adversarialPosition);
+  // The selected tradition goes in the system prompt so it reaches the model on
+  // every turn, the opening turn included (the opening user turn names only the
+  // topic). The value comes from the setup <select>, but it is client-sent, so
+  // keep it to one short line.
+  const position = String(adversarialPosition || '').replace(/\s+/g, ' ').trim().slice(0, 100) || 'General Skeptic';
+  let systemPrompt = studyLevelInstruction + '\n\n' + IRON_INK_DIALOGUE_PROMPT +
+    '\n\nYou are arguing from the position of: ' + position + '. Every objection you raise is stated as a skilled proponent of that position would state it.';
   if (linkedStudyContent) {
     systemPrompt += `\n\nThe student has completed a prior study on this topic. Study guide content for your reference:\n\n${linkedStudyContent}`;
   }
