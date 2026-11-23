@@ -308,6 +308,35 @@ const alphabet = readJson(path.join(OUT, 'alphabet.json'));
   for (const k of Object.keys(node)) if (k !== 'examples') walk(node[k], `${where}.${k}`);
 })(alphabet, 'alphabet');
 
+// ── 3b. Hear it clips ───────────────────────────────────────────────────────
+// Only the alphabet-table rows (letters) may carry a "clip". Each id must be
+// in courses/sounds.json, and its MP3 must be in public/audio/sounds/ (a real
+// MP3, not an HTML error page saved under the name).
+(function checkClips() {
+  let sounds = [];
+  try { sounds = readJson(path.join(ROOT, 'courses', 'sounds.json')).sounds || []; }
+  catch (e) { problems.push('courses/sounds.json: ' + e.message); }
+  const byId = new Map((Array.isArray(sounds) ? sounds : []).filter(s => s && s.id).map(s => [s.id, s]));
+  const rows = new Set(alphabet.letters || []);
+  (function walk(node, where) {
+    if (!node || typeof node !== 'object') return;
+    if (node.clip !== undefined) {
+      if (!rows.has(node)) problems.push(`alphabet ${where}: a clip is only allowed on a letters row`);
+      const s = byId.get(node.clip);
+      if (!s) problems.push(`alphabet ${where}: clip ${node.clip} is not in courses/sounds.json`);
+      else if (!/^[a-z0-9-]+\.mp3$/.test(s.file || '')) problems.push(`courses/sounds.json ${s.id}: file must be a plain .mp3 name`);
+      else {
+        const f = path.join(ROOT, 'public', 'audio', 'sounds', s.file);
+        let head = null;
+        try { const b = fs.readFileSync(f); head = b.length > 3 ? b : null; } catch (e) { /* missing */ }
+        if (!head) problems.push(`alphabet ${where}: clip ${node.clip}: public/audio/sounds/${s.file} is missing`);
+        else if (!(head.slice(0, 3).toString('latin1') === 'ID3' || (head[0] === 0xFF && (head[1] & 0xE0) === 0xE0))) problems.push(`public/audio/sounds/${s.file} is not an MP3 file`);
+      }
+    }
+    for (const k of Object.keys(node)) if (k !== 'examples' && node[k] && typeof node[k] === 'object') walk(node[k], `${where}.${k}`);
+  })(alphabet, 'alphabet');
+})();
+
 
 // ── 4. paradigm check ───────────────────────────────────────────────────────
 // Index: formKey → [{lemma, code}] and bareKey → same.

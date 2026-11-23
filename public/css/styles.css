@@ -9795,6 +9795,19 @@ a.lang-course-card:hover { border-color: var(--accent); background: rgba(160,132
 .lang-dl dt { font-weight: 600; color: var(--text); }
 .lang-dl dd { margin: 0; }
 
+/* Hear it clips (alphabet tables, lang-lesson.js) */
+.lang-hear { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; margin-top: 0.35em; }
+.lang-hear-btn {
+  font: inherit; font-size: 0.8rem; line-height: 1.2; letter-spacing: 0.03em;
+  padding: 3px 10px; border: 1px solid var(--accent); border-radius: 4px;
+  background: transparent; color: var(--accent); cursor: pointer; white-space: nowrap;
+}
+.lang-hear-btn:hover, .lang-hear-btn:focus-visible { background: rgba(160,132,92,0.12); }
+.lang-hear-btn.is-playing { background: var(--accent); color: var(--bg); }
+.lang-hear-cap { font-size: 0.8rem; color: var(--warm-brown); font-style: italic; }
+.lang-clip-credit { margin-top: 0.6em; }
+.lang-clip-credit a { color: inherit; }
+
 .lang-table { border-collapse: collapse; width: 100%; font-size: 0.92em; }
 .lang-table th, .lang-table td {
   border: 1px solid rgba(160,132,92,0.3);

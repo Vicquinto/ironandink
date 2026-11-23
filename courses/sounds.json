@@ -1,0 +1,57 @@
+{
+  "note": "Hand-written. Short clips of single sounds English speakers don't already have, for the Hear it buttons in the Hebrew and Greek alphabet tables (an alphabet row's \"clip\" names one of these ids). Each file is Wikimedia Commons' own MP3 transcode of the original Ogg Vorbis recording, not edited, trimmed or changed in volume. Credits on the lesson pages and the Copyright page are read from this file. Both course build scripts check that every clip id exists here and its MP3 is in public/audio/sounds/.",
+  "sounds": [
+    {
+      "id": "glottal-stop",
+      "file": "glottal-stop.mp3",
+      "ipa": "ʔ",
+      "label": "glottal stop",
+      "caption": "(the sound between two a's)",
+      "commonsTitle": "Glottal stop.ogg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File:Glottal_stop.ogg",
+      "author": "Peter Isotalo",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "note": "converted to MP3 from the original Ogg Vorbis"
+    },
+    {
+      "id": "voiceless-velar-fricative",
+      "file": "voiceless-velar-fricative.mp3",
+      "ipa": "x",
+      "label": "velar fricative",
+      "caption": "(the sound between two a's)",
+      "commonsTitle": "Voiceless velar fricative.ogg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File:Voiceless_velar_fricative.ogg",
+      "author": "Peter Isotalo",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "note": "converted to MP3 from the original Ogg Vorbis"
+    },
+    {
+      "id": "close-front-rounded-vowel",
+      "file": "close-front-rounded-vowel.mp3",
+      "ipa": "y",
+      "label": "close front rounded vowel",
+      "caption": "(the vowel on its own)",
+      "commonsTitle": "Close front rounded vowel.ogg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File:Close_front_rounded_vowel.ogg",
+      "author": "Denelson83",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "note": "converted to MP3 from the original Ogg Vorbis"
+    },
+    {
+      "id": "alveolar-tap",
+      "file": "alveolar-tap.mp3",
+      "ipa": "ɾ",
+      "label": "alveolar tap",
+      "caption": "(the sound between two a's)",
+      "commonsTitle": "Alveolar tap.ogg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File:Alveolar_tap.ogg",
+      "author": "Peter Isotalo",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "note": "converted to MP3 from the original Ogg Vorbis"
+    }
+  ]
+}

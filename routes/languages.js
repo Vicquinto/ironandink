@@ -290,7 +290,7 @@ router.get('/languages/:course/:lessonId', requireAuth, (req, res) => {
 <script src="/js/orig-words.js?v=2"></script>
 <script src="/js/geo-map.js?v=3"></script><script src="/js/library.js?v=85"></script>
 <script>window.LANG_LESSON_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/lang-lesson.js?v=3"></script>`,
+<script src="/js/lang-lesson.js?v=4"></script>`,
   }));
 });
 

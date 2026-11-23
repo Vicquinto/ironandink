@@ -1,6 +1,7 @@
 # courses/greek — Greek course data (Phase A)
 
-From the alphabet to reading 1 John 1:1–10 with help. Erasmian pronunciation, no audio.
+From the alphabet to reading 1 John 1:1–10 with help. Erasmian pronunciation.
+Audio is limited to short clips of individual sounds that English speakers don't already have. No spoken lessons, words, verses or readings.
 Data only: no pages, routes or UI read these files yet.
 
 | File | Kind | What it holds |
@@ -25,6 +26,11 @@ Rules: Greek is typed only in `paradigms.json` and `alphabet.json`, and the scri
 it against `orig/nt`. Lesson files hold verse references only; verse text comes from `orig/`
 when it is shown. Data: STEP Bible (STEPBible.org), based on work at Tyndale House,
 Cambridge. CC BY 4.0 (see `orig/SOURCES.md`).
+
+Hear it clips: an alphabet letters row may carry `"clip": "<id>"`, an id in `courses/sounds.json`
+(file, IPA, Commons page, author, license, conversion note). The MP3s are in `public/audio/sounds/`;
+the lesson page shows a Hear it button in that row's Sound cell and a credit line under the table,
+and the build script checks that every clip id and MP3 file exists.
 
 A Hebrew course would go in `courses/hebrew/` with the same files, built from `orig/ot`,
 `lexicon-heb.json` and `morph-heb.json`.

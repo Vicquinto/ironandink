@@ -63,6 +63,81 @@
     return d;
   }
 
+  // ── Hear it clips ─────────────────────────────────────────────────────────
+  // Short clips of single sounds (courses/sounds.json, via M.sounds), only in
+  // the Sound cell of the alphabet-table rows the server marked with a clip.
+  // One shared <audio> element: one clip at a time; pressing the playing
+  // button again stops it. MP3 only.
+  var CLIPS = {};
+  (M.sounds || []).forEach(function (s) { if (s && s.id && s.src) CLIPS[s.id] = s; });
+  var player = null, playingBtn = null;
+  function clipStopped() {
+    if (playingBtn) { playingBtn.classList.remove('is-playing'); playingBtn.setAttribute('aria-pressed', 'false'); }
+    playingBtn = null;
+  }
+  function playClip(s, btn) {
+    var again = playingBtn === btn;
+    if (player) player.pause();
+    clipStopped();
+    if (again) return;
+    if (!player) {
+      player = document.createElement('audio');
+      player.preload = 'none';
+      player.addEventListener('ended', clipStopped);
+      player.addEventListener('error', clipStopped);
+    }
+    if (player.getAttribute('src') !== s.src) player.src = s.src;
+    try { player.currentTime = 0; } catch (e) { /* not loaded yet */ }
+    playingBtn = btn;
+    btn.classList.add('is-playing'); btn.setAttribute('aria-pressed', 'true');
+    var p = player.play();
+    if (p && typeof p.catch === 'function') p.catch(clipStopped);
+  }
+  function clipFor(row) { return (row && row.clip && Object.prototype.hasOwnProperty.call(CLIPS, row.clip)) ? CLIPS[row.clip] : null; }
+  function addHearIt(td, row) {
+    var s = clipFor(row);
+    if (!s) return;
+    var wrap = el('span', 'lang-hear');
+    var b = el('button', 'lang-hear-btn', 'Hear it');
+    b.type = 'button';
+    b.setAttribute('aria-pressed', 'false');
+    b.setAttribute('aria-label', 'Hear it: ' + (row.name || '') + ' ' + s.caption);
+    b.addEventListener('click', function () { playClip(s, b); });
+    wrap.appendChild(b);
+    if (s.caption) wrap.appendChild(el('span', 'lang-hear-cap', s.caption));
+    td.appendChild(wrap);
+  }
+  // One credit line under a table, for only the clips in that table: authors in
+  // order of first use, each clip name linking to its Commons file page.
+  function clipCredit(parent, rows) {
+    var used = [];
+    rows.forEach(function (r) { var s = clipFor(r); if (s && used.indexOf(s) < 0) used.push(s); });
+    if (!used.length) return;
+    function txt(t) { return document.createTextNode(t); }
+    function link(href, t) { var a = el('a', null, t); a.href = href; a.target = '_blank'; a.rel = 'noopener'; return a; }
+    var groups = [];
+    used.forEach(function (s) {
+      var g = null;
+      groups.forEach(function (x) { if (x.author === s.author) g = x; });
+      if (!g) { g = { author: s.author, clips: [] }; groups.push(g); }
+      g.clips.push(s);
+    });
+    var licenses = [];
+    used.forEach(function (s) { if (!licenses.some(function (l) { return l.license === s.license; })) licenses.push(s); });
+    var p = el('p', 'lang-credit lang-clip-credit');
+    p.appendChild(txt('Sound clips: '));
+    groups.forEach(function (g, gi) {
+      if (gi) p.appendChild(txt(gi === groups.length - 1 ? ' and ' : ', '));
+      p.appendChild(txt(g.author + ' ('));
+      g.clips.forEach(function (s, i) { if (i) p.appendChild(txt(', ')); p.appendChild(link(s.commonsUrl, s.label)); });
+      p.appendChild(txt(')'));
+    });
+    p.appendChild(txt(', via Wikimedia Commons, '));
+    licenses.forEach(function (s, i) { if (i) p.appendChild(txt(' / ')); p.appendChild(link(s.licenseUrl, s.license)); });
+    p.appendChild(txt('. Converted to MP3.'));
+    parent.appendChild(p);
+  }
+
   // ── Hebrew alphabet.json sections (consonants, vowels, shewa, dagesh, …) ──
   var HE_TITLES = {
     finalForms: 'Final forms', readingDirection: 'Reading right to left', begadkephat: 'Begadkephat: six letters with a dot',
@@ -145,6 +220,7 @@
         tr.appendChild(c1); tr.appendChild(c2);
         [['Name', x.name], ['Sound', x.sound], ['Sounds like', x.soundAlike], ['Written', x.translit]].forEach(function (c) {
           var td = el('td', c[0] === 'Written' ? 'lang-translit' : null, c[1]); td.setAttribute('data-label', c[0]); tr.appendChild(td);
+          if (c[0] === 'Sound') addHearIt(td, x);
         });
         var ex = el('td'); ex.setAttribute('data-label', 'Example'); ex.appendChild(examplesCell(x.examples, x.noExampleNote));
         tr.appendChild(ex);
@@ -152,6 +228,7 @@
       });
       table.appendChild(tb);
       s.appendChild(table);
+      clipCredit(s, A.consonants);
       pane.appendChild(s);
     }
     (A.parts || []).forEach(function (pt) {
@@ -180,7 +257,7 @@
         var c1 = el('td', 'lang-alpha-big'); c1.setAttribute('data-label', 'Capital'); c1.appendChild(greek('span', x.capital));
         var c2 = el('td', 'lang-alpha-big'); c2.setAttribute('data-label', 'Small'); c2.appendChild(greek('span', x.small + (x.finalSmall ? ' ' + x.finalSmall : '')));
         var c3 = el('td', null, x.name); c3.setAttribute('data-label', 'Name');
-        var c4 = el('td', null, x.sound); c4.setAttribute('data-label', 'Sound');
+        var c4 = el('td', null, x.sound); c4.setAttribute('data-label', 'Sound'); addHearIt(c4, x);
         var c5 = el('td', null, x.soundAlike); c5.setAttribute('data-label', 'Sounds like');
         var c6 = el('td', 'lang-translit', x.translit); c6.setAttribute('data-label', 'Written');
         var c7 = el('td'); c7.setAttribute('data-label', 'Example'); c7.appendChild(examplesCell(x.examples, x.note));
@@ -189,6 +266,7 @@
       });
       table.appendChild(tb);
       s.appendChild(table);
+      clipCredit(s, A.letters);
       if (A.transliteration) note(s, 'Transliteration: ' + A.transliteration);
       pane.appendChild(s);
     }

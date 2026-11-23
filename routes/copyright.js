@@ -1,5 +1,35 @@
 const express = require('express');
 const router  = express.Router();
+const { soundCredits } = require('../lib/languages');
+
+const esc = s => String(s == null ? '' : s)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+// "Sources: Sound Clips": one line per clip in courses/sounds.json (the same
+// file the lesson pages credit from). No clips, no section.
+function soundClipsSection() {
+  const clips = soundCredits();
+  if (!clips.length) return '';
+  const items = clips.map(s => {
+    const name = s.commonsTitle.replace(/\.ogg$/i, '');
+    return `          <li>${esc(name)}: <a href="${esc(s.commonsUrl)}" target="_blank" rel="noopener">&ldquo;${esc(s.commonsTitle)}&rdquo;</a>, recorded by ${esc(s.author)}.</li>`;
+  }).join('\n');
+  return `
+      <hr class="copy-rule">
+
+      <div class="copy-section-heading">Sources &mdash; Sound Clips</div>
+      <p class="copy-body">
+        The short &ldquo;Hear it&rdquo; clips in the Hebrew and Greek courses are recordings from
+        <strong>Wikimedia Commons</strong>, used under the Creative Commons Attribution-Share Alike 3.0
+        Unported license (<a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a>)
+        and converted from Ogg Vorbis to MP3; the recordings are otherwise unchanged:
+      </p>
+      <ul class="copy-body copy-clip-list">
+${items}
+      </ul>
+      <p class="copy-body">The clips themselves remain available under CC BY-SA 3.0.</p>
+`;
+}
 
 router.get('/copyright', (req, res) => {
   res.send(`<!DOCTYPE html>
@@ -9,7 +39,7 @@ router.get('/copyright', (req, res) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Copyright &amp; Credits — Iron &amp; Ink</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/styles.css?v=113">
+  <link rel="stylesheet" href="/css/styles.css?v=114">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <style>
     body { font-family: 'EB Garamond', Georgia, serif; }
@@ -75,6 +105,8 @@ router.get('/copyright', (req, res) => {
       color: var(--text);
     }
 
+    .copy-clip-list { margin: 8px 0 12px 1.3em; padding: 0; overflow-wrap: anywhere; }
+
     .copy-rule {
       border: none;
       border-top: 1px solid rgba(92,26,40,0.2);
@@ -137,6 +169,7 @@ router.get('/copyright', (req, res) => {
         source: <a href="https://github.com/STEPBible/STEPBible-Data" target="_blank" rel="noopener">STEPBible-Data</a>.
         Reformatted for this site; the data itself is unchanged.
       </p>
+${soundClipsSection()}
 
       <hr class="copy-rule">
 

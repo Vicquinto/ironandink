@@ -19,6 +19,11 @@
 const WHATS_NEW = [
   {
     date:  'November 22, 2026',
+    title: 'Hear the Hard Sounds',
+    body:  `The Hebrew and Greek alphabet lessons now have small "Hear it" buttons for the sounds English doesn't have: the catch of Hebrew alef, the throaty ch of chet and Greek chi, the ü of Greek upsilon and the light r of Greek rho. We also clarified a few pronunciation notes.`
+  },
+  {
+    date:  'November 22, 2026',
     title: 'Debate This View',
     body:  `Every Opposing Views study now ends with a "Debate this view" button. It opens Dialogue with a skilled defender of the view you just studied, arguing the same case Part 1 laid out, so you can practice answering it. At the end, Dialogue tells you where you answered well and what to study next.`
   },

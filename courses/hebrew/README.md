@@ -1,7 +1,8 @@
 # courses/hebrew — Hebrew course data (Phase A)
 
 From the alphabet to reading Genesis 1:1–5 with help. Standard academic (modern Israeli-based)
-pronunciation, full vowel pointing, no audio. Data only: no pages, routes or UI read these files yet.
+pronunciation, full vowel pointing. Audio is limited to short clips of individual sounds that English speakers don't already have. No spoken lessons, words, verses or readings.
+Data only: no pages, routes or UI read these files yet.
 Same files and checks as `courses/greek/`.
 
 | File | Kind | What it holds |
@@ -40,3 +41,8 @@ items, never as part of the word they attach to. Hebrew is typed only in `alphab
 `paradigms.json`, `display.json` and notes, and the script checks it against `orig/ot`. Data:
 STEP Bible (STEPBible.org), based on work at Tyndale House, Cambridge. CC BY 4.0
 (see `orig/SOURCES.md`).
+
+Hear it clips: an alphabet consonants row may carry `"clip": "<id>"`, an id in `courses/sounds.json`
+(file, IPA, Commons page, author, license, conversion note). The MP3s are in `public/audio/sounds/`;
+the lesson page shows a Hear it button in that row's Sound cell and a credit line under the table,
+and the build script checks that every clip id and MP3 file exists.
