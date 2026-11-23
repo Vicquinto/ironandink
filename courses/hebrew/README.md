@@ -2,6 +2,7 @@
 
 From the alphabet to reading Genesis 1:1–5 with help. Standard academic (modern Israeli-based)
 pronunciation, full vowel pointing. Audio is limited to short clips of individual sounds that English speakers don't already have. No spoken lessons, words, verses or readings.
+Outside listening: the course may point to free external recordings by link only. Nothing is hosted, and this does not widen the audio scope.
 Data only: no pages, routes or UI read these files yet.
 Same files and checks as `courses/greek/`.
 

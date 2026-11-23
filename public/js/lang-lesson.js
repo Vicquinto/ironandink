@@ -404,6 +404,27 @@
     });
   }
 
+  // Outside listening (course.json "listening", via BOOT.listening, not part of
+  // the materials the teacher sees): plain text plus external links, which open
+  // in a new tab and are marked with an arrow and "(opens in a new tab)".
+  function listeningNote(parent) {
+    var items = BOOT.listening;
+    if (!Array.isArray(items) || !items.length) return;
+    var p = el('p', 'lang-note lang-listen');
+    items.forEach(function (it) {
+      if (!it || typeof it.text !== 'string') return;
+      if (!it.href) { p.appendChild(document.createTextNode(it.text)); return; }
+      if (!/^https:\/\//.test(it.href)) { p.appendChild(document.createTextNode(it.text)); return; }
+      var a = el('a', 'lang-ext-link', it.text);
+      a.href = it.href; a.target = '_blank'; a.rel = 'noopener noreferrer';
+      var arrow = el('span', 'lang-ext-icon', '↗'); arrow.setAttribute('aria-hidden', 'true');
+      a.appendChild(arrow);
+      a.appendChild(el('span', 'lang-sr-only', ' (opens in a new tab)'));
+      p.appendChild(a);
+    });
+    parent.appendChild(p);
+  }
+
   function renderMaterials() {
     if (!pane) return;
     var L = M.lesson || {};
@@ -418,6 +439,7 @@
     }
     (L.notes || []).forEach(function (n) { note(head, String(n).normalize('NFC')); });
     (L.recognition || []).forEach(function (n) { note(head, n); });
+    listeningNote(head);
     pane.appendChild(head);
 
     if (M.alphabet) renderAlphabet(M.alphabet);

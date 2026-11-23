@@ -13,6 +13,28 @@
     "check": "course-check.json",
     "display": "display.json"
   },
+  "listening": {
+    "note": "Outside listening, by link only (nothing is hosted). links holds the only copy of each URL. overviewNote shows on the course page; lessonNote shows near the top of lessonId, before the reading. A lessonNote item is plain text or { link, text }. Never given to the lesson teacher.",
+    "lessonId": "L30",
+    "links": {
+      "biblicalElearning": "https://biblicalelearning.org/hebrew-bible-reading-videos/",
+      "ebible": "https://ebible.org/multimedia/hbo/"
+    },
+    "overviewNote": "Want to hear Biblical Hebrew read aloud? The Genesis 1:1–5 reading lesson points you to a free recording you can follow along with.",
+    "lessonNote": [
+      "Hear it read aloud: Abraham Shmuelof's reading of the Hebrew Bible is free online and a good one to follow along with. ",
+      {
+        "link": "biblicalElearning",
+        "text": "Biblical eLearning"
+      },
+      " has Genesis 1 with English captions, and ",
+      {
+        "link": "ebible",
+        "text": "eBible.org"
+      },
+      " has the same reading slowed down by 20% for beginners. His pronunciation is close to the one this course teaches. No one knows exactly how Hebrew sounded in Bible times, so treat any recording as a guide, not the original sound."
+    ]
+  },
   "lessons": [
     {
       "id": "L01",
