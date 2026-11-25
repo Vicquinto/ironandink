@@ -509,7 +509,7 @@
       // Every word of a completed lesson is in review, so no words = nothing to lose.
       if (!(M.words || []).length) { changeCompletion(false); return; }
       confirmThen(
-        'Undo completing this lesson? Its words will be removed from your vocabulary review, and any review progress on them will be lost. If you complete the lesson again, they'll start over from the beginning.',
+        'Undo completing this lesson? Its words will be removed from your vocabulary review, and any review progress on them will be lost. If you complete the lesson again, they\'ll start over from the beginning.',
         'Undo', function () { changeCompletion(false); });
     });
     completeEl.appendChild(undo);
@@ -609,7 +609,7 @@
   // Under a reply the server reported as not saved ({ saved: false }).
   function addUnsavedNotice(msgEl) {
     msgEl.insertAdjacentElement('afterend', el('p', 'teacher-welcome-back',
-      'This reply wasn't saved, so it won't be here if you leave and come back. Your connection may have dropped. Try sending your next message again.'));
+      'This reply wasn\'t saved, so it won\'t be here if you leave and come back. Your connection may have dropped. Try sending your next message again.'));
     scrollChat();
   }
 
