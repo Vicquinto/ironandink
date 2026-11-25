@@ -187,7 +187,14 @@ router.get('/dialogue', requireAuth, (req, res) => {
           <span class="session-topic-label" id="sessionTopicLabel"></span>
           <span class="position-badge" id="sessionPositionBadge"></span>
         </div>
-        <button class="btn-end-session" id="endSessionBtn">End Session</button>
+        <div class="dialogue-session-tools">
+          <span class="ucp-zoom" role="group" aria-label="Dialogue text size">
+            <button type="button" class="guide-font-btn guide-font-btn-sm" id="dialogueFontDec" title="Smaller dialogue text" aria-label="Smaller dialogue text">A&#8722;</button>
+            <button type="button" class="guide-font-btn guide-font-btn-md" id="dialogueFontReset" title="Default dialogue text" aria-label="Default dialogue text">A</button>
+            <button type="button" class="guide-font-btn guide-font-btn-lg" id="dialogueFontInc" title="Larger dialogue text" aria-label="Larger dialogue text">A+</button>
+          </span>
+          <button class="btn-end-session" id="endSessionBtn">End Session</button>
+        </div>
       </div>
 
       <div id="chatMessages" class="chat-messages"></div>
@@ -236,7 +243,7 @@ router.get('/dialogue', requireAuth, (req, res) => {
     activeSection: 'dialogue',
     title: 'Dialogue',
     content,
-    scripts: '<script src="/js/dialogue.js?v=3"></script>',
+    scripts: '<script src="/js/text-size.js?v=1"></script><script src="/js/dialogue.js?v=4"></script>',
   }));
 });
 

@@ -1957,6 +1957,18 @@ body {
   flex-wrap: wrap;
 }
 
+.dialogue-session-meta { min-width: 0; }
+.dialogue-session-tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px 12px;
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+@media (max-width: 600px) { .dialogue-session-tools { flex-shrink: 1; } }
+
 .session-topic-label {
   font-size: 1.02rem;
   color: var(--accent);

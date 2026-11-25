@@ -179,6 +179,11 @@ router.get('/room/:code', requireAuth, (req, res) => {
           <span id="roomGuideBadge" class="guide-badge">${escHtml(room.study.translation || 'ASV')}</span>
         </div>
         ${room.study.author ? `<div id="roomGuideAuthor" style="font-size:0.85rem;color:#6B4226;font-style:italic;margin:0.15rem 0 0.35rem;">Shared by ${escHtml(room.study.author)}</div>` : ''}
+        <div class="guide-font-toolbar" role="group" aria-label="Study text size">
+          <button type="button" class="guide-font-btn guide-font-btn-sm" id="roomPausedFontDec" title="Smaller study text" aria-label="Smaller study text">A&#8722;</button>
+          <button type="button" class="guide-font-btn guide-font-btn-md" id="roomPausedFontReset" title="Default study text" aria-label="Default study text">A</button>
+          <button type="button" class="guide-font-btn guide-font-btn-lg" id="roomPausedFontInc" title="Larger study text" aria-label="Larger study text">A+</button>
+        </div>
         <div id="roomGuideBody" class="guide-body">${renderMarkdown(room.study.content)}</div>
       </div>` : '';
 
@@ -272,6 +277,16 @@ router.get('/room/:code', requireAuth, (req, res) => {
         container.scrollTop = container.scrollHeight;
       }
     })();
+  </script>
+  <script src="/js/text-size.js?v=1"></script>
+  <script>
+    // The active room's text size setting (room.js), so it carries over.
+    if (window.IronInkTextSize) {
+      window.IronInkTextSize.attach({
+        target: document.getElementById('roomGuideBody'), key: 'ironink_room_font_size',
+        dec: 'roomPausedFontDec', reset: 'roomPausedFontReset', inc: 'roomPausedFontInc',
+      });
+    }
   </script>
   <script src="/js/study-badges.js?v=5"></script>
   <script src="/js/render-markdown.js?v=2"></script>

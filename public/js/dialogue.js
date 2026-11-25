@@ -37,6 +37,14 @@
   var gapSummaryText      = document.getElementById('gapSummaryText');
   var gapStudyNextText    = document.getElementById('gapStudyNextText');
 
+  // Conversation text size (text-size.js), under its own key.
+  if (window.IronInkTextSize) {
+    window.IronInkTextSize.attach({
+      target: chatMessages, key: 'ironink_dialogue_font_size',
+      dec: 'dialogueFontDec', reset: 'dialogueFontReset', inc: 'dialogueFontInc',
+    });
+  }
+
   // ── "Defender of" opponent (Debate this view) ─────────────────────────────
   // The server adds this option, selected, only when the page was opened with
   // ?fromStudy=<id> for the member's own Opposing Views study, and pre-selects
