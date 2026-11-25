@@ -299,12 +299,20 @@
   // ── Message UI ───────────────────────────────────────────────────────────
   function scrollChat() { messagesEl.scrollTop = messagesEl.scrollHeight; }
 
-  function addTeacherMessage(text) {
+  // meta: { sessionId, id, index } of a saved reply (Save this point).
+  function setMeta(div, meta) {
+    if (!meta || !meta.sessionId || typeof meta.index !== 'number') return;
+    div.setAttribute('data-session', meta.sessionId);
+    div.setAttribute('data-index', String(meta.index));
+    if (meta.id) div.setAttribute('data-mid', meta.id);
+  }
+  function addTeacherMessage(text, meta) {
     var div = document.createElement('div');
     div.className = 'chat-msg engine-msg';
     div.innerHTML = '<div class="msg-role"></div><div class="msg-content"></div>';
     div.querySelector('.msg-role').textContent = WHO;
     div.querySelector('.msg-content').innerHTML = renderTeacherText(text);
+    setMeta(div, meta);
     messagesEl.appendChild(div);
     scrollChat();
     return div;
@@ -392,6 +400,7 @@
       var decoder  = new TextDecoder();
       var buffer   = '';
       var fullText = '';
+      var savedAs  = null;
 
       while (true) {
         var chunk = await reader.read();
@@ -409,6 +418,7 @@
             try { parsed = JSON.parse(data); } catch (e) { continue; }
             if (parsed.error) throw new Error(parsed.error);
             if (parsed.lesson) setLessonState(parsed.lesson);
+            if (parsed.message) savedAs = parsed.message;
             if (parsed.text) {
               fullText += parsed.text;
               contentEl.innerHTML = renderTeacherText(fullText);
@@ -420,6 +430,7 @@
 
       if (!fullText) throw new Error(GENERIC_ERROR);
       msgEl.classList.remove('streaming');
+      setMeta(msgEl, savedAs);
       return fullText;
     } catch (err) {
       hideTypingIndicator();
@@ -456,6 +467,7 @@
 
   // ── Starting / resuming ──────────────────────────────────────────────────
   async function startNew() {
+    if (window.IronInkTeacherPoints) window.IronInkTeacherPoints.clear();
     hideResume();
     hideOther();
     messagesEl.innerHTML = '';
@@ -477,8 +489,10 @@
     var data = await res.json();
     if (!data.success || !data.session) return null;
     (data.session.transcript || []).forEach(function (m) {
-      if (m.role === 'assistant') addTeacherMessage(m.content); else addUserMessage(m.content);
+      if (m.role === 'assistant') addTeacherMessage(m.content, { sessionId: data.session.id, id: m.id, index: m.index });
+      else addUserMessage(m.content);
     });
+    if (window.IronInkTeacherPoints) window.IronInkTeacherPoints.reload();
     return data.session;
   }
 
@@ -811,6 +825,15 @@
       });
     });
   });
+
+  // ── Save this point (teacher-points.js) ──────────────────────────────────
+  if (window.IronInkTeacherPoints) {
+    window.IronInkTeacherPoints.init({
+      studyId: BOOT.studyId, kind: KIND,
+      // Not while a check is still asking its questions (the server checks too).
+      canSave: function () { return KIND !== 'check' || checkPhase === 'teach'; },
+    });
+  }
 
   // ── Boot ─────────────────────────────────────────────────────────────────
   setGenerating(false);

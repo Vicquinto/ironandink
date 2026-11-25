@@ -276,8 +276,13 @@ function isReaderVisible(m) { return !m.hidden || !!m.display; }
 function displayTranscript(session) { return displayMessages(session.messages); }
 function displayMessages(messages) {
   return (messages || [])
-    .filter(isReaderVisible)
-    .map(m => ({
+    .map((m, i) => ({ m, i }))
+    .filter(x => isReaderVisible(x.m))
+    .map(({ m, i }) => ({
+      // Which message this is, for Save this point and Study Notes: its id (none
+      // before tagging) and its place in the stored conversation.
+      id:      typeof m.id === 'string' ? m.id : null,
+      index:   Number.isInteger(m.storedIndex) ? m.storedIndex : i,
       role:    m.role,
       content: m.role === 'assistant'
         ? injectWithAttribution(m.content, undefined, VERSE_NUMBERS)
@@ -582,8 +587,9 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
     content,
     scripts: `<script src="/js/render-markdown.js?v=2"></script>
 <script src="/js/teacher-entry.js?v=9"></script>
+<script src="/js/teacher-points.js?v=1"></script>
 <script>window.TEACHER_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/teacher.js?v=14"></script>`,
+<script src="/js/teacher.js?v=15"></script>`,
   }));
 });
 
@@ -598,6 +604,7 @@ router.get('/api/teacher/:studyId/session', requireAuth, (req, res) => {
   res.json({
     success: true,
     session: Object.assign(savedSummary(session), {
+      id:         session.id,
       transcript: displayTranscript(session),
       review:     session.review || null,
     }),
@@ -948,7 +955,11 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
     if (!closed && !res.writableEnded) {
       flush(true);
       if (usedNasb) res.write(`data: ${JSON.stringify({ text: NASB_ATTRIBUTION_MD })}\n\n`);
-      if (session) res.write(`data: ${JSON.stringify({ lesson: lessonSummary(session) })}\n\n`);
+      if (session) {
+        res.write(`data: ${JSON.stringify({ lesson: lessonSummary(session) })}\n\n`);
+        const last = session.messages.length - 1;
+        res.write(`data: ${JSON.stringify({ message: { sessionId: session.id, id: session.messages[last].id, index: last } })}\n\n`);
+      }
       res.write('data: [DONE]\n\n');
       res.end();
     }
@@ -1089,4 +1100,4 @@ module.exports = router;
 // (routes/languages.js reuses "Say that more simply" word for word).
 module.exports.TEACHER_ACTIONS = ACTIONS;
 // Study Notes (routes/study-notes.js) reads lessons by the same rules.
-Object.assign(module.exports, { memberGated, findReadableStudy, parseLessonSections, isReaderVisible, displayMessages });
+Object.assign(module.exports, { memberGated, findReadableStudy, parseLessonSections, isReaderVisible, displayMessages, findSession });

@@ -8359,6 +8359,40 @@ body {
 .sn-note-content .guide-p, .sn-note-content .guide-list, .sn-note-content .guide-bq { font-size: 1em; }
 .sn-note-content .guide-h2, .sn-note-content .guide-h3, .sn-note-content .guide-h4, .sn-note-content .guide-h5 { font-size: 1.05em; margin: 0.6em 0 0.3em; }
 .sn-note-open { display: inline-block; margin-top: 0.5em; font-size: 0.85em; }
+.sn-point { border-left: 3px solid var(--accent); }
+.sn-point-text .guide-bq { font-size: 1em; }
+.sn-part1 { font-size: 0.8em; font-style: italic; color: var(--warm-brown); margin-bottom: 0.4em; }
+.sn-point-note { margin-top: 0.6em; padding-top: 0.5em; border-top: 1px solid rgba(160,132,92,0.2); white-space: pre-line; }
+.sn-point-row { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 0.6em; }
+.sn-point-row[hidden], .sn-point-note[hidden] { display: none; }
+.sn-btn { background: none; border: none; padding: 2px 0; color: var(--accent); font: inherit; font-size: 0.85em; cursor: pointer; }
+.sn-btn:hover { text-decoration: underline; }
+.sn-body .teacher-msg-return { animation: teacherMsgReturn 2.6s ease-out; border-radius: 4px; }
+
+/* Save this point (teacher-points.js) */
+.point-save-btn {
+  position: fixed;
+  z-index: 900;
+  padding: 6px 14px;
+  font-family: Georgia, serif;
+  font-size: 0.85rem;
+  color: var(--bg);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  cursor: pointer;
+}
+.point-save-btn.is-bar { position: static; flex-shrink: 0; width: 100%; min-height: 44px; margin: 8px 0; box-shadow: none; }
+.point-panel { flex-shrink: 0; margin: 8px 0; padding: 10px 12px; background: var(--card-bg); border: 1px solid rgba(160,132,92,0.3); border-radius: 5px; }
+.point-label { display: block; font-size: 0.85rem; color: var(--warm-brown); margin-bottom: 4px; }
+.point-note { width: 100%; padding: 8px 10px; font-family: Georgia, serif; font-size: 0.95rem; color: var(--text); background: var(--bg); border: 1px solid rgba(160,132,92,0.3); border-radius: 4px; resize: vertical; }
+.point-row { display: flex; gap: 10px; margin-top: 8px; }
+.point-btn { padding: 6px 16px; font-size: 0.85rem; }
+.point-msg { display: inline; font-size: 0.85rem; font-style: italic; color: var(--warm-brown); }
+.point-undo { margin-left: 12px; background: none; border: none; color: var(--accent); font-size: 0.85rem; cursor: pointer; text-decoration: underline; }
+.point-saved { background: rgba(179,140,51,0.18); border-radius: 2px; }
+@media (max-width: 600px) { .sn-btn, .point-undo, .point-btn { min-height: 44px; } }
 .sn-muted { color: var(--warm-brown); font-style: italic; font-size: 0.92em; }
 .sn-teaching { margin-top: 0.6em; }
 .sn-teaching-label { cursor: pointer; color: var(--accent); padding: 0.3em 0; }

@@ -1,15 +1,18 @@
 const express = require('express');
+const { randomUUID } = require('crypto');
+const rateLimit = require('express-rate-limit');
 const { requireAuth, renderLayout } = require('./layout');
 const { escapeHtml, inlineJson } = require('../lib/html');
 const { sessionsStore, keptStore } = require('../lib/teacher-store');
 const teacher = require('./teacher');
 const notepad = require('./notepad');
+const { notesStore, findRecord, capturePoint, shownRange, POINT_MAX, NOTE_MAX, POINTS_MAX } = require('../lib/study-notes');
 
 // ─── Study Notes ───────────────────────────────────────────────────────────────
 // One page per study for the member's OWN notes, section by section: their
 // study-text notes and the full teaching (the lesson conversation itself).
-// Read only: Teacher sessions, kept lessons and notepads are read here, never
-// written. userId always comes from the session. Behind the Teacher's gate.
+// Teacher sessions, kept lessons and notepads are only read here; saved points
+// (lib/study-notes.js) are the one thing written. userId always comes from the session. Behind the Teacher's gate.
 //
 // A lesson message belongs to a section by its saved tag (routes/teacher.js
 // saveExchange): id + section, plus endsSection on a reply that also finished
@@ -23,7 +26,9 @@ const router = express.Router();
 function isTagged(m) { return !!m && typeof m.id === 'string' && Number.isInteger(m.section); }
 function inSection(m, n) { return isTagged(m) && (m.section === n || m.endsSection === n); }
 // Hidden instructions never show; a button tap shows as its label.
-function visible(messages) { return (messages || []).filter(m => m && teacher.isReaderVisible(m)); }
+function visible(messages) {
+  return (messages || []).map((m, i) => m && Object.assign({}, m, { storedIndex: i })).filter(m => m && teacher.isReaderVisible(m));
+}
 
 // The member's lessons on a study, newest first: the current one, then the
 // conversations Start over kept. Throws if a store is damaged.
@@ -64,6 +69,7 @@ router.get('/api/study-notes/available', requireAuth, (req, res) => {
   add(() => sessionsStore.read().forEach(s => {
     if (s && s.userId === userId && s.kind === 'lesson' && typeof s.studyId === 'string') ids.add(s.studyId);
   }));
+  add(() => notesStore.read().forEach(r => { if (r && r.userId === userId && (r.points || []).length) ids.add(r.studyId); }));
   add(() => keptStore.read().forEach(k => { if (k && k.userId === userId && typeof k.studyId === 'string') ids.add(k.studyId); }));
   res.json({ success: true, allowed: true, studyIds: Array.from(ids) });
 });
@@ -89,7 +95,7 @@ router.get('/api/study-notes/:studyId/teaching', requireAuth, (req, res) => {
   const out = lessons.map(l => {
     const picked = l.messages.filter(pick);
     const last = picked[picked.length - 1];
-    return { current: l.current, date: (last && last.at) || l.date, messages: teacher.displayMessages(picked) };
+    return { current: l.current, sessionId: l.sessionId, date: (last && last.at) || l.date, messages: teacher.displayMessages(picked) };
   }).filter(l => l.messages.length);
   res.json({ success: true, lessons: out });
 });
@@ -101,14 +107,16 @@ router.get('/study-notes/:studyId', requireAuth, (req, res) => {
   const studyId = req.params.studyId;
   const study   = teacher.findReadableStudy(req, studyId);
 
-  let lessons, notes;
+  let lessons, notes, record;
   try {
+    record  = findRecord(notesStore.read(), userId, studyId);
     lessons = lessonsFor(userId, studyId);
     notes   = notepad.notesFor(studyId, userId);
   } catch {
     return messagePage(req, res, 500, 'Study Notes are unavailable right now. Nothing was changed. Please try again later.');
   }
-  if (!study && !lessons.length && !notes.length) {
+  const points = (record && record.points) || [];
+  if (!study && !lessons.length && !notes.length && !points.length) {
     return messagePage(req, res, 404, 'That study isn’t available. It may have been deleted or un-shared.');
   }
 
@@ -118,6 +126,7 @@ router.get('/study-notes/:studyId', requireAuth, (req, res) => {
   if (!study) {
     const withList = lessons.find(l => Array.isArray(l.sections) && l.sections.length);
     if (withList) sections = withList.sections;
+    else if (record && Array.isArray(record.sections)) sections = record.sections;
   }
   const has = n => lessons.some(l => l.messages.some(m => inSection(m, n)));
   const list = sections.map(s => ({ n: s.n, title: s.title, teaching: has(s.n) }));
@@ -128,7 +137,7 @@ router.get('/study-notes/:studyId', requireAuth, (req, res) => {
     .filter(l => l.messages.some(m => !isTagged(m)))
     .map(l => ({ key: l.key, current: l.current, date: l.date }));
 
-  const topic   = (study && study.topic) || (lessons[0] && lessons[0].topic) || 'Untitled study';
+  const topic   = (study && study.topic) || (lessons[0] && lessons[0].topic) || (record && record.studyTopic) || 'Untitled study';
   const isOwner = !!study && study.userId === userId;
   const openHref = isOwner ? '/library?open=' + encodeURIComponent(studyId) : '/community?study=' + encodeURIComponent(studyId);
   const hasCurrent = lessons.some(l => l.current);
@@ -142,6 +151,12 @@ router.get('/study-notes/:studyId', requireAuth, (req, res) => {
     notes: notes.map(n => ({
       id: n.id, marker: n.marker, quote: n.quote, occurrence: n.occurrence, question: n.question,
       content: n.content, ts: n.ts,
+    })),
+    points: points.map(p => ({
+      id: p.id, kind: p.kind, section: p.section, part1: p.part1 === true, note: p.note || '',
+      content: teacher.displayMessages([{ role: 'assistant', content: p.text }])[0].content,
+      // Where "Show in the teaching" goes: only a lesson still on this page.
+      show: p.kind === 'lesson' ? showTarget(lessons, p) : null,
     })),
     earlier,
   };
@@ -172,8 +187,158 @@ router.get('/study-notes/:studyId', requireAuth, (req, res) => {
 <script src="/js/teacher-entry.js?v=9"></script>
 <script src="/js/text-size.js?v=1"></script>
 <script>window.STUDY_NOTES_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/study-notes.js?v=1"></script>`,
+<script src="/js/study-notes.js?v=2"></script>`,
   }));
 });
+
+// The block and message a point came from: { section } or { earlier: key }, with
+// the message's place. null when that conversation is gone.
+function showTarget(lessons, p) {
+  const l = lessons.find(x => x.sessionId === p.sessionId);
+  const m = l && l.messages.find(x => p.messageId ? x.id === p.messageId : x.storedIndex === p.messageIndex);
+  if (!m) return null;
+  const at = { sessionId: l.sessionId, index: m.storedIndex };
+  return isTagged(m) ? Object.assign(at, { section: m.section }) : Object.assign(at, { earlier: l.key });
+}
+
+// ─── Saved points ─────────────────────────────────────────────────────────────
+// Light, occasional writes; a second, tighter guard under the global /api/ limiter.
+const writeLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max:      30,
+  message:  { success: false, error: 'Too many requests. Please wait a moment and try again.' },
+  standardHeaders: true,
+  legacyHeaders:   false,
+});
+function notesUnavailable(res) {
+  return res.status(500).json({ success: false, error: 'Study Notes are unavailable right now. Nothing was changed.' });
+}
+function gate(req, res, next) {
+  if (teacher.memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
+  next();
+}
+function cleanNote(v) {
+  return typeof v === 'string' ? v.replace(/\r\n?/g, '\n').trim().slice(0, NOTE_MAX) : '';
+}
+// Sections before an Opposing Views study's "# Part 2" heading present the view.
+function inPart1(study, section) {
+  if (!study || study.studyType !== 'opposing' || !section) return false;
+  const at = String(study.content || '').search(/^#\s+part\s*(?:2|two)\b/im);
+  return at !== -1 && section <= teacher.parseLessonSections(study.content.slice(0, at)).length;
+}
+
+// The saved points of the session now on the Teacher page, with where each one
+// is in what the page shows (never any text).
+router.get('/api/study-notes/:studyId/points', requireAuth, gate, (req, res) => {
+  const userId = req.session.userId;
+  const kind = req.query.kind === 'check' ? 'check' : 'lesson';
+  let record, session;
+  try {
+    record  = findRecord(notesStore.read(), userId, req.params.studyId);
+    session = teacher.findSession(sessionsStore.read(), userId, req.params.studyId, kind);
+  } catch { return notesUnavailable(res); }
+  const points = [];
+  if (session) {
+    ((record && record.points) || []).filter(p => p.sessionId === session.id).forEach(p => {
+      const m = (session.messages || [])[p.messageIndex];
+      if (!m || m.role !== 'assistant') return;
+      points.push({ id: p.id, sessionId: p.sessionId, index: p.messageIndex, shown: shownRange(m.content, p.raw) });
+    });
+  }
+  res.json({ success: true, points });
+});
+
+// Body: { kind, sessionId, messageId, index, start, text, note }
+router.post('/api/study-notes/:studyId/points', requireAuth, gate, writeLimiter, async (req, res) => {
+  const userId  = req.session.userId;
+  const studyId = req.params.studyId;
+  const b = req.body || {};
+  const kind = b.kind === 'check' ? 'check' : 'lesson';
+  if (typeof b.text !== 'string' || !b.text.trim() || b.text.length > POINT_MAX * 10 ||
+      !Number.isInteger(b.start) || b.start < 0 || !Number.isInteger(b.index) || b.index < 0) {
+    return res.status(400).json({ success: false, error: 'Please select part of a reply first.' });
+  }
+  const study = teacher.findReadableStudy(req, studyId);
+  if (!study) return res.status(404).json({ success: false, error: 'That study is no longer available.' });
+
+  let session;
+  try { session = teacher.findSession(sessionsStore.read(), userId, studyId, kind); }
+  catch { return notesUnavailable(res); }
+  const m = session && session.id === b.sessionId ? (session.messages || [])[b.index] : null;
+  if (!m || m.role !== 'assistant' || (b.messageId && m.id !== b.messageId)) {
+    return res.status(409).json({ success: false, error: 'That reply is no longer in your saved session.' });
+  }
+  if (kind === 'check' && session.checkPhase !== 'teach') {
+    return res.status(400).json({ success: false, error: 'Points can be saved once the questions are finished.' });
+  }
+
+  const got = capturePoint(m.content, { start: b.start, text: b.text });
+  if (!got) return res.status(422).json({ success: false, error: 'That selection couldn’t be saved. Try selecting whole sentences.' });
+  if (got.text.length > POINT_MAX) return res.status(400).json({ success: false, error: 'That’s a lot for one point. Please select a shorter part.' });
+
+  const tagged  = isTagged(m) && m.section >= 1;
+  const section = tagged ? m.section : null;
+  const list    = Array.isArray(session.lessonSections) ? session.lessonSections : teacher.parseLessonSections(study.content);
+  const sec     = section ? list.find(s => s.n === section) : null;
+  const now     = new Date().toISOString();
+  const point = {
+    id: randomUUID(), kind, sessionId: session.id,
+    messageId: typeof m.id === 'string' ? m.id : null, messageIndex: b.index,
+    section, sectionTitle: sec ? sec.title : null, part1: inPart1(study, section),
+    text: got.text, raw: got.raw, note: cleanNote(b.note), ts: now,
+  };
+  let r;
+  try {
+    r = await notesStore.update(all => {
+      let rec = findRecord(all, userId, studyId);
+      if (rec && (rec.points || []).length >= POINTS_MAX) return { changed: false, full: true };
+      if (!rec) { rec = { userId, studyId, points: [], recaps: [] }; all.push(rec); }
+      rec.studyTopic = study.topic;
+      rec.sections   = list;
+      rec.points     = (rec.points || []).concat([point]);
+      rec.updatedAt  = now;
+      return { changed: true };
+    });
+  } catch (err) {
+    console.error('[study-notes] save point:', err.message);
+    return notesUnavailable(res);
+  }
+  if (r.full) return res.status(400).json({ success: false, error: 'Study Notes for this study are full. Delete a point you no longer need first.' });
+  res.json({ success: true, point: { id: point.id, sessionId: point.sessionId, index: point.messageIndex, shown: shownRange(m.content, point.raw) } });
+});
+
+// Edit the member's own note on a point (body: { note }), or delete the point.
+// Both work even if the study can no longer be read: these are the member's own.
+function changePoint(change) {
+  return async (req, res) => {
+    const userId = req.session.userId;
+    let r;
+    try {
+      r = await notesStore.update(all => {
+        const rec = findRecord(all, userId, req.params.studyId);
+        const i = rec ? (rec.points || []).findIndex(p => p.id === req.params.pointId) : -1;
+        if (i === -1) return { changed: false, found: false };
+        const now = new Date().toISOString();
+        const out = change(rec.points, i, req.body || {}, now);
+        rec.updatedAt = now;
+        return Object.assign({ changed: true, found: true }, out);
+      });
+    } catch (err) {
+      console.error('[study-notes] change point:', err.message);
+      return notesUnavailable(res);
+    }
+    if (!r.found) return res.status(404).json({ success: false, error: 'That point is no longer here.' });
+    res.json({ success: true, note: r.note });
+  };
+}
+router.put('/api/study-notes/:studyId/points/:pointId', requireAuth, gate, writeLimiter, changePoint((points, i, body, now) => {
+  points[i].note = cleanNote(body.note);
+  points[i].updatedAt = now;
+  return { note: points[i].note };
+}));
+router.delete('/api/study-notes/:studyId/points/:pointId', requireAuth, gate, writeLimiter, changePoint((points, i) => {
+  points.splice(i, 1);
+  return {};
+}));
 
 module.exports = router;
