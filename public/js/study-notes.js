@@ -323,6 +323,7 @@
       box.textContent = '';
       box.appendChild(el('h4', 'sn-sub', 'Key points'));
       if (s.recap) {
+        if (s.unfinished) box.insertBefore(el('p', 'sn-muted', 'You were partway through this section.'), box.firstChild);
         box.appendChild(window.IronInkTeacher.recapList(s.recap));
         box.appendChild(el('p', 'sn-muted', s.teaching ? 'An AI summary of the teaching below.' : 'An AI summary of the teaching.'));
         return;

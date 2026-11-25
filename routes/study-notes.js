@@ -41,7 +41,7 @@ function lessonsFor(userId, studyId) {
   keptStore.read()
     .filter(k => k && k.userId === userId && k.studyId === studyId && !(cur && k.sessionId === cur.id))
     .sort((a, b) => (Date.parse(b.endedAt) || 0) - (Date.parse(a.endedAt) || 0))
-    .forEach(k => out.push({ key: k.sessionId, sessionId: k.sessionId, current: false, date: k.endedAt || null, sections: k.lessonSections, topic: k.studyTopic, messages: visible(k.messages) }));
+    .forEach(k => out.push({ key: k.sessionId, sessionId: k.sessionId, current: false, date: k.endedAt || null, sections: k.lessonSections, topic: k.studyTopic, doneSections: k.doneSections, messages: visible(k.messages) }));
   return out;
 }
 
@@ -130,12 +130,20 @@ router.get('/study-notes/:studyId', requireAuth, (req, res) => {
     else if (record && Array.isArray(record.sections)) sections = record.sections;
   }
   const has = n => lessons.some(l => l.messages.some(m => inSection(m, n)));
-  const taught  = n => lessons.some(l => l.messages.some(m => m.role === 'assistant' && inSection(m, n)));
+  const taughtIn = (l, n) => l.messages.some(m => m.role === 'assistant' && inSection(m, n));
+  const taught  = n => lessons.some(l => taughtIn(l, n));
+  // The lesson a section's recap came from (or would come from) hasn't finished it.
+  const unfinished = n => {
+    const recap = recaps.find(x => x.section === n);
+    const l = recap ? lessons.find(x => x.sessionId === recap.sessionId) : lessons.find(x => taughtIn(x, n));
+    return !!l && !(l.doneSections || []).includes(n);
+  };
   const current = lessons.find(l => l.current);
   const list = sections.map(s => ({
     n: s.n, title: s.title, teaching: has(s.n),
     recap:     displayRecap(recaps.find(x => x.section === s.n)),
     canRecap:  !!study && taught(s.n),
+    unfinished: unfinished(s.n),
     // Still in this section of the lesson now saved.
     partway:   !!current && current.currentSection === s.n && !(current.doneSections || []).includes(s.n),
   }));
@@ -200,7 +208,7 @@ router.get('/study-notes/:studyId', requireAuth, (req, res) => {
 <script src="/js/teacher-entry.js?v=11"></script>
 <script src="/js/text-size.js?v=1"></script>
 <script>window.STUDY_NOTES_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/study-notes.js?v=5"></script>`,
+<script src="/js/study-notes.js?v=6"></script>`,
   }));
 });
 

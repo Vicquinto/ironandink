@@ -273,16 +273,23 @@ function startRecap(req, study, session, n) {
   });
   return through;
 }
-// The last section has no next one to leave it for. When the lesson is ended, redo
-// its recap if more was taught in it since (or the first try didn't work).
-function recapLastSection(req, study, session) {
+// When a lesson is ended (End Session, "I'm done"): the section it stopped in, and
+// the last section once done, which has no next one to leave it for. Only where
+// the teaching has changed since the saved recap, or there is none. Nothing waits.
+function recapOnEnd(req, study, session) {
   if (!study || !session || session.kind !== 'lesson') return;
-  const last = sessionSections(session, study).length;
-  if (!last || !(session.doneSections || []).includes(last)) return;
+  const len  = sessionSections(session, study).length;
+  const want = new Set();
+  if (len && (session.doneSections || []).includes(len)) want.add(len);
+  if (session.currentSection >= 1) want.add(session.currentSection);
+  if (!want.size) return;
   try {
     const rec = findRecord(notesStore.read(), req.session.userId, study.id);
-    const old = rec && (rec.recaps || []).find(x => x.section === last);
-    if (!old || old.throughMessageId !== throughId(session.messages, last)) startRecap(req, study, session, last);
+    want.forEach(n => {
+      const through = throughId(session.messages, n);   // null: no teacher reply there
+      const old = rec && (rec.recaps || []).find(x => x.section === n);
+      if (through && !(old && old.throughMessageId === through)) startRecap(req, study, session, n);
+    });
   } catch (err) { console.error('[Teacher/recap]', err.message); }
 }
 
@@ -698,7 +705,7 @@ function flagSession(field) {
     }
     if (!r.found) return res.status(404).json({ success: false, error: 'No saved session.' });
     res.json({ success: true });
-    if (field === 'done' && r.session && !memberGated(req)) recapLastSection(req, findReadableStudy(req, req.params.studyId), r.session);
+    if (field === 'done' && r.session && !memberGated(req)) recapOnEnd(req, findReadableStudy(req, req.params.studyId), r.session);
   };
 }
 router.put('/api/teacher/:studyId/session/done', requireAuth, flagSession('done'));
@@ -1040,10 +1047,11 @@ router.post('/api/teacher/review', requireAuth, aiLimiter, async (req, res) => {
   let session;
   try { session = findSession(readSessions(), req.session.userId, study.id, kind); }
   catch { return storeUnavailable(res); }
-  if (kind === 'lesson') recapLastSection(req, study, session);
   const visible = session ? (session.messages || []).filter(isReaderVisible) : [];
   if (!visible.some(m => m.role === 'user')) {
-    return res.json({ success: true, review: null });   // nothing from the reader yet — nothing to review
+    res.json({ success: true, review: null });   // nothing from the reader yet — nothing to review
+    recapOnEnd(req, study, session);
+    return;
   }
 
   const sections = sessionSections(session, study);
@@ -1140,9 +1148,11 @@ router.post('/api/teacher/review', requireAuth, aiLimiter, async (req, res) => {
     } catch (err) { console.error('[Teacher/review] save:', err.message); }
 
     res.json({ success: true, review });
+    recapOnEnd(req, study, session);   // after the review is saved and sent
   } catch (err) {
     console.error('[Teacher/review]', err.status || '', err.message);
     res.status(500).json({ success: false, error: "The review couldn't be prepared. Please try again." });
+    recapOnEnd(req, study, session);   // the session was still ended
   }
 });
 
