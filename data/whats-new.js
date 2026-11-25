@@ -18,6 +18,13 @@
 
 const WHATS_NEW = [
   {
+    date:  'November 25, 2026',
+    title: 'Study Notes',
+    body:  `Study with a Teacher now keeps what you learn. While the teacher is explaining, highlight anything it says and choose "Save this point," with a note of your own if you like. When you move on from a section or end a session, Iron & Ink writes a short set of key points from that section and saves them for you.
+
+Everything comes together on each study's Study Notes page: section by section, the key points, your saved points, your notes on the study text, and the full teaching from your lessons. Open it from the study's card in your Library, beside Print in an open study, or from the Teacher page.`
+  },
+  {
     date:  'November 22, 2026',
     title: 'Hear the Hard Sounds',
     body:  `The Hebrew and Greek alphabet lessons now have small "Hear it" buttons for the sounds English doesn't have: the catch of Hebrew alef, the throaty ch of chet and Greek chi, the ü of Greek upsilon and the light r of Greek rho. We also clarified a few pronunciation notes.`

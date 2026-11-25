@@ -1,7 +1,9 @@
 (function (global) {
   'use strict';
 
-  function buildModal(message, buttons) {
+  // opts.tick: a tick box under the message, unticked; each button's onClick is
+  // given whether it is ticked.
+  function buildModal(message, buttons, opts) {
     var overlay = document.createElement('div');
     // Tagged so other UI (e.g. the highlight tooltip) can detect that a styled
     // confirm/alert modal is open and suppress itself while it is showing.
@@ -38,6 +40,17 @@
       'margin-bottom:1.5rem',
     ].join(';');
 
+    var tick = null, tickLabel = null;
+    if (opts && opts.tick) {
+      tickLabel = document.createElement('label');
+      tickLabel.style.cssText = 'display:flex;gap:10px;align-items:flex-start;justify-content:center;margin-bottom:1.5rem;color:#F7F0E0;font-family:Georgia,serif;font-size:0.95rem;line-height:1.4;cursor:pointer;';
+      tick = document.createElement('input');
+      tick.type = 'checkbox';
+      tick.style.cssText = 'margin-top:0.2em;flex-shrink:0;';
+      tickLabel.appendChild(tick);
+      tickLabel.appendChild(document.createTextNode(opts.tick));
+    }
+
     var row = document.createElement('div');
     row.style.cssText = 'display:flex;gap:12px;justify-content:center;flex-wrap:wrap;';
 
@@ -70,12 +83,13 @@
       }
       btn.addEventListener('click', function () {
         document.body.removeChild(overlay);
-        if (def.onClick) def.onClick();
+        if (def.onClick) def.onClick(tick ? tick.checked : undefined);
       });
       row.appendChild(btn);
     });
 
     card.appendChild(msg);
+    if (tickLabel) card.appendChild(tickLabel);
     card.appendChild(row);
     overlay.appendChild(card);
 
@@ -93,11 +107,11 @@
     document.body.appendChild(overlay);
   }
 
-  global.showConfirm = function (message, confirmLabel, onConfirm, onCancel) {
+  global.showConfirm = function (message, confirmLabel, onConfirm, onCancel, opts) {
     buildModal(message, [
       { label: confirmLabel || 'Confirm', primary: true,  onClick: onConfirm },
       { label: 'Cancel',                  primary: false, onClick: onCancel  },
-    ]);
+    ], opts);
   };
 
   // Several choices: [{ label, primary?, cancel?, onClick }], shown in order.

@@ -8370,6 +8370,16 @@ body {
 .recap-title { font-weight: 600; color: var(--accent); margin-bottom: 0.4em; }
 .recap-saved { font-size: 0.82em; font-style: italic; color: var(--warm-brown); }
 .sn-keypoints { margin-bottom: 0.8em; }
+.sn-foot { margin-top: 1.5em; }
+/* Printed Study Notes (study-notes.js printNow fills #printArea) */
+@media print {
+  #printArea .sn-sub { margin-top: 0.8em; }
+  #printArea .sn-note { margin: 0 0 0.8em; padding: 0 0 0 0.8em; border: none; border-left: 2px solid #999; break-inside: avoid; }
+  #printArea .sn-content { display: block; }
+  #printArea .chat-msg { max-width: none; display: block; margin-bottom: 0.8em; }
+  #printArea .msg-content { padding: 0; border: none; color: #000; }
+  #printArea .msg-role, #printArea .sn-muted, #printArea .sn-part1 { color: #444; }
+}
 .sn-fold-all { display: inline-flex; gap: 14px; }
 .sn-head { display: flex; align-items: baseline; justify-content: space-between; gap: 4px 18px; }
 .sn-head .sn-title { min-width: 0; margin-bottom: 0; }

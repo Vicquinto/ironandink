@@ -394,6 +394,7 @@
       if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
     }
     var fold = {
+      title: title,
       content: content,
       sec: sec,
       inside: function () { return []; },
@@ -512,6 +513,110 @@
     if (b) b.addEventListener('click', function () { setAll(x[1]); });
   });
   if (!body.querySelector('.sn-section:not([hidden])')) body.appendChild(el('p', 'sn-muted', 'Nothing here yet.'));
+
+  // ── Delete these Study Notes ─────────────────────────────────────────────
+  var foot = document.getElementById('snFoot');
+  if (foot && BOOT.canDelete) {
+    var del = el('button', 'btn-discard', 'Delete these Study Notes');
+    del.type = 'button';
+    del.addEventListener('click', function () {
+      if (typeof window.showConfirm !== 'function') return;
+      window.showConfirm(
+        'Delete your saved points and section recaps for this study? This can\'t be undone. Your notes on the study text are not affected; they stay with the study.',
+        'Delete',
+        function (lessons) {
+          del.disabled = true;
+          fetch('/api/study-notes/' + encodeURIComponent(BOOT.studyId), {
+            method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ lessons: lessons === true }),
+          })
+            .then(function (r) { return r.json(); })
+            .then(function (d) { if (!d || !d.success) throw new Error((d && d.error) || 'Please try again.'); window.location.reload(); })
+            .catch(function (err) { del.disabled = false; alertSafe(err.message); });
+        },
+        null, { tick: 'Also delete earlier lessons kept from Start over' });
+    });
+    foot.appendChild(del);
+  }
+
+  // ── Print ────────────────────────────────────────────────────────────────
+  // The site's print area (styles.css #printArea): a copy of every section, open,
+  // without the controls; the full teaching only if asked for.
+  function printCopy(content) {
+    var copy = content.cloneNode(true);
+    copy.removeAttribute('id');
+    copy.querySelectorAll('.sn-keypoints').forEach(function (k) { if (!k.querySelector('.recap-lines')) k.remove(); });
+    copy.querySelectorAll('button, form, textarea, label, details, .sn-point-row, .sn-point-form, .sn-move-list, .sn-note-open, [hidden], [role="status"]')
+      .forEach(function (n) { n.remove(); });
+    copy.querySelectorAll('[id]').forEach(function (n) { n.removeAttribute('id'); });
+    return copy;
+  }
+  function printLessons(box, lessons) {
+    if (!lessons || !lessons.length) return;
+    var wrap = el('div');
+    wrap.appendChild(el('h4', null, 'Full teaching'));
+    lessons.forEach(function (l) { renderLesson(wrap, l, true); });
+    box.appendChild(wrap);
+  }
+  function printNow(teaching) {
+    var area = document.getElementById('printArea');
+    if (!area) {
+      area = el('div');
+      area.id = 'printArea';
+      area.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(area);
+    }
+    area.textContent = '';
+    area.appendChild(el('h1', null, BOOT.topic));
+    area.appendChild(el('p', null, 'Study Notes'));
+    area.appendChild(el('p', null, 'Printed ' + fmtDate(new Date().toISOString())));
+    Object.keys(folds).sort(function (a, b) {
+      return folds[a].sec.compareDocumentPosition(folds[b].sec) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+    }).forEach(function (key) {
+      var fold = folds[key];
+      if (fold.sec.hidden) return;
+      // Conversations with no notes of their own print only with the teaching.
+      if (!teaching && (key === 'earlier' || key === 'kept')) return;
+      area.appendChild(el('h2', null, fold.title));
+      var copy = printCopy(fold.content);
+      if (teaching) {
+        if (/^s\d+$/.test(key)) printLessons(copy, teaching.sections[key.slice(1)]);
+        if (key === 'earlier') current.forEach(function (e) { printLessons(copy, teaching.earlier[e.key]); });
+        if (key === 'kept') kept.forEach(function (e) { printLessons(copy, teaching.earlier[e.key]); });
+      }
+      area.appendChild(copy);
+    });
+    // One NASB notice at the end, in place of one under each passage.
+    var nasb = BOOT.studyNasb && !!area.querySelector('.sn-note-quote');
+    area.querySelectorAll('.recap-notice, em').forEach(function (n) {
+      if (n.textContent.trim() !== BOOT.nasbNotice) return;
+      nasb = true;
+      n.remove();
+    });
+    if (!nasb && /NASB/.test(area.textContent)) nasb = true;
+    if (nasb) area.appendChild(el('p', null, BOOT.nasbNotice));
+    area.querySelectorAll('a').forEach(function (a) { a.replaceWith(document.createTextNode(a.textContent)); });
+
+    document.body.classList.add('is-printing');
+    window.addEventListener('afterprint', function done() {
+      window.removeEventListener('afterprint', done);
+      document.body.classList.remove('is-printing');
+      area.textContent = '';
+    });
+    window.print();
+  }
+  var printBtn = document.getElementById('snPrint');
+  if (printBtn) {
+    printBtn.addEventListener('click', function () {
+      if (typeof window.showConfirm !== 'function') { printNow(null); return; }
+      window.showConfirm('Print these Study Notes?', 'Print', function (withTeaching) {
+        if (!withTeaching) { printNow(null); return; }
+        fetch('/api/study-notes/' + encodeURIComponent(BOOT.studyId) + '/teaching?all=1')
+          .then(function (r) { return r.json(); })
+          .then(function (d) { if (!d || !d.success) throw new Error(); printNow(d); })
+          .catch(function () { alertSafe('The full teaching couldn’t be loaded, so nothing was printed. Please try again.'); });
+      }, null, { tick: 'Include the full teaching' });
+    });
+  }
 
   if (window.IronInkTextSize) {
     window.IronInkTextSize.attach({

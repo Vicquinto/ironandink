@@ -155,7 +155,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '', head =
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/shepherd.css">
   ${head}
-  <link rel="stylesheet" href="/css/styles.css?v=126">
+  <link rel="stylesheet" href="/css/styles.css?v=127">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
@@ -215,7 +215,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '', head =
   </script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="/js/html-sanitizer.js?v=2"></script>
-  <script src="/js/modal.js?v=12"></script>
+  <script src="/js/modal.js?v=13"></script>
   <script src="/js/app.js?v=8"></script>
   <script src="/js/dictionary.js?v=11"></script>
   <script src="/socket.io/socket.io.js"></script>

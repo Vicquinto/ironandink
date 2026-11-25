@@ -101,6 +101,41 @@ router.get('/help', requireAuth, (req, res) => {
 
         <hr class="copy-rule">
 
+        <div class="copy-section-heading">Study Notes</div>
+        <p class="copy-body">Study Notes keeps what you learn in Study with a Teacher, one page per study. Open it from the study&#39;s card in your Library, beside Print in an open study, or from the Teacher page.</p>
+        <ul class="welcome-feature-list" style="margin-top:16px;">
+          <li class="welcome-feature-item">
+            <span class="welcome-feature-name">Saving a point</span>
+            <span class="welcome-feature-desc">On a computer, select part of one of the teacher&#39;s finished replies and choose <strong>Save this point</strong> beside it. On a phone, select the words and tap <strong>Save this point</strong> in the bar below the conversation. You can add a note of your own. Scripture in a point is kept as its reference, and always shown from the verified text.</span>
+          </li>
+          <li class="welcome-feature-item">
+            <span class="welcome-feature-name">Key points</span>
+            <span class="welcome-feature-desc">A short AI summary of the teaching in one section, written when you move on from it or end a session. If a section has teaching but no key points, press <strong>Create recap</strong>. It is a summary, so the full teaching is there to check it against.</span>
+          </li>
+          <li class="welcome-feature-item">
+            <span class="welcome-feature-name">What&#39;s on the page</span>
+            <span class="welcome-feature-desc">Section by section, in the study&#39;s order: the key points, your saved points, your notes on the study text, and the full teaching from your lessons. Points and notes that belong to no section come after.</span>
+          </li>
+          <li class="welcome-feature-item">
+            <span class="welcome-feature-name">Sections</span>
+            <span class="welcome-feature-desc">Click a section&#39;s title to open or close it, or use <strong>Expand all</strong> and <strong>Collapse all</strong>. <strong>Teach me this section</strong>, beside each title, opens the teacher there.</span>
+          </li>
+          <li class="welcome-feature-item">
+            <span class="welcome-feature-name">Moving a point</span>
+            <span class="welcome-feature-desc">Choose <strong>Move to section&#8230;</strong> under a saved point to place it under another section.</span>
+          </li>
+          <li class="welcome-feature-item">
+            <span class="welcome-feature-name">Printing</span>
+            <span class="welcome-feature-desc">Choose <strong>Print</strong> at the top of the page. You can include the full teaching.</span>
+          </li>
+          <li class="welcome-feature-item">
+            <span class="welcome-feature-name">Deleting</span>
+            <span class="welcome-feature-desc"><strong>Delete these Study Notes</strong>, at the bottom of the page, removes your saved points and key points for that study, and earlier lessons kept from Start over if you tick the box. Your notes on the study text and your current lesson stay. Deleting a lesson removes that conversation but keeps your points and key points. Deleting a study from your Library also deletes your Study Notes, notes and Teacher sessions for it.</span>
+          </li>
+        </ul>
+
+        <hr class="copy-rule">
+
         <div class="copy-section-heading">A Few Things Worth Knowing</div>
         <div class="welcome-highlight-note" style="margin-top:16px;">
           <strong>The highlight tooltip.</strong> Highlight any word or phrase of text on the page, and a small toolbar appears &mdash; letting you define it, ask a question about it, or look up a related verse, right where you&#39;re reading. You can also pin an answer to keep it handy as you study, or share it into a Live Room&#39;s chat. Press <strong>Ctrl + Alt + T</strong> to bring it up anytime.

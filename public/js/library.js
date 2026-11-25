@@ -890,10 +890,11 @@
     else showConfirm(message, deleteLabel, onDelete);   // older modal.js still cached
   }
 
+  var DELETE_NOTES = 'Your Study Notes and Teacher sessions for this study will be deleted too.';
   async function buildDeleteMessage(study) {
     var lead = DELETE_LEAD + (study && study.archived !== true ? ' ' + ARCHIVE_HINT : '');
     var warnings = await deleteWarnings(study);
-    return [lead].concat(warnings).join('\n\n');
+    return [lead, DELETE_NOTES].concat(warnings).join('\n\n');
   }
 
   // What else a delete touches, beyond the lead: Community feed, note count,
@@ -940,7 +941,7 @@
         applyFilters();
         return true;
       } else {
-        showAlert('Could not delete study.');
+        showAlert(data.error || 'Could not delete study.');
       }
     } catch (err) {
       showAlert('Error: ' + err.message);
@@ -957,7 +958,7 @@
       'The idea keeps its title, subject, type and depth, so you can study it again later from the Study page. ' +
       'The study itself is deleted permanently and disappears from your Study Map, along with its notes and bookmark.';
     var tail = (study && study.archived !== true) ? [ARCHIVE_HINT] : [];
-    return [lead].concat(warnings).concat(tail).join('\n\n');
+    return [lead, DELETE_NOTES].concat(warnings).concat(tail).join('\n\n');
   }
 
   // Idea first, then the existing delete — so a failed save never costs a study.

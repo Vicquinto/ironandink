@@ -3,11 +3,12 @@ const { randomUUID } = require('crypto');
 const rateLimit = require('express-rate-limit');
 const { requireAuth, renderLayout } = require('./layout');
 const { escapeHtml, inlineJson } = require('../lib/html');
-const { sessionsStore, keptStore } = require('../lib/teacher-store');
+const { sessionsStore, keptStore, deleteKeptLessons } = require('../lib/teacher-store');
+const { NASB_ATTRIBUTION } = require('../lib/asv');
 const teacher = require('./teacher');
 const notepad = require('./notepad');
-const { notesStore, findRecord, isTagged, inSection, capturePoint, shownRange, POINT_MAX, NOTE_MAX, POINTS_MAX } = require('../lib/study-notes');
-const { makeRecap, waitFor, displayRecap } = require('../lib/section-recap');
+const { notesStore, findRecord, deleteStudyNotes, isTagged, inSection, capturePoint, shownRange, POINT_MAX, NOTE_MAX, POINTS_MAX } = require('../lib/study-notes');
+const { makeRecap, waitFor, waitForAll, displayRecap } = require('../lib/section-recap');
 const { aiLimiter } = require('../middleware/rateLimit');
 
 // ─── Study Notes ───────────────────────────────────────────────────────────────
@@ -77,11 +78,24 @@ router.get('/api/study-notes/available', requireAuth, (req, res) => {
 // ─── GET /api/study-notes/:studyId/teaching ───────────────────────────────────
 // ?section=N      → that section's tagged messages, one entry per lesson
 // ?earlier=<key>  → one lesson's untagged messages ('current' or a kept session id)
+// ?all=1          → everything, for printing: { sections: { N: [...] }, earlier: { key: [...] } }
 router.get('/api/study-notes/:studyId/teaching', requireAuth, (req, res) => {
   if (teacher.memberGated(req)) return res.status(402).json({ success: false, error: 'member_feature', upgradeUrl: '/pricing' });
   let lessons;
   try { lessons = lessonsFor(req.session.userId, req.params.studyId); }
   catch { return res.status(500).json({ success: false, error: 'The teaching is unavailable right now.' }); }
+
+  if (req.query.all === '1') {
+    const sections = {}, earlier = {};
+    const ns = new Set();
+    lessons.forEach(l => l.messages.filter(isTagged).forEach(m => {
+      ns.add(m.section);
+      if (Number.isInteger(m.endsSection)) ns.add(m.endsSection);
+    }));
+    ns.forEach(n => { sections[n] = pickLessons(lessons, m => inSection(m, n)); });
+    lessons.forEach(l => { const got = pickLessons([l], m => !isTagged(m)); if (got.length) earlier[l.key] = got; });
+    return res.json({ success: true, sections, earlier });
+  }
 
   let pick;
   if (typeof req.query.earlier === 'string') {
@@ -92,13 +106,16 @@ router.get('/api/study-notes/:studyId/teaching', requireAuth, (req, res) => {
     if (!(n >= 0)) return res.status(400).json({ success: false, error: 'Unknown section.' });
     pick = m => inSection(m, n);
   }
-  const out = lessons.map(l => {
+  res.json({ success: true, lessons: pickLessons(lessons, pick) });
+});
+// Each lesson's matching messages as the page shows them, under that lesson's date.
+function pickLessons(lessons, pick) {
+  return lessons.map(l => {
     const picked = l.messages.filter(pick);
     const last = picked[picked.length - 1];
     return { current: l.current, sessionId: l.sessionId, date: (last && last.at) || l.date, messages: teacher.displayMessages(picked) };
   }).filter(l => l.messages.length);
-  res.json({ success: true, lessons: out });
-});
+}
 
 // ─── GET /study-notes/:studyId ────────────────────────────────────────────────
 router.get('/study-notes/:studyId', requireAuth, (req, res) => {
@@ -176,6 +193,10 @@ router.get('/study-notes/:studyId', requireAuth, (req, res) => {
       show: p.kind === 'lesson' ? showTarget(lessons, p) : null,
     })),
     earlier,
+    // Print: the notice, and whether the study's own text (which notes quote) is NASB.
+    nasbNotice: NASB_ATTRIBUTION,
+    studyNasb:  !!study && /NASB/.test(String(study.content || '')),
+    canDelete:  points.length > 0 || recaps.length > 0 || lessons.some(l => !l.current),
   };
 
   res.send(renderLayout({
@@ -194,6 +215,7 @@ router.get('/study-notes/:studyId', requireAuth, (req, res) => {
             <button type="button" class="sn-btn" id="snExpandAll">Expand all</button>
             <button type="button" class="sn-btn" id="snCollapseAll">Collapse all</button>
           </span>
+          <button type="button" class="sn-btn" id="snPrint">Print</button>
           <span class="ucp-zoom" role="group" aria-label="Study Notes text size">
             <button type="button" class="guide-font-btn guide-font-btn-sm" id="snFontDec" title="Smaller notes text" aria-label="Smaller notes text">A&#8722;</button>
             <button type="button" class="guide-font-btn guide-font-btn-md" id="snFontReset" title="Default notes text" aria-label="Default notes text">A</button>
@@ -203,12 +225,13 @@ router.get('/study-notes/:studyId', requireAuth, (req, res) => {
       </div>
       ${study ? '' : '<p class="sn-unavailable">This study is no longer available.</p>'}
       <div class="sn-body" id="snBody"></div>
+      <div class="sn-foot" id="snFoot"></div>
     </div>`,
     scripts: `<script src="/js/render-markdown.js?v=2"></script>
 <script src="/js/teacher-entry.js?v=11"></script>
 <script src="/js/text-size.js?v=1"></script>
 <script>window.STUDY_NOTES_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/study-notes.js?v=6"></script>`,
+<script src="/js/study-notes.js?v=7"></script>`,
   }));
 });
 
@@ -375,6 +398,29 @@ router.delete('/api/study-notes/:studyId/points/:pointId', requireAuth, gate, wr
   points.splice(i, 1);
   return {};
 }));
+
+// ─── DELETE /api/study-notes/:studyId ─────────────────────────────────────────
+// "Delete these Study Notes" (body: { lessons: true } to also delete lessons kept by
+// Start over). The member's own points and recaps for this study only; never
+// notepad notes or the current Teacher session.
+router.delete('/api/study-notes/:studyId', requireAuth, writeLimiter, async (req, res) => {
+  const userId  = req.session.userId;
+  const studyId = req.params.studyId;
+  const lessons = !!(req.body && req.body.lessons === true);
+  try {
+    notesStore.read();
+    if (lessons) keptStore.read();
+  } catch { return notesUnavailable(res); }
+  try {
+    await waitForAll(userId, studyId);
+    if (lessons) await deleteKeptLessons(userId, studyId);
+    await deleteStudyNotes(userId, studyId);
+  } catch (err) {
+    console.error('[study-notes] delete all:', err.message);
+    return res.status(500).json({ success: false, error: 'Not everything could be deleted. Please try again.' });
+  }
+  res.json({ success: true });
+});
 
 // ─── Section recaps ───────────────────────────────────────────────────────────
 // The recap a Teacher reply just started (Teacher page): waits for it, and returns
