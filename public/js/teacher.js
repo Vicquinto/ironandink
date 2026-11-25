@@ -293,24 +293,8 @@
       .replace(/"/g, '&quot;');
   }
 
-  // Dialogue's renderText, plus set-apart verse lines: the server injects block
-  // verses as "> “…” — Ref (NASB 1995)". Everything is escaped BEFORE any markup
-  // is added, and the result still passes through the shared sanitizer.
-  function renderTeacherText(text) {
-    var lines = String(text).replace(/\s+$/, '').split('\n');
-    var html = lines.map(function (line) {
-      var bq = line.match(/^>\s?(.*)$/);
-      var body = esc(bq ? bq[1] : line)
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.+?)\*/g,     '<em>$1</em>');
-      return bq ? '<blockquote class="guide-bq">' + body + '</blockquote>' : body;
-    }).join('\n')
-      .replace(/\n*(<blockquote)/g, '$1')
-      .replace(/(<\/blockquote>)\n*/g, '$1')
-      .replace(/\n\n/g, '<br><br>')
-      .replace(/\n/g, '<br>');
-    return window.IronInkSanitize ? window.IronInkSanitize.sanitize(html, 'markdown') : html;
-  }
+  // Escape-first, then sanitized (teacher-entry.js, shared with Study Notes).
+  function renderTeacherText(text) { return window.IronInkTeacher.renderReply(text); }
 
   // ── Message UI ───────────────────────────────────────────────────────────
   function scrollChat() { messagesEl.scrollTop = messagesEl.scrollHeight; }

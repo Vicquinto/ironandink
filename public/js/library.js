@@ -14,6 +14,10 @@
   // [{ kind, updatedAt }], for the "In progress" view.
   var teacherProgress       = {};
   var teacherProgressLoaded = false;
+  // Study Notes (GET /api/study-notes/available): whether this member has the page,
+  // and which studies have something on it.
+  var studyNotesAllowed = false;
+  var studyNotesIds     = new Set();
   var showingInProgress     = false;  // the view renderCards is drawing
 
   // ── Load studies on page load ──────────────────────────────────────────────
@@ -27,6 +31,7 @@
       applyFilters();
       loadStudyBookmarks();
       loadTeacherProgress();
+      loadStudyNotes();
     } catch (err) {
       document.getElementById('studyCardsGrid').innerHTML =
         '<p class="library-empty">Failed to load studies. Please refresh.</p>';
@@ -61,6 +66,29 @@
       })
       .catch(function () {})
       .then(function () { teacherProgressLoaded = true; applyFilters(); });
+  }
+  // Best effort: without it there are simply no Study Notes links.
+  function loadStudyNotes() {
+    fetch('/api/study-notes/available')
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.success || !Array.isArray(d.studyIds)) return;
+        studyNotesAllowed = d.allowed === true;
+        studyNotesIds = new Set(d.studyIds);
+        applyFilters();
+        syncNotesLinks();
+      })
+      .catch(function () {});
+  }
+  function studyNotesHref(id) { return '/study-notes/' + encodeURIComponent(id); }
+  // The open study's toolbar link and the Notes tab's links.
+  function syncNotesLinks() {
+    var link = document.getElementById('libNotesLink');
+    if (link) {
+      link.hidden = !(studyNotesAllowed && currentInlineStudy && currentInlineStudy.id);
+      if (!link.hidden) link.href = studyNotesHref(currentInlineStudy.id);
+    }
+    document.querySelectorAll('.notes-group-sn').forEach(function (a) { a.hidden = !studyNotesAllowed; });
   }
   function inProgressOf(id) {
     return Object.prototype.hasOwnProperty.call(teacherProgress, id) ? teacherProgress[id] : null;
@@ -176,6 +204,19 @@
         else card.appendChild(placeLine);
       }
 
+      // Study Notes, when this study has something there.
+      if (studyNotesAllowed && studyNotesIds.has(id)) {
+        var snLine = document.createElement('div');
+        snLine.className = 'study-card-teacher';
+        var snLink = document.createElement('a');
+        snLink.className = 'study-card-teacher-go';
+        snLink.href = studyNotesHref(id);
+        snLink.textContent = 'Study Notes';
+        snLine.appendChild(snLink);
+        var snFooter = card.querySelector('.study-card-footer');
+        if (snFooter) card.insertBefore(snLine, snFooter); else card.appendChild(snLine);
+      }
+
       // In progress view: one line per unfinished Teacher session, with its
       // Continue link (opens the resume panel; never starts anything new).
       var progress = showingInProgress ? inProgressOf(id) : null;
@@ -208,7 +249,7 @@
       // is only a second line of defence.
       card.addEventListener('click', function (e) {
         if (selectMode) return;
-        // A Teacher Continue link navigates on its own.
+        // A Teacher Continue or Study Notes link navigates on its own.
         if (e.target.closest && e.target.closest('.study-card-teacher-go')) return;
         if (e.target.classList.contains('card-edit-btn') ||
             e.target.classList.contains('card-idea-btn') ||
@@ -613,7 +654,7 @@
 
   function showStudyInline(study) {
     if (!libGuideArea) return;
-    currentInlineStudy = study; // remember which study a Further-Studies click branches from
+    currentInlineStudy = study; syncNotesLinks(); // remember which study a Further-Studies click branches from
     renderArchivedNote(study);
     // List-only controls (select toolbar, "N more in Archived") step aside.
     if (selectMode) { selectMode = false; selected.clear(); syncSelectMode(); }
@@ -687,6 +728,7 @@
   function backToLibrary() {
     if (libGuideArea) libGuideArea.style.display = 'none';
     currentInlineStudy = null; // no study is shown inline anymore
+    loadStudyNotes();          // a note made while reading may add a card link
     clearLineageRegions(); // don't leave stale lineage behind the hidden view
     if (studyCardsGrid) studyCardsGrid.style.display = '';
     if (libFilterBar)   libFilterBar.style.display   = '';
@@ -1347,6 +1389,7 @@
           return '<div class="notes-group">' +
               '<div class="notes-group-head">' +
                 '<span class="notes-group-title">' + esc(g.studyTitle) + '</span>' +
+                '<a class="sn-link notes-group-sn" href="/study-notes/' + encodeURIComponent(g.studyId) + '"' + (studyNotesAllowed ? '' : ' hidden') + '>Study Notes</a>' +
                 openBtn +
               '</div>' +
               notesHtml +

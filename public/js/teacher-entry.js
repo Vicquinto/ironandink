@@ -289,7 +289,31 @@
     }
   }
 
+  // ── A Teacher reply's text as HTML (Teacher page, Study Notes) ──────────────
+  function escText(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  // Dialogue's renderText, plus set-apart verse lines: the server injects block
+  // verses as "> “…” — Ref (NASB 1995)". Everything is escaped BEFORE any markup
+  // is added, and the result still passes through the shared sanitizer.
+  function renderReply(text) {
+    var lines = String(text).replace(/\s+$/, '').split('\n');
+    var html = lines.map(function (line) {
+      var bq = line.match(/^>\s?(.*)$/);
+      var body = escText(bq ? bq[1] : line)
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g,     '<em>$1</em>');
+      return bq ? '<blockquote class="guide-bq">' + body + '</blockquote>' : body;
+    }).join('\n')
+      .replace(/\n*(<blockquote)/g, '$1')
+      .replace(/(<\/blockquote>)\n*/g, '$1')
+      .replace(/\n\n/g, '<br><br>')
+      .replace(/\n/g, '<br>');
+    return global.IronInkSanitize ? global.IronInkSanitize.sanitize(html, 'markdown') : html;
+  }
+
   global.IronInkTeacher = {
+    renderReply:         renderReply,
     attach:              attach,
     remove:              remove,
     sectionHeadings:     sectionHeadings,

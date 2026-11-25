@@ -247,3 +247,12 @@ router.delete('/api/notepad/:studyId/note/:noteId', requireAuth, async (req, res
 module.exports = router;
 // Expose the cascade helper so the Library delete route can clean up notes.
 module.exports.deleteNotepadsForStudy = deleteNotepadsForStudy;
+// Read only, for Study Notes (routes/study-notes.js). Both throw if the store
+// is damaged.
+module.exports.notesFor = (studyId, userId) => {
+  const pad = findNotepad(notepadStore.read(), studyId, userId);
+  return pad ? sortNotes(pad.notes || []) : [];
+};
+module.exports.studyIdsWithNotes = userId => notepadStore.read()
+  .filter(p => p.userId === userId && (p.notes || []).length)
+  .map(p => p.studyId);

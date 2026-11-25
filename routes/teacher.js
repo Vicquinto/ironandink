@@ -273,8 +273,9 @@ function isReaderVisible(m) { return !m.hidden || !!m.display; }
 // Transcript for display: hidden (system-authored) turns dropped, button taps
 // shown by their label, assistant turns get verified verse text injected plus
 // the Lockman notice when NASB appears.
-function displayTranscript(session) {
-  return (session.messages || [])
+function displayTranscript(session) { return displayMessages(session.messages); }
+function displayMessages(messages) {
+  return (messages || [])
     .filter(isReaderVisible)
     .map(m => ({
       role:    m.role,
@@ -457,7 +458,10 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
           <span class="teacher-topbar-label">${modeLabel}</span>
           <h2 class="teacher-topbar-title">${escapeHtml(study.topic)}</h2>
         </div>
-        <a class="btn-warm teacher-back-link" href="${isOwner ? '/library' : '/community'}">&#8592; Back</a>
+        <div class="teacher-topbar-links">
+          <a class="sn-link" href="/study-notes/${escapeHtml(encodeURIComponent(study.id))}">Study Notes</a>
+          <a class="btn-warm teacher-back-link" href="${isOwner ? '/library' : '/community'}">&#8592; Back</a>
+        </div>
       </div>
 
       <div class="teacher-workspace">
@@ -562,6 +566,7 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
         <div id="teacherReviewActions" class="end-session-actions" style="display:none;">
           <button class="btn-primary" id="teacherNextBtn" style="display:none;">Study this next &#8594;</button>
           <button class="btn-warm" id="teacherKeepBtn">Back to the study</button>
+          <a class="btn-warm" href="/study-notes/${escapeHtml(encodeURIComponent(study.id))}">Study Notes</a>
           <!-- Takes the session off "Pick up where you left off"; it stays saved. -->
           <button class="btn-warm" id="teacherDoneBtn">I&#8217;m done with this session</button>
           <button class="btn-discard" id="teacherReviewDeleteBtn">Delete saved session</button>
@@ -576,9 +581,9 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
     title: 'Study with a Teacher',
     content,
     scripts: `<script src="/js/render-markdown.js?v=2"></script>
-<script src="/js/teacher-entry.js?v=8"></script>
+<script src="/js/teacher-entry.js?v=9"></script>
 <script>window.TEACHER_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/teacher.js?v=13"></script>`,
+<script src="/js/teacher.js?v=14"></script>`,
   }));
 });
 
@@ -1083,3 +1088,5 @@ module.exports = router;
 // The reader-control instructions, for the Languages lesson teacher
 // (routes/languages.js reuses "Say that more simply" word for word).
 module.exports.TEACHER_ACTIONS = ACTIONS;
+// Study Notes (routes/study-notes.js) reads lessons by the same rules.
+Object.assign(module.exports, { memberGated, findReadableStudy, parseLessonSections, isReaderVisible, displayMessages });
