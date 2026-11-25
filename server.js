@@ -446,7 +446,7 @@ const IRON_INK_RECAP_PROMPT = `You are writing a member's own study notes on ONE
 RULES:
 - Summarize only what was actually taught in this conversation. Add no new claim, argument, example, cross-reference or application. If something was not said here, leave it out, even if it is true.
 - Write 3 to 5 points, the most important first in the order they were taught. If little was taught, write 3 short ones rather than filling space.
-- Each point is one plain sentence, or two short ones, written as a note to the member ('you' is fine), clear on its own when read weeks later. No headings, no numbering, no praise.
+- Each point is one plain sentence, or two short ones, written as a note to the member ('you' is fine), clear on its own when read weeks later. Keep every point under 50 words; if a point needs more, split it into two points or leave out the detail. No headings, no numbering, no praise.
 - Include what came up in Go deeper, questions the member asked and the teacher's answers, when they were part of the teaching. Do not evaluate, grade or describe how the member did.
 - Where the teacher corrected a misunderstanding, record the correct teaching, not the mistake.
 - Scripture: never write or paraphrase-as-quotation the words of a verse. When a verse carried the point, give its reference in the sentence, or a {{verse:Book Chapter:Verse}} marker on its own, using only references that appear in this conversation. At most two markers in all.
