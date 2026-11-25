@@ -314,6 +314,7 @@
 
   global.IronInkTeacher = {
     renderReply:         renderReply,
+    teacherUrl:          teacherUrl,
     attach:              attach,
     remove:              remove,
     sectionHeadings:     sectionHeadings,

@@ -170,7 +170,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/study-badges.js?v=5"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=3"></script><script src="/js/study-bookmark.js?v=2"></script><script src="/js/opposing-views.js?v=2"></script><script src="/js/teacher-entry.js?v=9"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/orig-words.js?v=2"></script><script src="/js/library.js?v=87"></script>',
+    scripts: '<script src="/js/study-badges.js?v=5"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=3"></script><script src="/js/study-bookmark.js?v=2"></script><script src="/js/opposing-views.js?v=2"></script><script src="/js/teacher-entry.js?v=10"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/orig-words.js?v=2"></script><script src="/js/library.js?v=87"></script>',
   }));
 });
 

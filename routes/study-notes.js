@@ -184,10 +184,10 @@ router.get('/study-notes/:studyId', requireAuth, (req, res) => {
       <div class="sn-body" id="snBody"></div>
     </div>`,
     scripts: `<script src="/js/render-markdown.js?v=2"></script>
-<script src="/js/teacher-entry.js?v=9"></script>
+<script src="/js/teacher-entry.js?v=10"></script>
 <script src="/js/text-size.js?v=1"></script>
 <script>window.STUDY_NOTES_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/study-notes.js?v=2"></script>`,
+<script src="/js/study-notes.js?v=3"></script>`,
   }));
 });
 
@@ -319,7 +319,8 @@ function changePoint(change) {
         const i = rec ? (rec.points || []).findIndex(p => p.id === req.params.pointId) : -1;
         if (i === -1) return { changed: false, found: false };
         const now = new Date().toISOString();
-        const out = change(rec.points, i, req.body || {}, now);
+        const out = change(rec.points, i, req.body || {}, now, { req, rec });
+        if (out.refused) return { changed: false, found: true, refused: true };
         rec.updatedAt = now;
         return Object.assign({ changed: true, found: true }, out);
       });
@@ -328,13 +329,31 @@ function changePoint(change) {
       return notesUnavailable(res);
     }
     if (!r.found) return res.status(404).json({ success: false, error: 'That point is no longer here.' });
-    res.json({ success: true, note: r.note });
+    if (r.refused) return res.status(400).json({ success: false, error: 'That section isn’t part of this study.' });
+    res.json({ success: true, note: r.note, section: r.section });
   };
 }
 router.put('/api/study-notes/:studyId/points/:pointId', requireAuth, gate, writeLimiter, changePoint((points, i, body, now) => {
   points[i].note = cleanNote(body.note);
   points[i].updatedAt = now;
   return { note: points[i].note };
+}));
+// Move a point: body { section: N } (one of the study's sections) or
+// { section: null } (no section). Only its place on the page changes; part1 and
+// the link to the teaching still say where the words came from.
+router.put('/api/study-notes/:studyId/points/:pointId/section', requireAuth, gate, writeLimiter, changePoint((points, i, body, now, { req, rec }) => {
+  if (!Object.prototype.hasOwnProperty.call(body, 'section')) return { refused: true };
+  let sec = null;
+  if (body.section !== null) {
+    const study = teacher.findReadableStudy(req, req.params.studyId);
+    const list  = study ? teacher.parseLessonSections(study.content) : (Array.isArray(rec.sections) ? rec.sections : []);
+    sec = Number.isInteger(body.section) ? list.find(s => s.n === body.section) : null;
+    if (!sec) return { refused: true };
+  }
+  points[i].section      = sec ? sec.n : null;
+  points[i].sectionTitle = sec ? sec.title : null;
+  points[i].updatedAt    = now;
+  return { section: points[i].section };
 }));
 router.delete('/api/study-notes/:studyId/points/:pointId', requireAuth, gate, writeLimiter, changePoint((points, i) => {
   points.splice(i, 1);

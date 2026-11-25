@@ -149,8 +149,8 @@
   function queryFor(show) {
     return show.earlier ? 'earlier=' + encodeURIComponent(show.earlier) : 'section=' + show.section;
   }
-  function pointApi(id, method, data) {
-    return fetch('/api/study-notes/' + encodeURIComponent(BOOT.studyId) + '/points/' + encodeURIComponent(id), {
+  function pointApi(path, method, data) {
+    return fetch('/api/study-notes/' + encodeURIComponent(BOOT.studyId) + '/points/' + path, {
       method: method, headers: { 'Content-Type': 'application/json' }, body: data ? JSON.stringify(data) : undefined,
     })
       .then(function (r) { return r.json(); })
@@ -164,8 +164,9 @@
     return b;
   }
 
-  function pointCard(p, onGone) {
+  function pointCard(p, order) {
     var card = el('div', 'sn-note sn-point');
+    card.setAttribute('data-order', String(order));
     if (p.part1) card.appendChild(el('p', 'sn-part1', 'From Part 1 (the opposing view)'));
     var text = el('div', 'sn-point-text');
     if (window.IronInkTeacher && window.IronInkTeacher.renderReply) text.innerHTML = window.IronInkTeacher.renderReply(p.content);
@@ -199,9 +200,10 @@
     }
     var editBtn = linkButton(p.note ? 'Edit note' : 'Add a note', edit);
     row.appendChild(editBtn);
+    row.appendChild(moveControl(p, card));
     row.appendChild(linkButton('Delete', function () {
       function go() {
-        pointApi(p.id, 'DELETE').then(function () { card.remove(); onGone(); }).catch(function (err) { alertSafe(err.message); });
+        pointApi(p.id, 'DELETE').then(function () { card.remove(); settle(groups[groupKey(p)]); }).catch(function (err) { alertSafe(err.message); });
       }
       var q = 'Delete this saved point and your note on it?';
       if (typeof window.showConfirm === 'function') window.showConfirm(q, 'Delete', go);
@@ -215,18 +217,105 @@
     }
     return card;
   }
-  // The points under one heading; the heading goes with the last of them.
-  function pointsBlock(parent, title, points) {
-    if (!points.length) return;
-    var wrap = el('div', 'sn-points');
-    if (title) wrap.appendChild(el('h4', 'sn-sub', title));
-    points.forEach(function (p) {
-      wrap.appendChild(pointCard(p, function () { if (!wrap.querySelector('.sn-point')) wrap.remove(); }));
+  // ── Move to section… ─────────────────────────────────────────────────────
+  function noSectionLabel(p) { return p.kind === 'check' ? 'From your understanding check' : 'Other points'; }
+  function moveControl(p, card) {
+    var list = null;
+    var btn = linkButton('Move to section…', function () { if (list) close(true); else open(); });
+    btn.setAttribute('aria-expanded', 'false');
+
+    function close(focusBack) {
+      if (!list) return;
+      list.remove(); list = null;
+      btn.setAttribute('aria-expanded', 'false');
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('click', onOutside);
+      if (focusBack) btn.focus();
+    }
+    function onKey(e) { if (e.key === 'Escape') close(true); }
+    function onOutside(e) { if (list && !list.contains(e.target) && e.target !== btn) close(false); }
+    function open() {
+      list = el('ul', 'sn-move-list');
+      list.setAttribute('aria-label', 'Move this point to');
+      var here = groupKey(p);
+      sections.filter(function (s) { return s.n >= 1; })
+        .map(function (s) { return { section: s.n, title: s.title }; })
+        .concat([{ section: null, title: noSectionLabel(p) }])
+        .forEach(function (o) {
+          var isHere = o.section === null ? here === 'none-' + p.kind : here === 's' + o.section;
+          var b = el('button', 'sn-move-option' + (isHere ? ' is-here' : ''), o.title);
+          b.type = 'button';
+          if (isHere) {
+            b.setAttribute('aria-current', 'true');
+            b.appendChild(el('span', 'sn-move-here', ' (here now)'));
+          }
+          b.addEventListener('click', function () { if (isHere) close(true); else move(o, b); });
+          var li = el('li');
+          li.appendChild(b);
+          list.appendChild(li);
+        });
+      card.appendChild(list);
+      btn.setAttribute('aria-expanded', 'true');
+      document.addEventListener('keydown', onKey);
+      document.addEventListener('click', onOutside);
+      var first = list.querySelector('.is-here') || list.querySelector('button');
+      if (first) first.focus();
+    }
+    function move(o) {
+      var buttons = list.querySelectorAll('button');
+      buttons.forEach(function (b) { b.disabled = true; });
+      pointApi(p.id + '/section', 'PUT', { section: o.section })
+        .then(function (d) {
+          p.section = d.section === undefined ? null : d.section;
+          close(false);
+          placePoint(p, card);
+          btn.focus({ preventScroll: true });
+          card.scrollIntoView({ block: 'nearest' });
+          if (liveEl) liveEl.textContent = 'Moved to ' + o.title;
+        })
+        .catch(function (err) {
+          if (list) buttons.forEach(function (b) { b.disabled = false; });
+          alertSafe(err.message);
+        });
+    }
+    return btn;
+  }
+
+  // ── Where points sit: one group per section, and one for each kind of point
+  // without a section. A group's heading goes with the last of its points.
+  var groups = {};
+  function addGroup(key, section, before, title, whenEmpty) {
+    groups[key] = { section: section, before: before, title: title, whenEmpty: whenEmpty, wrap: null };
+  }
+  function groupKey(p) { return groups['s' + p.section] ? 's' + p.section : 'none-' + p.kind; }
+  function settle(g) {
+    if (g.wrap && !g.wrap.querySelector('.sn-point')) { g.wrap.remove(); g.wrap = null; }
+    g.whenEmpty(!g.wrap);
+  }
+  function placePoint(p, card) {
+    Object.keys(groups).forEach(function (k) {
+      var old = groups[k];
+      if (old.wrap && old.wrap.contains(card)) { card.remove(); settle(old); }
     });
-    parent.appendChild(wrap);
+    var g = groups[groupKey(p)];
+    if (!g.wrap) {
+      g.wrap = el('div', 'sn-points');
+      if (g.title) g.wrap.appendChild(el('h4', 'sn-sub', g.title));
+      g.section.insertBefore(g.wrap, g.before);
+    }
+    // In the order they were saved.
+    var next = null;
+    Array.prototype.slice.call(g.wrap.querySelectorAll('.sn-point')).forEach(function (c) {
+      if (!next && +c.getAttribute('data-order') > +card.getAttribute('data-order')) next = c;
+    });
+    g.wrap.insertBefore(card, next);
+    settle(g);
   }
 
   // ── Page ─────────────────────────────────────────────────────────────────
+  var liveEl = el('p', 'lang-sr-only');
+  liveEl.setAttribute('role', 'status');
+  body.parentNode.appendChild(liveEl);
   var placed = placeNotes();
   var sections = BOOT.sections || [];
   var known = {};
@@ -234,23 +323,33 @@
 
   sections.forEach(function (s) {
     var notes = (BOOT.notes || []).filter(function (n) { return placed[n.id] === s.n; });
-    var points = (BOOT.points || []).filter(function (p) { return p.section === s.n; });
-    var sec = el('section', 'sn-section' + (notes.length || points.length || s.teaching ? '' : ' is-empty'));
-    sec.appendChild(el('h3', 'sn-title', s.title));
-    pointsBlock(sec, 'Your saved points', points);
+    var sec = el('section', 'sn-section');
+    var h = el('h3', 'sn-title');
+    // Opens the Teacher at this section, as "Teach me this section" does.
+    if (BOOT.openHref && s.n >= 1 && window.IronInkTeacher && window.IronInkTeacher.teacherUrl) {
+      var a = el('a', 'sn-title-link', s.title);
+      a.href = window.IronInkTeacher.teacherUrl(BOOT.studyId, 'section', s.n);
+      a.setAttribute('aria-label', 'Study this section with the Teacher: ' + s.title);
+      h.appendChild(a);
+    } else h.textContent = s.title;
+    sec.appendChild(h);
     notesBlock(sec, 'Your notes on the study', notes);
     if (s.teaching) teachingBlock(sec, 'Full teaching', 'section=' + s.n, true);
+    addGroup('s' + s.n, sec, h.nextSibling, 'Your saved points', function (none) {
+      sec.classList.toggle('is-empty', none && !notes.length && !s.teaching);
+    });
+    settle(groups['s' + s.n]);
     body.appendChild(sec);
   });
 
   [['lesson', 'Other points'], ['check', 'From your understanding check']].forEach(function (x) {
-    var rest = (BOOT.points || []).filter(function (p) { return p.kind === x[0] && !known[p.section]; });
-    if (!rest.length) return;
     var o = el('section', 'sn-section');
     o.appendChild(el('h3', 'sn-title', x[1]));
-    pointsBlock(o, null, rest);
+    addGroup('none-' + x[0], o, null, null, function (none) { o.hidden = none; });
+    settle(groups['none-' + x[0]]);
     body.appendChild(o);
   });
+  (BOOT.points || []).forEach(function (p, i) { placePoint(p, pointCard(p, i)); });
 
   var general = (BOOT.notes || []).filter(function (n) { return !known[placed[n.id]]; });
   if (general.length) {
@@ -279,7 +378,7 @@
     });
     body.appendChild(k);
   }
-  if (!body.children.length) body.appendChild(el('p', 'sn-muted', 'Nothing here yet.'));
+  if (!body.querySelector('.sn-section:not([hidden])')) body.appendChild(el('p', 'sn-muted', 'Nothing here yet.'));
 
   if (window.IronInkTextSize) {
     window.IronInkTextSize.attach({
