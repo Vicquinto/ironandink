@@ -566,6 +566,44 @@
       .replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
     return window.IronInkSanitize ? window.IronInkSanitize.sanitize(html, 'markdown') : html;
   }
+  // ── Teacher text size: the same steps and limits as the materials, saved under
+  // its own key. Sets only the messages' font-size (they are em-based), so the
+  // input and quick buttons don't change; the default is the page's own size.
+  var TFONT_DEFAULT = 16;
+  var TFONT_KEY = 'ironink_lang_teacher_font_size';
+  var teacherFont = TFONT_DEFAULT;
+  try { var tv = parseInt(localStorage.getItem(TFONT_KEY), 10); if (tv) teacherFont = Math.min(FONT_MAX, Math.max(FONT_MIN, tv)); } catch (e) {}
+  function setTeacherFont() { messagesEl.style.fontSize = teacherFont === TFONT_DEFAULT ? '' : teacherFont + 'px'; }
+  setTeacherFont();
+  // Keep the same text at the top of the view: note the first visible message
+  // and how far into it the view starts, then scroll back to that point. A view
+  // already at the bottom stays there.
+  function changeTeacherFont(size) {
+    var box = messagesEl.getBoundingClientRect();
+    var atBottom = messagesEl.scrollHeight - messagesEl.scrollTop - messagesEl.clientHeight < 4;
+    var anchor = null, into = 0;
+    for (var i = 0; i < messagesEl.children.length; i++) {
+      var rect = messagesEl.children[i].getBoundingClientRect();
+      if (rect.bottom > box.top) {
+        anchor = messagesEl.children[i];
+        into = rect.height && rect.top < box.top ? (box.top - rect.top) / rect.height : 0;
+        break;
+      }
+    }
+    var gap = anchor && !into ? anchor.getBoundingClientRect().top - box.top : 0;
+    teacherFont = Math.min(FONT_MAX, Math.max(FONT_MIN, size));
+    setTeacherFont();
+    try { localStorage.setItem(TFONT_KEY, teacherFont); } catch (e) {}
+    if (atBottom) { messagesEl.scrollTop = messagesEl.scrollHeight; return; }
+    if (anchor) {
+      var now = anchor.getBoundingClientRect();
+      messagesEl.scrollTop += now.top + into * now.height - gap - messagesEl.getBoundingClientRect().top;
+    }
+  }
+  bindFont('langTeacherFontDec',   function () { changeTeacherFont(teacherFont - FONT_STEP); });
+  bindFont('langTeacherFontReset', function () { changeTeacherFont(TFONT_DEFAULT); });
+  bindFont('langTeacherFontInc',   function () { changeTeacherFont(teacherFont + FONT_STEP); });
+
   function scrollChat() { messagesEl.scrollTop = messagesEl.scrollHeight; }
   function addTeacherMessage(text) {
     var div = el('div', 'chat-msg engine-msg');

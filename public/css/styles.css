@@ -9771,6 +9771,7 @@ a.lang-course-card:hover { border-color: var(--accent); background: rgba(160,132
 .lang-topbar-tools { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 10px 14px; }
 .lang-complete { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .lang-next-link { color: var(--accent); font-size: 0.9rem; }
+.lang-teacher-zoom { margin-left: auto; }
 .lang-materials-pane { font-size: 18px; }
 .lang-materials-tools { display: flex; justify-content: flex-end; margin-bottom: 6px; font-size: 1rem; }
 .lang-materials { line-height: 1.55; overflow-wrap: anywhere; }
@@ -9828,6 +9829,16 @@ a.lang-course-card:hover { border-color: var(--accent); background: rgba(160,132
 }
 .lang-table thead th { background: rgba(160,132,92,0.12); font-weight: 600; color: var(--warm-brown); font-size: 0.9em; }
 .lang-alpha-big { font-size: 1.45em; line-height: 1.2; white-space: nowrap; }
+/* Alphabet tables: words never break (the pane's overflow-wrap: anywhere would
+   let columns shrink below a word). The table is its own sideways scroller. */
+.lang-alpha-table { display: block; max-width: 100%; overflow-x: auto; overflow-wrap: normal; }
+.lang-alpha-table th,
+.lang-alpha-table td[data-label="Name"],
+.lang-alpha-table td[data-label="Written"],
+.lang-alpha-table td[data-label="Final form"] { white-space: nowrap; }
+.lang-alpha-table td[data-label="Sound"],
+.lang-alpha-table td[data-label="Sounds like"],
+.lang-alpha-table td[data-label="Example"] { min-width: 6em; }
 .lang-paradigm-row { font-weight: normal; color: var(--warm-brown); font-size: 0.9em; }
 .lang-form { font-size: 1.2em; }
 .lang-cell-label { font-size: 0.72em; color: var(--warm-brown); }
@@ -9881,6 +9892,8 @@ a.lang-course-card:hover { border-color: var(--accent); background: rgba(160,132
   /* Alphabet table → one block per letter, no sideways scroll. */
   .lang-alpha-table thead { display: none; }
   .lang-alpha-table, .lang-alpha-table tbody, .lang-alpha-table tr, .lang-alpha-table td { display: block; width: 100%; }
+  .lang-alpha-table { overflow-x: visible; overflow-wrap: break-word; }
+  .lang-alpha-table td[data-label] { white-space: normal; min-width: 0; }
   .lang-alpha-table tr { border: 1px solid rgba(160,132,92,0.3); border-radius: 4px; margin-bottom: 0.6em; padding: 0.3em 0; }
   .lang-alpha-table td { border: none; padding: 0.15em 0.6em; }
   .lang-alpha-table td::before { content: attr(data-label) ': '; color: var(--warm-brown); font-size: 0.8rem; }

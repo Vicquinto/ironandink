@@ -273,6 +273,11 @@ router.get('/languages/:course/:lessonId', requireAuth, (req, res) => {
             <span class="teacher-header-meta">
               <span class="conversation-header-title">Your ${escapeHtml(C.name)} teacher</span>
             </span>
+            <span class="ucp-zoom lang-teacher-zoom" role="group" aria-label="Teacher text size">
+              <button type="button" class="guide-font-btn guide-font-btn-sm" id="langTeacherFontDec" title="Smaller teacher text" aria-label="Smaller teacher text">A&#8722;</button>
+              <button type="button" class="guide-font-btn guide-font-btn-md" id="langTeacherFontReset" title="Default teacher text" aria-label="Default teacher text">A</button>
+              <button type="button" class="guide-font-btn guide-font-btn-lg" id="langTeacherFontInc" title="Larger teacher text" aria-label="Larger teacher text">A+</button>
+            </span>
           </div>
 
           <div id="langResume" class="teacher-resume" style="display:none;">
@@ -309,7 +314,7 @@ router.get('/languages/:course/:lessonId', requireAuth, (req, res) => {
 <script src="/js/orig-words.js?v=2"></script>
 <script src="/js/geo-map.js?v=3"></script><script src="/js/library.js?v=85"></script>
 <script>window.LANG_LESSON_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/lang-lesson.js?v=8"></script>`,
+<script src="/js/lang-lesson.js?v=9"></script>`,
   }));
 });
 
