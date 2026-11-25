@@ -53,11 +53,14 @@
     if (bits) span.appendChild(el('span', 'lang-ex-gloss', ' (' + bits + ')'));
     return span;
   }
-  function examplesCell(list, fallback) {
+  // table: the Hebrew alphabet table this cell is in, if any (Hear the word).
+  function examplesCell(list, fallback, table) {
     var d = el('div', 'lang-examples');
     (list || []).forEach(function (ex, i) {
       if (i) d.appendChild(document.createTextNode(' · '));
-      d.appendChild(exampleLine(ex));
+      var line = exampleLine(ex);
+      d.appendChild(line);
+      if (table && ex.display) spokenWords.push({ line: line, word: ex.display, table: table });
     });
     if (!(list || []).length && fallback) d.appendChild(el('span', 'lang-ex-gloss', fallback));
     return d;
@@ -76,6 +79,7 @@
     playingBtn = null;
   }
   function playClip(s, btn) {
+    stopWord();
     var again = playingBtn === btn;
     if (player) player.pause();
     clipStopped();
@@ -107,6 +111,91 @@
     if (s.caption) wrap.appendChild(el('span', 'lang-hear-cap', s.caption));
     td.appendChild(wrap);
   }
+  // ── Hear the word (trial; course.json "wordVoice", via BOOT.wordVoice) ─────
+  // Hebrew alphabet-table example words, spoken by the device's own Hebrew
+  // voice. read-aloud.js's voice list is private and English-only, so this
+  // mirrors its approach. No Hebrew voice: nothing is added to the page.
+  var spokenWords = [];      // filled while the tables render
+  var synth = null, wordGen = 0, wordBtn = null, utterance = null;
+  function hebrewVoice() {
+    var all = [];
+    try { all = synth.getVoices() || []; } catch (e) {}
+    function rank(v) { return /natural|online|premium|enhanced/i.test(v.name || '') ? 1 : 0; }
+    return all.filter(function (v) { return /^(he|iw)([-_]|$)/i.test(v.lang || ''); })
+      .sort(function (a, b) { return (rank(b) - rank(a)) || String(a.name).localeCompare(String(b.name)); })[0] || null;
+  }
+  function wordStopped() {
+    if (wordBtn) wordBtn.classList.remove('is-playing');
+    wordBtn = null; utterance = null;
+  }
+  function stopWord() {
+    if (!synth) return;
+    wordGen++;                 // a word still waiting to start never will
+    wordStopped();
+    try { synth.cancel(); } catch (e) {}
+  }
+  function speakWord(word, btn) {
+    if (player) player.pause();
+    clipStopped();
+    var busy = synth.speaking || synth.pending;
+    stopWord();
+    var voice = hebrewVoice();
+    if (!voice) return;
+    var my = wordGen;
+    function done() { if (my === wordGen) wordStopped(); }
+    var u = new window.SpeechSynthesisUtterance(word.normalize('NFC').replace(/[\u0591-\u05AF]/g, ''));   // no accents; vowels stay
+    u.voice = voice; u.lang = voice.lang; u.rate = 0.85;
+    u.onend = done; u.onerror = done;
+    utterance = u;             // kept referenced, as in read-aloud.js
+    wordBtn = btn;
+    btn.classList.add('is-playing');
+    function start() { if (my === wordGen) { try { synth.speak(u); } catch (e) { done(); } } }
+    // As in read-aloud.js: speak at once inside the click, but wait a moment
+    // after a real cancel (Chrome can drop an utterance queued straight after).
+    if (busy) setTimeout(start, 60); else start();
+  }
+  function addWordButtons() {
+    var noted = [];
+    spokenWords.forEach(function (x) {
+      var sep = x.line.previousSibling;      // each word is now on its own line
+      if (sep && sep.nodeType === 3) sep.remove();
+      var wrap = el('span', 'lang-hear');
+      var b = el('button', 'lang-hear-btn', 'Hear the word');
+      b.type = 'button';
+      b.setAttribute('aria-label', 'Hear the word: ' + x.word);
+      b.addEventListener('click', function () { speakWord(x.word, b); });
+      wrap.appendChild(b);
+      x.line.appendChild(wrap);
+      if (noted.indexOf(x.table) < 0) {
+        noted.push(x.table);
+        x.table.insertAdjacentElement('afterend', el('p', 'lang-credit lang-clip-credit',
+          'Example words are read by your device\'s Hebrew computer voice, in modern pronunciation. It\'s a helpful guide but may not be perfect.'));
+      }
+    });
+  }
+  function initWordVoice() {
+    if (BOOT.wordVoice !== true || !HEB || !spokenWords.length) return;
+    if (!('speechSynthesis' in window) || typeof window.SpeechSynthesisUtterance !== 'function') return;
+    synth = window.speechSynthesis;
+    var ready = false, timer = null, listens = typeof synth.addEventListener === 'function';
+    function finish() {
+      clearTimeout(timer);
+      if (listens) synth.removeEventListener('voiceschanged', check);
+    }
+    function check() {
+      if (ready || !hebrewVoice()) return;
+      ready = true;
+      finish();
+      addWordButtons();
+    }
+    // Voices often arrive after load; stop waiting after a few seconds.
+    if (listens) synth.addEventListener('voiceschanged', check);
+    timer = setTimeout(function () { check(); finish(); }, 4000);
+    check();
+    // Leaving the page: stop (Chrome otherwise keeps speaking).
+    window.addEventListener('pagehide', stopWord);
+  }
+
   // One credit line under a table, for only the clips in that table: authors in
   // order of first use, each clip name linking to its Commons file page.
   function clipCredit(parent, rows) {
@@ -159,7 +248,7 @@
         if (i === 0) { tr.appendChild(c); return; }
         var td = el('td', c[0] === 'Written' ? 'lang-translit' : null, c[1]); td.setAttribute('data-label', c[0]); tr.appendChild(td);
       });
-      var ex = el('td'); ex.setAttribute('data-label', 'Example'); ex.appendChild(examplesCell(x.examples, x.note || x.noExampleNote));
+      var ex = el('td'); ex.setAttribute('data-label', 'Example'); ex.appendChild(examplesCell(x.examples, x.note || x.noExampleNote, table));
       if (x.note && x.examples && x.examples.length) ex.appendChild(el('div', 'lang-ex-gloss', x.note));
       tr.appendChild(ex);
       tb.appendChild(tr);
@@ -222,7 +311,7 @@
           var td = el('td', c[0] === 'Written' ? 'lang-translit' : null, c[1]); td.setAttribute('data-label', c[0]); tr.appendChild(td);
           if (c[0] === 'Sound') addHearIt(td, x);
         });
-        var ex = el('td'); ex.setAttribute('data-label', 'Example'); ex.appendChild(examplesCell(x.examples, x.noExampleNote));
+        var ex = el('td'); ex.setAttribute('data-label', 'Example'); ex.appendChild(examplesCell(x.examples, x.noExampleNote, table));
         tr.appendChild(ex);
         tb.appendChild(tr);
       });
@@ -808,6 +897,7 @@
 
   // ── Boot ─────────────────────────────────────────────────────────────────
   renderMaterials();
+  initWordVoice();
   renderComplete();
   setGenerating(false);
   if (BOOT.saved) {

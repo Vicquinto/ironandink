@@ -35,6 +35,7 @@
       " has the same reading slowed down by 20% for beginners. His pronunciation is close to the one this course teaches. No one knows exactly how Hebrew sounded in Bible times, so treat any recording as a guide, not the original sound."
     ]
   },
+  "wordVoice": true,
   "manuscript": {
     "note": "Where the course leads: the 'Why learn' intro on the course page and the manuscript note at the end of lessonId. links holds the only copy of each URL. A lessonNote or caption item is plain text or { link, text }; if a link is missing or not https, that note is left out. Never given to the lesson teacher. image also shows on the Copyright page. It appears only when show is true and the file exists: show is false because the Internet Archive item is marked Public Domain Mark 1.0 while the photograph itself is printed '© Bruce E. Zuckerman' (West Semitic Research Project).",
     "lessonId": "L30",
