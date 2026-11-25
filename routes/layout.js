@@ -155,7 +155,7 @@ function renderLayout({ req, activeSection, title, content, scripts = '', head =
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/shepherd.css">
   ${head}
-  <link rel="stylesheet" href="/css/styles.css?v=115">
+  <link rel="stylesheet" href="/css/styles.css?v=116">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>

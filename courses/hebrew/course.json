@@ -35,6 +35,40 @@
       " has the same reading slowed down by 20% for beginners. His pronunciation is close to the one this course teaches. No one knows exactly how Hebrew sounded in Bible times, so treat any recording as a guide, not the original sound."
     ]
   },
+  "manuscript": {
+    "note": "Where the course leads: the 'Why learn' intro on the course page and the manuscript note at the end of lessonId. links holds the only copy of each URL. A lessonNote or caption item is plain text or { link, text }; if a link is missing or not https, that note is left out. Never given to the lesson teacher. image also shows on the Copyright page. It appears only when show is true and the file exists: show is false because the Internet Archive item is marked Public Domain Mark 1.0 while the photograph itself is printed '© Bruce E. Zuckerman' (West Semitic Research Project).",
+    "lessonId": "L30",
+    "links": {
+      "item": "https://archive.org/details/Leningrad_Codex_Color_Images",
+      "page": "https://archive.org/details/Leningrad_Codex_Color_Images/page/n1/mode/1up"
+    },
+    "intro": {
+      "heading": "Why learn Hebrew?",
+      "text": "The Old Testament was written in Hebrew. Good translations bring it to us faithfully, but learning to read it yourself lets you go to the source: to see the words in the language they were written in, sit closer to the text you study, and check what you read. This course works toward one goal: reading Genesis 1:1–5 for yourself. Then you can open the Leningrad Codex, the oldest complete Hebrew Bible, copied about AD 1008, and read those same verses straight from the page."
+    },
+    "image": {
+      "show": false,
+      "src": "/images/manuscripts/leningrad-genesis-1.jpg",
+      "alt": "A page of the Leningrad Codex showing the beginning of Genesis",
+      "link": "page",
+      "caption": [
+        "The beginning of Genesis in the Leningrad Codex (about AD 1008), Russian National Library, St. Petersburg. Image: ",
+        {
+          "link": "item",
+          "text": "Internet Archive"
+        },
+        ", Public Domain Mark 1.0."
+      ]
+    },
+    "lessonNote": [
+      "Ready for the real thing? Open ",
+      {
+        "link": "page",
+        "text": "Genesis 1 in the Leningrad Codex"
+      },
+      " and read these same verses from a page copied about AD 1008. Its letters and vowel marks are the ones you've been learning, and the printed Hebrew Bible scholars use today is based on it."
+    ]
+  },
   "lessons": [
     {
       "id": "L01",

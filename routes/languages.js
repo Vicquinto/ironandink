@@ -159,6 +159,20 @@ router.get('/languages/:course', requireAuth, (req, res) => {
         </li>`;
   }).join('');
 
+  // "Why learn" intro and manuscript image (course.json "manuscript").
+  const extLink = (href, text) => `<a class="lang-ext-link" href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(text)}<span class="lang-ext-icon" aria-hidden="true">↗</span><span class="lang-sr-only"> (opens in a new tab)</span></a>`;
+  const introData = lang.manuscriptIntro(courseId);
+  const imageData = lang.manuscriptImage(courseId);
+  const intro = introData ? `
+      <section class="lang-intro">
+        <h3 class="lang-intro-title">${escapeHtml(introData.heading)}</h3>
+        <p>${escapeHtml(introData.text)}</p>
+      </section>` : '';
+  const image = imageData ? `
+      <figure class="lang-ms-figure">
+        <a href="${escapeHtml(imageData.href)}" target="_blank" rel="noopener noreferrer"><img src="${escapeHtml(imageData.src)}" alt="${escapeHtml(imageData.alt)}" loading="lazy"><span class="lang-sr-only"> (opens in a new tab)</span></a>
+        <figcaption>${imageData.caption.map(it => it.href ? extLink(it.href, it.text) : escapeHtml(it.text)).join('')}</figcaption>
+      </figure>` : '';
   const listenText = lang.listeningOverview(courseId);
   const listenNote = listenText ? `
       <p class="lang-listen-note">${escapeHtml(listenText)}</p>` : '';
@@ -172,7 +186,7 @@ router.get('/languages/:course', requireAuth, (req, res) => {
         <h2 class="page-title">${escapeHtml(C.title)}</h2>
         <p class="page-subtitle">${escapeHtml(C.blurb)}</p>
       </div>
-      ${review}${listenNote}
+      ${intro}${image}${review}${listenNote}
       <ol class="lang-lessons">${rows}
       </ol>
       <p class="lang-credit">${escapeHtml(C.credit)}</p>
@@ -220,6 +234,7 @@ router.get('/languages/:course/:lessonId', requireAuth, (req, res) => {
     course: courseId, lessonId: L.id, number: L.number, title: L.title, type: L.type,
     materials, saved,
     listening: lang.listeningForLesson(courseId, L.id),
+    manuscript: lang.manuscriptForLesson(courseId, L.id),
     status: st ? st.status : null,
     completedAt: st && st.status === 'completed' ? st.completedAt : null,
     next: next ? { id: next.id, number: next.number, title: next.title } : null,
@@ -294,7 +309,7 @@ router.get('/languages/:course/:lessonId', requireAuth, (req, res) => {
 <script src="/js/orig-words.js?v=2"></script>
 <script src="/js/geo-map.js?v=3"></script><script src="/js/library.js?v=85"></script>
 <script>window.LANG_LESSON_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/lang-lesson.js?v=5"></script>`,
+<script src="/js/lang-lesson.js?v=6"></script>`,
   }));
 });
 

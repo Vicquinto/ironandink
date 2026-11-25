@@ -12,6 +12,25 @@
     "reading": "reading-1john1.json",
     "check": "course-check.json"
   },
+  "manuscript": {
+    "note": "Where the course leads: the 'Why learn' intro on the course page and the manuscript note at the end of lessonId. links holds the only copy of each URL. A lessonNote or caption item is plain text or { link, text }; if a link is missing or not https, that note is left out. Never given to the lesson teacher.",
+    "lessonId": "L25",
+    "links": {
+      "page": "https://codexsinaiticus.org/en/manuscript.aspx?book=55&chapter=1&lid=en&side=r&zoomSlider=0"
+    },
+    "intro": {
+      "heading": "Why learn Greek?",
+      "text": "The New Testament was written in Greek. Good translations bring it to us faithfully, but learning to read it yourself lets you go to the source: to see the words in the language they were written in, sit closer to the text you study, and check what you read. This course works toward one goal: reading 1 John 1 for yourself. Then you can open Codex Sinaiticus, a Greek Bible copied in the 300s, and read that same chapter straight from the page."
+    },
+    "lessonNote": [
+      "Ready for the real thing? Open ",
+      {
+        "link": "page",
+        "text": "1 John 1 in Codex Sinaiticus"
+      },
+      " and read this chapter from a Greek Bible copied in the 300s. It is written in capital letters with no spaces between words, and sacred names are shortened (for example ΘΣ for θεός, God), so go slowly. The site shows a transcription beside each page to help you."
+    ]
+  },
   "lessons": [
     {
       "id": "L01",

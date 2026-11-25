@@ -404,13 +404,12 @@
     });
   }
 
-  // Outside listening (course.json "listening", via BOOT.listening, not part of
-  // the materials the teacher sees): plain text plus external links, which open
+  // Notes with outside links (course.json "listening" and "manuscript", via
+  // BOOT, not part of the materials the teacher sees): plain text plus external links, which open
   // in a new tab and are marked with an arrow and "(opens in a new tab)".
-  function listeningNote(parent) {
-    var items = BOOT.listening;
+  function linkedNote(parent, items, cls) {
     if (!Array.isArray(items) || !items.length) return;
-    var p = el('p', 'lang-note lang-listen');
+    var p = el('p', 'lang-note ' + cls);
     items.forEach(function (it) {
       if (!it || typeof it.text !== 'string') return;
       if (!it.href) { p.appendChild(document.createTextNode(it.text)); return; }
@@ -439,7 +438,7 @@
     }
     (L.notes || []).forEach(function (n) { note(head, String(n).normalize('NFC')); });
     (L.recognition || []).forEach(function (n) { note(head, n); });
-    listeningNote(head);
+    linkedNote(head, BOOT.listening, 'lang-listen');
     pane.appendChild(head);
 
     if (M.alphabet) renderAlphabet(M.alphabet);
@@ -465,6 +464,7 @@
       });
       pane.appendChild(rd);
     }
+    linkedNote(pane, BOOT.manuscript, 'lang-manuscript');
     if (window.IronInkOrigWords) pane.appendChild(window.IronInkOrigWords.attribution());
   }
 

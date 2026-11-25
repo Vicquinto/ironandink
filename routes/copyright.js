@@ -1,6 +1,6 @@
 const express = require('express');
 const router  = express.Router();
-const { soundCredits } = require('../lib/languages');
+const { soundCredits, manuscriptCredits } = require('../lib/languages');
 
 const esc = s => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -31,6 +31,21 @@ ${items}
 `;
 }
 
+// "Sources: Manuscript Images": the same caption as under each image on its
+// course page (course.json "manuscript"). No image shown, no section.
+function manuscriptSection() {
+  const images = manuscriptCredits();
+  if (!images.length) return '';
+  const lines = images.map(im => `      <p class="copy-body">${im.caption.map(it => it.href
+    ? `<a href="${esc(it.href)}" target="_blank" rel="noopener noreferrer">${esc(it.text)}</a>` : esc(it.text)).join('')}</p>`).join('\n');
+  return `
+      <hr class="copy-rule">
+
+      <div class="copy-section-heading">Sources &mdash; Manuscript Images</div>
+${lines}
+`;
+}
+
 router.get('/copyright', (req, res) => {
   res.send(`<!DOCTYPE html>
 <html lang="en">
@@ -39,7 +54,7 @@ router.get('/copyright', (req, res) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Copyright &amp; Credits — Iron &amp; Ink</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/styles.css?v=115">
+  <link rel="stylesheet" href="/css/styles.css?v=116">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <style>
     body { font-family: 'EB Garamond', Georgia, serif; }
@@ -169,7 +184,7 @@ router.get('/copyright', (req, res) => {
         source: <a href="https://github.com/STEPBible/STEPBible-Data" target="_blank" rel="noopener">STEPBible-Data</a>.
         Reformatted for this site; the data itself is unchanged.
       </p>
-${soundClipsSection()}
+${soundClipsSection()}${manuscriptSection()}
 
       <hr class="copy-rule">
 
