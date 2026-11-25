@@ -758,6 +758,7 @@
   }
 
   function closeModal() {
+    if (!document.getElementById('guideModal')) return;   // pages without the Library's study pop-up
     document.getElementById('guideModal').style.display = 'none';
     document.body.style.overflow = '';
     if (upEl)  upEl.style.display  = 'none';
@@ -2066,6 +2067,12 @@
     if (communityReading && communityReading.style.display !== 'none' &&
         holds(communityReadBody, true)) {
       return { topic: titleText('communityReadTitle'), inScripture: false, lookupOnly: true };
+    }
+
+    // The Teacher page's study pane (never its conversation, which has Save this
+    // point). Someone else's shared study is lookup only, as in the Community reader.
+    if (holds(document.getElementById('teacherStudyBody'), true)) {
+      return { topic: titleText('teacherStudyTitle'), inScripture: false, lookupOnly: !window.__notepadStudy };
     }
 
     var guideArea = document.getElementById('guideArea');

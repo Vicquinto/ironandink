@@ -461,7 +461,7 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
       <div class="teacher-topbar">
         <div class="teacher-topbar-meta">
           <span class="teacher-topbar-label">${modeLabel}</span>
-          <h2 class="teacher-topbar-title">${escapeHtml(study.topic)}</h2>
+          <h2 class="teacher-topbar-title" id="teacherStudyTitle">${escapeHtml(study.topic)}</h2>
         </div>
         <div class="teacher-topbar-links">
           <a class="sn-link" href="/study-notes/${escapeHtml(encodeURIComponent(study.id))}">Study Notes</a>
@@ -588,8 +588,9 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
     scripts: `<script src="/js/render-markdown.js?v=2"></script>
 <script src="/js/teacher-entry.js?v=9"></script>
 <script src="/js/teacher-points.js?v=1"></script>
+<script src="/js/geo-map.js?v=3"></script><script src="/js/orig-words.js?v=2"></script><script src="/js/library.js?v=87"></script>
 <script>window.TEACHER_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/teacher.js?v=15"></script>`,
+<script src="/js/teacher.js?v=16"></script>`,
   }));
 });
 

@@ -141,6 +141,19 @@
     heads.forEach(function (h, i) { h.id = 'teacher-sec-' + (i + 1); });
   }
 
+  // Study-text notes, as in the Library study view: the same notepad, markers and
+  // highlight panel (notepad.js, library.js), bound to this pane. Own studies only.
+  if (studyBody && BOOT.isOwner) {
+    window.__notepadStudy = { id: BOOT.studyId, title: BOOT.topic, body: studyBody };
+    window.__notepadRerenderMarkers = function () {
+      if (window.__notepad) window.__notepad.injectMarkers(studyBody, BOOT.studyId);
+    };
+    if (window.__notepad) {
+      window.__notepad.setStudy(BOOT.studyId, BOOT.topic);
+      window.__notepad.injectMarkers(studyBody, BOOT.studyId);
+    }
+  }
+
   function scrollToSection(n) {
     var h = document.getElementById('teacher-sec-' + n);
     if (!h) return;
