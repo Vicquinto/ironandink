@@ -95,8 +95,14 @@ router.get('/devotional', requireAuth, async (req, res) => {
       var fontSize = parseInt(localStorage.getItem(LS_KEY), 10) || FONT_DEFAULT;
 
       function applySize() {
+        // Headings and quotes: their styles.css sizes (.devot-content), in
+        // proportion, so they are unchanged at the default.
+        var k = fontSize / FONT_DEFAULT;
         styleTag.textContent =
-          '#devotionalContent p, #devotionalContent li { font-size: ' + fontSize + 'px; }';
+          '#devotionalContent p, #devotionalContent li { font-size: ' + fontSize + 'px; }' +
+          '#devotionalContent h2 { font-size: calc(1.1rem * ' + k + '); }' +
+          '#devotionalContent h3 { font-size: calc(1.02rem * ' + k + '); }' +
+          '#devotionalContent blockquote { font-size: calc(1.1rem * ' + k + '); }';
       }
 
       function setSize(s) {
