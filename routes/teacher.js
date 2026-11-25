@@ -605,15 +605,15 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
             <ul class="teacher-review-list" id="teacherRevisitList"></ul>
           </div>
           <p class="gap-study-next-label" id="teacherNextLine">Suggested next study: <em id="teacherNextText"></em></p>
-          <!-- Owner only, and only while the study is not completed: a gentle offer,
-               never automatic (public/js/teacher.js). -->
-          <div class="teacher-complete-offer" id="teacherCompleteOffer" hidden></div>
         </div>
         <p class="teacher-review-error" id="teacherReviewError" style="display:none;">The review couldn&#8217;t be prepared this time. Your session is still saved.</p>
         <div id="teacherReviewActions" class="end-session-actions" style="display:none;">
           <button class="btn-primary" id="teacherNextBtn" style="display:none;">Study this next &#8594;</button>
-          <button class="btn-warm" id="teacherKeepBtn">Back to the study</button>
           <a class="btn-warm" href="/study-notes/${escapeHtml(encodeURIComponent(study.id))}">Study Notes</a>
+          <!-- Owner only, and only while the study is not completed: a gentle offer,
+               never automatic (public/js/teacher.js). -->
+          <div class="teacher-complete-offer" id="teacherCompleteOffer" hidden></div>
+          <button class="btn-warm" id="teacherKeepBtn">Back to the study</button>
           <!-- Takes the session off "Pick up where you left off"; it stays saved. -->
           <button class="btn-warm" id="teacherDoneBtn">I&#8217;m done with this session</button>
           <button class="btn-discard" id="teacherReviewDeleteBtn">Delete saved session</button>
@@ -632,7 +632,7 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
 <script src="/js/teacher-points.js?v=1"></script>
 <script src="/js/geo-map.js?v=3"></script><script src="/js/orig-words.js?v=2"></script><script src="/js/library.js?v=87"></script>
 <script>window.TEACHER_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/teacher.js?v=17"></script>`,
+<script src="/js/teacher.js?v=18"></script>`,
   }));
 });
 

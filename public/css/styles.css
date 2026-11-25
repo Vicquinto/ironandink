@@ -38,6 +38,7 @@
   --warm-brown: #6B4226;  /* Worn Leather — secondary labels (meets contrast on cream) */
   --card-bg:    #E8D9B8;  /* Cream Ivory cards */
   --ink:        #E8D9B8;  /* Button text — cream on dark buttons */
+  --scrim:      rgba(20, 14, 10, 0.45);  /* Behind every modal / pop-up that covers the page: the one place to change it */
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1743,7 +1744,7 @@ body {
 .guide-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: var(--scrim);
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -2147,7 +2148,7 @@ body {
 .end-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(107,66,38,0.85);
+  background: var(--scrim);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2343,7 +2344,7 @@ body {
 .writing-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(107,66,38,0.85);
+  background: var(--scrim);
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -2971,7 +2972,7 @@ body {
 .restyle-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(107,66,38,0.85);
+  background: var(--scrim);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3635,7 +3636,7 @@ body {
 .reject-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(107,66,38,0.75);
+  background: var(--scrim);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4304,7 +4305,7 @@ body {
 .inline-chat-modal {
   position: fixed;
   inset: 0;
-  background: rgba(107,66,38,0.78);
+  background: var(--scrim);
   z-index: 1100;
   display: flex;
   align-items: flex-start;
@@ -5148,7 +5149,7 @@ body {
 .invite-confirm-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(20,10,5,0.72);
+  background: var(--scrim);
   z-index: 900;
   display: flex;
   align-items: center;
@@ -6106,7 +6107,7 @@ body {
 .tracker-goal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(30,18,8,0.55);
+  background: var(--scrim);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -6475,7 +6476,7 @@ body {
 .welcome-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(10,5,2,0.78);
+  background: var(--scrim);
   z-index: 1500;
   display: flex;
   align-items: center;
@@ -6756,10 +6757,10 @@ body {
   border-color: #7A6040;
 }
 
-/* Modal overlay — subtle dimming, not near-black */
-.shepherd-modal-overlay-container {
-  fill: rgba(30,18,10,0.25);
-}
+/* Tour overlay: the shared scrim. shepherd.css shows its overlay at half opacity,
+   which would halve the scrim again. */
+.shepherd-modal-overlay-container { fill: var(--scrim); }
+.shepherd-modal-overlay-container.shepherd-modal-is-visible { opacity: 1; }
 
 /* ─── WHAT WE BELIEVE ────────────────────────────────────────────────────── */
 
@@ -7172,7 +7173,7 @@ body {
 .dm-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(10,5,2,0.62);
+  background: var(--scrim);
   z-index: 1200;
   display: flex;
   align-items: center;
@@ -8620,6 +8621,14 @@ body {
 
 /* End-of-session review (reuses Dialogue's end-session card + gap boxes). */
 .teacher-review-card { max-height: 90vh; overflow-y: auto; }
+/* The review's buttons: one centered column of equal widths. */
+#teacherReviewActions { align-items: stretch; gap: 12px; width: 100%; max-width: 340px; margin: 18px auto 0; }
+#teacherReviewActions > .btn-primary,
+#teacherReviewActions > .btn-warm,
+#teacherReviewActions > .btn-discard,
+#teacherReviewActions .study-complete-btn { width: 100%; min-height: 44px; padding: 10px 16px; font-size: 0.9rem; text-align: center; }
+#teacherReviewActions .teacher-complete-offer { margin-top: 0; }
+@media (max-width: 600px) { #teacherReviewActions { max-width: none; } }
 .teacher-review-list { margin: 0; padding-left: 18px; }
 .teacher-review-list li { margin-bottom: 8px; }
 .teacher-review-link {

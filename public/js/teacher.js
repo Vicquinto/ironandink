@@ -726,6 +726,7 @@
     reviewError.style.display     = 'none';
     reviewActions.style.display   = 'none';
     nextBtn.style.display         = 'none';
+    if (completeOffer) completeOffer.hidden = true;   // only with a review
     nextStudy = null;
 
     try {

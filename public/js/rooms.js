@@ -132,7 +132,7 @@
 
   // ── Create Modal ───────────────────────────────────────────────────────────
   document.body.insertAdjacentHTML('beforeend',
-    '<div id="roomsCreateModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;">' +
+    '<div id="roomsCreateModal" style="display:none;position:fixed;inset:0;background:var(--scrim);z-index:9999;align-items:center;justify-content:center;">' +
       '<div style="background:#E8D9B8;border:1px solid #c4a882;border-radius:10px;padding:2rem;max-width:460px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.25);box-sizing:border-box;">' +
         '<h4 style="font-family:Cinzel,serif;color:#5C1A28;font-size:1.2rem;margin:0 0 1.25rem;font-weight:600;">Start a Shared Study</h4>' +
 

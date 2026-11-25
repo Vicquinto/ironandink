@@ -602,7 +602,7 @@
     // ── Clear Study modal ──────────────────────────────────────────────────
     if (roomNewStudyBtn) {
       var newStudyModal = document.createElement('div');
-      newStudyModal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;';
+      newStudyModal.style.cssText = 'display:none;position:fixed;inset:0;background:var(--scrim);z-index:9999;align-items:center;justify-content:center;';
       newStudyModal.innerHTML =
         '<div style="background:#E8D9B8;border:1px solid #5C1A28;border-radius:8px;padding:2rem 2.25rem;max-width:380px;width:90%;font-family:\'EB Garamond\',Georgia,serif;box-shadow:0 8px 32px rgba(0,0,0,0.35);">' +
           '<h4 style="margin:0 0 0.75rem;color:#5C1A28;font-size:1.15rem;font-weight:600;">Clear Study</h4>' +
