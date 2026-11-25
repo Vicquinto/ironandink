@@ -195,6 +195,52 @@
     } catch (e) {}
   }
 
+  // Resize a pane without losing the reader's place: note the first visible
+  // block and how far into it the view starts, apply the change, then scroll
+  // back to that point. A pane scrolled to its end stays there.
+  function keepPlace(scroller, blocks, viewTop, apply) {
+    var atEnd = scroller.scrollTop > 0 && scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight < 4;
+    var top = viewTop(), anchor = null, into = 0, gap = 0;
+    for (var i = 0; i < blocks.length; i++) {
+      var rect = blocks[i].getBoundingClientRect();
+      if (!rect.height || rect.bottom <= top) continue;
+      anchor = blocks[i];
+      if (rect.top < top) into = (top - rect.top) / rect.height;
+      else gap = rect.top - top;
+      break;
+    }
+    apply();
+    if (atEnd) { scroller.scrollTop = scroller.scrollHeight; return; }
+    // Unscrolled: stay at the very top.
+    if (!anchor || (!into && scroller.scrollTop === 0)) return;
+    var now = anchor.getBoundingClientRect();
+    scroller.scrollTop += now.top + into * now.height - gap - viewTop();
+  }
+
+  // ── Study text size ──────────────────────────────────────────────────────
+  // The study-reading setting shared with the Study page, Library and Community
+  // (same key, default, bounds and step), so a chosen size carries over.
+  (function () {
+    var DEF = 16, MIN = 12, MAX = 28, STEP = 2, KEY = 'ironink_study_font_size';
+    var pane = studyBody && studyBody.parentNode;
+    var tools = document.getElementById('teacherStudyTools');
+    if (!pane || !tools) return;
+    var size = DEF;
+    function clamp(n) { return Math.min(MAX, Math.max(MIN, n)); }
+    try { var saved = parseInt(localStorage.getItem(KEY), 10); if (saved) size = clamp(saved); } catch (e) {}
+    studyBody.style.fontSize = size + 'px';
+    function change(n) {
+      keepPlace(pane, studyBody.children, function () { return tools.getBoundingClientRect().bottom; }, function () {
+        size = clamp(n);
+        studyBody.style.fontSize = size + 'px';
+      });
+      try { localStorage.setItem(KEY, size); } catch (e) {}
+    }
+    document.getElementById('studyFontDec').addEventListener('click',   function () { change(size - STEP); });
+    document.getElementById('studyFontReset').addEventListener('click', function () { change(DEF); });
+    document.getElementById('studyFontInc').addEventListener('click',   function () { change(size + STEP); });
+  })();
+
   // ── Conversation zoom ────────────────────────────────────────────────────
   // Writing companion's CFONT_* pattern (public/js/writing.js): same default,
   // bounds and step, persisted in localStorage — under its OWN key, so it never
@@ -229,10 +275,14 @@
   }
 
   applyTeacherFontSize(teacherFontSize);
+  function zoomTeacher(size) {
+    keepPlace(messagesEl, messagesEl.children, function () { return messagesEl.getBoundingClientRect().top; },
+      function () { applyTeacherFontSize(size); });
+  }
 
-  if (teacherFontDec)   teacherFontDec.addEventListener('click',   function () { applyTeacherFontSize(teacherFontSize - TFONT_STEP); });
-  if (teacherFontReset) teacherFontReset.addEventListener('click', function () { applyTeacherFontSize(TFONT_DEFAULT); });
-  if (teacherFontInc)   teacherFontInc.addEventListener('click',   function () { applyTeacherFontSize(teacherFontSize + TFONT_STEP); });
+  if (teacherFontDec)   teacherFontDec.addEventListener('click',   function () { zoomTeacher(teacherFontSize - TFONT_STEP); });
+  if (teacherFontReset) teacherFontReset.addEventListener('click', function () { zoomTeacher(TFONT_DEFAULT); });
+  if (teacherFontInc)   teacherFontInc.addEventListener('click',   function () { zoomTeacher(teacherFontSize + TFONT_STEP); });
 
   // ── Rendering (escape-first, then sanitized) ─────────────────────────────
   function esc(str) {

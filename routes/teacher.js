@@ -449,6 +449,12 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
 
       <div class="teacher-workspace">
         <section class="teacher-study-pane" aria-label="The study">
+          <!-- Study reading size: the saved setting the Study page and Library use. -->
+          <div class="guide-font-toolbar teacher-study-tools" id="teacherStudyTools" role="group" aria-label="Study text size">
+            <button type="button" class="guide-font-btn guide-font-btn-sm" id="studyFontDec" title="Smaller study text" aria-label="Smaller study text">A&#8722;</button>
+            <button type="button" class="guide-font-btn guide-font-btn-md" id="studyFontReset" title="Default study text" aria-label="Default study text">A</button>
+            <button type="button" class="guide-font-btn guide-font-btn-lg" id="studyFontInc" title="Larger study text" aria-label="Larger study text">A+</button>
+          </div>
           <div class="guide-body teacher-study-body" id="teacherStudyBody"></div>
         </section>
 
@@ -559,7 +565,7 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
     scripts: `<script src="/js/render-markdown.js?v=2"></script>
 <script src="/js/teacher-entry.js?v=8"></script>
 <script>window.TEACHER_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/teacher.js?v=11"></script>`,
+<script src="/js/teacher.js?v=12"></script>`,
   }));
 });
 

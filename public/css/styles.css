@@ -8324,6 +8324,16 @@ body {
   padding-right: 4px;
 }
 .teacher-study-body { margin-bottom: 0; }
+/* The study's A−/A/A+ stays at the top right while the study scrolls under it. */
+.teacher-study-tools {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  margin: 0;
+  padding: 4px 4px 8px;
+  background: var(--bg);
+}
+.teacher-study-body .guide-h3 { scroll-margin-top: 44px; }   /* section jumps clear it */
 .teacher-conversation {
   flex: 0 0 42%;
   min-width: 0;
