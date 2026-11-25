@@ -23,6 +23,9 @@ data/notepads.json
 data/scripture_notes.json
 data/lang_sessions.json
 data/lang_progress.json
+# Study Notes (lib/teacher-store.js; study_notes.json is for a later phase)
+data/teacher_lessons_kept.json
+data/study_notes.json
 # Temp files from atomic writes (lib/jsonStore.js) — <store>.<pid>.tmp
 data/*.tmp
 data/study-ideas.json

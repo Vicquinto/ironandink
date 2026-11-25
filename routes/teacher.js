@@ -32,7 +32,7 @@ const { aiLimiter } = require('../middleware/rateLimit');
 // injected on the way out.
 
 const { inProgressList, sectionTitle, resumeText } = require('../lib/teacher-progress');
-const { sessionsStore } = require('../lib/teacher-store');
+const { sessionsStore, keptStore, keepLesson } = require('../lib/teacher-store');
 const router = express.Router();
 
 const STUDIES_PATH  = path.join(__dirname, '../data/studies.json');
@@ -578,7 +578,7 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
     scripts: `<script src="/js/render-markdown.js?v=2"></script>
 <script src="/js/teacher-entry.js?v=8"></script>
 <script>window.TEACHER_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/teacher.js?v=12"></script>`,
+<script src="/js/teacher.js?v=13"></script>`,
   }));
 });
 
@@ -697,6 +697,12 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
   try { existing = findSession(readSessions(), req.session.userId, study.id, kind); }
   catch { return storeUnavailable(res); }
 
+  // Start over keeps the lesson it replaces. Check that store now, before an AI
+  // call, rather than find out it is damaged once the reply is ready.
+  if (start && existing && kind === 'lesson') {
+    try { keptStore.read(); } catch { return storeUnavailable(res); }
+  }
+
   // Work out the session this turn belongs to and the new user turn to add.
   let session;
   let newTurn;
@@ -755,6 +761,11 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
       return res.status(400).json({ success: false, error: 'This session has grown very long. Please end it and start fresh.' });
     }
   }
+
+  // Every new message carries an id, a time and (once the reply's tags are in) a
+  // section. The AI is only ever sent role and content.
+  newTurn.id = randomUUID();
+  newTurn.at = new Date().toISOString();
 
   const { IRON_INK_CORE_PROMPT, IRON_INK_TEACHER_PROMPT } = req.app.locals.prompts;
   const userSettings = req.session.user && req.session.user.settings;
@@ -871,10 +882,12 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
     // gets the same error as any failed reply.
     if (!closed) {
       const userId = req.session.userId;
-      const r = await sessionsStore.update(all => {
+      const save = keptKey => sessionsStore.update(all => {
         const idx = findSessionIndex(all, userId, study.id, kind);
         let target;
         if (start) {
+          // Only ever replace a lesson that has just been kept, exactly as it is.
+          if (kind === 'lesson' && lessonKey(all[idx]) !== keptKey) return { changed: false, again: true };
           if (idx !== -1) all.splice(idx, 1);
           target = session;
           all.push(target);
@@ -888,13 +901,30 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
         saveExchange(target);
         return { changed: true, saved: target };
       });
+      // Start over: keep the old lesson first, then replace it. If it changed in
+      // between (another tab), keep it again.
+      let r = { again: true };
+      for (let i = 0; i < 5 && r.again; i++) {
+        const old = (start && kind === 'lesson') ? findSession(readSessions(), userId, study.id, kind) : null;
+        if (old) await keepLesson(old);
+        r = await save(lessonKey(old));
+      }
+      if (r.again) throw new Error('the saved lesson kept changing; nothing was replaced');
       session = r.saved;
     }
 
+    function lessonKey(s) { return s ? s.id + ':' + (s.messages || []).length : ''; }
+
     function saveExchange(session) {
-      session.messages = (session.messages || []).concat([newTurn, { role: 'assistant', content: reply }]);
+      const prevSection = session.currentSection || 0;
       const turnType = start ? 'opening' : (newTurn.action === 'jump' ? 'jump' : 'reply');
       const accepted = applyTags(session, turnType, at, done, newTurn.section);
+      // The section this exchange belongs to: where the lesson is after the reply.
+      // endsSection: this reply also finished the section before it.
+      const replyMsg = { role: 'assistant', content: reply, id: randomUUID(), at: new Date().toISOString(), section: accepted.at };
+      if (accepted.done.length && accepted.at !== prevSection) replyMsg.endsSection = prevSection;
+      newTurn.section = accepted.at;
+      session.messages = (session.messages || []).concat([newTurn, replyMsg]);
       console.log(`[Teacher/${kind}] tags at:${at === null ? 'none' : at} done:${done.length ? done.join(',') : 'none'}` +
         ` -> accepted at:${accepted.at} done:${accepted.done.length ? accepted.done.join(',') : 'none'} (${turnType})`);
       // A check moves from its questions to its teaching once, on the model's

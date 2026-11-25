@@ -597,7 +597,7 @@
     confirmThen('Start over? Your saved session will be replaced once the teacher replies.', 'Start over', startNew);
   });
   deleteBtn.addEventListener('click', function () {
-    confirmThen('Delete your saved session for this study?', 'Delete', function () {
+    confirmThen('Delete your saved conversation for this study? Your saved points and section recaps stay in Study Notes.', 'Delete', function () {
       deleteSaved(function () {
         BOOT.saved = null;
         messagesEl.innerHTML = '';
@@ -821,7 +821,7 @@
   }
 
   reviewDeleteBtn.addEventListener('click', function () {
-    confirmThen('Delete your saved session for this study?', 'Delete', function () {
+    confirmThen('Delete your saved conversation for this study? Your saved points and section recaps stay in Study Notes.', 'Delete', function () {
       deleteSaved(function () {
         window.location.href = backLink ? backLink.getAttribute('href') : '/library';
       });
