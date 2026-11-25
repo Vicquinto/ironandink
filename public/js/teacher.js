@@ -384,6 +384,36 @@
     if (!val) abortController = null;
   }
 
+  // ── Section recap card ───────────────────────────────────────────────────
+  // The server is making the recap of the section this reply left; ask for it in
+  // the background and, if it is saved, set a card under that reply. It is on the
+  // page only, never part of the conversation. No recap: nothing is shown.
+  function showRecap(msgEl, due) {
+    fetch('/api/study-notes/' + encodeURIComponent(BOOT.studyId) + '/recaps/' + encodeURIComponent(due.section) +
+        '?through=' + encodeURIComponent(due.through))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.success || !d.recap || !msgEl.isConnected) return;
+        var card = document.createElement('div');
+        card.className = 'recap-card';
+        var h = document.createElement('p');
+        h.className = 'recap-title';
+        h.textContent = 'Key points from ' + d.recap.title;
+        var saved = document.createElement('p');
+        saved.className = 'recap-saved';
+        saved.textContent = 'Saved to Study Notes';
+        card.appendChild(h);
+        card.appendChild(window.IronInkTeacher.recapList(d.recap));
+        card.appendChild(saved);
+        // Keep what the reader is looking at where it is.
+        var above = msgEl.getBoundingClientRect().bottom <= messagesEl.getBoundingClientRect().top;
+        var before = messagesEl.scrollHeight;
+        msgEl.insertAdjacentElement('afterend', card);
+        if (above) messagesEl.scrollTop += messagesEl.scrollHeight - before;
+      })
+      .catch(function () {});
+  }
+
   // ── Streaming exchange ───────────────────────────────────────────────────
   // POST /api/teacher/exchange; resolves to the full reply text. Pre-stream
   // failures arrive as JSON with a short, already-sanitized message.
@@ -414,6 +444,7 @@
       var buffer   = '';
       var fullText = '';
       var savedAs  = null;
+      var recapDue = null;
 
       while (true) {
         var chunk = await reader.read();
@@ -432,6 +463,7 @@
             if (parsed.error) throw new Error(parsed.error);
             if (parsed.lesson) setLessonState(parsed.lesson);
             if (parsed.message) savedAs = parsed.message;
+            if (parsed.recap) recapDue = parsed.recap;
             if (parsed.text) {
               fullText += parsed.text;
               contentEl.innerHTML = renderTeacherText(fullText);
@@ -444,6 +476,7 @@
       if (!fullText) throw new Error(GENERIC_ERROR);
       msgEl.classList.remove('streaming');
       setMeta(msgEl, savedAs);
+      if (recapDue) showRecap(msgEl, recapDue);
       return fullText;
     } catch (err) {
       hideTypingIndicator();

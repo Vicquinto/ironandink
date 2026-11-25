@@ -312,8 +312,30 @@
     return global.IronInkSanitize ? global.IronInkSanitize.sanitize(html, 'markdown') : html;
   }
 
+  // A section recap's points as a list (Teacher page card, Study Notes).
+  // recap: { lines, notice }; verse text is already in the lines.
+  function recapList(recap) {
+    var box = document.createElement('div');
+    box.className = 'recap-lines';
+    var ul = document.createElement('ul');
+    (recap.lines || []).forEach(function (line) {
+      var li = document.createElement('li');
+      li.innerHTML = renderReply(line);
+      ul.appendChild(li);
+    });
+    box.appendChild(ul);
+    if (recap.notice) {
+      var p = document.createElement('p');
+      p.className = 'recap-notice';
+      p.textContent = recap.notice;
+      box.appendChild(p);
+    }
+    return box;
+  }
+
   global.IronInkTeacher = {
     renderReply:         renderReply,
+    recapList:           recapList,
     teacherUrl:          teacherUrl,
     attach:              attach,
     remove:              remove,

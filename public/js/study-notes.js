@@ -312,6 +312,42 @@
     settle(g);
   }
 
+  // ── Key points: the section's recap, or a way to make one ────────────────
+  function keyPoints(sec, s) {
+    if (!s.recap && !s.canRecap) return;
+    var box = el('div', 'sn-keypoints');
+    sec.appendChild(box);
+    function draw() {
+      box.textContent = '';
+      box.appendChild(el('h4', 'sn-sub', 'Key points'));
+      if (s.recap) {
+        box.appendChild(window.IronInkTeacher.recapList(s.recap));
+        box.appendChild(el('p', 'sn-muted', s.teaching ? 'An AI summary of the teaching below.' : 'An AI summary of the teaching.'));
+        return;
+      }
+      box.appendChild(el('p', 'sn-muted', s.partway ? 'You were partway through this section.' : 'No recap yet.'));
+      var status = el('p', 'sn-muted');
+      status.setAttribute('role', 'status');
+      var btn = linkButton('Create recap', function () {
+        btn.disabled = true;
+        status.textContent = 'Making the recap…';
+        fetch('/api/study-notes/' + encodeURIComponent(BOOT.studyId) + '/recaps', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ section: s.n }),
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (!d || !d.success || !d.recap) throw new Error((d && d.error) || 'The recap couldn’t be made this time. Please try again.');
+            s.recap = d.recap;
+            draw();
+          })
+          .catch(function (err) { btn.disabled = false; status.textContent = err.message; });
+      });
+      box.appendChild(btn);
+      box.appendChild(status);
+    }
+    draw();
+  }
+
   // ── Page ─────────────────────────────────────────────────────────────────
   var liveEl = el('p', 'lang-sr-only');
   liveEl.setAttribute('role', 'status');
@@ -333,10 +369,12 @@
       h.appendChild(a);
     } else h.textContent = s.title;
     sec.appendChild(h);
+    keyPoints(sec, s);
+    var afterKey = sec.lastChild;
     notesBlock(sec, 'Your notes on the study', notes);
     if (s.teaching) teachingBlock(sec, 'Full teaching', 'section=' + s.n, true);
-    addGroup('s' + s.n, sec, h.nextSibling, 'Your saved points', function (none) {
-      sec.classList.toggle('is-empty', none && !notes.length && !s.teaching);
+    addGroup('s' + s.n, sec, afterKey.nextSibling, 'Your saved points', function (none) {
+      sec.classList.toggle('is-empty', none && !notes.length && !s.teaching && !s.recap);
     });
     settle(groups['s' + s.n]);
     body.appendChild(sec);

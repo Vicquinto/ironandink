@@ -6,13 +6,16 @@ const { escapeHtml, inlineJson } = require('../lib/html');
 const { sessionsStore, keptStore } = require('../lib/teacher-store');
 const teacher = require('./teacher');
 const notepad = require('./notepad');
-const { notesStore, findRecord, capturePoint, shownRange, POINT_MAX, NOTE_MAX, POINTS_MAX } = require('../lib/study-notes');
+const { notesStore, findRecord, isTagged, inSection, capturePoint, shownRange, POINT_MAX, NOTE_MAX, POINTS_MAX } = require('../lib/study-notes');
+const { makeRecap, waitFor, displayRecap } = require('../lib/section-recap');
+const { aiLimiter } = require('../middleware/rateLimit');
 
 // ─── Study Notes ───────────────────────────────────────────────────────────────
 // One page per study for the member's OWN notes, section by section: their
 // study-text notes and the full teaching (the lesson conversation itself).
-// Teacher sessions, kept lessons and notepads are only read here; saved points
-// (lib/study-notes.js) are the one thing written. userId always comes from the session. Behind the Teacher's gate.
+// Teacher sessions, kept lessons and notepads are only read here; saved points and
+// section recaps (lib/study-notes.js, lib/section-recap.js) are what is written.
+// userId always comes from the session. Behind the Teacher's gate.
 //
 // A lesson message belongs to a section by its saved tag (routes/teacher.js
 // saveExchange): id + section, plus endsSection on a reply that also finished
@@ -22,9 +25,6 @@ const { notesStore, findRecord, capturePoint, shownRange, POINT_MAX, NOTE_MAX, P
 
 const router = express.Router();
 
-// id AND section: before tagging, a jump's own message already had a section.
-function isTagged(m) { return !!m && typeof m.id === 'string' && Number.isInteger(m.section); }
-function inSection(m, n) { return isTagged(m) && (m.section === n || m.endsSection === n); }
 // Hidden instructions never show; a button tap shows as its label.
 function visible(messages) {
   return (messages || []).map((m, i) => m && Object.assign({}, m, { storedIndex: i })).filter(m => m && teacher.isReaderVisible(m));
@@ -36,7 +36,7 @@ function lessonsFor(userId, studyId) {
   const out = [];
   const cur = sessionsStore.read().find(s => s && s.userId === userId && s.studyId === studyId && s.kind === 'lesson');
   if (cur) {
-    out.push({ key: 'current', sessionId: cur.id, current: true, date: cur.updatedAt || null, sections: cur.lessonSections, topic: cur.studyTopic, messages: visible(cur.messages) });
+    out.push({ key: 'current', sessionId: cur.id, current: true, date: cur.updatedAt || null, sections: cur.lessonSections, topic: cur.studyTopic, currentSection: cur.currentSection, doneSections: cur.doneSections, messages: visible(cur.messages) });
   }
   keptStore.read()
     .filter(k => k && k.userId === userId && k.studyId === studyId && !(cur && k.sessionId === cur.id))
@@ -69,7 +69,7 @@ router.get('/api/study-notes/available', requireAuth, (req, res) => {
   add(() => sessionsStore.read().forEach(s => {
     if (s && s.userId === userId && s.kind === 'lesson' && typeof s.studyId === 'string') ids.add(s.studyId);
   }));
-  add(() => notesStore.read().forEach(r => { if (r && r.userId === userId && (r.points || []).length) ids.add(r.studyId); }));
+  add(() => notesStore.read().forEach(r => { if (r && r.userId === userId && ((r.points || []).length || (r.recaps || []).length)) ids.add(r.studyId); }));
   add(() => keptStore.read().forEach(k => { if (k && k.userId === userId && typeof k.studyId === 'string') ids.add(k.studyId); }));
   res.json({ success: true, allowed: true, studyIds: Array.from(ids) });
 });
@@ -116,7 +116,8 @@ router.get('/study-notes/:studyId', requireAuth, (req, res) => {
     return messagePage(req, res, 500, 'Study Notes are unavailable right now. Nothing was changed. Please try again later.');
   }
   const points = (record && record.points) || [];
-  if (!study && !lessons.length && !notes.length && !points.length) {
+  const recaps = (record && record.recaps) || [];
+  if (!study && !lessons.length && !notes.length && !points.length && !recaps.length) {
     return messagePage(req, res, 404, 'That study isn’t available. It may have been deleted or un-shared.');
   }
 
@@ -129,7 +130,15 @@ router.get('/study-notes/:studyId', requireAuth, (req, res) => {
     else if (record && Array.isArray(record.sections)) sections = record.sections;
   }
   const has = n => lessons.some(l => l.messages.some(m => inSection(m, n)));
-  const list = sections.map(s => ({ n: s.n, title: s.title, teaching: has(s.n) }));
+  const taught  = n => lessons.some(l => l.messages.some(m => m.role === 'assistant' && inSection(m, n)));
+  const current = lessons.find(l => l.current);
+  const list = sections.map(s => ({
+    n: s.n, title: s.title, teaching: has(s.n),
+    recap:     displayRecap(recaps.find(x => x.section === s.n)),
+    canRecap:  !!study && taught(s.n),
+    // Still in this section of the lesson now saved.
+    partway:   !!current && current.currentSection === s.n && !(current.doneSections || []).includes(s.n),
+  }));
   // A study with no sections is taught as one piece (section 0).
   if (has(0)) list.unshift({ n: 0, title: 'The whole study', teaching: true });
 
@@ -184,10 +193,10 @@ router.get('/study-notes/:studyId', requireAuth, (req, res) => {
       <div class="sn-body" id="snBody"></div>
     </div>`,
     scripts: `<script src="/js/render-markdown.js?v=2"></script>
-<script src="/js/teacher-entry.js?v=10"></script>
+<script src="/js/teacher-entry.js?v=11"></script>
 <script src="/js/text-size.js?v=1"></script>
 <script>window.STUDY_NOTES_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/study-notes.js?v=3"></script>`,
+<script src="/js/study-notes.js?v=4"></script>`,
   }));
 });
 
@@ -220,12 +229,7 @@ function gate(req, res, next) {
 function cleanNote(v) {
   return typeof v === 'string' ? v.replace(/\r\n?/g, '\n').trim().slice(0, NOTE_MAX) : '';
 }
-// Sections before an Opposing Views study's "# Part 2" heading present the view.
-function inPart1(study, section) {
-  if (!study || study.studyType !== 'opposing' || !section) return false;
-  const at = String(study.content || '').search(/^#\s+part\s*(?:2|two)\b/im);
-  return at !== -1 && section <= teacher.parseLessonSections(study.content.slice(0, at)).length;
-}
+function inPart1(study, section) { return teacher.partOf(study, section) === 1; }
 
 // The saved points of the session now on the Teacher page, with where each one
 // is in what the page shows (never any text).
@@ -359,5 +363,42 @@ router.delete('/api/study-notes/:studyId/points/:pointId', requireAuth, gate, wr
   points.splice(i, 1);
   return {};
 }));
+
+// ─── Section recaps ───────────────────────────────────────────────────────────
+// The recap a Teacher reply just started (Teacher page): waits for it, and returns
+// it only if it is the one that covers ?through=<message id>.
+router.get('/api/study-notes/:studyId/recaps/:section', requireAuth, gate, async (req, res) => {
+  const userId = req.session.userId;
+  const n = parseInt(req.params.section, 10);
+  await waitFor(userId, req.params.studyId, n);
+  let rec;
+  try { rec = findRecord(notesStore.read(), userId, req.params.studyId); }
+  catch { return notesUnavailable(res); }
+  const recap = ((rec && rec.recaps) || []).find(x => x.section === n && x.throughMessageId === req.query.through);
+  res.json({ success: true, recap: displayRecap(recap) });
+});
+
+// "Create recap" (body: { section }): the same call, checks and daily limit, from
+// the newest lesson that taught the section.
+router.post('/api/study-notes/:studyId/recaps', requireAuth, gate, aiLimiter, async (req, res) => {
+  const userId  = req.session.userId;
+  const studyId = req.params.studyId;
+  const study   = teacher.findReadableStudy(req, studyId);
+  if (!study) return res.status(404).json({ success: false, error: 'That study is no longer available.' });
+  const n = req.body && req.body.section;
+  let lessons;
+  try { lessons = lessonsFor(userId, studyId); } catch { return notesUnavailable(res); }
+  const lesson = Number.isInteger(n) && n >= 1
+    ? lessons.find(l => l.messages.some(m => m.role === 'assistant' && inSection(m, n))) : null;
+  if (!lesson) return res.status(400).json({ success: false, error: 'There is no teaching to recap in that section yet.' });
+  const r = await makeRecap({
+    prompts: req.app.locals.prompts, userId, studyId, studyTopic: study.topic,
+    sections: teacher.parseLessonSections(study.content), section: n, sessionId: lesson.sessionId,
+    messages: lesson.messages, part: teacher.partOf(study, n),
+  });
+  if (r.recap) return res.json({ success: true, recap: displayRecap(r.recap) });
+  if (r.reason === 'limit') return res.status(429).json({ success: false, error: 'No more recaps can be made today. Please try again tomorrow.' });
+  res.status(500).json({ success: false, error: 'The recap couldn’t be made this time. Please try again.' });
+});
 
 module.exports = router;

@@ -33,6 +33,8 @@ const { aiLimiter } = require('../middleware/rateLimit');
 
 const { inProgressList, sectionTitle, resumeText } = require('../lib/teacher-progress');
 const { sessionsStore, keptStore, keepLesson } = require('../lib/teacher-store');
+const { notesStore, findRecord } = require('../lib/study-notes');
+const { makeRecap, throughId } = require('../lib/section-recap');
 const router = express.Router();
 
 const STUDIES_PATH  = path.join(__dirname, '../data/studies.json');
@@ -249,6 +251,39 @@ function applyTags(session, turnType, at, done, jumpSection) {
   session.taughtSections = Array.from(taught).sort((a, b) => a - b);
   session.finished       = len > 0 && doneSet.has(len);
   return { at: cur, done: acceptedDone };
+}
+
+// ─── Section recaps (lib/section-recap.js) ──────────────────────────────────
+// Sections before an Opposing Views study's "# Part 2" heading present the view.
+function partOf(study, section) {
+  if (!study || study.studyType !== 'opposing' || !section) return null;
+  const at = String(study.content || '').search(/^#\s+part\s*(?:2|two)\b/im);
+  if (at === -1) return null;
+  return section <= parseLessonSections(study.content.slice(0, at)).length ? 1 : 2;
+}
+// Starts a recap of section n from a saved lesson; nothing waits for it. Returns
+// the last message it covers, or null when there is nothing to recap.
+function startRecap(req, study, session, n) {
+  const through = throughId(session.messages, n);
+  if (!through) return null;
+  makeRecap({
+    prompts: req.app.locals.prompts, userId: req.session.userId, studyId: study.id, studyTopic: study.topic,
+    sections: sessionSections(session, study), section: n, sessionId: session.id,
+    messages: session.messages.slice(), part: partOf(study, n),
+  });
+  return through;
+}
+// The last section has no next one to leave it for. When the lesson is ended, redo
+// its recap if more was taught in it since (or the first try didn't work).
+function recapLastSection(req, study, session) {
+  if (!study || !session || session.kind !== 'lesson') return;
+  const last = sessionSections(session, study).length;
+  if (!last || !(session.doneSections || []).includes(last)) return;
+  try {
+    const rec = findRecord(notesStore.read(), req.session.userId, study.id);
+    const old = rec && (rec.recaps || []).find(x => x.section === last);
+    if (!old || old.throughMessageId !== throughId(session.messages, last)) startRecap(req, study, session, last);
+  } catch (err) { console.error('[Teacher/recap]', err.message); }
 }
 
 // sectionTitle / resumeText live in lib/teacher-progress.js (shared with the
@@ -586,11 +621,11 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
     title: 'Study with a Teacher',
     content,
     scripts: `<script src="/js/render-markdown.js?v=2"></script>
-<script src="/js/teacher-entry.js?v=10"></script>
+<script src="/js/teacher-entry.js?v=11"></script>
 <script src="/js/teacher-points.js?v=1"></script>
 <script src="/js/geo-map.js?v=3"></script><script src="/js/orig-words.js?v=2"></script><script src="/js/library.js?v=87"></script>
 <script>window.TEACHER_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/teacher.js?v=16"></script>`,
+<script src="/js/teacher.js?v=17"></script>`,
   }));
 });
 
@@ -655,7 +690,7 @@ function flagSession(field) {
         if (idx === -1) return { changed: false, found: false };
         if (sessions[idx][field] === true) return { changed: false, found: true };
         sessions[idx][field] = true;
-        return { changed: true, found: true };
+        return { changed: true, found: true, session: sessions[idx] };
       });
     } catch (err) {
       console.error('[Teacher] save ' + field + ':', err.message);
@@ -663,6 +698,7 @@ function flagSession(field) {
     }
     if (!r.found) return res.status(404).json({ success: false, error: 'No saved session.' });
     res.json({ success: true });
+    if (field === 'done' && r.session && !memberGated(req)) recapLastSection(req, findReadableStudy(req, req.params.studyId), r.session);
   };
 }
 router.put('/api/teacher/:studyId/session/done', requireAuth, flagSession('done'));
@@ -890,6 +926,7 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
     }
 
     // Persist the completed exchange (a turn the reader aborted is never saved).
+    let leftSection = null, recapPending = null;
     // Inside the store's queue, on a fresh read, so a concurrent write (another
     // tab, a delete) isn't lost. If it can't be saved this throws, and the reader
     // gets the same error as any failed reply.
@@ -924,6 +961,11 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
       }
       if (r.again) throw new Error('the saved lesson kept changing; nothing was replaced');
       session = r.saved;
+      // After the save, and nothing waits for it: recap the section this reply left.
+      if (session && leftSection) {
+        const through = startRecap(req, study, session, leftSection);
+        if (through) recapPending = { section: leftSection, through };
+      }
     }
 
     function lessonKey(s) { return s ? s.id + ':' + (s.messages || []).length : ''; }
@@ -937,6 +979,12 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
       const replyMsg = { role: 'assistant', content: reply, id: randomUUID(), at: new Date().toISOString(), section: accepted.at };
       if (accepted.done.length && accepted.at !== prevSection) replyMsg.endsSection = prevSection;
       newTurn.section = accepted.at;
+      // Left section: the lesson moved on from it, or it was the last and is now done.
+      leftSection = null;
+      if (session.kind === 'lesson') {
+        if (prevSection >= 1 && accepted.at !== prevSection) leftSection = prevSection;
+        else if (accepted.done.includes((session.lessonSections || []).length)) leftSection = prevSection;
+      }
       session.messages = (session.messages || []).concat([newTurn, replyMsg]);
       console.log(`[Teacher/${kind}] tags at:${at === null ? 'none' : at} done:${done.length ? done.join(',') : 'none'}` +
         ` -> accepted at:${accepted.at} done:${accepted.done.length ? accepted.done.join(',') : 'none'} (${turnType})`);
@@ -960,6 +1008,7 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
         res.write(`data: ${JSON.stringify({ lesson: lessonSummary(session) })}\n\n`);
         const last = session.messages.length - 1;
         res.write(`data: ${JSON.stringify({ message: { sessionId: session.id, id: session.messages[last].id, index: last } })}\n\n`);
+        if (recapPending) res.write(`data: ${JSON.stringify({ recap: recapPending })}\n\n`);
       }
       res.write('data: [DONE]\n\n');
       res.end();
@@ -991,6 +1040,7 @@ router.post('/api/teacher/review', requireAuth, aiLimiter, async (req, res) => {
   let session;
   try { session = findSession(readSessions(), req.session.userId, study.id, kind); }
   catch { return storeUnavailable(res); }
+  if (kind === 'lesson') recapLastSection(req, study, session);
   const visible = session ? (session.messages || []).filter(isReaderVisible) : [];
   if (!visible.some(m => m.role === 'user')) {
     return res.json({ success: true, review: null });   // nothing from the reader yet — nothing to review
@@ -1101,4 +1151,4 @@ module.exports = router;
 // (routes/languages.js reuses "Say that more simply" word for word).
 module.exports.TEACHER_ACTIONS = ACTIONS;
 // Study Notes (routes/study-notes.js) reads lessons by the same rules.
-Object.assign(module.exports, { memberGated, findReadableStudy, parseLessonSections, isReaderVisible, displayMessages, findSession });
+Object.assign(module.exports, { memberGated, findReadableStudy, parseLessonSections, isReaderVisible, displayMessages, findSession, partOf });
