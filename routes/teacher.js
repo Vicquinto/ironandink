@@ -32,10 +32,10 @@ const { aiLimiter } = require('../middleware/rateLimit');
 // injected on the way out.
 
 const { inProgressList, sectionTitle, resumeText } = require('../lib/teacher-progress');
+const { sessionsStore } = require('../lib/teacher-store');
 const router = express.Router();
 
 const STUDIES_PATH  = path.join(__dirname, '../data/studies.json');
-const SESSIONS_PATH = path.join(__dirname, '../data/teacher-sessions.json');
 
 // Member-only gate (dark unless BILLING_ENABLED=true) — same idiom as dialogue.js.
 const ENT_USERS_PATH = path.join(__dirname, '../data/users.json');
@@ -52,15 +52,13 @@ function readStudies() {
   } catch { return []; }
 }
 
-function readSessions() {
-  try {
-    if (!fs.existsSync(SESSIONS_PATH)) return [];
-    return JSON.parse(fs.readFileSync(SESSIONS_PATH, 'utf8'));
-  } catch { return []; }
-}
+// Saved sessions (lib/teacher-store.js). read() throws if the file exists but is
+// damaged; update() then writes nothing. Both cases end in storeUnavailable (or
+// the page's own message), never in "no saved session".
+function readSessions() { return sessionsStore.read(); }
 
-function writeSessions(data) {
-  fs.writeFileSync(SESSIONS_PATH, JSON.stringify(data, null, 2));
+function storeUnavailable(res) {
+  return res.status(500).json({ success: false, error: 'Saved sessions are unavailable right now. Nothing was changed.' });
 }
 
 // Old records with no kind were Tutor sessions; like "tutor" and "teacher" they
@@ -413,7 +411,22 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
   if (mode !== 'section') section = null;
   const kind = kindOfMode(mode);
 
-  const allSessions = readSessions();
+  let allSessions;
+  try { allSessions = readSessions(); }
+  catch {
+    // Never shown as "nothing saved": that would start a new lesson by itself.
+    return res.status(500).send(renderLayout({
+      req,
+      activeSection: 'teacher',
+      title: 'Study with a Teacher',
+      content: `
+        <div class="page-header">
+          <h2 class="page-title">Study with a Teacher</h2>
+          <p class="page-subtitle">Saved sessions are unavailable right now. Nothing was changed. Please try again later.</p>
+        </div>
+        <a class="btn-warm" href="/library">Back to Library</a>`,
+    }));
+  }
   const saved = findSession(allSessions, req.session.userId, study.id, kind);
   const isOwner = study.userId === req.session.userId;
   // Which mode this page is, in words (top label + conversation header).
@@ -573,7 +586,9 @@ router.get('/teacher/:studyId', requireAuth, (req, res) => {
 router.get('/api/teacher/:studyId/session', requireAuth, (req, res) => {
   const study = findReadableStudy(req, req.params.studyId);
   if (!study) return res.status(404).json({ success: false, error: 'Study not found.' });
-  const session = findSession(readSessions(), req.session.userId, study.id, cleanKind(req.query.kind));
+  let session;
+  try { session = findSession(readSessions(), req.session.userId, study.id, cleanKind(req.query.kind)); }
+  catch { return storeUnavailable(res); }
   if (!session) return res.json({ success: true, session: null });
   res.json({
     success: true,
@@ -590,7 +605,10 @@ router.get('/api/teacher/:studyId/session', requireAuth, (req, res) => {
 router.get('/api/teacher/:studyId/sessions', requireAuth, (req, res) => {
   const study = findReadableStudy(req, req.params.studyId);
   if (!study) return res.status(404).json({ success: false, error: 'Study not found.' });
-  res.json(Object.assign({ success: true }, sessionsSummary(readSessions(), req.session.userId, study.id)));
+  let summary;
+  try { summary = sessionsSummary(readSessions(), req.session.userId, study.id); }
+  catch { return storeUnavailable(res); }
+  res.json(Object.assign({ success: true }, summary));
 });
 
 // ─── GET /api/teacher/in-progress ─────────────────────────────────────────────
@@ -615,14 +633,22 @@ router.get('/api/teacher/in-progress', requireAuth, (req, res) => {
 // Only the member's own saved session of that kind (userId from the session),
 // keyed like DELETE so it works even if the study is gone.
 function flagSession(field) {
-  return (req, res) => {
-    const sessions = readSessions();
-    const idx = findSessionIndex(sessions, req.session.userId, req.params.studyId, cleanKind(req.query.kind));
-    if (idx === -1) return res.status(404).json({ success: false, error: 'No saved session.' });
-    if (sessions[idx][field] !== true) {
-      sessions[idx][field] = true;
-      writeSessions(sessions);
+  return async (req, res) => {
+    const userId = req.session.userId;
+    let r;
+    try {
+      r = await sessionsStore.update(sessions => {
+        const idx = findSessionIndex(sessions, userId, req.params.studyId, cleanKind(req.query.kind));
+        if (idx === -1) return { changed: false, found: false };
+        if (sessions[idx][field] === true) return { changed: false, found: true };
+        sessions[idx][field] = true;
+        return { changed: true, found: true };
+      });
+    } catch (err) {
+      console.error('[Teacher] save ' + field + ':', err.message);
+      return storeUnavailable(res);
     }
+    if (!r.found) return res.status(404).json({ success: false, error: 'No saved session.' });
     res.json({ success: true });
   };
 }
@@ -632,12 +658,21 @@ router.put('/api/teacher/:studyId/session/hide', requireAuth, flagSession('hidde
 // ─── DELETE /api/teacher/:studyId/session ─────────────────────────────────────
 // Keyed on the study id + the session's own userId, so it works even after the
 // study itself was deleted or un-shared (the reader can always clear their data).
-router.delete('/api/teacher/:studyId/session', requireAuth, (req, res) => {
-  const sessions = readSessions();
-  const idx = findSessionIndex(sessions, req.session.userId, req.params.studyId, cleanKind(req.query.kind));
-  if (idx === -1) return res.status(404).json({ success: false, error: 'No saved session.' });
-  sessions.splice(idx, 1);
-  writeSessions(sessions);
+router.delete('/api/teacher/:studyId/session', requireAuth, async (req, res) => {
+  const userId = req.session.userId;
+  let r;
+  try {
+    r = await sessionsStore.update(sessions => {
+      const idx = findSessionIndex(sessions, userId, req.params.studyId, cleanKind(req.query.kind));
+      if (idx === -1) return { changed: false, found: false };
+      sessions.splice(idx, 1);
+      return { changed: true, found: true };
+    });
+  } catch (err) {
+    console.error('[Teacher] delete session:', err.message);
+    return storeUnavailable(res);
+  }
+  if (!r.found) return res.status(404).json({ success: false, error: 'No saved session.' });
   res.json({ success: true });
 });
 
@@ -658,8 +693,9 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
   const study = findReadableStudy(req, studyId);
   if (!study) return res.status(404).json({ success: false, error: 'That study is no longer available.' });
 
-  const sessions = readSessions();
-  const existing = findSession(sessions, req.session.userId, study.id, kind);
+  let existing;
+  try { existing = findSession(readSessions(), req.session.userId, study.id, kind); }
+  catch { return storeUnavailable(res); }
 
   // Work out the session this turn belongs to and the new user turn to add.
   let session;
@@ -830,40 +866,48 @@ router.post('/api/teacher/exchange', requireAuth, aiLimiter, async (req, res) =>
     }
 
     // Persist the completed exchange (a turn the reader aborted is never saved).
-    // Re-read the file so a concurrent write (another tab, a delete) isn't lost.
+    // Inside the store's queue, on a fresh read, so a concurrent write (another
+    // tab, a delete) isn't lost. If it can't be saved this throws, and the reader
+    // gets the same error as any failed reply.
     if (!closed) {
-      const all = readSessions();
-      const idx = findSessionIndex(all, req.session.userId, study.id, kind);
-      if (start) {
-        if (idx !== -1) all.splice(idx, 1);
-        all.push(session);
-      } else if (idx === -1 || all[idx].id !== session.id) {
-        // The saved session was deleted or replaced mid-turn — don't resurrect it.
-        session = null;
-      } else {
-        const lessonSections = session.lessonSections;
-        session = all[idx];
-        if (!Array.isArray(session.lessonSections)) session.lessonSections = lessonSections;
-      }
-      if (session) {
-        session.messages = (session.messages || []).concat([newTurn, { role: 'assistant', content: reply }]);
-        const turnType = start ? 'opening' : (newTurn.action === 'jump' ? 'jump' : 'reply');
-        const accepted = applyTags(session, turnType, at, done, newTurn.section);
-        console.log(`[Teacher/${kind}] tags at:${at === null ? 'none' : at} done:${done.length ? done.join(',') : 'none'}` +
-          ` -> accepted at:${accepted.at} done:${accepted.done.length ? accepted.done.join(',') : 'none'} (${turnType})`);
-        // A check moves from its questions to its teaching once, on the model's
-        // [[phase:teach]]; it never moves back.
-        if (session.kind === 'check' && phase === 'teach' && session.checkPhase !== 'teach') {
-          session.checkPhase = 'teach';
-          console.log(`[Teacher/check] phase -> teach`);
+      const userId = req.session.userId;
+      const r = await sessionsStore.update(all => {
+        const idx = findSessionIndex(all, userId, study.id, kind);
+        let target;
+        if (start) {
+          if (idx !== -1) all.splice(idx, 1);
+          target = session;
+          all.push(target);
+        } else if (idx === -1 || all[idx].id !== session.id) {
+          // The saved session was deleted or replaced mid-turn — don't resurrect it.
+          return { changed: false, saved: null };
+        } else {
+          target = all[idx];
+          if (!Array.isArray(target.lessonSections)) target.lessonSections = session.lessonSections;
         }
-        session.review    = null;          // a stale review no longer describes the session
-        // Going back to a session makes it in progress again (lib/teacher-progress.js).
-        delete session.done;
-        delete session.hidden;
-        session.updatedAt = new Date().toISOString();
-        writeSessions(all);
+        saveExchange(target);
+        return { changed: true, saved: target };
+      });
+      session = r.saved;
+    }
+
+    function saveExchange(session) {
+      session.messages = (session.messages || []).concat([newTurn, { role: 'assistant', content: reply }]);
+      const turnType = start ? 'opening' : (newTurn.action === 'jump' ? 'jump' : 'reply');
+      const accepted = applyTags(session, turnType, at, done, newTurn.section);
+      console.log(`[Teacher/${kind}] tags at:${at === null ? 'none' : at} done:${done.length ? done.join(',') : 'none'}` +
+        ` -> accepted at:${accepted.at} done:${accepted.done.length ? accepted.done.join(',') : 'none'} (${turnType})`);
+      // A check moves from its questions to its teaching once, on the model's
+      // [[phase:teach]]; it never moves back.
+      if (session.kind === 'check' && phase === 'teach' && session.checkPhase !== 'teach') {
+        session.checkPhase = 'teach';
+        console.log(`[Teacher/check] phase -> teach`);
       }
+      session.review    = null;          // a stale review no longer describes the session
+      // Going back to a session makes it in progress again (lib/teacher-progress.js).
+      delete session.done;
+      delete session.hidden;
+      session.updatedAt = new Date().toISOString();
     }
 
     if (!closed && !res.writableEnded) {
@@ -897,7 +941,9 @@ router.post('/api/teacher/review', requireAuth, aiLimiter, async (req, res) => {
   const study = findReadableStudy(req, studyId);
   if (!study) return res.status(404).json({ success: false, error: 'That study is no longer available.' });
 
-  const session = findSession(readSessions(), req.session.userId, study.id, kind);
+  let session;
+  try { session = findSession(readSessions(), req.session.userId, study.id, kind); }
+  catch { return storeUnavailable(res); }
   const visible = session ? (session.messages || []).filter(isReaderVisible) : [];
   if (!visible.some(m => m.role === 'user')) {
     return res.json({ success: true, review: null });   // nothing from the reader yet — nothing to review
@@ -984,10 +1030,17 @@ router.post('/api/teacher/review', requireAuth, aiLimiter, async (req, res) => {
       at:             new Date().toISOString(),
     };
 
-    // Keep the review with the saved session (best effort — re-read before write).
-    const all = readSessions();
-    const s = findSession(all, req.session.userId, study.id, kind);
-    if (s && s.id === session.id) { s.review = review; writeSessions(all); }
+    // Keep the review with the saved session (best effort: the reader still gets
+    // it if it can't be saved).
+    const userId = req.session.userId;
+    try {
+      await sessionsStore.update(all => {
+        const s = findSession(all, userId, study.id, kind);
+        if (!s || s.id !== session.id) return { changed: false };
+        s.review = review;
+        return { changed: true };
+      });
+    } catch (err) { console.error('[Teacher/review] save:', err.message); }
 
     res.json({ success: true, review });
   } catch (err) {
