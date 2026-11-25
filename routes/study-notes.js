@@ -182,6 +182,10 @@ router.get('/study-notes/:studyId', requireAuth, (req, res) => {
         <div class="sn-header-tools">
           ${study ? `<a class="sn-link" href="${escapeHtml(openHref)}">Open the study</a>` : ''}
           ${study && hasCurrent ? `<a class="sn-link" href="/teacher/${escapeHtml(encodeURIComponent(studyId))}?mode=lesson&amp;resume=1">Continue the lesson</a>` : ''}
+          <span class="sn-fold-all">
+            <button type="button" class="sn-btn" id="snExpandAll">Expand all</button>
+            <button type="button" class="sn-btn" id="snCollapseAll">Collapse all</button>
+          </span>
           <span class="ucp-zoom" role="group" aria-label="Study Notes text size">
             <button type="button" class="guide-font-btn guide-font-btn-sm" id="snFontDec" title="Smaller notes text" aria-label="Smaller notes text">A&#8722;</button>
             <button type="button" class="guide-font-btn guide-font-btn-md" id="snFontReset" title="Default notes text" aria-label="Default notes text">A</button>
@@ -196,7 +200,7 @@ router.get('/study-notes/:studyId', requireAuth, (req, res) => {
 <script src="/js/teacher-entry.js?v=11"></script>
 <script src="/js/text-size.js?v=1"></script>
 <script>window.STUDY_NOTES_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/study-notes.js?v=4"></script>`,
+<script src="/js/study-notes.js?v=5"></script>`,
   }));
 });
 

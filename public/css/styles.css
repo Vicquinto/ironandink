@@ -8369,8 +8369,29 @@ body {
 .recap-title { font-weight: 600; color: var(--accent); margin-bottom: 0.4em; }
 .recap-saved { font-size: 0.82em; font-style: italic; color: var(--warm-brown); }
 .sn-keypoints { margin-bottom: 0.8em; }
-.sn-title-link { color: inherit; text-decoration: none; }
-.sn-title-link:hover, .sn-title-link:focus-visible { text-decoration: underline; }
+.sn-fold-all { display: inline-flex; gap: 14px; }
+.sn-head { display: flex; align-items: baseline; justify-content: space-between; gap: 4px 18px; }
+.sn-head .sn-title { min-width: 0; margin-bottom: 0; }
+.sn-teach { flex-shrink: 0; font-size: 0.85em; white-space: nowrap; }
+.sn-toggle { display: flex; align-items: baseline; gap: 0.45em; padding: 0; background: none; border: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.sn-toggle:hover .sn-toggle-text { text-decoration: underline; }
+.sn-chevron { flex-shrink: 0; font-size: 0.8em; color: var(--warm-brown); transform: rotate(90deg); transition: transform 0.15s; }
+.sn-section.is-collapsed .sn-chevron { transform: none; }
+.sn-summary { display: none; margin-top: 0.2em; font-size: 0.88em; font-style: italic; color: var(--warm-brown); }
+.sn-section.is-collapsed .sn-summary { display: block; }
+.sn-content { margin-top: 0.7em; }
+.sn-section.is-collapsed .sn-content, .sn-section.is-empty .sn-content { display: none; }
+.sn-section[hidden] { display: none; }
+@media (max-width: 600px) {
+  .sn-head { flex-direction: column; }
+  .sn-toggle { min-height: 44px; align-items: center; }
+}
+@media (prefers-reduced-motion: reduce) { .sn-chevron { transition: none; } }
+/* Print: every section open; the controls left out. */
+@media print {
+  .sn-section.is-collapsed .sn-content { display: block !important; }
+  .sn-summary, .sn-chevron, .sn-teach, .sn-header-tools, .sn-point-row, .sn-move-list { display: none !important; }
+}
 .sn-move-list { list-style: none; margin: 0.5em 0 0; padding: 0.3em; max-height: 15em; overflow-y: auto; background: var(--bg); border: 1px solid rgba(160,132,92,0.35); border-radius: 4px; }
 .sn-move-option { display: block; width: 100%; padding: 0.35em 0.6em; background: none; border: none; border-radius: 3px; color: var(--text); font: inherit; font-size: 0.9em; text-align: left; cursor: pointer; }
 .sn-move-option:hover, .sn-move-option:focus-visible { background: rgba(160,132,92,0.15); }

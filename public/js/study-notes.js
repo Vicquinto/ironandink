@@ -97,6 +97,7 @@
     }
     blocks[query] = function (show) {
       want = show;
+      openSectionOf(d);
       d.open = true;      // loads it, if it hasn't been opened yet
       reveal();
     };
@@ -269,6 +270,7 @@
           p.section = d.section === undefined ? null : d.section;
           close(false);
           placePoint(p, card);
+          openSectionOf(card);
           btn.focus({ preventScroll: true });
           card.scrollIntoView({ block: 'nearest' });
           if (liveEl) liveEl.textContent = 'Moved to ' + o.title;
@@ -339,6 +341,7 @@
             if (!d || !d.success || !d.recap) throw new Error((d && d.error) || 'The recap couldn’t be made this time. Please try again.');
             s.recap = d.recap;
             draw();
+            if (s.refresh) s.refresh();
           })
           .catch(function (err) { btn.disabled = false; status.textContent = err.message; });
       });
@@ -346,6 +349,87 @@
       box.appendChild(status);
     }
     draw();
+  }
+
+  // ── Collapsible sections ─────────────────────────────────────────────────
+  // All closed to begin with; which ones are open is remembered per study in this
+  // browser. Closing is done with a class (.is-collapsed), so print can show all.
+  var OPEN_KEY = 'ironink_study_notes_open_' + BOOT.studyId;
+  var openKeys = {};
+  try { (JSON.parse(localStorage.getItem(OPEN_KEY)) || []).forEach(function (k) { openKeys[k] = true; }); } catch (e) {}
+  function saveOpen() {
+    var list = Object.keys(openKeys).filter(function (k) { return openKeys[k]; });
+    try {
+      if (list.length) localStorage.setItem(OPEN_KEY, JSON.stringify(list));
+      else localStorage.removeItem(OPEN_KEY);
+    } catch (e) {}
+  }
+  function count(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
+
+  var folds = {};
+  // inside(): what the section holds, as short phrases; none → a plain title with
+  // no toggle. teachHref: the "Teach me this section" link, if there is one.
+  function foldSection(key, title, teachHref) {
+    var sec = el('section', 'sn-section');
+    sec.setAttribute('data-key', key);
+    var head = el('div', 'sn-head');
+    var h = el('h3', 'sn-title');
+    head.appendChild(h);
+    if (teachHref) {
+      var a = el('a', 'sn-link sn-teach', 'Teach me this section');
+      a.href = teachHref;
+      a.setAttribute('aria-label', 'Study this section with the Teacher: ' + title);
+      head.appendChild(a);
+    }
+    var summary = el('p', 'sn-summary');
+    var content = el('div', 'sn-content');
+    content.id = 'sn-content-' + key;
+    [head, summary, content].forEach(function (n) { sec.appendChild(n); });
+
+    var btn = null;
+    function show() {
+      var open = !!openKeys[key];
+      sec.classList.toggle('is-collapsed', !!btn && !open);
+      if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    var fold = {
+      content: content,
+      sec: sec,
+      inside: function () { return []; },
+      refresh: function () {
+        var parts = fold.inside();
+        summary.textContent = parts.join(' · ');
+        sec.classList.toggle('is-empty', !parts.length);
+        if (parts.length && !btn) {
+          h.textContent = '';
+          btn = el('button', 'sn-toggle');
+          btn.type = 'button';
+          btn.setAttribute('aria-controls', content.id);
+          var chev = el('span', 'sn-chevron', '▸');
+          chev.setAttribute('aria-hidden', 'true');
+          btn.appendChild(chev);
+          btn.appendChild(el('span', 'sn-toggle-text', title));
+          btn.addEventListener('click', function () { fold.set(!openKeys[key]); saveOpen(); });
+          h.appendChild(btn);
+        } else if (!parts.length) {
+          btn = null;
+          h.textContent = title;
+        }
+        show();
+      },
+      set: function (open) { openKeys[key] = open; show(); },
+    };
+    folds[key] = fold;
+    return fold;
+  }
+  function openSectionOf(node) {
+    var sec = node.closest('.sn-section');
+    var fold = sec && folds[sec.getAttribute('data-key')];
+    if (fold) { fold.set(true); saveOpen(); }
+  }
+  function setAll(open) {
+    Object.keys(folds).forEach(function (k) { folds[k].set(open); });
+    saveOpen();
   }
 
   // ── Page ─────────────────────────────────────────────────────────────────
@@ -357,65 +441,75 @@
   var known = {};
   sections.forEach(function (s) { known[s.n] = true; });
 
+  function pointCount(fold) { return fold.content.querySelectorAll('.sn-point').length; }
+
   sections.forEach(function (s) {
     var notes = (BOOT.notes || []).filter(function (n) { return placed[n.id] === s.n; });
-    var sec = el('section', 'sn-section');
-    var h = el('h3', 'sn-title');
-    // Opens the Teacher at this section, as "Teach me this section" does.
-    if (BOOT.openHref && s.n >= 1 && window.IronInkTeacher && window.IronInkTeacher.teacherUrl) {
-      var a = el('a', 'sn-title-link', s.title);
-      a.href = window.IronInkTeacher.teacherUrl(BOOT.studyId, 'section', s.n);
-      a.setAttribute('aria-label', 'Study this section with the Teacher: ' + s.title);
-      h.appendChild(a);
-    } else h.textContent = s.title;
-    sec.appendChild(h);
-    keyPoints(sec, s);
-    var afterKey = sec.lastChild;
-    notesBlock(sec, 'Your notes on the study', notes);
-    if (s.teaching) teachingBlock(sec, 'Full teaching', 'section=' + s.n, true);
-    addGroup('s' + s.n, sec, afterKey.nextSibling, 'Your saved points', function (none) {
-      sec.classList.toggle('is-empty', none && !notes.length && !s.teaching && !s.recap);
-    });
-    settle(groups['s' + s.n]);
-    body.appendChild(sec);
+    // Opens the Teacher at this section, as the study's own buttons do.
+    var canTeach = BOOT.openHref && s.n >= 1 && window.IronInkTeacher && window.IronInkTeacher.teacherUrl;
+    var fold = foldSection('s' + s.n, s.title, canTeach ? window.IronInkTeacher.teacherUrl(BOOT.studyId, 'section', s.n) : null);
+    var box = fold.content;
+    keyPoints(box, s);
+    var afterKey = box.lastChild;
+    notesBlock(box, 'Your notes on the study', notes);
+    if (s.teaching) teachingBlock(box, 'Full teaching', 'section=' + s.n, true);
+    fold.inside = function () {
+      var parts = [], points = pointCount(fold);
+      if (s.recap) parts.push('Key points');
+      if (points) parts.push(count(points, 'saved point', 'saved points'));
+      if (notes.length) parts.push(count(notes.length, 'note on the study', 'notes on the study'));
+      if (s.teaching) parts.push('Full teaching');
+      return parts;
+    };
+    s.refresh = fold.refresh;
+    addGroup('s' + s.n, box, afterKey ? afterKey.nextSibling : box.firstChild, 'Your saved points', fold.refresh);
+    fold.refresh();
+    body.appendChild(fold.sec);
   });
 
   [['lesson', 'Other points'], ['check', 'From your understanding check']].forEach(function (x) {
-    var o = el('section', 'sn-section');
-    o.appendChild(el('h3', 'sn-title', x[1]));
-    addGroup('none-' + x[0], o, null, null, function (none) { o.hidden = none; });
+    var fold = foldSection('none-' + x[0], x[1]);
+    fold.inside = function () { var n = pointCount(fold); return n ? [count(n, 'saved point', 'saved points')] : []; };
+    addGroup('none-' + x[0], fold.content, null, null, function (none) { fold.sec.hidden = none; fold.refresh(); });
     settle(groups['none-' + x[0]]);
-    body.appendChild(o);
+    body.appendChild(fold.sec);
   });
   (BOOT.points || []).forEach(function (p, i) { placePoint(p, pointCard(p, i)); });
 
+  function group(key, title, parts, fill) {
+    var fold = foldSection(key, title);
+    fold.inside = function () { return parts; };
+    fill(fold.content);
+    fold.refresh();
+    body.appendChild(fold.sec);
+  }
   var general = (BOOT.notes || []).filter(function (n) { return !known[placed[n.id]]; });
   if (general.length) {
-    var g = el('section', 'sn-section');
-    g.appendChild(el('h3', 'sn-title', 'General notes'));
-    notesBlock(g, null, general);
-    body.appendChild(g);
+    group('general', 'General notes', [count(general.length, 'note', 'notes')], function (box) { notesBlock(box, null, general); });
   }
 
   var earlier = BOOT.earlier || [];
   var current = earlier.filter(function (e) { return e.current; });
   var kept    = earlier.filter(function (e) { return !e.current; });
   if (current.length) {
-    var c = el('section', 'sn-section');
-    c.appendChild(el('h3', 'sn-title', 'Earlier conversation'));
-    c.appendChild(el('p', 'sn-muted', 'From before Study Notes began marking which section each part belongs to.'));
-    current.forEach(function (e) { teachingBlock(c, 'Show the conversation', 'earlier=' + encodeURIComponent(e.key), false); });
-    body.appendChild(c);
+    group('earlier', 'Earlier conversation', ['Conversation'], function (box) {
+      box.appendChild(el('p', 'sn-muted', 'From before Study Notes began marking which section each part belongs to.'));
+      current.forEach(function (e) { teachingBlock(box, 'Show the conversation', 'earlier=' + encodeURIComponent(e.key), false); });
+    });
   }
   if (kept.length) {
-    var k = el('section', 'sn-section');
-    k.appendChild(el('h3', 'sn-title', 'Earlier lessons'));
-    kept.forEach(function (e) {
-      var when = fmtDate(e.date);
-      teachingBlock(k, when ? 'Lesson from ' + when : 'Earlier lesson', 'earlier=' + encodeURIComponent(e.key), false);
+    group('kept', 'Earlier lessons', [count(kept.length, 'lesson', 'lessons')], function (box) {
+      kept.forEach(function (e) {
+        var when = fmtDate(e.date);
+        teachingBlock(box, when ? 'Lesson from ' + when : 'Earlier lesson', 'earlier=' + encodeURIComponent(e.key), false);
+      });
     });
-    body.appendChild(k);
   }
+
+  [['snExpandAll', true], ['snCollapseAll', false]].forEach(function (x) {
+    var b = document.getElementById(x[0]);
+    if (b) b.addEventListener('click', function () { setAll(x[1]); });
+  });
   if (!body.querySelector('.sn-section:not([hidden])')) body.appendChild(el('p', 'sn-muted', 'Nothing here yet.'));
 
   if (window.IronInkTextSize) {
