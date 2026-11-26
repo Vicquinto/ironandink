@@ -8044,6 +8044,9 @@ body {
 .notepad-anchor-label { font-weight: 700; }
 .notepad-anchor-quote { font-style: italic; }
 
+.notepad-filed { display: block; font-family: Georgia, serif; font-size: 0.74rem; color: #6B4226; margin-bottom: 6px; }
+.notepad-filed select, .ucp-filed select { max-width: 100%; font: inherit; color: inherit; background: transparent; border: none; border-bottom: 1px dotted currentColor; cursor: pointer; }
+.ucp-filed { display: block; flex-shrink: 0; padding: 6px 12px 0; font-size: 0.78rem; color: var(--warm-brown); }
 .notepad-composer-actions {
   display: flex;
   justify-content: flex-end;

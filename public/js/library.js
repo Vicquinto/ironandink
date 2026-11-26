@@ -2896,6 +2896,8 @@
         '<button class="ucp-share-btn" style="display:none;">Share to Chat</button>' +
         '<button class="ucp-pin-btn" style="display:none;">Pin to Notepad</button>' +
       '</div>' +
+      // A note with no highlighted text is filed under a section (notepad.js).
+      '<label class="ucp-filed" style="display:none;">Filed under: <select class="ucp-filed-select"></select></label>' +
       '<div class="ucp-input-row">' +
         '<textarea class="ucp-input" rows="2" placeholder="Ask a question…"></textarea>' +
         '<button class="ucp-ask-btn">Ask</button>' +
@@ -3087,7 +3089,24 @@
   // Add Note shows only where a notepad study is bound (or a saveable draft), or
   // on a highlighted Scripture passage — the same gate as the pin affordance.
   // Hidden (not errored) elsewhere.
+  // "Filed under" for a note or pin with no quote: shown only when the panel isn't
+  // grounded on a highlight and a study is bound to the notepad.
+  function ucpSyncFiled() {
+    var row = ucpEl && ucpEl.querySelector('.ucp-filed');
+    if (!row) return;
+    var select = row.querySelector('select');
+    var ok = !ucpGrounded && !!notepadCtx() && !ucpScriptureNotes() && window.__notepad && window.__notepad.fillSectionSelect &&
+      window.__notepad.fillSectionSelect(select, window.__notepad.sectionNow());
+    row.style.display = ok ? '' : 'none';
+  }
+  function ucpFiledSection() {
+    var row = ucpEl && ucpEl.querySelector('.ucp-filed');
+    if (!row || row.style.display === 'none' || !window.__notepad) return undefined;
+    return window.__notepad.selectedSection(row.querySelector('select'));
+  }
+
   function ucpUpdateNoteBtn() {
+    ucpSyncFiled();
     var noteBtn = ucpEl && ucpEl.querySelector('.ucp-note-btn:not(.ucp-mark-btn)');
     if (noteBtn) noteBtn.style.display = (canTakeNotes() || ucpScriptureNotes()) ? '' : 'none';
     // Mark my place: only for a highlight inside a study view that has bookmarks
@@ -3184,6 +3203,7 @@
 
     if (!window.__notepad) return;
     var data = ucpLastPin;
+    if (!data.quote) data = Object.assign({}, data, { section: ucpFiledSection() });
     ensureNotepadCtx(function (ctx) {
       btn.disabled    = true;
       btn.textContent = 'Pinning…';
@@ -3620,9 +3640,10 @@
     // Ungrounded + typed text → free note from the typed content.
     ucpClearNotice();
     var content = typed;
+    var section = ucpFiledSection();
     ensureNotepadCtx(function (ctx) {
       window.__notepad.saveLookupNote(ctx.id, ctx.title,
-        { quote: null, question: null, content: content, source: 'free', occurrence: null },
+        { quote: null, question: null, content: content, source: 'free', occurrence: null, section: section },
         function (ok) {
           if (!ok) return;
           ucpEl.querySelector('.ucp-input').value = '';

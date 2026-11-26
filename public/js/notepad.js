@@ -119,6 +119,7 @@
       '</div>',
       '<div class="notepad-composer" id="notepadComposer">',
         '<div class="notepad-anchor-banner" id="notepadAnchorBanner" style="display:none;"></div>',
+        '<label class="notepad-filed" id="notepadFiled" style="display:none;">Filed under: <select id="notepadFiledSelect"></select></label>',
         '<textarea class="notepad-input" id="notepadInput" rows="3" ',
           'placeholder="Write a note… (markdown: **bold**, *italic*, &gt; quote, # heading, - list)"></textarea>',
         '<div class="notepad-composer-actions">',
@@ -164,10 +165,75 @@
 
   function openWidget() {
     if (!widgetEl) widgetEl = createWidget();
+    var wasOpen = isOpen;
     widgetEl.style.display = 'flex';
     isOpen = true;
     renderStudyLabel();
     refresh();
+    if (!wasOpen) syncFiled(true);
+  }
+
+  // ── Filing a note with no quote under a section ─────────────────────────────
+  // The bound study's sections, numbered as the Teacher and Study Notes number
+  // them (teacher-entry.js), and the one the member is in now: the lesson's
+  // current section on the Teacher page (window.__notepadStudy.currentSection),
+  // else the nearest section heading at or above the top of the visible study.
+  function boundBody() {
+    var ctx = window.__notepadStudy;
+    return (ctx && ctx.body && ctx.id === curStudyId && window.IronInkTeacher) ? ctx.body : null;
+  }
+  function headingText(h) {
+    var c = h.cloneNode(true);
+    c.querySelectorAll(NON_TEXT_SELECTOR).forEach(function (n) { n.remove(); });
+    return c.textContent.replace(/\s+/g, ' ').trim();
+  }
+  function studySections() {
+    var body = boundBody();
+    if (!body) return [];
+    return window.IronInkTeacher.teachableHeadings(body).map(function (h, i) { return { n: i + 1, title: headingText(h) }; });
+  }
+  function sectionNow() {
+    var ctx = window.__notepadStudy, body = boundBody();
+    if (!body) return null;
+    if (typeof ctx.currentSection === 'function') {
+      var cur = parseInt(ctx.currentSection(), 10);
+      return cur >= 1 ? cur : null;
+    }
+    var top = Math.max(0, body.getBoundingClientRect().top) + 4, found = null;
+    window.IronInkTeacher.sectionHeadings(body).forEach(function (h) {
+      if (h.getClientRects().length && h.getBoundingClientRect().top <= top) found = h;
+    });
+    var i = found ? window.IronInkTeacher.teachableHeadings(body).indexOf(found) : -1;
+    return i >= 0 ? i + 1 : null;
+  }
+  // Fills a <select> with the sections and "Whole study (general)", choosing
+  // `chosen` (a section number or null). false when the study has no sections.
+  function fillSectionSelect(select, chosen) {
+    var list = studySections();
+    select.textContent = '';
+    if (!list.length) return false;
+    list.concat([{ n: null, title: 'Whole study (general)' }]).forEach(function (s) {
+      var o = document.createElement('option');
+      o.value = s.n === null ? '' : String(s.n);
+      o.textContent = s.title;
+      select.appendChild(o);
+    });
+    select.value = chosen ? String(chosen) : '';
+    return true;
+  }
+  function selectedSection(select) {
+    var n = parseInt(select && select.value, 10);
+    return n >= 1 ? n : null;
+  }
+  // The composer's line: shown for a note with no quote while a study is open.
+  // fresh: choose the section the member is in now (else keep their choice).
+  function syncFiled(fresh) {
+    var row = document.getElementById('notepadFiled');
+    var select = document.getElementById('notepadFiledSelect');
+    if (!row || !select) return;
+    var keep = fresh ? sectionNow() : selectedSection(select);
+    var ok = !pendingAnchor && fillSectionSelect(select, keep);
+    row.style.display = ok ? '' : 'none';
   }
 
   function closeWidget() {
@@ -190,7 +256,7 @@
     var changed = (studyId !== curStudyId);
     curStudyId   = studyId || null;
     curStudyName = studyName || '';
-    if (changed) { notesCache = []; clearPendingAnchor(); }
+    if (changed) { notesCache = []; clearPendingAnchor(); syncFiled(true); }
     if (isOpen) { renderStudyLabel(); refresh(); }
   }
 
@@ -435,6 +501,7 @@
     if (cancel) cancel.style.display = '';
     var addBtn = document.getElementById('notepadAddBtn');
     if (addBtn) addBtn.textContent = 'Save Anchored Note';
+    syncFiled(false);
   }
 
   function clearPendingAnchor() {
@@ -445,6 +512,7 @@
     if (cancel) cancel.style.display = 'none';
     var addBtn = document.getElementById('notepadAddBtn');
     if (addBtn) addBtn.textContent = 'Add Note';
+    syncFiled(false);
   }
 
   function addComposedNote() {
@@ -458,7 +526,8 @@
 
     var payload = pendingAnchor
       ? { quote: pendingAnchor.quote, question: null, content: text, source: 'personal', occurrence: pendingAnchor.occurrence }
-      : { quote: null,                question: null, content: text, source: 'free',     occurrence: null };
+      : { quote: null,                question: null, content: text, source: 'free',     occurrence: null,
+          section: selectedSection(document.getElementById('notepadFiledSelect')) };
 
     var addBtn = document.getElementById('notepadAddBtn');
     if (addBtn) addBtn.disabled = true;
@@ -579,6 +648,9 @@
       occurrence: (typeof data.occurrence === 'number' ? data.occurrence : null),
       // A pinned answer's map, as references (lib/geo.js sanitizeGeoRefs).
       geo:        data.geo || null,
+      // A note with no quote is filed under a section: the caller's choice, else
+      // the one the member is in now.
+      section:    data.quote ? null : (data.section !== undefined ? data.section : sectionNow()),
     }, function (ok, note) {
       if (ok) {
         renderNotesList();
@@ -959,6 +1031,9 @@
     // also used by the Library All Notes overview. Opening is handled here.
     noteMapHtml:       noteMapHtml,
     placeMarker:       placeMarker,
+    fillSectionSelect: fillSectionSelect,
+    selectedSection:   selectedSection,
+    sectionNow:        sectionNow,
     removeMarkers:     removeMarkers,
   };
 })();

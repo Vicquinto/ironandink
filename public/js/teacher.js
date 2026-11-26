@@ -144,7 +144,9 @@
   // Study-text notes, as in the Library study view: the same notepad, markers and
   // highlight panel (notepad.js, library.js), bound to this pane. Own studies only.
   if (studyBody && BOOT.isOwner) {
-    window.__notepadStudy = { id: BOOT.studyId, title: BOOT.topic, body: studyBody };
+    window.__notepadStudy = { id: BOOT.studyId, title: BOOT.topic, body: studyBody,
+      // A note with no quote is filed under the section the lesson is in.
+      currentSection: function () { return lessonSection; } };
     window.__notepadRerenderMarkers = function () {
       if (window.__notepad) window.__notepad.injectMarkers(studyBody, BOOT.studyId);
     };
@@ -175,10 +177,12 @@
   // ones are slightly muted, and the header names the section. The pane
   // scrolls only when the section CHANGES, never on every reply, so it doesn't
   // pull away from wherever the reader is looking.
+  var lessonSection = 0;   // for filing a note (notepad.js)
   function setLessonState(lesson) {
     if (!lesson) return;
     setCheckPhase(lesson.checkPhase);
     var cur  = parseInt(lesson.currentSection, 10) || 0;
+    lessonSection = cur;
     var done = Array.isArray(lesson.doneSections) ? lesson.doneSections : [];
     heads.forEach(function (h, i) {
       var n = i + 1;

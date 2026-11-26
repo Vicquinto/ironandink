@@ -49,8 +49,9 @@
     return out;
   }
 
-  function noteCard(note) {
-    var card = el('div', 'sn-note');
+  function noteCard(note, order) {
+    var card = el('div', 'sn-note sn-studynote');
+    card.setAttribute('data-order', String(order));
     if (note.quote) card.appendChild(el('blockquote', 'sn-note-quote', note.quote));
     if (note.question) card.appendChild(el('p', 'sn-note-question', note.question));
     if (note.content) {
@@ -64,14 +65,16 @@
       a.href = BOOT.openHref;
       card.appendChild(a);
     }
+    // A note with no quote can be filed under another section; one on
+    // highlighted text stays with its text.
+    if (!note.quote) {
+      var row = el('div', 'sn-point-row');
+      row.appendChild(moveControl(note, card, noteMover));
+      card.appendChild(row);
+    }
     return card;
   }
 
-  function notesBlock(parent, title, notes) {
-    if (!notes.length) return;
-    if (title) parent.appendChild(el('h4', 'sn-sub', title));
-    notes.forEach(function (n) { parent.appendChild(noteCard(n)); });
-  }
 
   // ── Full teaching: a closed block that loads when first opened ───────────
   // Keyed by query, so a saved point can open the block it came from.
@@ -220,7 +223,31 @@
   }
   // ── Move to section… ─────────────────────────────────────────────────────
   function noSectionLabel(p) { return p.kind === 'check' ? 'From your understanding check' : 'Other points'; }
-  function moveControl(p, card) {
+  // What Move to section… does for a saved point and for a note.
+  var pointMover = {
+    what: 'point',
+    none: function (p) { return noSectionLabel(p); },
+    here: function (p) { return groupKey(p); },
+    key:  function (p, section) { return section === null ? 'none-' + p.kind : 's' + section; },
+    save: function (p, section) { return pointApi(p.id + '/section', 'PUT', { section: section }); },
+    place: function (p, card) { placePoint(p, card); },
+  };
+  var noteMover = {
+    what: 'note',
+    none: function () { return 'Whole study (general)'; },
+    here: function (n) { return noteKey(n.section); },
+    key:  function (n, section) { return section === null ? 'note-general' : 'note-s' + section; },
+    save: function (n, section) {
+      return fetch('/api/notepad/' + encodeURIComponent(BOOT.studyId) + '/note/' + encodeURIComponent(n.id) + '/section', {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ section: section }),
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { if (!d || !d.success) throw new Error((d && d.error) || 'Please try again.'); return d; });
+    },
+    place: function (n, card) { placeInto(noteKey(n.section), card); },
+  };
+  function moveControl(p, card, mover) {
+    mover = mover || pointMover;
     var list = null;
     var btn = linkButton('Move to section…', function () { if (list) close(true); else open(); });
     btn.setAttribute('aria-expanded', 'false');
@@ -237,13 +264,13 @@
     function onOutside(e) { if (list && !list.contains(e.target) && e.target !== btn) close(false); }
     function open() {
       list = el('ul', 'sn-move-list');
-      list.setAttribute('aria-label', 'Move this point to');
-      var here = groupKey(p);
+      list.setAttribute('aria-label', 'Move this ' + mover.what + ' to');
+      var here = mover.here(p);
       sections.filter(function (s) { return s.n >= 1; })
         .map(function (s) { return { section: s.n, title: s.title }; })
-        .concat([{ section: null, title: noSectionLabel(p) }])
+        .concat([{ section: null, title: mover.none(p) }])
         .forEach(function (o) {
-          var isHere = o.section === null ? here === 'none-' + p.kind : here === 's' + o.section;
+          var isHere = here === mover.key(p, o.section);
           var b = el('button', 'sn-move-option' + (isHere ? ' is-here' : ''), o.title);
           b.type = 'button';
           if (isHere) {
@@ -265,11 +292,11 @@
     function move(o) {
       var buttons = list.querySelectorAll('button');
       buttons.forEach(function (b) { b.disabled = true; });
-      pointApi(p.id + '/section', 'PUT', { section: o.section })
+      mover.save(p, o.section)
         .then(function (d) {
           p.section = d.section === undefined ? null : d.section;
           close(false);
-          placePoint(p, card);
+          mover.place(p, card);
           openSectionOf(card);
           btn.focus({ preventScroll: true });
           card.scrollIntoView({ block: 'nearest' });
@@ -286,28 +313,31 @@
   // ── Where points sit: one group per section, and one for each kind of point
   // without a section. A group's heading goes with the last of its points.
   var groups = {};
-  function addGroup(key, section, before, title, whenEmpty) {
-    groups[key] = { section: section, before: before, title: title, whenEmpty: whenEmpty, wrap: null };
+  // card: the class of the cards this group holds.
+  function addGroup(key, section, before, title, whenEmpty, card) {
+    groups[key] = { section: section, before: before, title: title, whenEmpty: whenEmpty, wrap: null, card: card || 'sn-point' };
   }
+  function noteKey(section) { return groups['note-s' + section] ? 'note-s' + section : 'note-general'; }
   function groupKey(p) { return groups['s' + p.section] ? 's' + p.section : 'none-' + p.kind; }
   function settle(g) {
-    if (g.wrap && !g.wrap.querySelector('.sn-point')) { g.wrap.remove(); g.wrap = null; }
+    if (g.wrap && !g.wrap.querySelector('.' + g.card)) { g.wrap.remove(); g.wrap = null; }
     g.whenEmpty(!g.wrap);
   }
-  function placePoint(p, card) {
+  function placePoint(p, card) { placeInto(groupKey(p), card); }
+  function placeInto(key, card) {
     Object.keys(groups).forEach(function (k) {
       var old = groups[k];
       if (old.wrap && old.wrap.contains(card)) { card.remove(); settle(old); }
     });
-    var g = groups[groupKey(p)];
+    var g = groups[key];
     if (!g.wrap) {
-      g.wrap = el('div', 'sn-points');
+      g.wrap = el('div', g.card === 'sn-point' ? 'sn-points' : 'sn-studynotes');
       if (g.title) g.wrap.appendChild(el('h4', 'sn-sub', g.title));
       g.section.insertBefore(g.wrap, g.before);
     }
     // In the order they were saved.
     var next = null;
-    Array.prototype.slice.call(g.wrap.querySelectorAll('.sn-point')).forEach(function (c) {
+    Array.prototype.slice.call(g.wrap.querySelectorAll('.' + g.card)).forEach(function (c) {
       if (!next && +c.getAttribute('data-order') > +card.getAttribute('data-order')) next = c;
     });
     g.wrap.insertBefore(card, next);
@@ -444,27 +474,34 @@
   sections.forEach(function (s) { known[s.n] = true; });
 
   function pointCount(fold) { return fold.content.querySelectorAll('.sn-point').length; }
+  function noteCount(fold) { return fold.content.querySelectorAll('.sn-studynote').length; }
+  // A note's section: where its quote is in the study, else the section it was
+  // filed under, else none (General notes).
+  function noteSection(n) {
+    if (placed[n.id]) return placed[n.id];
+    return (Number.isInteger(n.section) && known[n.section] && n.section >= 1) ? n.section : null;
+  }
 
   sections.forEach(function (s) {
-    var notes = (BOOT.notes || []).filter(function (n) { return placed[n.id] === s.n; });
     // Opens the Teacher at this section, as the study's own buttons do.
     var canTeach = BOOT.openHref && s.n >= 1 && window.IronInkTeacher && window.IronInkTeacher.teacherUrl;
     var fold = foldSection('s' + s.n, s.title, canTeach ? window.IronInkTeacher.teacherUrl(BOOT.studyId, 'section', s.n) : null);
     var box = fold.content;
     keyPoints(box, s);
-    var afterKey = box.lastChild;
-    notesBlock(box, 'Your notes on the study', notes);
+    var pointSlot = box.appendChild(el('div', 'sn-slot'));
+    var noteSlot  = box.appendChild(el('div', 'sn-slot'));
     if (s.teaching) teachingBlock(box, 'Full teaching', 'section=' + s.n, true);
     fold.inside = function () {
-      var parts = [], points = pointCount(fold);
+      var parts = [], points = pointCount(fold), notes = noteCount(fold);
       if (s.recap) parts.push('Key points');
       if (points) parts.push(count(points, 'saved point', 'saved points'));
-      if (notes.length) parts.push(count(notes.length, 'note on the study', 'notes on the study'));
+      if (notes) parts.push(count(notes, 'note on the study', 'notes on the study'));
       if (s.teaching) parts.push('Full teaching');
       return parts;
     };
     s.refresh = fold.refresh;
-    addGroup('s' + s.n, box, afterKey ? afterKey.nextSibling : box.firstChild, 'Your saved points', fold.refresh);
+    addGroup('s' + s.n, pointSlot, null, 'Your saved points', fold.refresh);
+    addGroup('note-s' + s.n, noteSlot, null, 'Your notes on the study', fold.refresh, 'sn-studynote');
     fold.refresh();
     body.appendChild(fold.sec);
   });
@@ -476,7 +513,15 @@
     settle(groups['none-' + x[0]]);
     body.appendChild(fold.sec);
   });
+  (function () {
+    var fold = foldSection('general', 'General notes');
+    fold.inside = function () { var n = noteCount(fold); return n ? [count(n, 'note', 'notes')] : []; };
+    addGroup('note-general', fold.content, null, null, function (none) { fold.sec.hidden = none; fold.refresh(); }, 'sn-studynote');
+    settle(groups['note-general']);
+    body.appendChild(fold.sec);
+  })();
   (BOOT.points || []).forEach(function (p, i) { placePoint(p, pointCard(p, i)); });
+  (BOOT.notes || []).forEach(function (n, i) { n.section = noteSection(n); placeInto(noteKey(n.section), noteCard(n, i)); });
 
   function group(key, title, parts, fill) {
     var fold = foldSection(key, title);
@@ -484,10 +529,6 @@
     fill(fold.content);
     fold.refresh();
     body.appendChild(fold.sec);
-  }
-  var general = (BOOT.notes || []).filter(function (n) { return !known[placed[n.id]]; });
-  if (general.length) {
-    group('general', 'General notes', [count(general.length, 'note', 'notes')], function (box) { notesBlock(box, null, general); });
   }
 
   var earlier = BOOT.earlier || [];

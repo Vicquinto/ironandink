@@ -184,6 +184,7 @@ router.get('/study-notes/:studyId', requireAuth, (req, res) => {
     // Only what the page shows.
     notes: notes.map(n => ({
       id: n.id, marker: n.marker, quote: n.quote, occurrence: n.occurrence, question: n.question,
+      section: Number.isInteger(n.section) ? n.section : null,
       content: n.content, ts: n.ts,
     })),
     points: points.map(p => ({
@@ -231,7 +232,7 @@ router.get('/study-notes/:studyId', requireAuth, (req, res) => {
 <script src="/js/teacher-entry.js?v=11"></script>
 <script src="/js/text-size.js?v=1"></script>
 <script>window.STUDY_NOTES_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/study-notes.js?v=7"></script>`,
+<script src="/js/study-notes.js?v=8"></script>`,
   }));
 });
 

@@ -3,7 +3,9 @@ const fs             = require('fs');
 const path           = require('path');
 const { randomUUID } = require('crypto');
 const { requireAuth } = require('./layout');
+const rateLimit = require('express-rate-limit');
 const { createJsonStore } = require('../lib/jsonStore');
+const { parseLessonSections } = require('./teacher');
 const geo = require('../lib/geo');
 
 const router        = express.Router();
@@ -19,6 +21,8 @@ const STUDIES_PATH  = path.join(__dirname, '../data/studies.json');
 //   question — what was asked (Explore); null otherwise
 //   content  — the note body (markdown text from the editor)
 //   source   — 'define' | 'explore' | 'verse' | 'personal' | 'free'
+//   section, sectionTitle — optional, notes with no quote only: the study section
+//              the member filed it under (the Teacher's numbering); absent = none.
 //   geo      — optional map references from a pinned tooltip answer:
 //              { places: ['<pleiadesId>', …], roads: ['<road name>', …] },
 //              validated by lib/geo.js sanitizeGeoRefs; absent when none.
@@ -40,6 +44,22 @@ function readStudies() {
 }
 
 const VALID_SOURCES = ['define', 'explore', 'verse', 'personal', 'free'];
+
+// Filing a note under a section: one of this study's sections now, or null.
+// Returns { n, title } / null, or false when the number isn't one of them.
+function sectionOf(studyId, value) {
+  if (value === null || value === undefined) return null;
+  const study = readStudies().find(s => s && s.id === studyId);
+  const list  = study ? parseLessonSections(study.content) : [];
+  return (Number.isInteger(value) && list.find(s => s.n === value)) || false;
+}
+const sectionLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max:      30,
+  message:  { success: false, error: 'Too many requests. Please wait a moment and try again.' },
+  standardHeaders: true,
+  legacyHeaders:   false,
+});
 
 function findNotepad(pads, studyId, userId) {
   return pads.find(p => p.studyId === studyId && p.userId === userId);
@@ -122,6 +142,8 @@ router.post('/api/notepad/:studyId/note', requireAuth, async (req, res) => {
   const src      = VALID_SOURCES.includes(source) ? source : 'free';
   const hasQuote = quote != null && String(quote).trim() !== '';
   const geoRefs  = geo.sanitizeGeoRefs(req.body.geo);
+  const sec      = hasQuote ? null : sectionOf(studyId, req.body.section);
+  if (sec === false) return res.status(400).json({ success: false, error: 'That section isn’t part of this study.' });
 
   let result;
   try {
@@ -151,6 +173,7 @@ router.post('/api/notepad/:studyId/note', requireAuth, async (req, res) => {
         ts:       new Date().toISOString(),
       };
       if (geoRefs) note.geo = geoRefs;
+      if (sec) { note.section = sec.n; note.sectionTitle = sec.title; }
 
       pad.notes.push(note);
       return { changed: true, note };
@@ -221,6 +244,37 @@ router.put('/api/notepad/:studyId/note/:noteId/occurrence', requireAuth, async (
   if (result.error) return res.status(404).json({ success: false, error: result.error });
   if (result.refused) return res.status(409).json({ success: false, error: 'Not changed.' });
   res.json({ success: true });
+});
+
+// ─── PUT /api/notepad/:studyId/note/:noteId/section ───────────────────────────
+// File a note with no quote under another section (Study Notes "Move to
+// section…"). Body: { section: N | null }. A note on highlighted text stays with
+// its text. Only the caller's own notepad.
+router.put('/api/notepad/:studyId/note/:noteId/section', requireAuth, sectionLimiter, async (req, res) => {
+  const userId = req.session.userId;
+  const { studyId, noteId } = req.params;
+  if (!req.body || !Object.prototype.hasOwnProperty.call(req.body, 'section')) {
+    return res.status(400).json({ success: false, error: 'Choose a section.' });
+  }
+  const sec = sectionOf(studyId, req.body.section);
+  if (sec === false) return res.status(400).json({ success: false, error: 'That section isn’t part of this study.' });
+
+  let result;
+  try {
+    result = await notepadStore.update(pads => {
+      const pad  = findNotepad(pads, studyId, userId);
+      const note = pad && pad.notes.find(n => n.id === noteId);
+      if (!note) return { changed: false, error: 'Note not found.' };
+      if (note.quote) return { changed: false, anchored: true };
+      if (sec) { note.section = sec.n; note.sectionTitle = sec.title; }
+      else { delete note.section; delete note.sectionTitle; }
+      note.updatedAt = new Date().toISOString();
+      return { changed: true, section: sec ? sec.n : null };
+    });
+  } catch { return storeUnavailable(res); }
+  if (result.error) return res.status(404).json({ success: false, error: result.error });
+  if (result.anchored) return res.status(400).json({ success: false, error: 'A note on highlighted text stays with its text.' });
+  res.json({ success: true, section: result.section });
 });
 
 // ─── DELETE /api/notepad/:studyId/note/:noteId ────────────────────────────────
