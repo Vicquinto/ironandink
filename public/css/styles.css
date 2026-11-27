@@ -8128,6 +8128,19 @@ body {
   padding-bottom: 6px;
   border-bottom: 1px solid rgba(107,66,38,0.16);
 }
+.notes-fold-all { display: flex; justify-content: flex-end; gap: 14px; margin-bottom: 10px; }
+.notes-fold-btn { background: none; border: none; padding: 4px 0; color: var(--accent); font-family: 'EB Garamond', Georgia, serif; font-size: 0.9rem; cursor: pointer; }
+.notes-fold-btn:hover { text-decoration: underline; }
+.notes-group-toggle { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; flex: 1 1 auto; min-width: 0; padding: 0; background: none; border: none; text-align: left; cursor: pointer; font: inherit; color: inherit; }
+.notes-group-toggle:hover .notes-group-title { text-decoration: underline; }
+.notes-group-chevron { flex-shrink: 0; font-size: 0.8rem; color: #6B4226; transform: rotate(90deg); transition: transform 0.15s; }
+.notes-group.is-collapsed .notes-group-chevron { transform: none; }
+.notes-group-count { display: none; flex-basis: 100%; padding-left: 1.2em; font-size: 0.82rem; font-style: italic; color: #6B4226; }
+.notes-group.is-collapsed .notes-group-count { display: block; }
+.notes-group.is-collapsed .notes-group-body { display: none; }
+.notes-group.is-collapsed .notes-group-head { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+@media (max-width: 600px) { .notes-group-toggle, .notes-fold-btn { min-height: 44px; } }
+@media (prefers-reduced-motion: reduce) { .notes-group-chevron { transition: none; } }
 .notes-group-title {
   font-family: 'Cinzel', serif;
   font-size: 1rem;

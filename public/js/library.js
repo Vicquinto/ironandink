@@ -1339,6 +1339,18 @@
     return t.length > 90 ? t.slice(0, 90) + '…' : t;
   }
 
+  // The Notes tab's open study groups: { studyId: true }, from this browser.
+  var NOTES_OPEN_KEY = 'ironink_library_notes_open';
+  function notesOpen() {
+    var out = {};
+    try {
+      var list = JSON.parse(localStorage.getItem(NOTES_OPEN_KEY));
+      if (Array.isArray(list)) list.forEach(function (id) { if (typeof id === 'string') out[id] = true; });
+    } catch (e) {}
+    return out;
+  }
+  function cssEscape(s) { return (window.CSS && CSS.escape) ? CSS.escape(s) : String(s).replace(/["\\]/g, '\\$&'); }
+
   function loadAllNotes() {
     notesLoaded = true;
     var grid = document.getElementById('notesAllGrid');
@@ -1355,7 +1367,15 @@
           return;
         }
 
-        grid.innerHTML = groups.map(function (g) {
+        // Each study's group opens and closes; all closed until the member opens
+        // one, and remembered in this browser.
+        var open = notesOpen();
+        grid.innerHTML =
+          '<div class="notes-fold-all">' +
+            '<button type="button" class="notes-fold-btn" data-open="1">Expand all</button>' +
+            '<button type="button" class="notes-fold-btn" data-open="0">Collapse all</button>' +
+          '</div>' +
+          groups.map(function (g, gi) {
           // Each note is collapsed by default: a clickable summary (marker + a
           // short preview) that expands to the full rendered note on click.
           var notesHtml = g.notes.map(function (n) {
@@ -1388,15 +1408,47 @@
             ? '<button class="notes-group-open" data-id="' + esc(g.studyId) + '">Open study &rarr;</button>'
             : '<button class="notes-group-open" disabled title="Study no longer exists">Study deleted</button>';
 
-          return '<div class="notes-group">' +
+          var isOpen = Object.prototype.hasOwnProperty.call(open, g.studyId);
+          var bodyId = 'notes-group-body-' + gi;
+          var count  = g.notes.length + ' note' + (g.notes.length === 1 ? '' : 's');
+          return '<div class="notes-group' + (isOpen ? '' : ' is-collapsed') + '" data-study-id="' + esc(g.studyId) + '">' +
               '<div class="notes-group-head">' +
-                '<span class="notes-group-title">' + esc(g.studyTitle) + '</span>' +
+                '<button type="button" class="notes-group-toggle" aria-expanded="' + (isOpen ? 'true' : 'false') + '" aria-controls="' + bodyId + '">' +
+                  '<span class="notes-group-chevron" aria-hidden="true">&#9656;</span>' +
+                  '<span class="notes-group-title">' + esc(g.studyTitle) + '</span>' +
+                  '<span class="notes-group-count">' + count + '</span>' +
+                '</button>' +
                 '<a class="sn-link notes-group-sn" href="/study-notes/' + encodeURIComponent(g.studyId) + '"' + (studyNotesAllowed ? '' : ' hidden') + '>Study Notes</a>' +
                 openBtn +
               '</div>' +
-              notesHtml +
+              '<div class="notes-group-body" id="' + bodyId + '">' + notesHtml + '</div>' +
             '</div>';
         }).join('');
+
+        function setGroup(groupEl, isOpenNow) {
+          groupEl.classList.toggle('is-collapsed', !isOpenNow);
+          groupEl.querySelector('.notes-group-toggle').setAttribute('aria-expanded', isOpenNow ? 'true' : 'false');
+        }
+        function saveGroups() {
+          var ids = [];
+          grid.querySelectorAll('.notes-group:not(.is-collapsed)').forEach(function (g) { ids.push(g.getAttribute('data-study-id')); });
+          // Studies not on the tab now (no notes at the moment) keep their state.
+          Object.keys(open).forEach(function (id) { if (!grid.querySelector('.notes-group[data-study-id="' + cssEscape(id) + '"]')) ids.push(id); });
+          try { localStorage.setItem(NOTES_OPEN_KEY, JSON.stringify(ids)); } catch (e) {}
+        }
+        grid.querySelectorAll('.notes-group-toggle').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var groupEl = btn.closest('.notes-group');
+            setGroup(groupEl, groupEl.classList.contains('is-collapsed'));
+            saveGroups();
+          });
+        });
+        grid.querySelectorAll('.notes-fold-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            grid.querySelectorAll('.notes-group').forEach(function (g) { setGroup(g, btn.getAttribute('data-open') === '1'); });
+            saveGroups();
+          });
+        });
 
         // Expand / collapse a note on summary click (or Enter/Space).
         grid.querySelectorAll('.notes-allnote-summary').forEach(function (summary) {
