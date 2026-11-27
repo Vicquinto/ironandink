@@ -195,6 +195,11 @@ function sharedBoot(model, parts, opts) {
   return {
     readOnly: true,
     preview:  !!opts.preview,
+    // "Discuss this" (routes/study-shares.js): on a recipient's view, for the
+    // shared parts. Never on a preview.
+    shareId:  opts.shareId || null,
+    canDiscuss: !!opts.shareId && !opts.preview,
+    discussParts: opts.shareId ? Object.assign({}, parts) : null,
     ownerName: opts.ownerName || '',
     studyId:  study.id,
     foldKey:  opts.foldKey,
@@ -221,6 +226,12 @@ function sharedBoot(model, parts, opts) {
 
 // The Study Notes page around a boot. tools: extra header links (HTML, already
 // escaped); sub: a line under the title; banner: a line above the notes.
+function discussParts(shares) {
+  const out = { recaps: false, points: false, notes: false, teaching: false };
+  shares.filter(s => s.active).forEach(s => Object.keys(out).forEach(k => { if (s.parts && s.parts[k]) out[k] = true; }));
+  return out;
+}
+
 function renderNotesPage(req, res, { boot, tools, sub, banner, unavailable, scripts }) {
   res.send(renderLayout({
     req, activeSection: 'library', title: 'Study Notes',
@@ -256,7 +267,7 @@ function renderNotesPage(req, res, { boot, tools, sub, banner, unavailable, scri
 <script src="/js/teacher-entry.js?v=11"></script>
 <script src="/js/text-size.js?v=1"></script>
 <script>window.STUDY_NOTES_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/study-notes.js?v=9"></script>${scripts || ''}`,
+${boot.canDiscuss ? '<script src="/js/study-discuss.js?v=1"></script>\n' : ''}<script src="/js/study-notes.js?v=10"></script>${scripts || ''}`,
   }));
 }
 
@@ -303,6 +314,10 @@ router.get('/study-notes/:studyId', requireAuth, (req, res) => {
     studyNasb:  !!study && /NASB/.test(String(study.content || '')),
     canDelete:  points.length > 0 || recaps.length > 0 || lessons.some(l => !l.current),
     canShare:   isOwner,
+    // "Discuss this": only while the study is shared with someone active, and
+    // only on the parts shared with at least one of them.
+    canDiscuss: isOwner && Array.isArray(shares) && shares.some(s => s.active),
+    discussParts: isOwner && Array.isArray(shares) ? discussParts(shares) : null,
     shares,
     // What each part holds now, for the share dialog.
     shareCounts: { recaps: recaps.length, points: points.length, notes: notes.length, teaching: lessons.some(l => l.messages.length) },

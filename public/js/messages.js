@@ -32,6 +32,23 @@
     if (!div || !m) return;
     var bubble = div.querySelector('.dm-bubble');
     if (!bubble) return;
+    // The item a "Discuss this" message is about: label and quote, plain text.
+    var q = m.quote;
+    if (q && typeof q.label === 'string') {
+      var box = document.createElement('div');
+      box.className = 'dm-quote';
+      var lab = document.createElement('div');
+      lab.className = 'dm-quote-label';
+      lab.textContent = q.label;
+      box.appendChild(lab);
+      if (typeof q.text === 'string' && q.text) {
+        var txt = document.createElement('div');
+        txt.className = 'dm-quote-text';
+        txt.textContent = q.text;
+        box.appendChild(txt);
+      }
+      bubble.parentNode.insertBefore(box, bubble);
+    }
     var l = m.link;
     if (l && typeof l.href === 'string' && typeof l.label === 'string' &&
         LINK_PATTERNS.some(function (re) { return re.test(l.href); })) {

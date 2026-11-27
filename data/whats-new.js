@@ -22,7 +22,7 @@ const WHATS_NEW = [
     title: 'Share Your Study Notes',
     body:  `You can now share your Study Notes for one of your own studies with another member, such as your husband or wife or a study partner. On the Study Notes page, choose "Share with a member," pick who, and tick what they can read: key points, your saved points, your notes on the study, and, if you choose, the full teaching. "See what they'll see" shows you the page exactly as they will.
 
-They can read and print what you share, and read the study itself, but can't change anything. They'll find it in their Library under "Shared with me." You can change what's shared, or stop sharing, at any time.`
+They can read and print what you share, and read the study itself, but can't change anything. They'll find it in their Library under "Shared with me." You can change what's shared, or stop sharing, at any time. Either of you can press Discuss this on any point to talk it over in Messages.`
   },
   {
     date:  'November 25, 2026',

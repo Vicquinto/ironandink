@@ -152,6 +152,10 @@ router.get('/help', requireAuth, (req, res) => {
             <span class="welcome-feature-desc">The names you&#39;ve shared with are listed under the page&#39;s title. Choose a name to change what&#39;s shared, copy the link again, or <strong>Stop sharing</strong>. After you stop, the link only says the notes are no longer shared. Deleting the study from your Library stops every share of it.</span>
           </li>
           <li class="welcome-feature-item">
+            <span class="welcome-feature-name">Discuss this</span>
+            <span class="welcome-feature-desc">Either of you can press <strong>Discuss this</strong> on a section, its key points, a saved point or a note to talk it over in Messages. Your message goes in your usual conversation with the other person, with a short quote of what you&#39;re discussing and a link that opens it in their own view of the Study Notes. If you&#39;ve shared with several people, you choose who it goes to. It appears only on what is shared, and on your own Study Notes only while they are shared with someone.</span>
+          </li>
+          <li class="welcome-feature-item">
             <span class="welcome-feature-name">Notes shared with you</span>
             <span class="welcome-feature-desc">Open them from <strong>Shared with me</strong> in your Library. <strong>Remove from my list</strong> takes one off your list; the member who shared it can still stop sharing it.</span>
           </li>

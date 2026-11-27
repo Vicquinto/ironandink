@@ -4,7 +4,7 @@ const path     = require('path');
 const { requireAuth, renderLayout } = require('./layout');
 const { getOnlineList } = require('./presence');
 const { escapeHtml } = require('../lib/html');
-const { messagesStore, unreadCount, cleanLink } = require('../lib/messages-store');
+const { messagesStore, unreadCount, cleanLink, cleanQuote } = require('../lib/messages-store');
 
 const router     = express.Router();
 const USERS_PATH = path.join(__dirname, '../data/users.json');
@@ -116,7 +116,7 @@ router.get('/messages', requireAuth, (req, res) => {
 window.__dm       = ${safeJson({ threads: myThreads, users: allUsers, me: userId })};
 window.__presence = ${safeJson({ online: onlineList })};
 </script>
-<script src="/js/messages.js?v=6"></script>`;
+<script src="/js/messages.js?v=7"></script>`;
 
   res.send(renderLayout({ req, activeSection: 'messages', title: 'Messages', content, scripts }));
 });
@@ -273,15 +273,19 @@ router.post('/api/messages/send', requireAuth, async (req, res) => {
 
 // ─── sendAs: a message the server writes for a member ────────────────────────
 // Sent as `from` to `to` in their one 1:1 thread (made if there isn't one),
-// with text the caller built and an optional server-set link (cleanLink). Used
+// with text the caller built and an optional server-set link (cleanLink) and
+// quote block (cleanQuote). Used
 // by Study Notes sharing (routes/study-shares.js). Rejects, writing nothing, if
 // the store can't be read. Resolves with { threadId, messageId }.
-async function sendAs(app, { from, to, text, link }) {
+async function sendAs(app, { from, to, text, link, quote }) {
   if (!from || !to || from === to || typeof text !== 'string' || !text.trim()) throw new Error('Nothing to send.');
   const msg = { id: genId('m'), senderId: from, text: text.trim(), sentAt: new Date().toISOString(), readBy: [from] };
   const safeLink = link ? cleanLink(link) : null;
   if (link && !safeLink) throw new Error('Refused a message link.');
   if (safeLink) msg.link = safeLink;
+  const safeQuote = quote ? cleanQuote(quote) : null;
+  if (quote && !safeQuote) throw new Error('Refused a message quote.');
+  if (safeQuote) msg.quote = safeQuote;
   const r = await messagesStore.update(data => {
     let thread = data.threads.find(t => t.participants.includes(from) && t.participants.includes(to));
     if (!thread) {

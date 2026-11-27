@@ -18,6 +18,17 @@
   function teachingBase() {
     return BOOT.teachingUrl || ('/api/study-notes/' + encodeURIComponent(BOOT.studyId) + '/teaching');
   }
+  // "Discuss this" (study-discuss.js): only where the boot allows it (a shared
+  // view, or the owner's page while the study is shared), and only on parts that
+  // are shared. need: the part the item belongs to. The server checks again.
+  function discussBtn(item, need) {
+    if (!BOOT.canDiscuss || !window.IronInkDiscuss) return null;
+    if (need && !(BOOT.discussParts || {})[need]) return null;
+    var b = el('button', 'sn-btn sn-discuss', 'Discuss this');
+    b.type = 'button';
+    b.addEventListener('click', function () { window.IronInkDiscuss.open(item, b); });
+    return b;
+  }
 
   function el(tag, cls, text) {
     var e = document.createElement(tag);
@@ -59,6 +70,7 @@
   function noteCard(note, order) {
     var card = el('div', 'sn-note sn-studynote');
     card.setAttribute('data-order', String(order));
+    card.setAttribute('data-item', 'n' + note.id);
     if (note.quote) card.appendChild(el('blockquote', 'sn-note-quote', note.quote));
     if (note.question) card.appendChild(el('p', 'sn-note-question', note.question));
     if (note.content) {
@@ -74,11 +86,11 @@
     }
     // A note with no quote can be filed under another section; one on
     // highlighted text stays with its text.
-    if (!note.quote && !RO) {
-      var row = el('div', 'sn-point-row');
-      row.appendChild(moveControl(note, card, noteMover));
-      card.appendChild(row);
-    }
+    var row = el('div', 'sn-point-row');
+    if (!note.quote && !RO) row.appendChild(moveControl(note, card, noteMover));
+    var talk = discussBtn({ kind: 'note', id: note.id }, 'notes');
+    if (talk) row.appendChild(talk);
+    if (row.firstChild) card.appendChild(row);
     return card;
   }
 
@@ -178,6 +190,7 @@
   function pointCard(p, order) {
     var card = el('div', 'sn-note sn-point');
     card.setAttribute('data-order', String(order));
+    card.setAttribute('data-item', 'p' + p.id);
     if (p.part1) card.appendChild(el('p', 'sn-part1', 'From Part 1 (the opposing view)'));
     var text = el('div', 'sn-point-text');
     if (window.IronInkTeacher && window.IronInkTeacher.renderReply) text.innerHTML = window.IronInkTeacher.renderReply(p.content);
@@ -229,6 +242,8 @@
         if (open) open(p.show);
       }));
     }
+    var talk = discussBtn({ kind: 'point', id: p.id }, 'points');
+    if (talk) row.appendChild(talk);
     row.hidden = !row.firstChild;
     return card;
   }
@@ -367,6 +382,9 @@
         if (s.unfinished) box.insertBefore(el('p', 'sn-muted', 'You were partway through this section.'), box.firstChild);
         box.appendChild(window.IronInkTeacher.recapList(s.recap));
         box.appendChild(el('p', 'sn-muted', s.teaching ? 'An AI summary of the teaching below.' : 'An AI summary of the teaching.'));
+        box.setAttribute('data-item', 'k' + s.n);
+        var talk = discussBtn({ kind: 'recap', section: s.n }, 'recaps');
+        if (talk) box.appendChild(talk);
         return;
       }
       box.appendChild(el('p', 'sn-muted', s.partway ? 'You were partway through this section.' : 'No recap yet.'));
@@ -498,6 +516,10 @@
     var canTeach = !RO && BOOT.openHref && s.n >= 1 && window.IronInkTeacher && window.IronInkTeacher.teacherUrl;
     var fold = foldSection('s' + s.n, s.title, canTeach ? window.IronInkTeacher.teacherUrl(BOOT.studyId, 'section', s.n) : null);
     var box = fold.content;
+    fold.sec.setAttribute('data-item', 's' + s.n);
+    // A thought about the section as a whole.
+    var talkSec = discussBtn({ kind: 'section', section: s.n }, s.n === 0 ? 'teaching' : null);
+    if (talkSec) fold.sec.querySelector('.sn-head').appendChild(talkSec);
     keyPoints(box, s);
     var pointSlot = box.appendChild(el('div', 'sn-slot'));
     var noteSlot  = box.appendChild(el('div', 'sn-slot'));
@@ -565,6 +587,29 @@
     if (b) b.addEventListener('click', function () { setAll(x[1]); });
   });
   if (!body.querySelector('.sn-section:not([hidden])')) body.appendChild(el('p', 'sn-muted', RO ? 'Nothing has been shared yet.' : 'Nothing here yet.'));
+
+  // ── #item=<key>: a "Discuss this" link from Messages ─────────────────────
+  // Opens the item's section and scrolls to it. Keys: s<N> section, k<N> key
+  // points, p<id> saved point, n<id> note (data-item on each).
+  var missingEl = null;
+  function showItem() {
+    var m = /^#item=([A-Za-z0-9_-]{1,80})$/.exec(window.location.hash || '');
+    if (missingEl) { missingEl.remove(); missingEl = null; }
+    if (!m) return;
+    var target = body.querySelector('[data-item="' + m[1] + '"]');
+    if (!target) {
+      missingEl = el('p', 'sn-muted sn-missing', 'The part of these Study Notes that message was about is no longer here.');
+      body.insertBefore(missingEl, body.firstChild);
+      return;
+    }
+    openSectionOf(target);
+    target.scrollIntoView({ block: 'start' });
+    target.classList.remove('sn-flash');
+    void target.offsetWidth;
+    target.classList.add('sn-flash');
+  }
+  showItem();
+  window.addEventListener('hashchange', showItem);
 
   // ── Delete these Study Notes ─────────────────────────────────────────────
   var foot = document.getElementById('snFoot');

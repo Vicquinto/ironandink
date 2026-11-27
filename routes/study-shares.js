@@ -295,6 +295,163 @@ router.get('/study-notes/:studyId/preview', requireAuth, (req, res) => {
   });
 });
 
+// ═══ "Discuss this" ══════════════════════════════════════════════════════════
+// The owner and a share's recipient talk over one item of the shared Study Notes
+// in their own Messages thread. The client names the item only by kind and id;
+// the server finds it in the owner's stored notes, checks it is shared with the
+// other person, and builds the quote and the link itself.
+//   item: { kind: 'section' | 'recap' | 'point' | 'note', section?, id? }
+//   scope: { shareId } (the recipient) or { studyId } (the owner)
+
+const DISCUSS_MAX = 2000;
+const MARKER_RE = /\{\{\s*verse\s*:\s*([^}]+?)\s*\}\}/gi;
+const OTHER_MARKER_RE = /\{\{\s*[a-z]+\s*:\s*([^}|]+?)(?:\|[^}]*)?\s*\}\}/gi;
+// Plain text for a quote: a verse marker becomes its reference in brackets (never
+// verse text), other markers their plain name, markdown marks dropped.
+function plainQuote(text, max) {
+  let s = String(text || '')
+    .replace(MARKER_RE, '($1)')
+    .replace(OTHER_MARKER_RE, '$1')
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/^\s{0,3}(#{1,6}|>|[-*+]|\d+\.)\s+/gm, '')
+    .replace(/[*_`~]+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  max = max || 300;
+  if (s.length > max) s = s.slice(0, max - 1).replace(/\s+\S*$/, '').trimEnd() + '…';
+  return s;
+}
+const PART1 = 'From Part 1 (the opposing view)';
+
+// The item in the owner's Study Notes: { key, label, quote, needs } or null.
+// needs: the part that must be shared for the other person to have it.
+function findItem(model, study, item) {
+  if (!item || typeof item !== 'object') return null;
+  const n = Number.isInteger(item.section) ? item.section : null;
+  const secTitle = num => { const s = model.sections.find(x => x.n === num); return s ? s.title : null; };
+  const part1 = num => teacher.partOf(study, num) === 1;
+  if (item.kind === 'section') {
+    const title = n === null ? null : secTitle(n);
+    if (title === null) return null;
+    return { key: 's' + n, label: 'Section · ' + title + (part1(n) ? ' · ' + PART1 : ''), quote: '', needs: n === 0 ? 'teaching' : null };
+  }
+  if (item.kind === 'recap') {
+    const rec = n !== null && model.recaps.find(r => r && r.section === n);
+    const title = n === null ? null : secTitle(n);
+    if (!rec || title === null) return null;
+    return { key: 'k' + n, label: 'Key points · ' + title + (part1(n) ? ' · ' + PART1 : ''), quote: plainQuote((rec.lines || []).map(l => '• ' + l).join(' ')), needs: 'recaps' };
+  }
+  if (item.kind === 'point') {
+    const p = typeof item.id === 'string' && model.points.find(x => x && x.id === item.id);
+    if (!p) return null;
+    const title = Number.isInteger(p.section) ? secTitle(p.section) : null;
+    return { key: 'p' + p.id, label: 'Saved point · ' + (title || 'Other points') + (p.part1 === true ? ' · ' + PART1 : ''), quote: plainQuote(p.text), needs: 'points' };
+  }
+  if (item.kind === 'note') {
+    const note = typeof item.id === 'string' && model.notes.find(x => x && x.id === item.id);
+    if (!note) return null;
+    const title = Number.isInteger(note.section) ? secTitle(note.section) : null;
+    // The member's own words; a highlighted passage is not quoted (it can hold verse text).
+    const words = plainQuote(note.content || note.question || '') || '(a note on a highlighted passage)';
+    return { key: 'n' + note.id, label: 'Note · ' + (title || 'The study'), quote: words, needs: 'notes' };
+  }
+  return null;
+}
+function hasPart(share, needs) { return !needs || !!(share && share.parts && share.parts[needs]); }
+
+// Works out who is discussing what with whom. Answers the request itself (and
+// returns null) on any "no".
+function resolveDiscuss(req, res, q) {
+  const me = req.session.userId;
+  const gone = () => res.status(404).json({ success: false, error: 'These Study Notes are no longer shared with you.' });
+  let study, ownerId, eligible, role;
+  try {
+    if (typeof q.shareId === 'string' && q.shareId) {
+      const got = shareForRecipient(q.shareId, me);
+      if (!got) { gone(); return null; }
+      role = 'recipient'; study = got.study; ownerId = got.share.ownerId;
+      eligible = [{ share: got.share, toId: ownerId, name: got.owner.fullName || 'A member' }];
+    } else if (typeof q.studyId === 'string' && q.studyId) {
+      study = ownStudy(me, q.studyId);
+      if (!study) { res.status(404).json({ success: false, error: 'Study not found.' }); return null; }
+      role = 'owner'; ownerId = me;
+      const users = readUsers();
+      eligible = sharesStore.read()
+        .filter(s => s && s.ownerId === me && s.studyId === study.id)
+        .map(s => ({ share: s, toId: s.recipientId, user: users.find(u => u.id === s.recipientId) }))
+        .filter(x => isActive(x.user))
+        .map(x => ({ share: x.share, toId: x.toId, name: x.user.fullName || 'A member' }));
+      if (!eligible.length) { res.status(400).json({ success: false, error: 'These Study Notes aren’t shared with anyone now.' }); return null; }
+    } else {
+      res.status(400).json({ success: false, error: 'Nothing to discuss.' });
+      return null;
+    }
+  } catch {
+    unavailable(res);
+    return null;
+  }
+  let model;
+  try { model = notesPage.notesModel(ownerId, study.id, study); }
+  catch { unavailable(res); return null; }
+  const found = findItem(model, study, q.item);
+  if (!found) { res.status(404).json({ success: false, error: 'That is no longer in these Study Notes.' }); return null; }
+  eligible = eligible.filter(x => hasPart(x.share, found.needs));
+  if (!eligible.length) {
+    if (role === 'recipient') gone();
+    else res.status(400).json({ success: false, error: 'That part isn’t shared with anyone.' });
+    return null;
+  }
+  return { role, study, found, eligible };
+}
+function itemFrom(v) {
+  if (!v || typeof v !== 'object') return null;
+  const n = parseInt(v.section, 10);
+  return { kind: String(v.kind || ''), section: Number.isInteger(n) ? n : null, id: typeof v.id === 'string' ? v.id : null };
+}
+
+// ─── GET /api/study-notes/discuss/preview ─────────────────────────────────────
+// ?shareId= | ?studyId=, &kind= &section= &id=  →  { label, quote, to: [{ id, name }] }
+router.get('/api/study-notes/discuss/preview', requireAuth, (req, res) => {
+  const q = req.query || {};
+  const d = resolveDiscuss(req, res, { shareId: q.shareId, studyId: q.studyId, item: itemFrom(q) });
+  if (!d) return;
+  res.json({ success: true, label: d.found.label, quote: d.found.quote, to: d.eligible.map(x => ({ id: x.share.id, name: x.name })) });
+});
+
+// ─── POST /api/study-notes/discuss ────────────────────────────────────────────
+// Body: { shareId | studyId, item, text, to? (a share id, when the owner has
+// shared with several) }. Sent as the member, in the 1:1 thread with the other
+// person, with the quote block and a link to the item in THEIR own view.
+router.post('/api/study-notes/discuss', requireAuth, writeLimiter, async (req, res) => {
+  const b = req.body || {};
+  const text = typeof b.text === 'string' ? b.text.replace(/\r\n?/g, '\n').trim() : '';
+  if (!text) return res.status(400).json({ success: false, error: 'Write a message first.' });
+  if (text.length > DISCUSS_MAX) return res.status(400).json({ success: false, error: 'That message is too long. Please shorten it.' });
+  const d = resolveDiscuss(req, res, { shareId: b.shareId, studyId: b.studyId, item: itemFrom(b.item) });
+  if (!d) return;
+  let target;
+  if (d.role === 'recipient') target = d.eligible[0];
+  else if (typeof b.to === 'string' && b.to) target = d.eligible.find(x => x.share.id === b.to);
+  else if (d.eligible.length === 1) target = d.eligible[0];
+  if (!target) return res.status(400).json({ success: false, error: d.role === 'owner' && b.to ? 'That part isn’t shared with them now.' : 'Choose who to send this to.' });
+  // The link opens the RECEIVING person's own view at the item.
+  const href = (d.role === 'recipient'
+    ? '/study-notes/' + encodeURIComponent(d.study.id)
+    : shareUrl(target.share.id)) + '#item=' + d.found.key;
+  let sent;
+  try {
+    sent = await messages.sendAs(req.app, {
+      from: req.session.userId, to: target.toId, text,
+      quote: { label: d.found.label, text: d.found.quote },
+      link:  { href, label: 'Open in Study Notes' },
+    });
+  } catch (err) {
+    console.error('[study-shares] discuss:', err.message);
+    return res.status(500).json({ success: false, error: 'Messages are unavailable right now. Nothing was sent.' });
+  }
+  res.json({ success: true, name: target.name, threadId: sent.threadId });
+});
+
 // ═══ Recipient pages ═════════════════════════════════════════════════════════
 // Not gated: viewing a share is read only and makes no AI calls, so a free
 // member can read what's shared with them.
@@ -314,6 +471,7 @@ router.get('/study-notes/shared/:shareId', requireAuth, (req, res) => {
   const boot = notesPage.sharedBoot(model, share.parts || {}, {
     study, ownerName,
     foldKey: 'shared_' + share.id,
+    shareId: share.id,
     teachingUrl: '/api' + base + '/teaching',
     openHref: base + '/study',
   });
