@@ -314,7 +314,7 @@ router.get('/study-notes/:studyId', requireAuth, (req, res) => {
     (isOwner ? '<button type="button" class="sn-btn" id="snShareBtn">Share with a member</button>' : '');
   renderNotesPage(req, res, {
     boot, tools, unavailable: !study,
-    scripts: isOwner ? '\n<script src="/js/study-share.js?v=1"></script>' : '',
+    scripts: isOwner ? '\n<script src="/js/study-share.js?v=2"></script>' : '',
   });
 });
 

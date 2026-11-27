@@ -4,7 +4,7 @@ const path     = require('path');
 const { requireAuth, renderLayout } = require('./layout');
 const { getOnlineList } = require('./presence');
 const { escapeHtml } = require('../lib/html');
-const { messagesStore, unreadCount } = require('../lib/messages-store');
+const { messagesStore, unreadCount, cleanLink } = require('../lib/messages-store');
 
 const router     = express.Router();
 const USERS_PATH = path.join(__dirname, '../data/users.json');
@@ -116,7 +116,7 @@ router.get('/messages', requireAuth, (req, res) => {
 window.__dm       = ${safeJson({ threads: myThreads, users: allUsers, me: userId })};
 window.__presence = ${safeJson({ online: onlineList })};
 </script>
-<script src="/js/messages.js?v=5"></script>`;
+<script src="/js/messages.js?v=6"></script>`;
 
   res.send(renderLayout({ req, activeSection: 'messages', title: 'Messages', content, scripts }));
 });
@@ -271,6 +271,41 @@ router.post('/api/messages/send', requireAuth, async (req, res) => {
   res.json({ ok: true, threadId: thread.id, messageId: msg.id });
 });
 
+// ─── sendAs: a message the server writes for a member ────────────────────────
+// Sent as `from` to `to` in their one 1:1 thread (made if there isn't one),
+// with text the caller built and an optional server-set link (cleanLink). Used
+// by Study Notes sharing (routes/study-shares.js). Rejects, writing nothing, if
+// the store can't be read. Resolves with { threadId, messageId }.
+async function sendAs(app, { from, to, text, link }) {
+  if (!from || !to || from === to || typeof text !== 'string' || !text.trim()) throw new Error('Nothing to send.');
+  const msg = { id: genId('m'), senderId: from, text: text.trim(), sentAt: new Date().toISOString(), readBy: [from] };
+  const safeLink = link ? cleanLink(link) : null;
+  if (link && !safeLink) throw new Error('Refused a message link.');
+  if (safeLink) msg.link = safeLink;
+  const r = await messagesStore.update(data => {
+    let thread = data.threads.find(t => t.participants.includes(from) && t.participants.includes(to));
+    if (!thread) {
+      thread = { id: genId('t'), participants: [from, to], messages: [], createdAt: msg.sentAt, updatedAt: msg.sentAt };
+      data.threads.push(thread);
+    }
+    thread.messages.push(msg);
+    thread.updatedAt = msg.sentAt;
+    return { changed: true, threadId: thread.id };
+  });
+  // Real-time delivery, as /api/messages/send does. Best effort.
+  try {
+    const io = app && app.locals && app.locals.io;
+    const userSockets = app && app.locals && app.locals.userSockets;
+    const sockets = userSockets && userSockets.get(to);
+    if (io && sockets && sockets.size > 0) {
+      const sender = readUsers().find(u => u.id === from) || {};
+      const payload = { threadId: r.threadId, message: Object.assign({}, msg, { senderName: sender.fullName || 'Unknown' }), senderName: sender.fullName || 'Unknown' };
+      sockets.forEach(id => io.to(id).emit('dm:new-message', payload));
+    }
+  } catch (err) { console.error('[messages] sendAs delivery:', err.message); }
+  return { threadId: r.threadId, messageId: msg.id };
+}
+
 // ─── GET /api/messages/unread-count ──────────────────────────────────────────
 
 router.get('/api/messages/unread-count', requireAuth, (req, res) => {
@@ -281,3 +316,4 @@ router.get('/api/messages/unread-count', requireAuth, (req, res) => {
 });
 
 module.exports = router;
+module.exports.sendAs = sendAs;

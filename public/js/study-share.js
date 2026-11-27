@@ -233,7 +233,7 @@
           .then(function (d) {
             if (Array.isArray(d.shares)) shares = d.shares;
             drawLine();
-            doneView(member.fullName, d.share);
+            doneView(member.fullName, d.share, d.messageSent);
           })
           .catch(function (err) { go.disabled = false; status.textContent = err.message; });
       });
@@ -270,9 +270,17 @@
     [label, wrap, status].forEach(function (n) { box.appendChild(n); });
   }
 
-  function doneView(name, share) {
+  // messageSent: true (a Message with the link went to them), false (it couldn't
+  // be sent), null (nothing new was shared, so no message).
+  function doneView(name, share, messageSent) {
     setView('Shared with ' + name, function (box) {
-      box.appendChild(el('p', 'ss-text', 'They can find these Study Notes in their Library, under Shared with me. To send them the link yourself, copy it here.'));
+      var text = messageSent === true
+        ? 'They’ll get a message from you in Messages with the link, and can also find these Study Notes in their Library, under Shared with me.'
+        : messageSent === false
+          ? 'Shared with ' + name + '. The message couldn’t be sent, but it’s in their Library under Shared with me.'
+          : 'They can find these Study Notes in their Library, under Shared with me.';
+      box.appendChild(el('p', 'ss-text', text));
+      box.appendChild(el('p', 'ss-text', 'To send them the link yourself, copy it here.'));
       linkRow(box, share);
       var row = el('div', 'ss-actions');
       row.appendChild(button('Done', 'btn-primary ss-primary', closeDialog));

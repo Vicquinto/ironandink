@@ -141,7 +141,7 @@ router.get('/help', requireAuth, (req, res) => {
         <ul class="welcome-feature-list" style="margin-top:16px;">
           <li class="welcome-feature-item">
             <span class="welcome-feature-name">Sharing</span>
-            <span class="welcome-feature-desc">On a study&#39;s Study Notes page, choose <strong>Share with a member</strong>, pick the member, and tick what they can read: Key points, Your saved points, Your notes on the study, and Full teaching. Full teaching is not ticked to begin with, because it includes your own questions and answers in the lesson. <strong>See what they&#39;ll see</strong> shows the page exactly as they will. After you share, <strong>Copy link</strong> gives you the link to send them yourself.</span>
+            <span class="welcome-feature-desc">On a study&#39;s Study Notes page, choose <strong>Share with a member</strong>, pick the member, and tick what they can read: Key points, Your saved points, Your notes on the study, and Full teaching. Full teaching is not ticked to begin with, because it includes your own questions and answers in the lesson. <strong>See what they&#39;ll see</strong> shows the page exactly as they will. When you share, they get a message from you in Messages with the link. <strong>Copy link</strong> gives you the link too.</span>
           </li>
           <li class="welcome-feature-item">
             <span class="welcome-feature-name">What they see</span>

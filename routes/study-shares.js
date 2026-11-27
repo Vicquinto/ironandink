@@ -6,6 +6,7 @@ const { escapeHtml, inlineJson } = require('../lib/html');
 const teacher = require('./teacher');
 const notesPage = require('./study-notes');
 const shares = require('../lib/study-shares');
+const messages = require('./messages');
 const { sharesStore, cleanParts, isActive, takeNewShare, shareForRecipient, shareUrl, ownerShares, readUsers, readStudies, PARTS, PER_STUDY } = shares;
 
 // ─── Study Notes shared with a member ─────────────────────────────────────────
@@ -40,6 +41,12 @@ function ownStudy(userId, studyId) {
   try { studies = readStudies(); } catch { return null; }
   const s = studies.find(x => x && x.id === studyId);
   return s && s.userId === userId ? s : null;
+}
+
+// The Message a new share sends (fixed wording; the link goes under it).
+function shareMessage(topic) {
+  return 'I’ve shared my Study Notes on “' + String(topic || 'a study').trim() + '” with you. You can read them here:\n' +
+    '(They’re read-only. I can stop sharing at any time.)';
 }
 
 // One page for every "no": never says whose, or what, or why.
@@ -146,7 +153,8 @@ router.post('/api/study-shares/:studyId', requireAuth, gate, writeLimiter, async
   const b = req.body || {};
   const parts = cleanParts(b.parts);
   if (!parts) return res.status(400).json({ success: false, error: 'Tick at least one part to share.' });
-  if (!ownStudy(ownerId, studyId)) return res.status(404).json({ success: false, error: 'Only Study Notes on your own studies can be shared.' });
+  const study = ownStudy(ownerId, studyId);
+  if (!study) return res.status(404).json({ success: false, error: 'Only Study Notes on your own studies can be shared.' });
   if (typeof b.recipientId !== 'string' || !b.recipientId) return res.status(400).json({ success: false, error: 'Choose a member to share with.' });
   if (b.recipientId === ownerId) return res.status(400).json({ success: false, error: 'You can’t share with yourself.' });
   let users;
@@ -187,9 +195,23 @@ router.post('/api/study-shares/:studyId', requireAuth, gate, writeLimiter, async
     return unavailable(res);
   }
   if (r.full) return res.status(400).json({ success: false, error: `These Study Notes are already shared with ${PER_STUDY} people, which is the most for one study.` });
+
+  // A new share: a Message from the owner, in their 1:1 thread, with the link.
+  // The share stands whether or not the message can be sent. Re-sharing (a
+  // change of parts) sends nothing.
+  let messageSent = null;
+  if (r.created) {
+    try {
+      await messages.sendAs(req.app, { from: ownerId, to: recipient.id, text: shareMessage(study.topic), link: { href: shareUrl(r.id), label: 'Open Study Notes' } });
+      messageSent = true;
+    } catch (err) {
+      console.error('[study-shares] share message:', err.message);
+      messageSent = false;
+    }
+  }
   let list;
   try { list = ownerShares(ownerId, studyId); } catch { list = null; }
-  res.json({ success: true, created: r.created, share: list ? list.find(s => s.id === r.id) : { id: r.id, url: shareUrl(r.id) }, shares: list });
+  res.json({ success: true, created: r.created, messageSent, share: list ? list.find(s => s.id === r.id) : { id: r.id, url: shareUrl(r.id) }, shares: list });
 });
 
 // ─── PUT /api/study-shares/:studyId/:shareId ──────────────────────────────────

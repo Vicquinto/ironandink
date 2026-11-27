@@ -7112,6 +7112,10 @@ body {
   color: var(--dark-cream);
 }
 
+.dm-msg-link { display: inline-block; margin-top: 6px; color: var(--accent); font-size: 0.88rem; text-decoration: underline; text-underline-offset: 2px; }
+.dm-widget-msg-link { font-size: 0.82rem; margin-top: 4px; }
+.dm-msg.mine .dm-msg-link, .dm-widget-msg.mine .dm-msg-link { align-self: flex-end; }
+
 .dm-msg.theirs .dm-bubble {
   background: var(--card-bg);
   border: 1px solid rgba(160,132,92,0.2);

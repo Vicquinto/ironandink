@@ -18,6 +18,27 @@
       .replace(/"/g, '&quot;');
   }
 
+  // A link the server put on a message (Study Notes sharing), drawn under the
+  // bubble. Only the patterns lib/messages-store.js allows are drawn.
+  var LINK_PATTERNS = [
+    /^\/study-notes\/shared\/[0-9a-f-]{36}(#item=[A-Za-z0-9_-]{1,80})?$/,
+    /^\/study-notes\/[A-Za-z0-9_-]{1,64}(#item=[A-Za-z0-9_-]{1,80})?$/,
+  ];
+  function decorate(div, m) {
+    if (!div || !m) return;
+    var bubble = div.querySelector('.dm-widget-bubble');
+    if (!bubble) return;
+    var l = m.link;
+    if (l && typeof l.href === 'string' && typeof l.label === 'string' &&
+        LINK_PATTERNS.some(function (re) { return re.test(l.href); })) {
+      var a = document.createElement('a');
+      a.className = 'dm-msg-link dm-widget-msg-link';
+      a.href = l.href;
+      a.textContent = l.label;
+      bubble.parentNode.insertBefore(a, bubble.nextSibling);
+    }
+  }
+
   function escNl(str) {
     return esc(str).replace(/\n/g, '<br>');
   }
@@ -330,7 +351,11 @@
     ].join('');
 
     var msgList = document.getElementById('dmWidgetMsgList');
-    if (msgList) msgList.scrollTop = msgList.scrollHeight;
+    if (msgList) {
+      var nodes = msgList.querySelectorAll('.dm-widget-msg');
+      thread.messages.forEach(function (m, i) { decorate(nodes[i], m); });
+      msgList.scrollTop = msgList.scrollHeight;
+    }
 
     document.getElementById('dmWidgetBack').addEventListener('click', renderHomeScreen);
 
@@ -351,6 +376,7 @@
     div.innerHTML =
       '<div class="dm-widget-bubble">' + escNl(msg.text) + '</div>' +
       '<div class="dm-widget-msg-time">' + fmtTime(msg.sentAt) + '</div>';
+    decorate(div, msg);
     list.appendChild(div);
     list.scrollTop = list.scrollHeight;
   }
