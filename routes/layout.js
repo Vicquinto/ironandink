@@ -3,7 +3,7 @@ const path = require('path');
 const { escapeHtml, inlineJson } = require('../lib/html');
 const { BILLING_ENABLED, getEntitlements } = require('../lib/entitlements');
 const USERS_PATH_L    = path.join(__dirname, '../data/users.json');
-const MESSAGES_PATH_L = path.join(__dirname, '../data/messages.json');
+const { messagesStore, unreadCount } = require('../lib/messages-store');
 const INVITE_REQUESTS_PATH_L = path.join(__dirname, '../data/invite_requests.json');
 
 function requireAuth(req, res, next) {
@@ -59,17 +59,13 @@ function getToursSeen(req) {
   } catch { return {}; }
 }
 
+// The nav's unread badge. Read only, through the safe store: if messages.json
+// can't be read, the badge is left off (the page still renders) and nothing is
+// written; the Messages page itself then says Messages are unavailable.
 function getDmUnreadCount(userId) {
   if (!userId) return 0;
-  try {
-    if (!fs.existsSync(MESSAGES_PATH_L)) return 0;
-    const data = JSON.parse(fs.readFileSync(MESSAGES_PATH_L, 'utf8'));
-    return (data.threads || [])
-      .filter(t => t.participants && t.participants.includes(userId))
-      .reduce((sum, t) => {
-        return sum + (t.messages || []).filter(m => m.senderId !== userId && !(m.readBy || []).includes(userId)).length;
-      }, 0);
-  } catch { return 0; }
+  try { return unreadCount(messagesStore.read(), userId); }
+  catch { return 0; }
 }
 
 // Count invite requests still awaiting admin approval (status === 'pending').
