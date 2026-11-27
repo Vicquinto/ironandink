@@ -27,6 +27,9 @@ data/lang_progress.json
 data/teacher_lessons_kept.json
 data/study_notes.json
 data/recap_usage.json
+# Study Notes shared with a member (lib/study-shares.js)
+data/study_note_shares.json
+data/study_share_usage.json
 # Temp files from atomic writes (lib/jsonStore.js) — <store>.<pid>.tmp
 data/*.tmp
 data/study-ideas.json

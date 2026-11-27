@@ -136,6 +136,33 @@ router.get('/help', requireAuth, (req, res) => {
 
         <hr class="copy-rule">
 
+        <div class="copy-section-heading">Sharing Study Notes</div>
+        <p class="copy-body">You can share your Study Notes for one of your own studies with another Iron &amp; Ink member, such as your husband or wife or a study partner. They can read and print what you share, and read the study itself. They can&#39;t change anything or share it further, and they can&#39;t see anything else of yours.</p>
+        <ul class="welcome-feature-list" style="margin-top:16px;">
+          <li class="welcome-feature-item">
+            <span class="welcome-feature-name">Sharing</span>
+            <span class="welcome-feature-desc">On a study&#39;s Study Notes page, choose <strong>Share with a member</strong>, pick the member, and tick what they can read: Key points, Your saved points, Your notes on the study, and Full teaching. Full teaching is not ticked to begin with, because it includes your own questions and answers in the lesson. <strong>See what they&#39;ll see</strong> shows the page exactly as they will. After you share, <strong>Copy link</strong> gives you the link to send them yourself.</span>
+          </li>
+          <li class="welcome-feature-item">
+            <span class="welcome-feature-name">What they see</span>
+            <span class="welcome-feature-desc">Your notes as they are now, including anything you add later, under &#8220;Notes by&#8221; your name. They find them in their Library, under <strong>Shared with me</strong>. If a page was already open when you change something, they see the change when they open or reload it.</span>
+          </li>
+          <li class="welcome-feature-item">
+            <span class="welcome-feature-name">Changing or stopping</span>
+            <span class="welcome-feature-desc">The names you&#39;ve shared with are listed under the page&#39;s title. Choose a name to change what&#39;s shared, copy the link again, or <strong>Stop sharing</strong>. After you stop, the link only says the notes are no longer shared. Deleting the study from your Library stops every share of it.</span>
+          </li>
+          <li class="welcome-feature-item">
+            <span class="welcome-feature-name">Notes shared with you</span>
+            <span class="welcome-feature-desc">Open them from <strong>Shared with me</strong> in your Library. <strong>Remove from my list</strong> takes one off your list; the member who shared it can still stop sharing it.</span>
+          </li>
+          <li class="welcome-feature-item">
+            <span class="welcome-feature-name">Limits</span>
+            <span class="welcome-feature-desc">Only Study Notes on your own studies can be shared, with up to 10 members per study and 20 new shares a day.</span>
+          </li>
+        </ul>
+
+        <hr class="copy-rule">
+
         <div class="copy-section-heading">A Few Things Worth Knowing</div>
         <div class="welcome-highlight-note" style="margin-top:16px;">
           <strong>The highlight tooltip.</strong> Highlight any word or phrase of text on the page, and a small toolbar appears &mdash; letting you define it, ask a question about it, or look up a related verse, right where you&#39;re reading. You can also pin an answer to keep it handy as you study, or share it into a Live Room&#39;s chat. Press <strong>Ctrl + Alt + T</strong> to bring it up anytime.

@@ -9,6 +9,7 @@ const notepadRoutes = require('./notepad');
 const { deleteBookmarksForStudy } = require('./study-bookmarks');
 const { sessionsStore, keptStore, deleteKeptLessons, deleteSessions } = require('../lib/teacher-store');
 const { notesStore, deleteStudyNotes } = require('../lib/study-notes');
+const { sharesStore, deleteSharesForStudy } = require('../lib/study-shares');
 const { waitForAll } = require('../lib/section-recap');
 const { injectWithAttribution, resolve, NASB_ATTRIBUTION } = require('../lib/asv');
 const { takeGeneratedMap, deriveMap } = require('../lib/study-map');
@@ -63,6 +64,7 @@ router.get('/library', requireAuth, (req, res) => {
       <button class="lib-tab active" data-tab="studies">Studies</button>
       <button class="lib-tab" data-tab="dialogues">Dialogues</button>
       <button class="lib-tab" data-tab="notes">Notes</button>
+      <button class="lib-tab" data-tab="shared" id="libSharedTab" hidden>Shared with me</button>
     </div>
 
     <div id="tab-studies" class="lib-tab-content">
@@ -136,6 +138,13 @@ router.get('/library', requireAuth, (req, res) => {
       </div>
     </div>
 
+    <div id="tab-shared" class="lib-tab-content" style="display:none;">
+      <p class="shared-intro">Study Notes other members have shared with you. They are read only.</p>
+      <div id="sharedWithMeList">
+        <p class="library-loading-msg">Loading&#8230;</p>
+      </div>
+    </div>
+
     <div id="guideModal" class="guide-modal" style="display:none;" role="dialog" aria-modal="true">
       <div class="guide-modal-inner">
         <div class="guide-modal-header">
@@ -173,7 +182,7 @@ router.get('/library', requireAuth, (req, res) => {
     activeSection: 'library',
     title: 'Library',
     content,
-    scripts: '<script src="/js/study-badges.js?v=5"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=3"></script><script src="/js/study-bookmark.js?v=2"></script><script src="/js/opposing-views.js?v=2"></script><script src="/js/teacher-entry.js?v=11"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/orig-words.js?v=2"></script><script src="/js/library.js?v=90"></script>',
+    scripts: '<script src="/js/study-badges.js?v=5"></script><script src="/js/render-markdown.js?v=2"></script><script src="/js/enhance-further-studies.js?v=2"></script><script src="/js/read-aloud.js?v=1"></script><script src="/js/study-listen.js?v=3"></script><script src="/js/study-bookmark.js?v=2"></script><script src="/js/opposing-views.js?v=2"></script><script src="/js/teacher-entry.js?v=11"></script><script src="/js/geo-map.js?v=3"></script><script src="/js/orig-words.js?v=2"></script><script src="/js/library.js?v=90"></script><script src="/js/shared-with-me.js?v=1"></script>',
   }));
 });
 
@@ -437,10 +446,11 @@ router.delete('/api/library/:id', requireAuth, async (req, res) => {
   if (!readStudies().some(mine)) return res.status(404).json({ success: false, error: 'Study not found.' });
 
   // The owner's own Study Notes, kept lessons and Teacher sessions go with the study,
-  // and go first: if any of those stores can't be read, nothing at all is deleted,
-  // rather than leaving orphans. Other members' records for a shared study are theirs.
+  // and go first, with every share of those Study Notes: if any of those stores
+  // can't be read, nothing at all is deleted, rather than leaving orphans. Other
+  // members' records for a shared study are theirs.
   try {
-    notesStore.read(); keptStore.read(); sessionsStore.read();
+    notesStore.read(); keptStore.read(); sessionsStore.read(); sharesStore.read();
   } catch {
     return res.status(500).json({ success: false, error: 'The study could not be deleted right now. Nothing was changed.' });
   }
@@ -449,6 +459,7 @@ router.delete('/api/library/:id', requireAuth, async (req, res) => {
     await deleteStudyNotes(userId, studyId);
     await deleteKeptLessons(userId, studyId);
     await deleteSessions(userId, studyId);
+    await deleteSharesForStudy(userId, studyId);
   } catch (err) {
     console.error('Study delete, notes and sessions:', err.message);
     return res.status(500).json({ success: false, error: 'The study was not deleted: its Study Notes or Teacher sessions could not all be removed. Please try again.' });

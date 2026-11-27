@@ -11,6 +11,13 @@
   var BOOT = window.STUDY_NOTES_BOOT || {};
   var body = document.getElementById('snBody');
   if (!body) return;
+  // Read only: Study Notes shared with this member, or the owner's preview of a
+  // share (routes/study-shares.js). The boot holds only the parts that are
+  // shared; nothing on the page changes anything.
+  var RO = BOOT.readOnly === true;
+  function teachingBase() {
+    return BOOT.teachingUrl || ('/api/study-notes/' + encodeURIComponent(BOOT.studyId) + '/teaching');
+  }
 
   function el(tag, cls, text) {
     var e = document.createElement(tag);
@@ -67,7 +74,7 @@
     }
     // A note with no quote can be filed under another section; one on
     // highlighted text stays with its text.
-    if (!note.quote) {
+    if (!note.quote && !RO) {
       var row = el('div', 'sn-point-row');
       row.appendChild(moveControl(note, card, noteMover));
       card.appendChild(row);
@@ -109,7 +116,7 @@
       busy = true;
       inner.textContent = '';
       inner.appendChild(el('p', 'sn-muted', 'Loading…'));
-      fetch('/api/study-notes/' + encodeURIComponent(BOOT.studyId) + '/teaching?' + query)
+      fetch(teachingBase() + '?' + query)
         .then(function (r) { return r.json(); })
         .then(function (data) {
           if (!data || !data.success) throw new Error();
@@ -139,7 +146,7 @@
       var msg = el('div', 'chat-msg ' + (fromTeacher ? 'engine-msg' : 'user-msg'));
       msg.setAttribute('data-session', lesson.sessionId);
       msg.setAttribute('data-index', String(m.index));
-      msg.appendChild(el('div', 'msg-role', fromTeacher ? 'Teacher' : 'You'));
+      msg.appendChild(el('div', 'msg-role', fromTeacher ? 'Teacher' : (RO ? (BOOT.ownerName || 'Member') : 'You')));
       var c = el('div', 'msg-content');
       if (fromTeacher && window.IronInkTeacher && window.IronInkTeacher.renderReply) c.innerHTML = window.IronInkTeacher.renderReply(m.content);
       else c.textContent = m.content;
@@ -202,23 +209,27 @@
       card.appendChild(form);
       input.focus();
     }
-    var editBtn = linkButton(p.note ? 'Edit note' : 'Add a note', edit);
-    row.appendChild(editBtn);
-    row.appendChild(moveControl(p, card));
-    row.appendChild(linkButton('Delete', function () {
-      function go() {
-        pointApi(p.id, 'DELETE').then(function () { card.remove(); settle(groups[groupKey(p)]); }).catch(function (err) { alertSafe(err.message); });
-      }
-      var q = 'Delete this saved point and your note on it?';
-      if (typeof window.showConfirm === 'function') window.showConfirm(q, 'Delete', go);
-      else if (window.confirm(q)) go();
-    }));
+    var editBtn = null;
+    if (!RO) {
+      editBtn = linkButton(p.note ? 'Edit note' : 'Add a note', edit);
+      row.appendChild(editBtn);
+      row.appendChild(moveControl(p, card));
+      row.appendChild(linkButton('Delete', function () {
+        function go() {
+          pointApi(p.id, 'DELETE').then(function () { card.remove(); settle(groups[groupKey(p)]); }).catch(function (err) { alertSafe(err.message); });
+        }
+        var q = 'Delete this saved point and your note on it?';
+        if (typeof window.showConfirm === 'function') window.showConfirm(q, 'Delete', go);
+        else if (window.confirm(q)) go();
+      }));
+    }
     if (p.show) {
       row.appendChild(linkButton('Show in the teaching', function () {
         var open = blocks[queryFor(p.show)];
         if (open) open(p.show);
       }));
     }
+    row.hidden = !row.firstChild;
     return card;
   }
   // ── Move to section… ─────────────────────────────────────────────────────
@@ -346,7 +357,7 @@
 
   // ── Key points: the section's recap, or a way to make one ────────────────
   function keyPoints(sec, s) {
-    if (!s.recap && !s.canRecap) return;
+    if (!s.recap && (RO || !s.canRecap)) return;
     var box = el('div', 'sn-keypoints');
     sec.appendChild(box);
     function draw() {
@@ -385,7 +396,7 @@
   // ── Collapsible sections ─────────────────────────────────────────────────
   // All closed to begin with; which ones are open is remembered per study in this
   // browser. Closing is done with a class (.is-collapsed), so print can show all.
-  var OPEN_KEY = 'ironink_study_notes_open_' + BOOT.studyId;
+  var OPEN_KEY = 'ironink_study_notes_open_' + (BOOT.foldKey || BOOT.studyId);
   var openKeys = {};
   try { (JSON.parse(localStorage.getItem(OPEN_KEY)) || []).forEach(function (k) { openKeys[k] = true; }); } catch (e) {}
   function saveOpen() {
@@ -430,7 +441,7 @@
       inside: function () { return []; },
       refresh: function () {
         var parts = fold.inside();
-        summary.textContent = parts.join(' · ');
+        summary.textContent = parts.length ? parts.join(' · ') : (RO && /^s\d+$/.test(key) ? 'Nothing shared in this section.' : '');
         sec.classList.toggle('is-empty', !parts.length);
         if (parts.length && !btn) {
           h.textContent = '';
@@ -484,7 +495,7 @@
 
   sections.forEach(function (s) {
     // Opens the Teacher at this section, as the study's own buttons do.
-    var canTeach = BOOT.openHref && s.n >= 1 && window.IronInkTeacher && window.IronInkTeacher.teacherUrl;
+    var canTeach = !RO && BOOT.openHref && s.n >= 1 && window.IronInkTeacher && window.IronInkTeacher.teacherUrl;
     var fold = foldSection('s' + s.n, s.title, canTeach ? window.IronInkTeacher.teacherUrl(BOOT.studyId, 'section', s.n) : null);
     var box = fold.content;
     keyPoints(box, s);
@@ -500,8 +511,8 @@
       return parts;
     };
     s.refresh = fold.refresh;
-    addGroup('s' + s.n, pointSlot, null, 'Your saved points', fold.refresh);
-    addGroup('note-s' + s.n, noteSlot, null, 'Your notes on the study', fold.refresh, 'sn-studynote');
+    addGroup('s' + s.n, pointSlot, null, RO ? 'Their saved points' : 'Your saved points', fold.refresh);
+    addGroup('note-s' + s.n, noteSlot, null, RO ? 'Their notes on the study' : 'Your notes on the study', fold.refresh, 'sn-studynote');
     fold.refresh();
     body.appendChild(fold.sec);
   });
@@ -553,11 +564,11 @@
     var b = document.getElementById(x[0]);
     if (b) b.addEventListener('click', function () { setAll(x[1]); });
   });
-  if (!body.querySelector('.sn-section:not([hidden])')) body.appendChild(el('p', 'sn-muted', 'Nothing here yet.'));
+  if (!body.querySelector('.sn-section:not([hidden])')) body.appendChild(el('p', 'sn-muted', RO ? 'Nothing has been shared yet.' : 'Nothing here yet.'));
 
   // ── Delete these Study Notes ─────────────────────────────────────────────
   var foot = document.getElementById('snFoot');
-  if (foot && BOOT.canDelete) {
+  if (foot && BOOT.canDelete && !RO) {
     var del = el('button', 'btn-discard', 'Delete these Study Notes');
     del.type = 'button';
     del.addEventListener('click', function () {
@@ -609,6 +620,7 @@
     area.textContent = '';
     area.appendChild(el('h1', null, BOOT.topic));
     area.appendChild(el('p', null, 'Study Notes'));
+    if (RO && BOOT.ownerName) area.appendChild(el('p', null, 'Notes by ' + BOOT.ownerName));
     area.appendChild(el('p', null, 'Printed ' + fmtDate(new Date().toISOString())));
     Object.keys(folds).sort(function (a, b) {
       return folds[a].sec.compareDocumentPosition(folds[b].sec) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
@@ -648,10 +660,12 @@
   var printBtn = document.getElementById('snPrint');
   if (printBtn) {
     printBtn.addEventListener('click', function () {
-      if (typeof window.showConfirm !== 'function') { printNow(null); return; }
+      // The full teaching can be printed only where it is on the page.
+      var canTeaching = !RO || !!BOOT.teachingUrl;
+      if (typeof window.showConfirm !== 'function' || !canTeaching) { printNow(null); return; }
       window.showConfirm('Print these Study Notes?', 'Print', function (withTeaching) {
         if (!withTeaching) { printNow(null); return; }
-        fetch('/api/study-notes/' + encodeURIComponent(BOOT.studyId) + '/teaching?all=1')
+        fetch(teachingBase() + '?all=1')
           .then(function (r) { return r.json(); })
           .then(function (d) { if (!d || !d.success) throw new Error(); printNow(d); })
           .catch(function () { alertSafe('The full teaching couldn’t be loaded, so nothing was printed. Please try again.'); });

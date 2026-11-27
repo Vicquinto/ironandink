@@ -10,6 +10,7 @@ const notepad = require('./notepad');
 const { notesStore, findRecord, deleteStudyNotes, isTagged, inSection, capturePoint, shownRange, POINT_MAX, NOTE_MAX, POINTS_MAX } = require('../lib/study-notes');
 const { makeRecap, waitFor, waitForAll, displayRecap } = require('../lib/section-recap');
 const { aiLimiter } = require('../middleware/rateLimit');
+const studyShares = require('../lib/study-shares');
 
 // ─── Study Notes ───────────────────────────────────────────────────────────────
 // One page per study for the member's OWN notes, section by section: their
@@ -84,8 +85,12 @@ router.get('/api/study-notes/:studyId/teaching', requireAuth, (req, res) => {
   let lessons;
   try { lessons = lessonsFor(req.session.userId, req.params.studyId); }
   catch { return res.status(500).json({ success: false, error: 'The teaching is unavailable right now.' }); }
-
-  if (req.query.all === '1') {
+  sendTeaching(res, lessons, req.query);
+});
+// The answer for one of the queries above, from a member's lessons (their own,
+// or a share's owner's: routes/study-shares.js).
+function sendTeaching(res, lessons, query) {
+  if (query.all === '1') {
     const sections = {}, earlier = {};
     const ns = new Set();
     lessons.forEach(l => l.messages.filter(isTagged).forEach(m => {
@@ -98,16 +103,16 @@ router.get('/api/study-notes/:studyId/teaching', requireAuth, (req, res) => {
   }
 
   let pick;
-  if (typeof req.query.earlier === 'string') {
-    lessons = lessons.filter(l => l.key === req.query.earlier);
+  if (typeof query.earlier === 'string') {
+    lessons = lessons.filter(l => l.key === query.earlier);
     pick = m => !isTagged(m);
   } else {
-    const n = parseInt(req.query.section, 10);
+    const n = parseInt(query.section, 10);
     if (!(n >= 0)) return res.status(400).json({ success: false, error: 'Unknown section.' });
     pick = m => inSection(m, n);
   }
   res.json({ success: true, lessons: pickLessons(lessons, pick) });
-});
+}
 // Each lesson's matching messages as the page shows them, under that lesson's date.
 function pickLessons(lessons, pick) {
   return lessons.map(l => {
@@ -117,26 +122,15 @@ function pickLessons(lessons, pick) {
   }).filter(l => l.messages.length);
 }
 
-// ─── GET /study-notes/:studyId ────────────────────────────────────────────────
-router.get('/study-notes/:studyId', requireAuth, (req, res) => {
-  if (teacher.memberGated(req)) return res.redirect('/pricing?from=teacher');
-  const userId  = req.session.userId;
-  const studyId = req.params.studyId;
-  const study   = teacher.findReadableStudy(req, studyId);
-
-  let lessons, notes, record;
-  try {
-    record  = findRecord(notesStore.read(), userId, studyId);
-    lessons = lessonsFor(userId, studyId);
-    notes   = notepad.notesFor(studyId, userId);
-  } catch {
-    return messagePage(req, res, 500, 'Study Notes are unavailable right now. Nothing was changed. Please try again later.');
-  }
+// Everything the page can show of one member's Study Notes on a study: the
+// member's own records only (userId is the session's, or a share's owner's).
+// study: the study, when it can still be read. Throws if a store is damaged.
+function notesModel(userId, studyId, study) {
+  const record  = findRecord(notesStore.read(), userId, studyId);
+  const lessons = lessonsFor(userId, studyId);
+  const notes   = notepad.notesFor(studyId, userId);
   const points = (record && record.points) || [];
   const recaps = (record && record.recaps) || [];
-  if (!study && !lessons.length && !notes.length && !points.length && !recaps.length) {
-    return messagePage(req, res, 404, 'That study isn’t available. It may have been deleted or un-shared.');
-  }
 
   // Sections: the study's own, numbered as the Teacher numbers them; from the
   // member's lessons when the study can no longer be read.
@@ -171,47 +165,75 @@ router.get('/study-notes/:studyId', requireAuth, (req, res) => {
     .filter(l => l.messages.some(m => !isTagged(m)))
     .map(l => ({ key: l.key, current: l.current, date: l.date }));
 
-  const topic   = (study && study.topic) || (lessons[0] && lessons[0].topic) || (record && record.studyTopic) || 'Untitled study';
-  const isOwner = !!study && study.userId === userId;
-  const openHref = isOwner ? '/library?open=' + encodeURIComponent(studyId) : '/community?study=' + encodeURIComponent(studyId);
-  const hasCurrent = lessons.some(l => l.current);
+  const topic = (study && study.topic) || (lessons[0] && lessons[0].topic) || (record && record.studyTopic) || 'Untitled study';
+  return { record, lessons, notes, points, recaps, sections: list, earlier, topic, empty: !lessons.length && !notes.length && !points.length && !recaps.length };
+}
 
-  const boot = {
-    studyId, topic,
-    content:  study ? study.content : null,
-    openHref: study ? openHref : null,
-    sections: list,
-    // Only what the page shows.
-    notes: notes.map(n => ({
-      id: n.id, marker: n.marker, quote: n.quote, occurrence: n.occurrence, question: n.question,
-      section: Number.isInteger(n.section) ? n.section : null,
-      content: n.content, ts: n.ts,
-    })),
-    points: points.map(p => ({
-      id: p.id, kind: p.kind, section: p.section, part1: p.part1 === true, note: p.note || '',
-      content: teacher.displayMessages([{ role: 'assistant', content: p.text }])[0].content,
-      // Where "Show in the teaching" goes: only a lesson still on this page.
-      show: p.kind === 'lesson' ? showTarget(lessons, p) : null,
-    })),
-    earlier,
-    // Print: the notice, and whether the study's own text (which notes quote) is NASB.
+// The page's notes and points, as it shows them.
+function bootNotes(notes) {
+  return notes.map(n => ({
+    id: n.id, marker: n.marker, quote: n.quote, occurrence: n.occurrence, question: n.question,
+    section: Number.isInteger(n.section) ? n.section : null,
+    content: n.content, ts: n.ts,
+  }));
+}
+function bootPoints(points, lessons, withShow) {
+  return points.map(p => ({
+    id: p.id, kind: p.kind, section: p.section, part1: p.part1 === true, note: p.note || '',
+    content: teacher.displayMessages([{ role: 'assistant', content: p.text }])[0].content,
+    // Where "Show in the teaching" goes: only a lesson still on this page.
+    show: withShow && p.kind === 'lesson' ? showTarget(lessons, p) : null,
+  }));
+}
+
+// What a share (or the owner's preview of one) shows: the ticked parts only.
+// Nothing that is not ticked is put in the page at all.
+//   parts: { recaps, points, notes, teaching }
+//   opts:  { study, ownerName, foldKey, teachingUrl, openHref, preview }
+function sharedBoot(model, parts, opts) {
+  const study = opts.study;
+  return {
+    readOnly: true,
+    preview:  !!opts.preview,
+    ownerName: opts.ownerName || '',
+    studyId:  study.id,
+    foldKey:  opts.foldKey,
+    topic:    study.topic || model.topic,
+    content:  study.content,
+    openHref: opts.openHref,
+    teachingUrl: parts.teaching ? opts.teachingUrl : null,
+    sections: model.sections
+      .filter(s => s.n >= 1 || parts.teaching)
+      .map(s => ({
+        n: s.n, title: s.title,
+        teaching:  !!(parts.teaching && s.teaching),
+        recap:     parts.recaps ? (s.recap || null) : null,
+        canRecap:  false, unfinished: false, partway: false,
+      })),
+    notes:   parts.notes  ? bootNotes(model.notes) : [],
+    points:  parts.points ? bootPoints(model.points, model.lessons, parts.teaching) : [],
+    earlier: parts.teaching ? model.earlier : [],
     nasbNotice: NASB_ATTRIBUTION,
-    studyNasb:  !!study && /NASB/.test(String(study.content || '')),
-    canDelete:  points.length > 0 || recaps.length > 0 || lessons.some(l => !l.current),
+    studyNasb:  /NASB/.test(String(study.content || '')),
+    canDelete:  false,
   };
+}
 
+// The Study Notes page around a boot. tools: extra header links (HTML, already
+// escaped); sub: a line under the title; banner: a line above the notes.
+function renderNotesPage(req, res, { boot, tools, sub, banner, unavailable, scripts }) {
   res.send(renderLayout({
     req, activeSection: 'library', title: 'Study Notes',
     content: `
-    <div class="sn-page">
+    <div class="sn-page${boot.readOnly ? ' sn-readonly' : ''}">
       <div class="sn-header">
         <div class="sn-header-meta">
           <span class="teacher-topbar-label">Study Notes</span>
-          <h2 class="teacher-topbar-title">${escapeHtml(topic)}</h2>
+          <h2 class="teacher-topbar-title">${escapeHtml(boot.topic)}</h2>
+          ${sub ? `<p class="sn-byline">${escapeHtml(sub)}</p>` : ''}
         </div>
         <div class="sn-header-tools">
-          ${study ? `<a class="sn-link" href="${escapeHtml(openHref)}">Open the study</a>` : ''}
-          ${study && hasCurrent ? `<a class="sn-link" href="/teacher/${escapeHtml(encodeURIComponent(studyId))}?mode=lesson&amp;resume=1">Continue the lesson</a>` : ''}
+          ${tools || ''}
           <span class="sn-fold-all">
             <button type="button" class="sn-btn" id="snExpandAll">Expand all</button>
             <button type="button" class="sn-btn" id="snCollapseAll">Collapse all</button>
@@ -224,7 +246,9 @@ router.get('/study-notes/:studyId', requireAuth, (req, res) => {
           </span>
         </div>
       </div>
-      ${study ? '' : '<p class="sn-unavailable">This study is no longer available.</p>'}
+      ${banner ? `<p class="sn-banner">${escapeHtml(banner)}</p>` : ''}
+      ${unavailable ? '<p class="sn-unavailable">This study is no longer available.</p>' : ''}
+      <div class="sn-shares" id="snShares" hidden></div>
       <div class="sn-body" id="snBody"></div>
       <div class="sn-foot" id="snFoot"></div>
     </div>`,
@@ -232,8 +256,66 @@ router.get('/study-notes/:studyId', requireAuth, (req, res) => {
 <script src="/js/teacher-entry.js?v=11"></script>
 <script src="/js/text-size.js?v=1"></script>
 <script>window.STUDY_NOTES_BOOT = ${inlineJson(boot)};</script>
-<script src="/js/study-notes.js?v=8"></script>`,
+<script src="/js/study-notes.js?v=9"></script>${scripts || ''}`,
   }));
+}
+
+// ─── GET /study-notes/:studyId ────────────────────────────────────────────────
+router.get('/study-notes/:studyId', requireAuth, (req, res) => {
+  if (teacher.memberGated(req)) return res.redirect('/pricing?from=teacher');
+  const userId  = req.session.userId;
+  const studyId = req.params.studyId;
+  const study   = teacher.findReadableStudy(req, studyId);
+
+  let model;
+  try { model = notesModel(userId, studyId, study); }
+  catch {
+    return messagePage(req, res, 500, 'Study Notes are unavailable right now. Nothing was changed. Please try again later.');
+  }
+  if (!study && model.empty) {
+    return messagePage(req, res, 404, 'That study isn’t available. It may have been deleted or un-shared.');
+  }
+  const { lessons, notes, points, recaps } = model;
+
+  const isOwner = !!study && study.userId === userId;
+  const openHref = isOwner ? '/library?open=' + encodeURIComponent(studyId) : '/community?study=' + encodeURIComponent(studyId);
+  const hasCurrent = lessons.some(l => l.current);
+
+  // Sharing: only Study Notes on the member's own study (routes/study-shares.js).
+  // shares: null when the shares store can't be read.
+  let shares = [];
+  if (isOwner) {
+    try { shares = studyShares.ownerShares(userId, studyId); }
+    catch { shares = null; }
+  }
+
+  const boot = {
+    studyId, topic: model.topic,
+    content:  study ? study.content : null,
+    openHref: study ? openHref : null,
+    sections: model.sections,
+    // Only what the page shows.
+    notes:  bootNotes(notes),
+    points: bootPoints(points, lessons, true),
+    earlier: model.earlier,
+    // Print: the notice, and whether the study's own text (which notes quote) is NASB.
+    nasbNotice: NASB_ATTRIBUTION,
+    studyNasb:  !!study && /NASB/.test(String(study.content || '')),
+    canDelete:  points.length > 0 || recaps.length > 0 || lessons.some(l => !l.current),
+    canShare:   isOwner,
+    shares,
+    // What each part holds now, for the share dialog.
+    shareCounts: { recaps: recaps.length, points: points.length, notes: notes.length, teaching: lessons.some(l => l.messages.length) },
+  };
+
+  const tools =
+    (study ? `<a class="sn-link" href="${escapeHtml(openHref)}">Open the study</a>` : '') +
+    (study && hasCurrent ? `<a class="sn-link" href="/teacher/${escapeHtml(encodeURIComponent(studyId))}?mode=lesson&amp;resume=1">Continue the lesson</a>` : '') +
+    (isOwner ? '<button type="button" class="sn-btn" id="snShareBtn">Share with a member</button>' : '');
+  renderNotesPage(req, res, {
+    boot, tools, unavailable: !study,
+    scripts: isOwner ? '\n<script src="/js/study-share.js?v=1"></script>' : '',
+  });
 });
 
 // The block and message a point came from: { section } or { earlier: key }, with
@@ -461,3 +543,5 @@ router.post('/api/study-notes/:studyId/recaps', requireAuth, gate, aiLimiter, as
 });
 
 module.exports = router;
+// For routes/study-shares.js: the same page and the same reads, for a share.
+Object.assign(module.exports, { lessonsFor, sendTeaching, notesModel, sharedBoot, renderNotesPage, messagePage });
